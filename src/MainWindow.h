@@ -1,11 +1,71 @@
+// 
+//  Copyright 2012 Andrew Okin
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+//
+
 #pragma once
-#include <wx/wx.h>
-#include <wx/listctrl.h>
+#include "includes.h"
 
-#include <boost/filesystem.hpp>
 
-#include "InstIconList.h"
-#include "Instance.h"
+//const wxString tbarIconPrefix = _T("resources/toolbar/");
+
+class MainWindow : public wxFrame
+{
+public:
+	MainWindow(void);
+	~MainWindow(void);
+
+	// Toolbar
+	void OnAddInstClicked(wxCommandEvent& event);
+	void OnViewFolderClicked(wxCommandEvent& event);
+	void OnRefreshClicked(wxCommandEvent& event);
+
+	void OnSettingsClicked(wxCommandEvent& event);
+	void OnCheckUpdateClicked(wxCommandEvent& event);
+
+	void OnHelpClicked(wxCommandEvent& event);
+	void OnAboutClicked(wxCommandEvent& event);
+
+
+	// Instance menu
+	void OnPlayClicked(wxCommandEvent& event);
+
+	void OnRenameClicked(wxCommandEvent& event);
+	void OnChangeIconClicked(wxCommandEvent& event);
+	void OnNotesClicked(wxCommandEvent& event);
+
+	void OnManageSavesClicked(wxCommandEvent& event);
+	void OnEditModsClicked(wxCommandEvent& event);
+	void OnRebuildJarClicked(wxCommandEvent& event);
+	void OnViewInstFolderClicked(wxCommandEvent& event);
+
+	void OnDeleteClicked(wxCommandEvent& event);
+
+	DECLARE_EVENT_TABLE()
+
+protected:
+	wxListCtrl *instListCtrl;
+
+	// An unordered map to map icon keys to their icon list indices.
+	InstIconList *instIcons;
+	void LoadInstIconList(wxString customIconDirName = _T("icons"));
+
+	void LoadInstanceList(boost::filesystem::path instDir = settings.instanceDir);
+
+private:
+	void NotImplemented();
+};
 
 enum
 {
@@ -19,28 +79,47 @@ enum
 
 	ID_Help,
 	ID_About,
+
+
+	ID_Play,
+
+	ID_Rename,
+	ID_ChangeIcon,
+	ID_Notes,
+
+	ID_ManageSaves,
+	ID_EditMods,
+	ID_RebuildJar,
+	ID_ViewInstFolder,
+
+	ID_DeleteInst,
 };
 
-//const wxString tbarIconPrefix = _T("resources/toolbar/");
+BEGIN_EVENT_TABLE(MainWindow, wxFrame)
+	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)
+	EVT_TOOL(ID_ViewFolder, MainWindow::OnViewFolderClicked)
+	EVT_TOOL(ID_Refresh, MainWindow::OnRefreshClicked)
 
-class MainWindow : public wxFrame
-{
-public:
-	MainWindow(void);
-	~MainWindow(void);
+	EVT_TOOL(ID_Settings, MainWindow::OnSettingsClicked)
+	EVT_TOOL(ID_CheckUpdate, MainWindow::OnCheckUpdateClicked)
 
-protected:
-	wxListCtrl *instListCtrl;
+	EVT_TOOL(ID_Help, MainWindow::OnHelpClicked)
+	EVT_TOOL(ID_About, MainWindow::OnAboutClicked)
 
-	// An unordered map to map icon keys to their icon list indices.
-	InstIconList *instIcons;
-	void LoadInstIconList(wxString customIconDirName = _T("icons"));
 
-	void LoadInstanceList(boost::filesystem::path instDir);
+	EVT_MENU(ID_Play, MainWindow::OnPlayClicked)
 
-private:
+	EVT_MENU(ID_Rename, MainWindow::OnRenameClicked)
+	EVT_MENU(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
+	EVT_MENU(ID_Notes, MainWindow::OnNotesClicked)
 
-};
+	EVT_MENU(ID_ManageSaves, MainWindow::OnManageSavesClicked)
+	EVT_MENU(ID_EditMods, MainWindow::OnEditModsClicked)
+	EVT_MENU(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
+	EVT_MENU(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
+
+	EVT_MENU(ID_DeleteInst, MainWindow::OnDeleteClicked)
+END_EVENT_TABLE()
 
 class MultiMC : public wxApp
 {

@@ -1,3 +1,19 @@
+// 
+//  Copyright 2012 Andrew Okin
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+//
+
 #include "Instance.h"
 
 const char cfgFileName[] = "instance.cfg";
@@ -71,7 +87,7 @@ void InstConfig::Load(fs::path &filename)
 	ptree pt;
 //#endif
 
-	read_ini((char *)filename.native().c_str(), pt);
+	read_ini(filename.string(), pt);
 
 	name = pt.get<std::string>("name", "Unnamed Instance");
 	iconKey = pt.get<std::string>("iconKey", "default");
@@ -91,7 +107,7 @@ void InstConfig::Save(fs::path &filename)
 	pt.put<bool>("NeedsRebuild", needsRebuild);
 	pt.put<bool>("AskUpdate", askUpdate);
 
-	write_ini((char *)filename.native().c_str(), pt);
+	write_ini(filename.string(), pt);
 }
 
 void InstConfig::LoadXML(fs::path &filename)
@@ -99,7 +115,7 @@ void InstConfig::LoadXML(fs::path &filename)
 	using boost::property_tree::ptree;
 	ptree pt;
 
-	read_xml((char *)filename.native().c_str(), pt);
+	read_xml(filename.string(), pt);
 
 	name = pt.get<std::string>("instance.name", "Unnamed Instance");
 	iconKey = pt.get<std::string>("instance.iconKey", "default");

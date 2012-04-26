@@ -4,9 +4,13 @@ project (MultiMC)
 # Set the path where CMake will look for modules.
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 
+
 # Set the sources and headers variables.
 file(GLOB_RECURSE SRCS "*.cpp")
+MESSAGE(STATUS "** Found source files: ${SRCS}")
+
 file(GLOB_RECURSE INCS "*.h")
+MESSAGE(STATUS "** Found header files: ${INCS}")
 
 # Find wxWidgets.
 MESSAGE(STATUS "** Finding wxWidgets")

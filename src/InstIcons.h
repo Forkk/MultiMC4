@@ -8,9 +8,7 @@
 	Macros: yes
 	Const: yes
 */
-
-#ifndef _WXINCLUDE_INSTICONS_H_
-#define _WXINCLUDE_INSTICONS_H_
+#pragma once
 
 #include "wx/wx.h"
 #include "wx/mstream.h"
@@ -1074,6 +1072,4 @@ static const unsigned char tnt[] = {
 0x36, 0x80, 0xE9, 0x12, 0xA2, 0x3E, 0x00, 0x00, 0x00, 0x00, 
 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
 };
-
-#endif
 
