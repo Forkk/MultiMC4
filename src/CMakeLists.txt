@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 project (MultiMC)
 
 # Set the path where CMake will look for modules.
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
+#set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 
 
 # Set the sources and headers variables.
@@ -14,14 +14,14 @@ MESSAGE(STATUS "** Found header files: ${INCS}")
 
 # Find wxWidgets.
 MESSAGE(STATUS "** Finding wxWidgets")
-find_package(wxWidgets COMPONENTS core base REQUIRED)
+find_package(wxWidgets REQUIRED core base)
 MESSAGE(STATUS "** wxWidgets Root: ${wxWidgets_ROOT_DIR}")
 MESSAGE(STATUS "** wxWidgets Configuration: ${wxWidgets_CONFIGURATION}")
 
 # Find boost.
 set(Boost_USE_STATIC_LIBS ON)
 MESSAGE(STATUS "** Finding Boost...")
-find_package(Boost 1.49.0 COMPONENTS system filesystem REQUIRED)
+find_package(Boost 1.46.0 COMPONENTS system filesystem REQUIRED)
 MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
 MESSAGE(STATUS "** Boost Libraries: ${Boost_LIBRARY_DIRS}")
 

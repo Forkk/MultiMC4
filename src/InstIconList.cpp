@@ -54,26 +54,26 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		Add(builtInIcon.image, builtInIcon.key);
 	}
 
-	namespace fs = boost::filesystem;
-
-	fs::path iconDir(customIconDirName.c_str());
-	fs::directory_iterator endIter;
-	
-	if (fs::exists(iconDir) && fs::is_directory(iconDir))
-	{
-		for (fs::directory_iterator iter(iconDir); iter != endIter; iter++)
-		{
-			if (fs::is_regular_file(iter->status()))
-			{
-				wxImage *image = new wxImage(iter->path().c_str());
-
-				wxString iconKey = iter->path().filename().replace_extension("").c_str();
-				(*indexMap)[iconKey] = imageList->Add(*image);
-
-				delete image;
-			}
-		}
-	}
+//	namespace fs = boost::filesystem;
+//
+//	fs::path iconDir(customIconDirName.c_str());
+//	fs::directory_iterator endIter;
+//	
+//	if (fs::exists(iconDir) && fs::is_directory(iconDir))
+//	{
+//		for (fs::directory_iterator iter(iconDir); iter != endIter; iter++)
+//		{
+//			if (fs::is_regular_file(iter->status()))
+//			{
+//				wxImage *image = new wxImage(iter->path().string());
+//
+//				wxString iconKey = iter->path().filename().replace_extension("").c_str();
+//				(*indexMap)[iconKey] = imageList->Add(*image);
+//
+//				delete image;
+//			}
+//		}
+//	}
 }
 
 InstIconList::~InstIconList(void)

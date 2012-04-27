@@ -45,8 +45,8 @@ void Instance::Save()
 	{
 		fs::create_directories(GetRootDir());
 	}
-
-	config.Save(rootDir / cfgFileName);
+	
+	config.Save(GetConfigPath());
 }
 
 void Instance::Load()
@@ -80,9 +80,14 @@ fs::path Instance::GetRootDir()
 	return rootDir;
 }
 
+fs::path Instance::GetConfigPath()
+{
+	return rootDir / cfgFileName;
+}
+
 
 // InstConfig
-void InstConfig::Load(fs::path &filename)
+void InstConfig::Load(const fs::path &filename)
 {
 	using boost::property_tree::ptree;
 
@@ -101,7 +106,7 @@ void InstConfig::Load(fs::path &filename)
 	askUpdate = pt.get<bool>("AskUpdate", true);
 }
 
-void InstConfig::Save(fs::path &filename)
+void InstConfig::Save(const fs::path &filename)
 {
 	using boost::property_tree::ptree;
 	ptree pt;

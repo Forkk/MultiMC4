@@ -29,8 +29,8 @@ struct InstConfig
 	bool needsRebuild;
 	bool askUpdate;
 
-	void Load(fs::path &filename);
-	void Save(fs::path &filename);
+	void Load(const fs::path &filename);
+	void Save(const fs::path &filename);
 
 	void LoadXML(fs::path &filename);
 };
@@ -45,12 +45,13 @@ public:
 	void Load();
 
 	fs::path GetRootDir();
+	fs::path GetConfigPath();
 
-	wxString GetName() { return config.name.c_str(); }
-	void SetName(wxString name) { config.name = name.c_str(); }
+	wxString GetName() { return wxString(config.name.c_str(), wxConvUTF8); }
+	void SetName(wxString name) { config.name = std::string(name.mb_str()); }
 
-	wxString GetIconKey() { return config.iconKey; }
-	void SetIconKey(wxString iconKey) { config.iconKey = iconKey; }
+	wxString GetIconKey() { return wxString(config.iconKey.c_str(), wxConvUTF8); }
+	void SetIconKey(wxString iconKey) { config.iconKey = std::string(iconKey.mb_str()); }
 
 protected:
 	InstConfig config;

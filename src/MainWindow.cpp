@@ -50,19 +50,19 @@ MainWindow::MainWindow(void)
 	mainToolBar->Realize();
 
 	// Build the instance context menu
-	instMenu = new wxMenu("Instance Menu");
-	instMenu->Append(ID_Play, "&Play", "Launch the instance.");
+	instMenu = new wxMenu(_T("Instance Menu"));
+	instMenu->Append(ID_Play, _T("&Play"), _T("Launch the instance."));
 	instMenu->AppendSeparator();
-	instMenu->Append(ID_Rename, "&Rename", "Change the instance's name.");
-	instMenu->Append(ID_ChangeIcon, "&Change Icon", "Change this instance's icon.");
-	instMenu->Append(ID_Notes, "&Notes", "View / edit this instance's notes.");
+	instMenu->Append(ID_Rename, _T("&Rename"), _T("Change the instance's name."));
+	instMenu->Append(ID_ChangeIcon, _T("&Change Icon"), _T("Change this instance's icon."));
+	instMenu->Append(ID_Notes, _T("&Notes"), _T("View / edit this instance's notes."));
 	instMenu->AppendSeparator();
-	instMenu->Append(ID_ManageSaves, "&Manage Saves", "Backup / restore your saves.");
-	instMenu->Append(ID_EditMods, "&Edit Mods", "Install or remove mods.");
-	instMenu->Append(ID_RebuildJar, "Re&build Jar", "Reinstall all the instance's jar mods.");
-	instMenu->Append(ID_ViewInstFolder, "&View Folder", "Open the instance's folder.");
+	instMenu->Append(ID_ManageSaves, _T("&Manage Saves"), _T("Backup / restore your saves."));
+	instMenu->Append(ID_EditMods, _T("&Edit Mods"), _T("Install or remove mods."));
+	instMenu->Append(ID_RebuildJar, _T("Re&build Jar"), _T("Reinstall all the instance's jar mods."));
+	instMenu->Append(ID_ViewInstFolder, _T("&View Folder"), _T("Open the instance's folder."));
 	instMenu->AppendSeparator();
-	instMenu->Append(ID_DeleteInst, "Delete", "Delete this instance.");
+	instMenu->Append(ID_DeleteInst, _T("Delete"), _T("Delete this instance."));
 
 	// Create the status bar
 	CreateStatusBar(1);
@@ -135,18 +135,19 @@ Instance* MainWindow::GetLinkedInst(int index)
 
 Instance* MainWindow::GetSelectedInst()
 {
-	long item = -1;
-	while (true)
-	{
-		item = instListCtrl
-	}
+	//long item = -1;
+	//while (true)
+	//{
+		// item = instListCtrl;
+	//}
+	return NULL;
 }
 
 
 // Toolbar
 void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 {
-	wxTextEntryDialog newInstDialog(this, "Instance name:", "Add new instance");
+	wxTextEntryDialog newInstDialog(this, _T("Instance name:"), _T("Add new instance"));
 	newInstDialog.ShowModal();
 
 	wxString newInstName = newInstDialog.GetValue();
@@ -167,8 +168,8 @@ void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
 	cmd.append(settings.instanceDir.string());
 	system(cmd.c_str());
 #else
-	wxMessageBox("This feature is not supported by your operating system.",
-		"Error", wxOK | wxCENTER, this);
+	wxMessageBox(_T("This feature is not supported by your operating system."),
+		_T("Error"), wxOK | wxCENTER, this);
 #endif
 }
 
@@ -179,7 +180,7 @@ void MainWindow::OnRefreshClicked(wxCommandEvent& event)
 
 void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 {
-	Instance *inst = GetLinkedInst(instListCtrl->getsel	)
+	//Instance *inst = GetLinkedInst(instListCtrl->getsel	)
 }
 
 void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
@@ -200,7 +201,8 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 
 void MainWindow::NotImplemented()
 {
-	wxMessageBox("This feature has not yet been implemented.", "Not implemented");
+	wxMessageBox(_T("This feature has not yet been implemented."), 
+		_T("Not implemented"));
 }
 
 
