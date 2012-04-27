@@ -49,6 +49,21 @@ MainWindow::MainWindow(void)
 
 	mainToolBar->Realize();
 
+	// Build the instance context menu
+	instMenu = new wxMenu("Instance Menu");
+	instMenu->Append(ID_Play, "&Play", "Launch the instance.");
+	instMenu->AppendSeparator();
+	instMenu->Append(ID_Rename, "&Rename", "Change the instance's name.");
+	instMenu->Append(ID_ChangeIcon, "&Change Icon", "Change this instance's icon.");
+	instMenu->Append(ID_Notes, "&Notes", "View / edit this instance's notes.");
+	instMenu->AppendSeparator();
+	instMenu->Append(ID_ManageSaves, "&Manage Saves", "Backup / restore your saves.");
+	instMenu->Append(ID_EditMods, "&Edit Mods", "Install or remove mods.");
+	instMenu->Append(ID_RebuildJar, "Re&build Jar", "Reinstall all the instance's jar mods.");
+	instMenu->Append(ID_ViewInstFolder, "&View Folder", "Open the instance's folder.");
+	instMenu->AppendSeparator();
+	instMenu->Append(ID_DeleteInst, "Delete", "Delete this instance.");
+
 	// Create the status bar
 	CreateStatusBar(1);
 
@@ -87,20 +102,43 @@ void MainWindow::LoadInstanceList(boost::filesystem::path instDir)
 	namespace fs = boost::filesystem;
 
 	instListCtrl->ClearAll();
+	instIndices.clear();
 
 	fs::directory_iterator endIter;
 
 	if (fs::exists(instDir) && fs::is_directory(instDir))
 	{
-		for (fs::directory_iterator iter; iter != endIter; iter++)
+		for (fs::directory_iterator iter(instDir); iter != endIter; iter++)
 		{
 			fs::path file = iter->path();
 
 			if (IsValidInstance(file))
 			{
 				Instance *inst = new Instance(file);
+				AddInstance(inst);
 			}
 		}
+	}
+}
+
+void MainWindow::AddInstance(Instance *inst)
+{
+	int instIndex = instListCtrl->GetItemCount();
+	instListCtrl->InsertItem(instIndex, inst->GetName(), 
+		(*instIcons)[inst->GetIconKey()]);
+}
+
+Instance* MainWindow::GetLinkedInst(int index)
+{
+	return instIndices[index];
+}
+
+Instance* MainWindow::GetSelectedInst()
+{
+	long item = -1;
+	while (true)
+	{
+		item = instListCtrl
 	}
 }
 
@@ -108,7 +146,14 @@ void MainWindow::LoadInstanceList(boost::filesystem::path instDir)
 // Toolbar
 void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 {
-	NotImplemented();
+	wxTextEntryDialog newInstDialog(this, "Instance name:", "Add new instance");
+	newInstDialog.ShowModal();
+
+	wxString newInstName = newInstDialog.GetValue();
+	fs::path instDir = settings.instanceDir / newInstName.c_str();
+
+	Instance *inst = new Instance(instDir, newInstName);
+	inst->Save();
 }
 
 void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
@@ -134,7 +179,7 @@ void MainWindow::OnRefreshClicked(wxCommandEvent& event)
 
 void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 {
-	NotImplemented();
+	Instance *inst = GetLinkedInst(instListCtrl->getsel	)
 }
 
 void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
@@ -195,7 +240,7 @@ void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
 	NotImplemented();
 }
 
-void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
+void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
 {
 	NotImplemented();
 }
@@ -211,6 +256,11 @@ bool MultiMC::OnInit()
 {
 	if (!InitAppSettings())
 		return false;
+
+	if (!fs::exists(settings.instanceDir))
+	{
+		fs::create_directories(settings.instanceDir);
+	}
 
 	MainWindow *mainWin = new MainWindow();
 	mainWin->Show();

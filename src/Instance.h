@@ -49,8 +49,8 @@ public:
 	wxString GetName() { return config.name.c_str(); }
 	void SetName(wxString name) { config.name = name.c_str(); }
 
-	wxString GetIconKey();
-	void SetIconKey(wxString iconKey);
+	wxString GetIconKey() { return config.iconKey; }
+	void SetIconKey(wxString iconKey) { config.iconKey = iconKey; }
 
 protected:
 	InstConfig config;

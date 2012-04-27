@@ -57,11 +57,20 @@ public:
 protected:
 	wxListCtrl *instListCtrl;
 
+	wxMenu *instMenu;
+
 	// An unordered map to map icon keys to their icon list indices.
 	InstIconList *instIcons;
 	void LoadInstIconList(wxString customIconDirName = _T("icons"));
 
 	void LoadInstanceList(boost::filesystem::path instDir = settings.instanceDir);
+
+	void AddInstance(Instance *inst);
+
+	Instance* GetLinkedInst(int index);
+	Instance* GetSelectedInst();
+
+	boost::unordered_map<int, Instance*> instIndices;
 
 private:
 	void NotImplemented();

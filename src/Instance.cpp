@@ -41,6 +41,11 @@ Instance::~Instance(void)
 
 void Instance::Save()
 {
+	if (!fs::exists(GetRootDir()))
+	{
+		fs::create_directories(GetRootDir());
+	}
+
 	config.Save(rootDir / cfgFileName);
 }
 
