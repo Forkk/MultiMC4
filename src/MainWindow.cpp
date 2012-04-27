@@ -50,7 +50,7 @@ MainWindow::MainWindow(void)
 	mainToolBar->Realize();
 
 	// Build the instance context menu
-	instMenu = new wxMenu(_T("Instance Menu"));
+	instMenu = new wxMenu();
 	instMenu->Append(ID_Play, _T("&Play"), _T("Launch the instance."));
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_Rename, _T("&Rename"), _T("Change the instance's name."));
@@ -73,7 +73,7 @@ MainWindow::MainWindow(void)
 	panel->SetSizer(box);
 
 	// Create the instance list
-	instListCtrl = new wxListCtrl(panel, -1);
+	instListCtrl = new wxListCtrl(panel, ID_InstListCtrl);
 	box->Add(instListCtrl, 1, wxEXPAND);
 
 	// Load instance icons
@@ -102,7 +102,7 @@ void MainWindow::LoadInstanceList(boost::filesystem::path instDir)
 	namespace fs = boost::filesystem;
 
 	instListCtrl->ClearAll();
-	instIndices.clear();
+	instItems.clear();
 
 	fs::directory_iterator endIter;
 
@@ -123,23 +123,29 @@ void MainWindow::LoadInstanceList(boost::filesystem::path instDir)
 
 void MainWindow::AddInstance(Instance *inst)
 {
-	int instIndex = instListCtrl->GetItemCount();
-	instListCtrl->InsertItem(instIndex, inst->GetName(), 
-		(*instIcons)[inst->GetIconKey()]);
+	long item = instListCtrl->InsertItem(instListCtrl->GetItemCount(), 
+		inst->GetName(), (*instIcons)[inst->GetIconKey()]);
+	instItems[item] = inst;
 }
 
-Instance* MainWindow::GetLinkedInst(int index)
+Instance* MainWindow::GetLinkedInst(long item)
 {
-	return instIndices[index];
+	return instItems[item];
 }
 
 Instance* MainWindow::GetSelectedInst()
 {
-	//long item = -1;
-	//while (true)
-	//{
-		// item = instListCtrl;
-	//}
+	long item = -1;
+	while (true)
+	{
+		item = instListCtrl->GetNextItem(item, wxLIST_NEXT_ALL, 
+			 wxLIST_STATE_SELECTED);
+
+		if (item == -1)
+			break;
+
+		return GetLinkedInst(item);
+	}
 	return NULL;
 }
 
@@ -163,13 +169,10 @@ void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
 	std::string cmd("explorer ");
 	cmd.append(settings.instanceDir.string());
 	system(cmd.c_str());
-#elif defined LINUX
-	std::string cmd("xdg-open ");
+#else
+	std::string cmd("open ");
 	cmd.append(settings.instanceDir.string());
 	system(cmd.c_str());
-#else
-	wxMessageBox(_T("This feature is not supported by your operating system."),
-		_T("Error"), wxOK | wxCENTER, this);
 #endif
 }
 
@@ -209,7 +212,8 @@ void MainWindow::NotImplemented()
 // Instance menu
 void MainWindow::OnPlayClicked(wxCommandEvent& event)
 {
-	NotImplemented();
+	Instance *inst = GetSelectedInst();
+	inst->SetName(_T("Hello World"));
 }
 
 void MainWindow::OnRenameClicked(wxCommandEvent& event)
@@ -250,6 +254,11 @@ void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
 void MainWindow::OnDeleteClicked(wxCommandEvent& event)
 {
 	NotImplemented();
+}
+
+void MainWindow::OnInstMenuOpened(wxListEvent& event)
+{
+	PopupMenu(instMenu, event.GetPoint());
 }
 
 

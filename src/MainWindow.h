@@ -52,6 +52,10 @@ public:
 
 	void OnDeleteClicked(wxCommandEvent& event);
 
+
+	// Other events
+	void OnInstMenuOpened(wxListEvent& event);
+
 	DECLARE_EVENT_TABLE()
 
 protected:
@@ -67,10 +71,11 @@ protected:
 
 	void AddInstance(Instance *inst);
 
-	Instance* GetLinkedInst(int index);
+	Instance* GetLinkedInst(long item);
+
 	Instance* GetSelectedInst();
 
-	boost::unordered_map<int, Instance*> instIndices;
+	boost::unordered_map<long, Instance*> instItems;
 
 private:
 	void NotImplemented();
@@ -78,6 +83,7 @@ private:
 
 enum
 {
+	// Toolbar
 	ID_AddInst = 1,
 	ID_ViewFolder,
 	ID_ModsFolder,
@@ -89,7 +95,7 @@ enum
 	ID_Help,
 	ID_About,
 
-
+	// Instance menu
 	ID_Play,
 
 	ID_Rename,
@@ -102,6 +108,9 @@ enum
 	ID_ViewInstFolder,
 
 	ID_DeleteInst,
+
+	// Other
+	ID_InstListCtrl,
 };
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
@@ -128,6 +137,8 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
 
 	EVT_MENU(ID_DeleteInst, MainWindow::OnDeleteClicked)
+
+	EVT_LIST_ITEM_RIGHT_CLICK(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
 END_EVENT_TABLE()
 
 class MultiMC : public wxApp
