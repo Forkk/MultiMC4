@@ -165,15 +165,26 @@ void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 
 void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
 {
-#if defined WIN32
-	std::string cmd("explorer ");
-	cmd.append(settings.instanceDir.string());
-	system(cmd.c_str());
-#else
-	std::string cmd("open ");
-	cmd.append(settings.instanceDir.string());
-	system(cmd.c_str());
-#endif
+	switch (wxPlatformInfo.GetOperatingSystemId())
+	{
+	case wxOS_WINDOWS:
+		std::string cmd("explorer ");
+		cmd.append(settings.instanceDir.string());
+		system(cmd.c_str());
+		break;
+
+	case wxOS_MAC_OS:
+		std::string cmd("open ");
+		cmd.append(settings.instanceDir.string());
+		system(cmd.c_str());
+		break;
+
+	case wxOS_UNIX_LINUX:
+		std::string cmd("xdg-open ");
+		cmd.append(settings.instanceDir.string());
+		system(cmd.c_str());
+		break;
+	}
 }
 
 void MainWindow::OnRefreshClicked(wxCommandEvent& event)
