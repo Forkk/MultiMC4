@@ -90,12 +90,7 @@ fs::path Instance::GetConfigPath()
 void InstConfig::Load(const fs::path &filename)
 {
 	using boost::property_tree::ptree;
-
-//#ifdef WIN32
-//	boost::property_tree::basic_ptree<TCHAR, std::string> pt;
-//#else
 	ptree pt;
-//#endif
 
 	read_ini(filename.string(), pt);
 

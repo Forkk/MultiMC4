@@ -153,10 +153,8 @@ Instance* MainWindow::GetSelectedInst()
 // Toolbar
 void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 {
-	wxTextEntryDialog newInstDialog(this, _T("Instance name:"), _T("Add new instance"));
-	newInstDialog.ShowModal();
-
-	wxString newInstName = newInstDialog.GetValue();
+	wxString newInstName = wxGetTextFromUser(_T("Instance name:"), 
+		_T("Create new instance"), wxEmptyString, this);
 	fs::path instDir = settings.instanceDir / newInstName.c_str();
 
 	Instance *inst = new Instance(instDir, newInstName);
@@ -165,26 +163,7 @@ void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 
 void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
 {
-	switch (wxPlatformInfo.GetOperatingSystemId())
-	{
-	case wxOS_WINDOWS:
-		std::string cmd("explorer ");
-		cmd.append(settings.instanceDir.string());
-		system(cmd.c_str());
-		break;
-
-	case wxOS_MAC_OS:
-		std::string cmd("open ");
-		cmd.append(settings.instanceDir.string());
-		system(cmd.c_str());
-		break;
-
-	case wxOS_UNIX_LINUX:
-		std::string cmd("xdg-open ");
-		cmd.append(settings.instanceDir.string());
-		system(cmd.c_str());
-		break;
-	}
+	Utils::OpenFile(settings.instanceDir);
 }
 
 void MainWindow::OnRefreshClicked(wxCommandEvent& event)
@@ -195,7 +174,10 @@ void MainWindow::OnRefreshClicked(wxCommandEvent& event)
 void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 {
 	SettingsDialog *settingsDlg = new SettingsDialog(this, -1);
-	settingsDlg->ShowModal();
+	int response = settingsDlg->ShowModal();
+
+	if (response == wxID_OK)
+		settingsDlg->ApplySettings();
 }
 
 void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)

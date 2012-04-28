@@ -2,6 +2,7 @@
 #include <string>
 
 #include <wx/wx.h>
+#include <wx/utils.h>
 #include <wx/imaglist.h>
 #include <wx/listctrl.h>
 #include <wx/notebook.h>
@@ -22,3 +23,6 @@
 
 //#include "MainWindow.h"
 #include "SettingsDialog.h"
+#include "AppUtils.h"
+
+namespace fs = boost::filesystem;

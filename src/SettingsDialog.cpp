@@ -82,10 +82,10 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	memoryBox->Add(minMemBox, 0, wxALL, 4);
 	wxStaticText *minMemLabel = new wxStaticText(advancedPanel, -1, 
 		_T("Minimum memory allocation: "));
-	minMemBox->Add(minMemLabel);
+	minMemBox->Add(minMemLabel, 1, wxEXPAND);
 	minMemorySpin = new wxSpinCtrl(advancedPanel, -1);
 	minMemorySpin->SetMin(256);
-	minMemorySpin->SetMax(65536);
+	minMemorySpin->SetMax(Utils::GetMaxAllowedMemAlloc());
 	minMemBox->Add(minMemorySpin);
 
 	// Max memory
@@ -93,12 +93,11 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	memoryBox->Add(maxMemBox, 0, wxALL, 4);
 	wxStaticText *maxMemLabel = new wxStaticText(advancedPanel, -1, 
 		_T("Maximum memory allocation: "));
-	maxMemBox->Add(maxMemLabel);
+	maxMemBox->Add(maxMemLabel, 1, wxEXPAND);
 	maxMemorySpin = new wxSpinCtrl(advancedPanel, -1);
 	maxMemorySpin->SetMin(512);
-	maxMemorySpin->SetMax(65536);
+	maxMemorySpin->SetMax(Utils::GetMaxAllowedMemAlloc());
 	maxMemBox->Add(maxMemorySpin);
-
 
 	// Java path
 	wxStaticBoxSizer *javaPathBox = new wxStaticBoxSizer(wxVERTICAL, 
@@ -106,6 +105,7 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	advancedBox->Add(javaPathBox, 0, wxALL, 4);
 	javaPathTextBox = new wxTextCtrl(advancedPanel, -1);
 	javaPathBox->Add(javaPathTextBox, 0, wxALL, 4);
+
 
 	// Buttons
 	wxSizer *btnBox = CreateButtonSizer(wxOK | wxCANCEL);
@@ -128,12 +128,41 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 
 	s.autoUpdate = autoUpdateCheck->IsChecked();
 
-	// TODO Instance dir changing
+	fs::path newInstDir = instDirTextBox->GetValue().c_str();
+	if (s.instanceDir != newInstDir)
+	{
+		fs::path oldInstDir = s.instanceDir;
+
+		int response = wxMessageBox(_T("You've changed your instance \
+			directory, would you like to transfer all of your instances?"),
+			_T("Instance directory changed."), 
+			wxYES | wxNO | wxCANCEL | wxCENTER, this);
+
+	RetryTransfer:
+		if (response != wxID_CANCEL)
+		{
+			s.instanceDir = newInstDir;
+		}
+
+		if (response == wxID_OK)
+		{
+			try
+			{
+			}
+			catch (fs::filesystem_error ex)
+			{
+				response = wxMessageBox(_T("Failed to transfer \
+					instances.\nWould you like to retry?"), _T("Error"),
+					wxOK | wxCANCEL, this);
+				goto RetryTransfer;
+			}
+		}
+	}
 
 	s.minMemAlloc = minMemorySpin->GetValue();
 	s.maxMemAlloc = maxMemorySpin->GetValue();
 
-	//s.javaPath = javaPathTextBox->GetValue().c_str();
+	s.javaPath = javaPathTextBox->GetValue().c_str();
 }
 
 void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
