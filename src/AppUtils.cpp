@@ -22,22 +22,22 @@ void Utils::OpenFile(fs::path path)
 	wxOperatingSystemId osID = wxPlatformInfo::Get().GetOperatingSystemId();
 	if ((osID & wxOS_WINDOWS) == wxOS_WINDOWS)
 	{
-		cmd = "explorer ";
+		cmd = _("explorer ");
 	}
 	else if ((osID & wxOS_MAC) == wxOS_MAC)
 	{
-		cmd = "open ";
+		cmd = _("open ");
 	}
 	else if ((osID & wxOS_UNIX_LINUX) == wxOS_UNIX_LINUX)
 	{
-		cmd = "xdg-open ";
+		cmd = _("xdg-open ");
 	}
 	else
 	{
 		wxMessageBox(_T("This feature is not supported by your OS."), _T("Error"));
 		return;
 	}
-	cmd.append(settings.instanceDir.string());
+	cmd.append(wxString(settings.instanceDir.string().c_str(), wxConvUTF8));
 	wxExecute(cmd);
 }
 
