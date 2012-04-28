@@ -183,7 +183,8 @@ void MainWindow::OnRefreshClicked(wxCommandEvent& event)
 
 void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 {
-	//Instance *inst = GetLinkedInst(instListCtrl->getsel	)
+	SettingsDialog *settingsDlg = new SettingsDialog(this, -1);
+	settingsDlg->ShowModal();
 }
 
 void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)

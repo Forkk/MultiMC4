@@ -4,6 +4,10 @@
 #include <wx/wx.h>
 #include <wx/imaglist.h>
 #include <wx/listctrl.h>
+#include <wx/notebook.h>
+#include <wx/statbox.h>
+#include <wx/tglbtn.h>
+#include <wx/spinctrl.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
@@ -15,3 +19,6 @@
 #include "InstIconList.h"
 #include "Instance.h"
 #include "AppSettings.h"
+
+//#include "MainWindow.h"
+#include "SettingsDialog.h"
