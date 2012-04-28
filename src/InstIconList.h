@@ -22,7 +22,8 @@ const wxString instIconPrefix = _T("icons/inst/");
 class InstIconList
 {
 public:
-	InstIconList(int width, int height, wxString customIconDir = _T("icons"));
+	InstIconList(int width = 32, int height = 32, 
+		wxString customIconDir = _T("icons"));
 	~InstIconList(void);
 
 	int Add(wxImage image, wxString &key);

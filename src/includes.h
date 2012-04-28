@@ -18,6 +18,7 @@
 #include <string>
 
 #include <wx/wx.h>
+#include <wx/mimetype.h>
 #include <wx/utils.h>
 #include <wx/imaglist.h>
 #include <wx/listctrl.h>
@@ -36,6 +37,10 @@
 #include <boost/signal.hpp>
 #include <boost/function.hpp>
 
+namespace fs = boost::filesystem;
+
+#include "AppUtils.h"
+
 #include "InstIconList.h"
 #include "Instance.h"
 #include "AppSettings.h"
@@ -43,6 +48,3 @@
 
 //#include "MainWindow.h"
 #include "SettingsDialog.h"
-#include "AppUtils.h"
-
-namespace fs = boost::filesystem;

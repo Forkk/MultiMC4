@@ -85,6 +85,25 @@ fs::path Instance::GetConfigPath()
 	return rootDir / cfgFileName;
 }
 
+wxString Instance::GetName()
+{
+	return Utils::wxStr(config.name);
+}
+
+void Instance::SetName(wxString name)
+{
+	config.name = Utils::stdStr(name);
+}
+
+wxString Instance::GetIconKey()
+{
+	return Utils::wxStr(config.iconKey);
+}
+
+void Instance::SetIconKey(wxString iconKey)
+{
+	config.iconKey = Utils::stdStr(iconKey);
+}
 
 // InstConfig
 void InstConfig::Load(const fs::path &filename)
