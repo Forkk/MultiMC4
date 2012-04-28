@@ -47,11 +47,11 @@ public:
 	fs::path GetRootDir();
 	fs::path GetConfigPath();
 
-	wxString GetName() { return wxString(config.name.c_str(), wxConvUTF8); }
-	void SetName(wxString name) { config.name = std::string(name.mb_str()); }
+	wxString GetName();
+	void SetName(wxString name);
 
-	wxString GetIconKey() { return wxString(config.iconKey.c_str(), wxConvUTF8); }
-	void SetIconKey(wxString iconKey) { config.iconKey = std::string(iconKey.mb_str()); }
+	wxString GetIconKey();
+	void SetIconKey(wxString iconKey);
 
 protected:
 	InstConfig config;

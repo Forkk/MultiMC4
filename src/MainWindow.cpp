@@ -87,14 +87,14 @@ MainWindow::MainWindow(void)
 
 MainWindow::~MainWindow(void)
 {
-	delete instIcons;
+	
 }
 
 void MainWindow::LoadInstIconList(wxString customIconDirName)
 {
-	instIcons = new InstIconList(32, 32);
+	//instIcons.
 
-	instListCtrl->SetImageList(instIcons->GetImageList(), 0);
+	instListCtrl->SetImageList(instIcons.GetImageList(), 0);
 }
 
 void MainWindow::LoadInstanceList(boost::filesystem::path instDir)
@@ -124,7 +124,7 @@ void MainWindow::LoadInstanceList(boost::filesystem::path instDir)
 void MainWindow::AddInstance(Instance *inst)
 {
 	long item = instListCtrl->InsertItem(instListCtrl->GetItemCount(), 
-		inst->GetName(), (*instIcons)[inst->GetIconKey()]);
+		inst->GetName(), instIcons[inst->GetIconKey()]);
 	instItems[item] = inst;
 }
 

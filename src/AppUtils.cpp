@@ -18,7 +18,7 @@
 
 void Utils::OpenFile(fs::path path)
 {
-	wxString cmd;
+	/*wxString cmd;
 	wxOperatingSystemId osID = wxPlatformInfo::Get().GetOperatingSystemId();
 	if ((osID & wxOS_WINDOWS) == wxOS_WINDOWS)
 	{
@@ -37,8 +37,13 @@ void Utils::OpenFile(fs::path path)
 		wxMessageBox(_T("This feature is not supported by your OS."), _T("Error"));
 		return;
 	}
-	cmd.append(wxString(settings.instanceDir.string().c_str(), wxConvUTF8));
-	wxExecute(cmd);
+	cmd.append(Utils::wxStr(settings.ins));
+	wxExecute(cmd);*/
+	wxMimeTypesManager manager;
+	wxFileType *filetype = manager.GetFileTypeFromExtension(
+		Utils::wxStr(path.extension()));
+	wxString command = filetype->GetOpenCommand(Utils::wxStr(path));
+	wxExecute(command);
 }
 
 int Utils::GetMaxAllowedMemAlloc()
@@ -54,4 +59,24 @@ int Utils::GetMaxAllowedMemAlloc()
 	//	return mem
 	//}
 	return 65536;
+}
+
+wxString Utils::wxStr(fs::path path)
+{
+	return Utils::wxStr(Utils::stdStr(path));
+}
+
+wxString Utils::wxStr(std::string str)
+{
+	return wxString(str.c_str(), wxConvUTF8);
+}
+
+std::string Utils::stdStr(fs::path path)
+{
+	return path.string();
+}
+
+std::string Utils::stdStr(wxString str)
+{
+	return std::string(str.mb_str());
 }

@@ -172,10 +172,10 @@ void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
 
 	autoUpdateCheck->SetValue(s.autoUpdate);
 
-	instDirTextBox->SetValue(wxString(s.instanceDir.string().c_str(), wxConvUTF8));
+	instDirTextBox->SetValue(Utils::wxStr(s.javaPath));
 
 	minMemorySpin->SetValue(s.minMemAlloc);
 	maxMemorySpin->SetValue(s.maxMemAlloc);
 
-	javaPathTextBox->SetValue(wxString(s.javaPath.string().c_str(), wxConvUTF8));
+	javaPathTextBox->SetValue(Utils::wxStr(s.javaPath));
 }

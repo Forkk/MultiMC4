@@ -64,7 +64,7 @@ protected:
 	wxMenu *instMenu;
 
 	// An unordered map to map icon keys to their icon list indices.
-	InstIconList *instIcons;
+	InstIconList instIcons;
 	void LoadInstIconList(wxString customIconDirName = _T("icons"));
 
 	void LoadInstanceList(boost::filesystem::path instDir = settings.instanceDir);
