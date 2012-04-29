@@ -18,7 +18,7 @@
 
 void Utils::OpenFile(fs::path path)
 {
-	/*wxString cmd;
+	wxString cmd;
 	wxOperatingSystemId osID = wxPlatformInfo::Get().GetOperatingSystemId();
 	if ((osID & wxOS_WINDOWS) == wxOS_WINDOWS)
 	{
@@ -37,13 +37,8 @@ void Utils::OpenFile(fs::path path)
 		wxMessageBox(_T("This feature is not supported by your OS."), _T("Error"));
 		return;
 	}
-	cmd.append(Utils::wxStr(settings.ins));
-	wxExecute(cmd);*/
-	wxMimeTypesManager manager;
-	wxFileType *filetype = manager.GetFileTypeFromExtension(
-		Utils::wxStr(path.extension()));
-	wxString command = filetype->GetOpenCommand(Utils::wxStr(path));
-	wxExecute(command);
+	cmd.append(Utils::wxStr(settings.instanceDir));
+	wxExecute(cmd);
 }
 
 int Utils::GetMaxAllowedMemAlloc()

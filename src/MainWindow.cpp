@@ -27,7 +27,6 @@ MainWindow::MainWindow(void)
 	wxToolBar *mainToolBar = CreateToolBar();
 
 	// Load toolbar icons
-	wxInitAllImageHandlers();
 	wxBitmap newInstIcon = wxMEMORY_IMAGE(newinsticon);
 	wxBitmap reloadIcon = wxMEMORY_IMAGE(refreshinsticon);
 	wxBitmap viewFolderIcon = wxMEMORY_IMAGE(viewfoldericon);
@@ -259,6 +258,8 @@ void MainWindow::OnInstMenuOpened(wxListEvent& event)
 // App
 bool MultiMC::OnInit()
 {
+	wxInitAllImageHandlers();
+	
 	if (!InitAppSettings())
 		return false;
 

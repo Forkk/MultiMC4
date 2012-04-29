@@ -6,10 +6,10 @@ project (MultiMC)
 
 
 # Set the sources and headers variables.
-file(GLOB_RECURSE SRCS "*.cpp")
+file(GLOB SRCS "*.cpp")
 MESSAGE(STATUS "** Found source files: ${SRCS}")
 
-file(GLOB_RECURSE INCS "*.h")
+file(GLOB INCS "*.h")
 MESSAGE(STATUS "** Found header files: ${INCS}")
 
 # Find wxWidgets.
