@@ -29,6 +29,7 @@
 #include <wx/filesys.h>
 #include <wx/filefn.h>
 #include <wx/config.h>
+#include <wx/dir.h>
 
 #include <boost/pending/queue.hpp>
 #include <boost/format.hpp>

@@ -101,16 +101,27 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 {
 	instListCtrl->ClearAll();
 	instItems.clear();
-	
-	BOOST_FOREACH(wxString dir, instDir.GetDirs())
+
+	wxDir dir(instDir.GetFullPath());
+	if (!dir.IsOpened())
 	{
-		wxFileName dirName(dir, wxEmptyString);
-		
+		return;
+	}
+
+	wxString subFolder;
+	bool cont = dir.GetFirst(&subFolder, wxEmptyString, wxDIR_DIRS);
+	while (cont)
+	{
+		wxFileName dirName(instDir.GetFullPath(), subFolder);
 		if (IsValidInstance(dirName))
 		{
-			Instance *inst = new Instance(dirName);
-			AddInstance(inst);
+			Instance *inst = Instance::LoadInstance(dirName);
+			if (inst != NULL)
+			{
+				AddInstance(inst);
+			}
 		}
+		cont = dir.GetNext(&subFolder);
 	}
 
 // 	fs::directory_iterator endIter;

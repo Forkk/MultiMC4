@@ -38,7 +38,7 @@ void Utils::OpenFile(wxFileName path)
 		wxMessageBox(_T("This feature is not supported by your OS."), _T("Error"));
 		return;
 	}
-	cmd.append(settings.instanceDir.GetPath());
+	cmd.append(settings.instanceDir.GetFullPath());
 	wxExecute(cmd);
 }
 

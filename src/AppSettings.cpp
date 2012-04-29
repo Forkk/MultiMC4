@@ -32,9 +32,9 @@ void AppSettings::Save(const wxFileName &filename /* = iniConfigFile */)
 	pt.put<int>("MinMemoryAlloc", minMemAlloc);
 	pt.put<int>("MaxMemoryAlloc", maxMemAlloc);
 	
-	pt.put<std::string>("JavaPath", Utils::stdStr(javaPath.GetPath()));
-	pt.put<std::string>("InstanceDir", Utils::stdStr(instanceDir.GetPath()));
-	pt.put<std::string>("ModsDir", Utils::stdStr(modsDir.GetPath()));
+	pt.put<std::string>("JavaPath", Utils::stdStr(javaPath.GetFullPath()));
+	pt.put<std::string>("InstanceDir", Utils::stdStr(instanceDir.GetFullPath()));
+	pt.put<std::string>("ModsDir", Utils::stdStr(modsDir.GetFullPath()));
 	
 	pt.put<bool>("ShowConsole", showConsole);
 	pt.put<bool>("AutoCloseConsole", autoCloseConsole);

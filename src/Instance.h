@@ -19,28 +19,15 @@
 
 bool IsValidInstance(wxFileName rootDir);
 
-struct InstConfig
-{
-	std::string name;
-	std::string iconKey;
-	std::string notes;
-	bool needsRebuild;
-	bool askUpdate;
-
-	void Load(const wxFileName& filename);
-	void Save(const wxFileName& filename);
-
-	void LoadXML(wxFileName& filename);
-};
-
 class Instance
 {
 public:
-	Instance(wxFileName rootDir, wxString name = _T(""));
+	static Instance *LoadInstance(wxFileName rootDir);
+	Instance(wxFileName rootDir, wxString name);
 	~Instance(void);
 
-	void Save();
-	void Load();
+	bool Save();
+	bool Load(bool loadDefaults = false);
 
 	wxFileName GetRootDir();
 	wxFileName GetConfigPath();
@@ -52,7 +39,11 @@ public:
 	void SetIconKey(wxString iconKey);
 
 protected:
-	InstConfig config;
-
 	wxFileName rootDir;
+
+	wxString name;
+	wxString iconKey;
+	wxString notes;
+	bool needsRebuild;
+	bool askUpdate;
 };

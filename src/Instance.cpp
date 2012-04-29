@@ -23,14 +23,19 @@ bool IsValidInstance(wxFileName rootDir)
 	return rootDir.DirExists() && rootDir.FileExists(cfgFileName);
 }
 
+Instance *Instance::LoadInstance(wxFileName rootDir)
+{
+	Instance *inst = new Instance(rootDir, _(""));
+	if (!inst->Load())
+		return (Instance*)(NULL);
+	return inst;
+}
+
 Instance::Instance(wxFileName rootDir, wxString name)
 {
 	this->rootDir = rootDir;
-
-	if (!name.IsNull() && !name.IsEmpty())
-		this->SetName(name);
-
-	Load();
+	Load(true);
+	this->name = name;
 }
 
 Instance::~Instance(void)
@@ -38,40 +43,52 @@ Instance::~Instance(void)
 
 }
 
-void Instance::Save()
+bool Instance::Save()
 {
 	if (!GetRootDir().DirExists())
 	{
 		GetRootDir().Mkdir();
 	}
-	
-	config.Save(GetConfigPath());
+
+	wxFileName filename = GetConfigPath();
+	using boost::property_tree::ptree;
+	ptree pt;
+
+	pt.put<std::string>("name", Utils::stdStr(name));
+	pt.put<std::string>("iconKey", Utils::stdStr(iconKey));
+	pt.put<std::string>("notes", Utils::stdStr(notes));
+	pt.put<bool>("NeedsRebuild", needsRebuild);
+	pt.put<bool>("AskUpdate", askUpdate);
+
+	write_ini(Utils::stdStr(filename.GetFullPath()).c_str(), pt);
+	return true;
 }
 
-void Instance::Load()
+bool Instance::Load(bool loadDefaults)
 {
-	wxFileName cfgPath = GetConfigPath();
-	wxFileName oldCfgPath = rootDir.FileName(_("instance.xml"));
+	using boost::property_tree::ptree;
+	ptree pt;
 
+	wxFileName filename = GetConfigPath();
 	try
 	{
-		if (cfgPath.FileExists())
-		{
-			config.Load(cfgPath);
-		}
-		else if (oldCfgPath.FileExists())
-		{
-			config.LoadXML(oldCfgPath);
-		}
+		if (!loadDefaults)
+			read_ini(Utils::stdStr(filename.GetFullPath()).c_str(), pt);
 	}
 	catch (boost::property_tree::ini_parser_error e)
 	{
-
+		wxLogError(_("Failed to parse instance config file '%s'. %s"), 
+			filename.GetFullPath(),
+			Utils::wxStr(e.message()));
+		return false;
 	}
-	catch (boost::property_tree::xml_parser_error e)
-	{
 
-	}
+	name = pt.get<std::string>("name", "Unnamed Instance");
+	iconKey = pt.get<std::string>("iconKey", "default");
+	notes = pt.get<std::string>("notes", "");
+	needsRebuild = pt.get<bool>("NeedsRebuild", false);
+	askUpdate = pt.get<bool>("AskUpdate", true);
+	return true;
 }
 
 wxFileName Instance::GetRootDir()
@@ -86,63 +103,20 @@ wxFileName Instance::GetConfigPath()
 
 wxString Instance::GetName()
 {
-	return Utils::wxStr(config.name);
+	return name;
 }
 
 void Instance::SetName(wxString name)
 {
-	config.name = Utils::stdStr(name);
+	this->name = name;
 }
 
 wxString Instance::GetIconKey()
 {
-	return Utils::wxStr(config.iconKey);
+	return iconKey;
 }
 
 void Instance::SetIconKey(wxString iconKey)
 {
-	config.iconKey = Utils::stdStr(iconKey);
-}
-
-// InstConfig
-void InstConfig::Load(const wxFileName &filename)
-{
-	using boost::property_tree::ptree;
-	ptree pt;
-
-	read_ini(Utils::stdStr(filename.GetPath()).c_str(), pt);
-
-	name = pt.get<std::string>("name", "Unnamed Instance");
-	iconKey = pt.get<std::string>("iconKey", "default");
-	notes = pt.get<std::string>("notes", "");
-	needsRebuild = pt.get<bool>("NeedsRebuild", false);
-	askUpdate = pt.get<bool>("AskUpdate", true);
-}
-
-void InstConfig::Save(const wxFileName &filename)
-{
-	using boost::property_tree::ptree;
-	ptree pt;
-	
-	pt.put<std::string>("name", name);
-	pt.put<std::string>("iconKey", iconKey);
-	pt.put<std::string>("notes", notes);
-	pt.put<bool>("NeedsRebuild", needsRebuild);
-	pt.put<bool>("AskUpdate", askUpdate);
-	
-	write_ini(Utils::stdStr(filename.GetFullPath()).c_str(), pt);
-}
-
-void InstConfig::LoadXML(wxFileName &filename)
-{
-	using boost::property_tree::ptree;
-	ptree pt;
-	
-	read_xml(Utils::stdStr(filename.GetFullPath()).c_str(), pt);
-
-	name = pt.get<std::string>("instance.name", "Unnamed Instance");
-	iconKey = pt.get<std::string>("instance.iconKey", "default");
-	notes = pt.get<std::string>("instance.notes", "");
-	needsRebuild = pt.get<bool>("instance.NeedsRebuild", false);
-	askUpdate = pt.get<bool>("instance.AskUpdate", true);
+	this->iconKey = iconKey;
 }

@@ -163,10 +163,10 @@ void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
 
 	autoUpdateCheck->SetValue(s.autoUpdate);
 
-	instDirTextBox->SetValue(s.instanceDir.GetPath());
+	instDirTextBox->SetValue(s.instanceDir.GetFullPath());
 
 	minMemorySpin->SetValue(s.minMemAlloc);
 	maxMemorySpin->SetValue(s.maxMemAlloc);
 
-	javaPathTextBox->SetValue(s.javaPath.GetPath());
+	javaPathTextBox->SetValue(s.javaPath.GetFullPath());
 }
