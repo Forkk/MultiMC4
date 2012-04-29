@@ -199,7 +199,7 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 void MainWindow::NotImplemented()
 {
 	wxMessageBox(_T("This feature has not yet been implemented."), 
-		_T("Not implemented"));
+		_T("Not implemented"), wxOK | wxCENTER, this);
 }
 
 
