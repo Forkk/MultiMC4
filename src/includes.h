@@ -26,9 +26,11 @@
 #include <wx/statbox.h>
 #include <wx/tglbtn.h>
 #include <wx/spinctrl.h>
+#include <wx/filesys.h>
+#include <wx/filefn.h>
+#include <wx/config.h>
 
 #include <boost/pending/queue.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/foreach.hpp>
 #include <boost/unordered_map.hpp>
@@ -37,14 +39,12 @@
 #include <boost/signal.hpp>
 #include <boost/function.hpp>
 
-namespace fs = boost::filesystem;
-
+#include "AppSettings.h"
 #include "AppUtils.h"
 
 #include "InstIconList.h"
 #include "Instance.h"
-#include "AppSettings.h"
 #include "Task.h"
 
 //#include "MainWindow.h"
-#include "SettingsDialog.h"
+//#include "SettingsDialog.h"

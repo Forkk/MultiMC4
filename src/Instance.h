@@ -17,9 +17,7 @@
 #pragma once
 #include "includes.h"
 
-namespace fs = boost::filesystem;
-
-bool IsValidInstance(fs::path rootDir);
+bool IsValidInstance(wxFileName rootDir);
 
 struct InstConfig
 {
@@ -29,23 +27,23 @@ struct InstConfig
 	bool needsRebuild;
 	bool askUpdate;
 
-	void Load(const fs::path &filename);
-	void Save(const fs::path &filename);
+	void Load(const wxFileName& filename);
+	void Save(const wxFileName& filename);
 
-	void LoadXML(fs::path &filename);
+	void LoadXML(wxFileName& filename);
 };
 
 class Instance
 {
 public:
-	Instance(fs::path rootDir, wxString name = _T(""));
+	Instance(wxFileName rootDir, wxString name = _T(""));
 	~Instance(void);
 
 	void Save();
 	void Load();
 
-	fs::path GetRootDir();
-	fs::path GetConfigPath();
+	wxFileName GetRootDir();
+	wxFileName GetConfigPath();
 
 	wxString GetName();
 	void SetName(wxString name);
@@ -56,5 +54,5 @@ public:
 protected:
 	InstConfig config;
 
-	fs::path rootDir;
+	wxFileName rootDir;
 };

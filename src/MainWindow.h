@@ -17,6 +17,7 @@
 #pragma once
 #include "includes.h"
 
+#include "SettingsDialog.h"
 
 //const wxString tbarIconPrefix = _T("resources/toolbar/");
 
@@ -67,7 +68,7 @@ protected:
 	InstIconList instIcons;
 	void LoadInstIconList(wxString customIconDirName = _T("icons"));
 
-	void LoadInstanceList(boost::filesystem::path instDir = settings.instanceDir);
+	void LoadInstanceList(wxFileName instDir = settings.instanceDir);
 
 	void AddInstance(Instance *inst);
 

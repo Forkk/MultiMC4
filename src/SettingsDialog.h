@@ -15,7 +15,6 @@
 //
 
 #pragma once
-
 #include "includes.h"
 
 class SettingsDialog : public wxDialog

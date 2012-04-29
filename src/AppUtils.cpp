@@ -15,8 +15,9 @@
 //
 
 #include "AppUtils.h"
+#include "AppSettings.h"
 
-void Utils::OpenFile(fs::path path)
+void Utils::OpenFile(wxFileName path)
 {
 	wxString cmd;
 	wxOperatingSystemId osID = wxPlatformInfo::Get().GetOperatingSystemId();
@@ -37,7 +38,7 @@ void Utils::OpenFile(fs::path path)
 		wxMessageBox(_T("This feature is not supported by your OS."), _T("Error"));
 		return;
 	}
-	cmd.append(Utils::wxStr(settings.instanceDir));
+	cmd.append(settings.instanceDir.GetPath());
 	wxExecute(cmd);
 }
 
@@ -56,22 +57,34 @@ int Utils::GetMaxAllowedMemAlloc()
 	return 65536;
 }
 
-wxString Utils::wxStr(fs::path path)
-{
-	return Utils::wxStr(Utils::stdStr(path));
-}
+// wxString Utils::wxStr(fs::path path)
+// {
+// 	return Utils::wxStr(Utils::stdStr(path));
+// }
 
 wxString Utils::wxStr(std::string str)
 {
 	return wxString(str.c_str(), wxConvUTF8);
 }
 
-std::string Utils::stdStr(fs::path path)
-{
-	return path.string();
-}
+// std::string Utils::stdStr(fs::path path)
+// {
+// 	return path.string();
+// }
 
 std::string Utils::stdStr(wxString str)
 {
 	return std::string(str.mb_str());
+}
+
+wxString Utils::RemoveInvalidPathChars(wxString path, wxChar replaceWith)
+{
+	for (int i = 0; i < path.Len(); i++)
+	{
+		if (wxFileName::GetForbiddenChars().Contains(path[i]))
+		{
+			path[i] = replaceWith;
+		}
+	}
+	return path;
 }

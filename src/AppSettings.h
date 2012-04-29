@@ -15,38 +15,38 @@
 //
 
 #pragma once
-#include <string>
+#include "includes.h"
 
-#include <boost/filesystem.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-
-namespace fs = boost::filesystem;
-
-const char iniConfigFile[] = "multimc.cfg";
+const wxFileName iniConfigFile(_("multimc.cfg"));
 
 bool InitAppSettings(void);
 
 // Default values
-const char defJavaPath[] = "java";
-const char defInstDir[] = "instances";
-const char defModsDir[] = "mods";
+const wxString defJavaPath = _("java");
+const wxString defInstDir = _("instances");
+const wxString defModsDir = _("mods");
 
 struct AppSettings
 {
 	int minMemAlloc;
 	int maxMemAlloc;
-
-	fs::path javaPath;
-	fs::path instanceDir;
-	fs::path modsDir;
-
+	
+	wxFileName javaPath;
+	wxFileName instanceDir;
+	wxFileName modsDir;
+	
 	bool showConsole;
 	bool autoCloseConsole;
 	bool autoUpdate;
 	bool quitIfProblem;
-
-	void Save(fs::path file = fs::path("multimc.cfg"));
-	void Load(fs::path file = fs::path("multimc.cfg"));
+	
+	void Save(const wxFileName& filename = iniConfigFile);
+	void Load(const wxFileName& filename = iniConfigFile);
+	
+	wxFileName GetPathSetting(boost::property_tree::ptree& pt, 
+							  const std::string& key, 
+							  const std::string& def, 
+							  bool isDir = true);
 };
 
 extern AppSettings settings;

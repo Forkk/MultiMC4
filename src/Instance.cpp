@@ -16,15 +16,14 @@
 
 #include "Instance.h"
 
-const char cfgFileName[] = "instance.cfg";
+const wxString cfgFileName = _("instance.cfg");
 
-bool IsValidInstance(fs::path rootDir)
+bool IsValidInstance(wxFileName rootDir)
 {
-	return fs::exists(rootDir) && fs::is_directory(rootDir) &&
-		fs::exists(rootDir / cfgFileName) && fs::is_regular_file(rootDir / cfgFileName);
+	return rootDir.DirExists() && rootDir.FileExists(cfgFileName);
 }
 
-Instance::Instance(fs::path rootDir, wxString name)
+Instance::Instance(wxFileName rootDir, wxString name)
 {
 	this->rootDir = rootDir;
 
@@ -41,9 +40,9 @@ Instance::~Instance(void)
 
 void Instance::Save()
 {
-	if (!fs::exists(GetRootDir()))
+	if (!GetRootDir().DirExists())
 	{
-		fs::create_directories(GetRootDir());
+		GetRootDir().Mkdir();
 	}
 	
 	config.Save(GetConfigPath());
@@ -51,16 +50,16 @@ void Instance::Save()
 
 void Instance::Load()
 {
-	fs::path cfgPath = rootDir / cfgFileName;
-	fs::path oldCfgPath = rootDir / "instance.xml";
+	wxFileName cfgPath = GetConfigPath();
+	wxFileName oldCfgPath = rootDir.FileName(_("instance.xml"));
 
 	try
 	{
-		if (exists(cfgPath) && is_regular_file(cfgPath))
+		if (cfgPath.FileExists())
 		{
 			config.Load(cfgPath);
 		}
-		else if (exists(oldCfgPath) && is_regular_file(oldCfgPath))
+		else if (oldCfgPath.FileExists())
 		{
 			config.LoadXML(oldCfgPath);
 		}
@@ -75,14 +74,14 @@ void Instance::Load()
 	}
 }
 
-fs::path Instance::GetRootDir()
+wxFileName Instance::GetRootDir()
 {
 	return rootDir;
 }
 
-fs::path Instance::GetConfigPath()
+wxFileName Instance::GetConfigPath()
 {
-	return rootDir / cfgFileName;
+	return wxFileName(rootDir.GetFullPath(), cfgFileName);
 }
 
 wxString Instance::GetName()
@@ -106,12 +105,12 @@ void Instance::SetIconKey(wxString iconKey)
 }
 
 // InstConfig
-void InstConfig::Load(const fs::path &filename)
+void InstConfig::Load(const wxFileName &filename)
 {
 	using boost::property_tree::ptree;
 	ptree pt;
 
-	read_ini(filename.string(), pt);
+	read_ini(Utils::stdStr(filename.GetPath()).c_str(), pt);
 
 	name = pt.get<std::string>("name", "Unnamed Instance");
 	iconKey = pt.get<std::string>("iconKey", "default");
@@ -120,26 +119,26 @@ void InstConfig::Load(const fs::path &filename)
 	askUpdate = pt.get<bool>("AskUpdate", true);
 }
 
-void InstConfig::Save(const fs::path &filename)
+void InstConfig::Save(const wxFileName &filename)
 {
 	using boost::property_tree::ptree;
 	ptree pt;
-
+	
 	pt.put<std::string>("name", name);
 	pt.put<std::string>("iconKey", iconKey);
 	pt.put<std::string>("notes", notes);
 	pt.put<bool>("NeedsRebuild", needsRebuild);
 	pt.put<bool>("AskUpdate", askUpdate);
-
-	write_ini(filename.string(), pt);
+	
+	write_ini(Utils::stdStr(filename.GetFullPath()).c_str(), pt);
 }
 
-void InstConfig::LoadXML(fs::path &filename)
+void InstConfig::LoadXML(wxFileName &filename)
 {
 	using boost::property_tree::ptree;
 	ptree pt;
-
-	read_xml(filename.string(), pt);
+	
+	read_xml(Utils::stdStr(filename.GetFullPath()).c_str(), pt);
 
 	name = pt.get<std::string>("instance.name", "Unnamed Instance");
 	iconKey = pt.get<std::string>("instance.iconKey", "default");

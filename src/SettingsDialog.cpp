@@ -121,17 +121,15 @@ void SettingsDialog::OnButtonClicked(wxCommandEvent& event)
 
 void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 {
-	namespace fs = boost::filesystem;
-
 	s.showConsole = showConsoleCheck->IsChecked();
 	s.autoCloseConsole = autoCloseConsoleCheck->IsChecked();
 
 	s.autoUpdate = autoUpdateCheck->IsChecked();
 
-	fs::path newInstDir = instDirTextBox->GetValue().c_str();
-	if (s.instanceDir != newInstDir)
+	wxFileName newInstDir(instDirTextBox->GetValue());
+	if (s.instanceDir.SameAs(newInstDir))
 	{
-		fs::path oldInstDir = s.instanceDir;
+		wxFileName oldInstDir = s.instanceDir;
 
 		int response = wxMessageBox(_T("You've changed your instance \
 			directory, would you like to transfer all of your instances?"),
@@ -146,16 +144,7 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 
 		if (response == wxID_OK)
 		{
-			try
-			{
-			}
-			catch (fs::filesystem_error ex)
-			{
-				response = wxMessageBox(_T("Failed to transfer \
-					instances.\nWould you like to retry?"), _T("Error"),
-					wxOK | wxCANCEL, this);
-				goto RetryTransfer;
-			}
+			
 		}
 	}
 
@@ -163,6 +152,8 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 	s.maxMemAlloc = maxMemorySpin->GetValue();
 
 	s.javaPath = javaPathTextBox->GetValue().c_str();
+	
+	s.Save();
 }
 
 void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
@@ -172,10 +163,10 @@ void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
 
 	autoUpdateCheck->SetValue(s.autoUpdate);
 
-	instDirTextBox->SetValue(Utils::wxStr(s.javaPath));
+	instDirTextBox->SetValue(s.instanceDir.GetPath());
 
 	minMemorySpin->SetValue(s.minMemAlloc);
 	maxMemorySpin->SetValue(s.maxMemAlloc);
 
-	javaPathTextBox->SetValue(Utils::wxStr(s.javaPath));
+	javaPathTextBox->SetValue(s.javaPath.GetPath());
 }

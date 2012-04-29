@@ -24,45 +24,60 @@ bool InitAppSettings(void)
 	return true;
 }
 
-void AppSettings::Save(fs::path file /* = iniConfigFile */)
+void AppSettings::Save(const wxFileName &filename /* = iniConfigFile */)
 {
 	using boost::property_tree::ptree;
 	ptree pt;
-
+	
 	pt.put<int>("MinMemoryAlloc", minMemAlloc);
 	pt.put<int>("MaxMemoryAlloc", maxMemAlloc);
-
-	pt.put<fs::path>("JavaPath", javaPath);
-	pt.put<fs::path>("InstDir", instanceDir);
-	pt.put<fs::path>("ModsDir", modsDir);
-
+	
+	pt.put<std::string>("JavaPath", Utils::stdStr(javaPath.GetPath()));
+	pt.put<std::string>("InstanceDir", Utils::stdStr(instanceDir.GetPath()));
+	pt.put<std::string>("ModsDir", Utils::stdStr(modsDir.GetPath()));
+	
 	pt.put<bool>("ShowConsole", showConsole);
 	pt.put<bool>("AutoCloseConsole", autoCloseConsole);
 	pt.put<bool>("AutoUpdate", autoUpdate);
 	pt.put<bool>("QuitIfProblem", quitIfProblem);
-
-	write_ini((char *)file.native().c_str(), pt);
+	
+	wxString str = filename.GetFullPath();
+	write_ini(Utils::stdStr(filename.GetFullPath()).c_str(), pt);
 }
 
-void AppSettings::Load(fs::path file /* = iniConfigFile */)
+void AppSettings::Load(const wxFileName &filename /* = iniConfigFile */)
 {
 	using boost::property_tree::ptree;
 	ptree pt;
-
-	if (fs::exists(file) && is_regular_file(file))
-	{
-		read_ini((char *)file.native().c_str(), pt);
-	}
-
+	
+	if (filename.FileExists())
+		read_ini(Utils::stdStr(filename.GetFullPath()).c_str(), pt);
+	
 	minMemAlloc = pt.get<int>("MinMemoryAlloc", 512);
-	minMemAlloc = pt.get<int>("MaxMemoryAlloc", 1024);
-
-	javaPath = pt.get<fs::path>("JavaPath", defJavaPath);
-	instanceDir = pt.get<fs::path>("InstDir", defInstDir);
-	modsDir = pt.get<fs::path>("ModsDir", defModsDir);
-
+	maxMemAlloc = pt.get<int>("MaxMemoryAlloc", 1024);
+	
+	javaPath = GetPathSetting(pt, "JavaPath", "java");
+	instanceDir = GetPathSetting(pt, "InstanceDir", "instances");
+	modsDir = GetPathSetting(pt, "ModsDir", "mods");
+	
 	showConsole = pt.get<bool>("ShowConsole", false);
-	autoCloseConsole = pt.get<bool>("AutoCloseConsole", false);
+	autoCloseConsole = pt.get<bool>("AutoCloseConsole", true);
 	autoUpdate = pt.get<bool>("AutoUpdate", true);
 	quitIfProblem = pt.get<bool>("QuitIfProblem", false);
+}
+
+wxFileName AppSettings::GetPathSetting(boost::property_tree::ptree &pt, 
+									   const std::string &key, 
+									   const std::string &def, 
+									   bool isDir)
+{
+	std::string path = pt.get<std::string>(key, def);
+	if (path.empty())
+	{
+		path = def;
+	}
+	if (isDir)
+		return wxFileName(Utils::wxStr(path), wxEmptyString);
+	else
+		return wxFileName(Utils::wxStr(path));
 }

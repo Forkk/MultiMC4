@@ -17,6 +17,7 @@
 #include "MainWindow.h"
 
 #include "ToolbarIcons.h"
+#include "AppSettings.h"
 
 IMPLEMENT_APP(MultiMC)
 
@@ -79,7 +80,7 @@ MainWindow::MainWindow(void)
 	LoadInstIconList();
 
 	// Load instance list
-	LoadInstanceList(boost::filesystem::path(_T("instances")));
+	LoadInstanceList();
 
 	CenterOnScreen();
 }
@@ -96,28 +97,37 @@ void MainWindow::LoadInstIconList(wxString customIconDirName)
 	instListCtrl->SetImageList(instIcons.GetImageList(), 0);
 }
 
-void MainWindow::LoadInstanceList(boost::filesystem::path instDir)
+void MainWindow::LoadInstanceList(wxFileName instDir)
 {
-	namespace fs = boost::filesystem;
-
 	instListCtrl->ClearAll();
 	instItems.clear();
-
-	fs::directory_iterator endIter;
-
-	if (fs::exists(instDir) && fs::is_directory(instDir))
+	
+	BOOST_FOREACH(wxString dir, instDir.GetDirs())
 	{
-		for (fs::directory_iterator iter(instDir); iter != endIter; iter++)
+		wxFileName dirName(dir, wxEmptyString);
+		
+		if (IsValidInstance(dirName))
 		{
-			fs::path file = iter->path();
-
-			if (IsValidInstance(file))
-			{
-				Instance *inst = new Instance(file);
-				AddInstance(inst);
-			}
+			Instance *inst = new Instance(dirName);
+			AddInstance(inst);
 		}
 	}
+
+// 	fs::directory_iterator endIter;
+
+// 	if (fs::exists(instDir) && fs::is_directory(instDir))
+// 	{
+// 		for (fs::directory_iterator iter(instDir); iter != endIter; iter++)
+// 		{
+// 			fs::path file = iter->path();
+// 
+// 			if (IsValidInstance(file))
+// 			{
+// 				Instance *inst = new Instance(file);
+// 				AddInstance(inst);
+// 			}
+// 		}
+// 	}
 }
 
 void MainWindow::AddInstance(Instance *inst)
@@ -154,10 +164,18 @@ void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 {
 	wxString newInstName = wxGetTextFromUser(_T("Instance name:"), 
 		_T("Create new instance"), wxEmptyString, this);
-	fs::path instDir = settings.instanceDir / newInstName.c_str();
+	
+	wxString dirName = Utils::RemoveInvalidPathChars(newInstName);
+	wxFileName instDir;
+	do
+	{
+		instDir = settings.instanceDir;
+		instDir.AppendDir(dirName);
+	} while (instDir.DirExists());
 
 	Instance *inst = new Instance(instDir, newInstName);
 	inst->Save();
+	AddInstance(inst);
 }
 
 void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
@@ -261,13 +279,16 @@ bool MultiMC::OnInit()
 	wxInitAllImageHandlers();
 	
 	if (!InitAppSettings())
-		return false;
-
-	if (!fs::exists(settings.instanceDir))
 	{
-		fs::create_directories(settings.instanceDir);
+		wxLogError(_("Failed to initialize settings."));
+		return false;
 	}
-
+	
+	if (!settings.instanceDir.DirExists())
+	{
+		settings.instanceDir.Mkdir();
+	}
+	
 	MainWindow *mainWin = new MainWindow();
 	mainWin->Show();
 
