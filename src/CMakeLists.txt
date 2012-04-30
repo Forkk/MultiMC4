@@ -7,10 +7,36 @@ project (MultiMC)
 
 # Set the sources and headers variables.
 file(GLOB SRCS "*.cpp")
-MESSAGE(STATUS "** Found source files: ${SRCS}")
+set(SRCS 
+gui/MainWindow.cpp
+gui/SettingsDialog.cpp
 
-file(GLOB INCS "*.h")
-MESSAGE(STATUS "** Found header files: ${INCS}")
+data/AppSettings.cpp
+data/Instance.cpp
+
+tasks/Task.cpp
+
+AppUtils.cpp
+InstIconList.cpp
+)
+
+set (INCS
+includes.h
+
+gui/MainWindow.h
+gui/SettingsDialog.h
+
+data/AppSettings.h
+data/Instance.h
+
+tasks/Task.h
+
+AppUtils.h
+InstIconList.h
+
+InstIcons.h
+ToolbarIcons.h
+)
 
 # Find wxWidgets.
 MESSAGE(STATUS "** Finding wxWidgets")
@@ -30,6 +56,13 @@ include("${wxWidgets_USE_FILE}")
 
 # Include boost.
 include_directories("${Boost_INCLUDE_DIRS}")
+
+include_directories(
+"${PROJECT_SOURCE_DIR}"
+"${PROJECT_SOURCE_DIR}/data"
+"${PROJECT_SOURCE_DIR}/gui"
+"${PROJECT_SOURCE_DIR}/tasks"
+)
 
 # Add the executable.
 add_executable(MultiMC WIN32 ${SRCS} ${INCS})

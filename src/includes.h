@@ -40,12 +40,12 @@
 #include <boost/signal.hpp>
 #include <boost/function.hpp>
 
-#include "AppSettings.h"
+#include "data/AppSettings.h"
 #include "AppUtils.h"
 
 #include "InstIconList.h"
-#include "Instance.h"
-#include "Task.h"
+#include "data/Instance.h"
+#include "tasks/Task.h"
 
 //#include "MainWindow.h"
 //#include "SettingsDialog.h"

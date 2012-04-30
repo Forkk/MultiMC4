@@ -40,3 +40,9 @@ namespace Utils
 	
 	wxString RemoveInvalidPathChars(wxString path, wxChar replaceWith = '-');
 }
+
+namespace Path
+{
+	wxFileName Combine(const wxFileName &path, const wxString &str);
+	wxFileName Combine(const wxString &path, const wxString &str);
+}

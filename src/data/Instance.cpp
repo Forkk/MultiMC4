@@ -20,7 +20,7 @@ const wxString cfgFileName = _("instance.cfg");
 
 bool IsValidInstance(wxFileName rootDir)
 {
-	return rootDir.DirExists() && rootDir.FileExists(cfgFileName);
+	return rootDir.DirExists() && Path::Combine(rootDir, cfgFileName).FileExists();
 }
 
 Instance *Instance::LoadInstance(wxFileName rootDir)
@@ -78,14 +78,15 @@ bool Instance::Load(bool loadDefaults)
 	catch (boost::property_tree::ini_parser_error e)
 	{
 		wxLogError(_("Failed to parse instance config file '%s'. %s"), 
-			filename.GetFullPath(),
-			Utils::wxStr(e.message()));
+			Utils::stdStr(filename.GetFullPath()).c_str(),
+			e.message().c_str());
 		return false;
 	}
 
-	name = pt.get<std::string>("name", "Unnamed Instance");
-	iconKey = pt.get<std::string>("iconKey", "default");
-	notes = pt.get<std::string>("notes", "");
+	name = Utils::wxStr(pt.get<std::string>("name", "Unnamed Instance"));
+	iconKey = Utils::wxStr(pt.get<std::string>("iconKey", "default"));
+	notes = Utils::wxStr(pt.get<std::string>("notes", ""));
+	
 	needsRebuild = pt.get<bool>("NeedsRebuild", false);
 	askUpdate = pt.get<bool>("AskUpdate", true);
 	return true;

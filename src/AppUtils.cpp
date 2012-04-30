@@ -15,7 +15,6 @@
 //
 
 #include "AppUtils.h"
-#include "AppSettings.h"
 
 void Utils::OpenFile(wxFileName path)
 {
@@ -87,4 +86,14 @@ wxString Utils::RemoveInvalidPathChars(wxString path, wxChar replaceWith)
 		}
 	}
 	return path;
+}
+
+wxFileName Path::Combine(const wxFileName& path, const wxString& str)
+{
+	return wxFileName(path.GetFullPath(), str);
+}
+
+wxFileName Path::Combine(const wxString& path, const wxString& str)
+{
+	return wxFileName(path, str);
 }

@@ -17,9 +17,10 @@
 #include "MainWindow.h"
 
 #include "ToolbarIcons.h"
-#include "AppSettings.h"
 
 IMPLEMENT_APP(MultiMC)
+
+const int instNameLengthLimit = 20;
 
 // Main window
 MainWindow::MainWindow(void)
@@ -63,22 +64,24 @@ MainWindow::MainWindow(void)
 	instMenu->Append(ID_ViewInstFolder, _T("&View Folder"), _T("Open the instance's folder."));
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_DeleteInst, _T("Delete"), _T("Delete this instance."));
-
+	
 	// Create the status bar
 	CreateStatusBar(1);
-
+	
 	// Set up the main panel and sizers
 	wxPanel *panel = new wxPanel(this, -1);
 	wxBoxSizer *box = new wxBoxSizer(wxVERTICAL);
 	panel->SetSizer(box);
-
+	
 	// Create the instance list
-	instListCtrl = new wxListCtrl(panel, ID_InstListCtrl);
+	instListCtrl = new wxListCtrl(panel, ID_InstListCtrl, wxDefaultPosition, wxDefaultSize,
+		wxLC_ICON | wxLC_ALIGN_LEFT | wxLC_EDIT_LABELS | wxLC_SINGLE_SEL);
 	box->Add(instListCtrl, 1, wxEXPAND);
-
+	instListCtrl->SetColumnWidth(0, 48);
+	
 	// Load instance icons
 	LoadInstIconList();
-
+	
 	// Load instance list
 	LoadInstanceList();
 
@@ -101,13 +104,13 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 {
 	instListCtrl->ClearAll();
 	instItems.clear();
-
+	
 	wxDir dir(instDir.GetFullPath());
 	if (!dir.IsOpened())
 	{
 		return;
 	}
-
+	
 	wxString subFolder;
 	bool cont = dir.GetFirst(&subFolder, wxEmptyString, wxDIR_DIRS);
 	while (cont)
@@ -123,28 +126,19 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		}
 		cont = dir.GetNext(&subFolder);
 	}
-
-// 	fs::directory_iterator endIter;
-
-// 	if (fs::exists(instDir) && fs::is_directory(instDir))
-// 	{
-// 		for (fs::directory_iterator iter(instDir); iter != endIter; iter++)
-// 		{
-// 			fs::path file = iter->path();
-// 
-// 			if (IsValidInstance(file))
-// 			{
-// 				Instance *inst = new Instance(file);
-// 				AddInstance(inst);
-// 			}
-// 		}
-// 	}
 }
 
 void MainWindow::AddInstance(Instance *inst)
 {
+	wxString instName = inst->GetName();
+	if (instName.Len() > instNameLengthLimit)
+	{
+		instName.Truncate(instNameLengthLimit - 3);
+		instName.Append(_("..."));
+	}
+	
 	long item = instListCtrl->InsertItem(instListCtrl->GetItemCount(), 
-		inst->GetName(), instIcons[inst->GetIconKey()]);
+		instName, instIcons[inst->GetIconKey()]);
 	instItems[item] = inst;
 }
 
@@ -173,8 +167,20 @@ Instance* MainWindow::GetSelectedInst()
 // Toolbar
 void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 {
-	wxString newInstName = wxGetTextFromUser(_T("Instance name:"), 
-		_T("Create new instance"), wxEmptyString, this);
+	wxString newInstName = wxEmptyString;
+Retry:
+	newInstName = wxGetTextFromUser(_T("Instance name:"), 
+		_T("Create new instance"), newInstName, this);
+	
+	if (newInstName.empty())
+	{
+		return;
+	}
+	else if (newInstName.Len() > instNameLengthLimit)
+	{
+		wxMessageBox(_T("Sorry, that name is too long."), _T("Error"), wxOK | wxCENTER, this);
+		goto Retry;
+	}
 	
 	wxString dirName = Utils::RemoveInvalidPathChars(newInstName);
 	wxFileName instDir;
