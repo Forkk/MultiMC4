@@ -253,7 +253,19 @@ void MainWindow::OnPlayClicked(wxCommandEvent& event)
 	wxString errorMsg = _("");
 Retry:
 	LoginDialog loginDialog(this, errorMsg);
-	loginDialog.ShowModal();
+	int response = loginDialog.ShowModal();
+	
+	if (response == wxID_OK)
+	{
+		UserInfo info(loginDialog);
+		LoginTask *task = new LoginTask(info);
+		StartTask(*task);
+	}
+}
+
+void MainWindow::OnLoginComplete::operator()(Task* loginTask, LoginInfo loginInfo) const
+{
+	
 }
 
 void MainWindow::OnRenameClicked(wxCommandEvent& event)
@@ -301,6 +313,22 @@ void MainWindow::OnInstMenuOpened(wxListEvent& event)
 	PopupMenu(instMenu, event.GetPoint());
 }
 
+
+void MainWindow::OnTaskStart(TaskEvent& event)
+{
+	wxLogMessage(_("Task started"));
+}
+
+void MainWindow::OnTaskEnd(TaskEvent& event)
+{
+	
+}
+
+void MainWindow::StartTask(Task& task)
+{
+	task.SetEvtHandler(this);
+	task.Start();
+}
 
 // App
 bool MultiMC::OnInit()

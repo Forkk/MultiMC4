@@ -57,13 +57,16 @@ protected:
 
 struct UserInfo
 {
+	UserInfo();
+	UserInfo(LoginDialog &loginDlg);
+	UserInfo(UserInfo &uInfo);
 	UserInfo(wxString &username, 
 			  wxString &password, 
 			  bool rememberUsername,
 			  bool rememberPassword);
 	
-	wxString m_username;
-	wxString m_password;
-	bool m_rememberUsername;
-	bool m_rememberPassword;
+	wxString username;
+	wxString password;
+	bool rememberUsername;
+	bool rememberPassword;
 };

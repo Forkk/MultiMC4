@@ -16,6 +16,13 @@
 
 #include "task.h"
 
+DEFINE_EVENT_TYPE(wxEVT_TASK_START)
+DEFINE_EVENT_TYPE(wxEVT_TASK_END)
+
+DEFINE_EVENT_TYPE(wxEVT_TASK_PROGRESS)
+DEFINE_EVENT_TYPE(wxEVT_TASK_STATUS)
+DEFINE_EVENT_TYPE(wxEVT_TASK_ERRORMSG)
+
 Task::Task()
 	: wxThread(wxTHREAD_DETACHED)
 {
@@ -24,11 +31,7 @@ Task::Task()
 
 Task::~Task()
 {
-	OnStart.disconnect_all_slots();
-	OnEnd.disconnect_all_slots();
-	OnProgressChanged.disconnect_all_slots();
-	OnStatusChanged.disconnect_all_slots();
-	OnErrorMessage.disconnect_all_slots();
+	
 }
 
 void Task::Start()
@@ -44,9 +47,9 @@ void Task::Cancel()
 
 void *Task::Entry()
 {
-	OnStart(this);
+	OnTaskStart();
 	TaskStart();
-	OnEnd(this);
+	OnTaskEnd();
 	return NULL;
 }
 
@@ -54,7 +57,7 @@ void Task::SetProgress(int progress, bool fireEvent /* = true */)
 {
 	m_progress = progress;
 	if (fireEvent)
-		OnProgressChanged(this, progress);
+		OnProgressChanged(progress);
 }
 
 int Task::GetProgress()
@@ -66,7 +69,7 @@ void Task::SetStatus(wxString status, bool fireEvent /* = true */)
 {
 	m_status = status;
 	if (fireEvent)
-		OnStatusChanged(this, status);
+		OnStatusChanged(status);
 }
 
 wxString Task::GetStatus()
@@ -77,4 +80,36 @@ wxString Task::GetStatus()
 bool Task::IsRunning()
 {
 	return wxThread::IsRunning();
+}
+
+void Task::SetEvtHandler(wxEvtHandler* handler)
+{
+	this->m_evtHandler = handler;
+}
+
+void Task::OnTaskStart()
+{
+	TaskEvent event(wxEVT_TASK_START, this);
+	m_evtHandler->AddPendingEvent(event);
+}
+
+void Task::OnTaskEnd()
+{
+	TaskEvent event(wxEVT_TASK_END, this);
+	m_evtHandler->AddPendingEvent(event);
+}
+
+void Task::OnStatusChanged(wxString& status)
+{
+	
+}
+
+void Task::OnProgressChanged(int& progress)
+{
+	
+}
+
+void Task::OnErrorMessage(wxString& msg)
+{
+	
 }

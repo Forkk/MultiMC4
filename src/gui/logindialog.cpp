@@ -144,12 +144,36 @@ void LoginDialog::SetRememberPassword(bool rememberPassword)
 	rememberPasswordCheck->SetValue(rememberPassword);
 }
 
+UserInfo::UserInfo()
+{
+	this->username = wxEmptyString;
+	this->password = wxEmptyString;
+	this->rememberUsername = false;
+	this->rememberPassword = false;
+}
+
+UserInfo::UserInfo(LoginDialog& loginDlg)
+{
+	this->username = loginDlg.GetUsername();
+	this->password = loginDlg.GetPassword();
+	this->rememberUsername = loginDlg.GetRememberUsername();
+	this->rememberPassword = loginDlg.GetRememberPassword();
+}
+
+UserInfo::UserInfo(UserInfo& uInfo)
+{
+	this->username = uInfo.username;
+	this->password = uInfo.password;
+	this->rememberUsername = uInfo.rememberUsername;
+	this->rememberPassword = uInfo.rememberPassword;
+}
 
 UserInfo::UserInfo(wxString& username, wxString& password, bool rememberUsername, bool rememberPassword)
 {
-	m_username = username;
-	m_password = password;
-	m_rememberUsername = rememberUsername;
-	m_rememberPassword = rememberPassword;
+	this->username = username;
+	this->password = password;
+	this->rememberUsername = rememberUsername;
+	this->rememberPassword = rememberPassword;
 }
+
 

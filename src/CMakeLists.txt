@@ -16,6 +16,7 @@ data/appsettings.cpp
 data/instance.cpp
 
 tasks/task.cpp
+tasks/logintask.cpp
 
 apputils.cpp
 insticonlist.cpp
@@ -32,6 +33,7 @@ data/appsettings.h
 data/instance.h
 
 tasks/task.h
+tasks/logintask.h
 
 apputils.h
 insticonlist.h
@@ -42,7 +44,7 @@ toolbaricons.h
 
 # Find wxWidgets.
 MESSAGE(STATUS "** Finding wxWidgets")
-find_package(wxWidgets REQUIRED core base)
+find_package(wxWidgets REQUIRED core base net)
 MESSAGE(STATUS "** wxWidgets Root: ${wxWidgets_ROOT_DIR}")
 MESSAGE(STATUS "** wxWidgets Configuration: ${wxWidgets_CONFIGURATION}")
 

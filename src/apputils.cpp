@@ -15,6 +15,8 @@
 //
 
 #include "apputils.h"
+#include <wx/wx.h>
+#include <wx/sstream.h>
 
 void Utils::OpenFile(wxFileName path)
 {
@@ -66,6 +68,40 @@ wxString Utils::RemoveInvalidPathChars(wxString path, wxChar replaceWith)
 		}
 	}
 	return path;
+}
+
+wxString Utils::WebRequest(wxString request, wxProtocolError *error)
+{
+	if (!wxApp::IsMainLoopRunning())
+	{
+		wxLogError(_("Main loop is not running!"));
+		return wxEmptyString;
+	}
+	
+	wxHTTP get;
+	get.SetHeader(_T("Content-type"), _T("text/html; charset=utf-8"));
+	get.SetTimeout(10); // 10 seconds of timeout instead of 10 minutes ...
+	
+	while (!get.Connect(_("www.google.com")))
+		wxSleep(5);
+	
+	wxString response;
+	wxInputStream *httpStream = get.GetInputStream(request);
+	
+	if (get.GetError() == wxPROTO_NOERR)
+	{
+		wxStringOutputStream outStream(&response);
+		httpStream->Read(outStream);
+	}
+	else
+	{
+		(*error) = get.GetError();
+		response = wxEmptyString;
+	}
+	
+	wxDELETE(httpStream);
+	get.Close();
+	return response;
 }
 
 wxFileName Path::Combine(const wxFileName& path, const wxString& str)

@@ -16,6 +16,7 @@
 
 #pragma once
 #include "includes.h"
+#include "logintask.h"
 
 #include "settingsdialog.h"
 
@@ -52,10 +53,28 @@ public:
 	void OnViewInstFolderClicked(wxCommandEvent& event);
 
 	void OnDeleteClicked(wxCommandEvent& event);
-
-
+	
+	
+	// Task Events
+	void OnTaskStart(TaskEvent &event);
+	void OnTaskEnd(TaskEvent& event);
+	
+	
 	// Other events
 	void OnInstMenuOpened(wxListEvent& event);
+	
+	
+	// Other methods
+	void StartTask(Task &task);
+	
+	
+	// Task signal slots
+	struct OnLoginComplete
+	{
+		OnLoginComplete(MainWindow *mainWin) { main = mainWin; }
+		void operator()(Task* loginTask, LoginInfo loginInfo) const;
+		MainWindow *main;
+	};
 
 	DECLARE_EVENT_TABLE()
 
@@ -140,6 +159,9 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_DeleteInst, MainWindow::OnDeleteClicked)
 
 	EVT_LIST_ITEM_RIGHT_CLICK(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
+	
+	EVT_TASK_START(MainWindow::OnTaskStart)
+	EVT_TASK_END(MainWindow::OnTaskEnd)
 END_EVENT_TABLE()
 
 class MultiMC : public wxApp

@@ -17,49 +17,130 @@
 #pragma once
 #include "includes.h"
 
+DECLARE_EVENT_TYPE(wxEVT_TASK_START, -1)
+DECLARE_EVENT_TYPE(wxEVT_TASK_END, -1)
+
+DECLARE_EVENT_TYPE(wxEVT_TASK_PROGRESS, -1)
+DECLARE_EVENT_TYPE(wxEVT_TASK_STATUS, -1)
+DECLARE_EVENT_TYPE(wxEVT_TASK_ERRORMSG, -1)
+
 class Task : protected wxThread
 {
 public:
 	Task();
 	~Task();
-
+	
 	void Start();
 	void Cancel();
 	void Dispose();
-
+	
 	virtual void *Entry();
-
-	// Called when the task starts.
-	boost::signal<void (Task*)> OnStart;
-
-	// Called when the task ends.
-	boost::signal<void (Task*)> OnEnd;
-
-	// Called when the progress changes.
-	boost::signal<void (Task*, int progress)> OnProgressChanged;
-
-	// Called when the status changes.
-	boost::signal<void (Task*, wxString status)> OnStatusChanged;
-
-	// Called when an error occurs.
-	boost::signal<void (Task*, wxString msg)> OnErrorMessage;
-
+	
+	
 	// Accessors
 	virtual wxString GetStatus();
 	virtual int GetProgress();
 	virtual bool IsRunning();
-
+	
+	virtual void SetEvtHandler(wxEvtHandler *handler);
+	
 	int GetID();
-
+	
 protected:
 	virtual void TaskStart() = 0;
-
+	
 	virtual void SetStatus(wxString status, bool fireEvent = true);
 	virtual void SetProgress(int progress, bool fireEvent = true);
-
+	
+	virtual void OnTaskStart();
+	virtual void OnTaskEnd();
+	virtual void OnProgressChanged(int &progress);
+	virtual void OnStatusChanged(wxString &status);
+	virtual void OnErrorMessage(wxString &msg);
+	
 	wxString m_status;
 	int m_progress;
-
+	
+	wxEvtHandler *m_evtHandler;
 private:
 	int m_taskID;
 };
+
+struct TaskEvent : wxNotifyEvent
+{
+	TaskEvent(wxEventType type, Task *task) : wxNotifyEvent(type, -1) { m_task = task; }
+	
+	Task *m_task;
+	virtual wxEvent *Clone()
+	{
+		return new TaskEvent(GetEventType(), m_task);
+	}
+};
+
+struct TaskStatusEvent : TaskEvent
+{
+	TaskStatusEvent(Task *task, wxString &status)
+		: TaskEvent(wxEVT_TASK_STATUS, task) { m_status = status; }
+	
+	wxString m_status;
+	virtual wxEvent *Clone()
+	{
+		return new TaskStatusEvent(m_task, m_status);
+	}
+};
+
+struct TaskProgressEvent : TaskEvent
+{
+	TaskProgressEvent(Task *task, int &progress) 
+		: TaskEvent(wxEVT_TASK_PROGRESS, task) { m_progress = progress; }
+	
+	int m_progress;
+	virtual wxEvent *Clone()
+	{
+		return new TaskProgressEvent(m_task, m_progress);
+	}
+};
+
+struct TaskErrorEvent : TaskEvent
+{
+	TaskErrorEvent(Task *task, wxString &errorMsg) 
+		: TaskEvent(wxEVT_TASK_ERRORMSG, task) { m_errorMsg = errorMsg; }
+	
+	wxString m_errorMsg;
+	virtual wxEvent *Clone()
+	{
+		return new TaskStatusEvent(m_task, m_errorMsg);
+	}
+};
+
+typedef void (wxEvtHandler::*TaskEventFunction)(TaskEvent&);
+
+typedef void (wxEvtHandler::*TaskStatusEventFunction)(TaskStatusEvent&);
+typedef void (wxEvtHandler::*TaskProgressEventFunction)(TaskProgressEvent&);
+typedef void (wxEvtHandler::*TaskErrorEventFunction)(TaskErrorEvent&);
+
+#define EVT_TASK_START(fn)\
+	DECLARE_EVENT_TABLE_ENTRY(wxEVT_TASK_START, wxID_ANY, -1,\
+		(wxObjectEventFunction)(wxEventFunction)\
+		(TaskEventFunction) &fn, (wxObject*) NULL),
+
+#define EVT_TASK_END(fn)\
+	DECLARE_EVENT_TABLE_ENTRY(wxEVT_TASK_END, wxID_ANY, -1,\
+		(wxObjectEventFunction)(wxEventFunction)\
+		(TaskEventFunction) &fn, (wxObject*) NULL ),
+
+#define EVT_TASK_PROGRESS(fn)\
+	DECLARE_EVENT_TABLE_ENTRY(wxEVT_TASK_PROGRESS, wxID_ANY, -1,\
+		(wxObjectEventFunction)(wxEventFunction)\
+		(TaskProgressEventFunction) &fn, (wxObject*) NULL),
+
+#define EVT_TASK_STATUS(fn)\
+	DECLARE_EVENT_TABLE_ENTRY(wxEVT_TASK_STATUS, wxID_ANY, -1,\
+		(wxObjectEventFunction)(wxEventFunction)\
+		(TaskStatusEventFunction) &fn, (wxObject*) NULL),
+
+#define EVT_TASK_ERRORMSG(fn)\
+	DECLARE_EVENT_TABLE_ENTRY(wxEVT_TASK_ERRORMSG, wxID_ANY, -1,\
+		(wxObjectEventFunction)(wxEventFunction)\
+		(TaskProgressEventFunction) &fn, (wxObject*) NULL),
+

@@ -47,7 +47,6 @@
 
 #include "insticonlist.h"
 #include "data/instance.h"
-#include "tasks/task.h"
 
 //#include "MainWindow.h"
 //#include "SettingsDialog.h"

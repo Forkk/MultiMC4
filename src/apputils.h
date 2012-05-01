@@ -16,6 +16,7 @@
 
 #pragma once
 #include "includes.h"
+#include <wx/protocol/http.h>
 
 #ifdef __GNUC__
 #define DEPRECATED(func) func __attribute__ ((deprecated))
@@ -42,6 +43,8 @@ namespace Utils
 	int GetMaxAllowedMemAlloc();
 	
 	wxString RemoveInvalidPathChars(wxString path, wxChar replaceWith = '-');
+	
+	wxString WebRequest(wxString request, wxProtocolError* error);
 }
 
 namespace Path
