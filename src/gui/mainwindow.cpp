@@ -14,10 +14,10 @@
 //    limitations under the License.
 //
 
-#include "MainWindow.h"
-#include "LoginDialog.h"
+#include "mainwindow.h"
+#include "logindialog.h"
 
-#include "ToolbarIcons.h"
+#include "toolbaricons.h"
 
 IMPLEMENT_APP(MultiMC)
 

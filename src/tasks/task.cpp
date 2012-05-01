@@ -14,7 +14,7 @@
 //    limitations under the License.
 //
 
-#include "Task.h"
+#include "task.h"
 
 Task::Task()
 	: wxThread(wxTHREAD_DETACHED)

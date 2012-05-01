@@ -14,7 +14,7 @@
 //    limitations under the License.
 //
 
-#include "LoginDialog.h"
+#include "logindialog.h"
 
 BEGIN_EVENT_TABLE(LoginDialog, wxDialog)
 	

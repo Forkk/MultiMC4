@@ -14,7 +14,7 @@
 //    limitations under the License.
 //
 
-#include "AppUtils.h"
+#include "apputils.h"
 
 void Utils::OpenFile(wxFileName path)
 {

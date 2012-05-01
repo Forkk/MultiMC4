@@ -14,9 +14,9 @@
 //    limitations under the License.
 //
 
-#include "InstIconList.h"
+#include "insticonlist.h"
 
-#include "InstIcons.h"
+#include "insticons.h"
 
 struct InstIconDef
 {

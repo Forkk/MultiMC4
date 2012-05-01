@@ -8,36 +8,36 @@ project (MultiMC)
 # Set the sources and headers variables.
 file(GLOB SRCS "*.cpp")
 set(SRCS 
-gui/MainWindow.cpp
-gui/SettingsDialog.cpp
-gui/LoginDialog.cpp
+gui/mainwindow.cpp
+gui/settingsdialog.cpp
+gui/logindialog.cpp
 
-data/AppSettings.cpp
-data/Instance.cpp
+data/appsettings.cpp
+data/instance.cpp
 
-tasks/Task.cpp
+tasks/task.cpp
 
-AppUtils.cpp
-InstIconList.cpp
+apputils.cpp
+insticonlist.cpp
 )
 
 set (INCS
 includes.h
 
-gui/MainWindow.h
-gui/SettingsDialog.h
-gui/LoginDialog.h
+gui/mainwindow.h
+gui/settingsdialog.h
+gui/logindialog.h
 
-data/AppSettings.h
-data/Instance.h
+data/appsettings.h
+data/instance.h
 
-tasks/Task.h
+tasks/task.h
 
-AppUtils.h
-InstIconList.h
+apputils.h
+insticonlist.h
 
-InstIcons.h
-ToolbarIcons.h
+insticons.h
+toolbaricons.h
 )
 
 # Find wxWidgets.

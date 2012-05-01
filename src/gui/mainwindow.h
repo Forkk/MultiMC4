@@ -17,7 +17,7 @@
 #pragma once
 #include "includes.h"
 
-#include "SettingsDialog.h"
+#include "settingsdialog.h"
 
 //const wxString tbarIconPrefix = _T("resources/toolbar/");
 

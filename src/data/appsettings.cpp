@@ -14,7 +14,7 @@
 //    limitations under the License.
 //
 
-#include "AppSettings.h"
+#include "appsettings.h"
 
 AppSettings settings;
 

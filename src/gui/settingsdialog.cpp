@@ -14,7 +14,7 @@
 //    limitations under the License.
 //
 
-#include "SettingsDialog.h"
+#include "settingsdialog.h"
 
 SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	: wxDialog(parent, id, _T("Settings"), wxDefaultPosition,

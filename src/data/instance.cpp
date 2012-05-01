@@ -14,7 +14,7 @@
 //    limitations under the License.
 //
 
-#include "Instance.h"
+#include "instance.h"
 
 const wxString cfgFileName = _("instance.cfg");
 
