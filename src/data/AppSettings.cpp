@@ -32,9 +32,9 @@ void AppSettings::Save(const wxFileName &filename /* = iniConfigFile */)
 	pt.put<int>("MinMemoryAlloc", minMemAlloc);
 	pt.put<int>("MaxMemoryAlloc", maxMemAlloc);
 	
-	pt.put<std::string>("JavaPath", Utils::stdStr(javaPath.GetFullPath()));
-	pt.put<std::string>("InstanceDir", Utils::stdStr(instanceDir.GetFullPath()));
-	pt.put<std::string>("ModsDir", Utils::stdStr(modsDir.GetFullPath()));
+	pt.put<std::string>("JavaPath", stdStr(javaPath.GetFullPath()));
+	pt.put<std::string>("InstanceDir", stdStr(instanceDir.GetFullPath()));
+	pt.put<std::string>("ModsDir", stdStr(modsDir.GetFullPath()));
 	
 	pt.put<bool>("ShowConsole", showConsole);
 	pt.put<bool>("AutoCloseConsole", autoCloseConsole);
@@ -42,7 +42,7 @@ void AppSettings::Save(const wxFileName &filename /* = iniConfigFile */)
 	pt.put<bool>("QuitIfProblem", quitIfProblem);
 	
 	wxString str = filename.GetFullPath();
-	write_ini(Utils::stdStr(filename.GetFullPath()).c_str(), pt);
+	write_ini(stdStr(filename.GetFullPath()).c_str(), pt);
 }
 
 void AppSettings::Load(const wxFileName &filename /* = iniConfigFile */)
@@ -51,7 +51,7 @@ void AppSettings::Load(const wxFileName &filename /* = iniConfigFile */)
 	ptree pt;
 	
 	if (filename.FileExists())
-		read_ini(Utils::stdStr(filename.GetFullPath()).c_str(), pt);
+		read_ini(stdStr(filename.GetFullPath()).c_str(), pt);
 	
 	minMemAlloc = pt.get<int>("MinMemoryAlloc", 512);
 	maxMemAlloc = pt.get<int>("MaxMemoryAlloc", 1024);
@@ -77,7 +77,7 @@ wxFileName AppSettings::GetPathSetting(boost::property_tree::ptree &pt,
 		path = def;
 	}
 	if (isDir)
-		return wxFileName(Utils::wxStr(path), wxEmptyString);
+		return wxFileName(wxStr(path), wxEmptyString);
 	else
-		return wxFileName(Utils::wxStr(path));
+		return wxFileName(wxStr(path));
 }

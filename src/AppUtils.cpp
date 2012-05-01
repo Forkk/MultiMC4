@@ -56,26 +56,6 @@ int Utils::GetMaxAllowedMemAlloc()
 	return 65536;
 }
 
-// wxString Utils::wxStr(fs::path path)
-// {
-// 	return Utils::wxStr(Utils::stdStr(path));
-// }
-
-wxString Utils::wxStr(std::string str)
-{
-	return wxString(str.c_str(), wxConvUTF8);
-}
-
-// std::string Utils::stdStr(fs::path path)
-// {
-// 	return path.string();
-// }
-
-std::string Utils::stdStr(wxString str)
-{
-	return std::string(str.mb_str());
-}
-
 wxString Utils::RemoveInvalidPathChars(wxString path, wxChar replaceWith)
 {
 	for (int i = 0; i < path.Len(); i++)
@@ -96,4 +76,14 @@ wxFileName Path::Combine(const wxFileName& path, const wxString& str)
 wxFileName Path::Combine(const wxString& path, const wxString& str)
 {
 	return wxFileName(path, str);
+}
+
+wxString wxStr(std::string str)
+{
+	return wxString(str.c_str(), wxConvUTF8);
+}
+
+std::string stdStr(wxString str)
+{
+	return std::string(str.mb_str());
 }

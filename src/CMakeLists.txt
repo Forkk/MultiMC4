@@ -10,6 +10,7 @@ file(GLOB SRCS "*.cpp")
 set(SRCS 
 gui/MainWindow.cpp
 gui/SettingsDialog.cpp
+gui/LoginDialog.cpp
 
 data/AppSettings.cpp
 data/Instance.cpp
@@ -25,6 +26,7 @@ includes.h
 
 gui/MainWindow.h
 gui/SettingsDialog.h
+gui/LoginDialog.h
 
 data/AppSettings.h
 data/Instance.h

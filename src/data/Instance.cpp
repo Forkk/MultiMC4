@@ -54,13 +54,13 @@ bool Instance::Save()
 	using boost::property_tree::ptree;
 	ptree pt;
 
-	pt.put<std::string>("name", Utils::stdStr(name));
-	pt.put<std::string>("iconKey", Utils::stdStr(iconKey));
-	pt.put<std::string>("notes", Utils::stdStr(notes));
+	pt.put<std::string>("name", stdStr(name));
+	pt.put<std::string>("iconKey", stdStr(iconKey));
+	pt.put<std::string>("notes", stdStr(notes));
 	pt.put<bool>("NeedsRebuild", needsRebuild);
 	pt.put<bool>("AskUpdate", askUpdate);
 
-	write_ini(Utils::stdStr(filename.GetFullPath()).c_str(), pt);
+	write_ini(stdStr(filename.GetFullPath()).c_str(), pt);
 	return true;
 }
 
@@ -73,19 +73,19 @@ bool Instance::Load(bool loadDefaults)
 	try
 	{
 		if (!loadDefaults)
-			read_ini(Utils::stdStr(filename.GetFullPath()).c_str(), pt);
+			read_ini(stdStr(filename.GetFullPath()).c_str(), pt);
 	}
 	catch (boost::property_tree::ini_parser_error e)
 	{
 		wxLogError(_("Failed to parse instance config file '%s'. %s"), 
-			Utils::stdStr(filename.GetFullPath()).c_str(),
+			stdStr(filename.GetFullPath()).c_str(),
 			e.message().c_str());
 		return false;
 	}
 
-	name = Utils::wxStr(pt.get<std::string>("name", "Unnamed Instance"));
-	iconKey = Utils::wxStr(pt.get<std::string>("iconKey", "default"));
-	notes = Utils::wxStr(pt.get<std::string>("notes", ""));
+	name = wxStr(pt.get<std::string>("name", "Unnamed Instance"));
+	iconKey = wxStr(pt.get<std::string>("iconKey", "default"));
+	notes = wxStr(pt.get<std::string>("notes", ""));
 	
 	needsRebuild = pt.get<bool>("NeedsRebuild", false);
 	askUpdate = pt.get<bool>("AskUpdate", true);

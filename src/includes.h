@@ -30,6 +30,8 @@
 #include <wx/filefn.h>
 #include <wx/config.h>
 #include <wx/dir.h>
+#include <wx/sizer.h>
+#include <wx/gbsizer.h>
 
 #include <boost/pending/queue.hpp>
 #include <boost/format.hpp>

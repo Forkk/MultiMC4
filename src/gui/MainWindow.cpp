@@ -15,6 +15,7 @@
 //
 
 #include "MainWindow.h"
+#include "LoginDialog.h"
 
 #include "ToolbarIcons.h"
 
@@ -27,7 +28,7 @@ MainWindow::MainWindow(void)
 	: wxFrame(NULL, -1, _T("MultiMC"), wxPoint(0, 0), wxSize(620, 400))
 {
 	wxToolBar *mainToolBar = CreateToolBar();
-
+	
 	// Load toolbar icons
 	wxBitmap newInstIcon = wxMEMORY_IMAGE(newinsticon);
 	wxBitmap reloadIcon = wxMEMORY_IMAGE(refreshinsticon);
@@ -84,7 +85,7 @@ MainWindow::MainWindow(void)
 	
 	// Load instance list
 	LoadInstanceList();
-
+	
 	CenterOnScreen();
 }
 
@@ -182,14 +183,23 @@ Retry:
 		goto Retry;
 	}
 	
+	int num = 0;
 	wxString dirName = Utils::RemoveInvalidPathChars(newInstName);
-	wxFileName instDir;
-	do
+	while (Path::Combine(settings.instanceDir, dirName).DirExists())
 	{
-		instDir = settings.instanceDir;
-		instDir.AppendDir(dirName);
-	} while (instDir.DirExists());
-
+		num++;
+		dirName = Utils::RemoveInvalidPathChars(newInstName) + wxString::Format(_("_%i"), num);
+		
+		// If it's over 9000
+		if (num > 9000)
+		{
+			wxLogError(_T("Couldn't create instance folder: %s"),
+					   stdStr(Path::Combine(settings.instanceDir, dirName).GetFullPath()).c_str());
+			goto Retry;
+		}
+	}
+	wxFileName instDir;
+	
 	Instance *inst = new Instance(instDir, newInstName);
 	inst->Save();
 	AddInstance(inst);
@@ -240,8 +250,10 @@ void MainWindow::NotImplemented()
 // Instance menu
 void MainWindow::OnPlayClicked(wxCommandEvent& event)
 {
-	Instance *inst = GetSelectedInst();
-	inst->SetName(_T("Hello World"));
+	wxString errorMsg = _("");
+Retry:
+	LoginDialog loginDialog(this, errorMsg);
+	loginDialog.ShowModal();
 }
 
 void MainWindow::OnRenameClicked(wxCommandEvent& event)

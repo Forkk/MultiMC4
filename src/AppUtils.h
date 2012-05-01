@@ -17,23 +17,26 @@
 #pragma once
 #include "includes.h"
 
+#ifdef __GNUC__
+#define DEPRECATED(func) func __attribute__ ((deprecated))
+#elif defined(_MSC_VER)
+#define DEPRECATED(func) __declspec(deprecated) func
+#else
+#pragma message("WARNING: You need to implement DEPRECATED for this compiler")
+#define DEPRECATED(func) func
+#endif
+
+// Converts str to wxString
+wxString wxStr(std::string str);
+
+// Converts str to a standard string
+std::string stdStr(wxString str);
+
 namespace Utils
 {
 	// Opens the given path with the default program.
 	void OpenFile(wxFileName path);
-
-	// Converts the given standard string into a wxString
-	wxString wxStr(std::string str);
-
-	// Converts the given boost path into a wxString
-// 	wxString wxStr(fs::path path);
-
-	// Converts the given wxString into a standard string
-	std::string stdStr(wxString str);
-
-	// Converts the given boost path into a standard string
-// 	std::string stdStr(fs::path path);
-
+	
 	// Gets the max value of the users memory allocation settings.
 	// (this is based on the amount of free memory on the users computer)
 	int GetMaxAllowedMemAlloc();
