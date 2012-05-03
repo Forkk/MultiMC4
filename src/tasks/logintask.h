@@ -1,5 +1,5 @@
 /*
-    Copyright 2012 <copyright holder> <email>
+    Copyright 2012 Andrew Okin
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -21,9 +21,16 @@
 
 #include <wx/wx.h>
 
-struct LoginInfo
+DECLARE_EVENT_TYPE(wxEVT_LOGIN_COMPLETE, -1)
+
+// Stores a response from login.minecraft.net
+struct LoginResult
 {
-	LoginInfo(wxString loginResponse = wxEmptyString);
+	LoginResult(wxString loginResponse = wxEmptyString);
+	LoginResult(const LoginResult *result);
+	
+	bool loginFailed;
+	wxString errorMessage;
 	
 	wxString username;
 	wxString sessionID;
@@ -36,11 +43,27 @@ class LoginTask : public Task
 public:
 	LoginTask(UserInfo& uInfo);
 	
-	boost::signal<void (Task*, LoginInfo)> OnLoginComplete;
-	
 protected:
 	virtual void TaskStart();
+	
+	virtual void OnLoginComplete(LoginResult result);
 	
 	UserInfo m_userInfo;
 };
 
+struct LoginCompleteEvent : TaskEvent
+{
+	LoginCompleteEvent(const Task* task, const LoginResult &loginResult) 
+		: TaskEvent(wxEVT_LOGIN_COMPLETE, task) { m_loginResult = LoginResult(loginResult); }
+	
+	LoginResult m_loginResult;
+	
+	virtual wxEvent *Clone() const
+	{
+		return new LoginCompleteEvent(m_task, m_loginResult);
+	}
+};
+
+typedef void (wxEvtHandler::*LoginCompleteEventFunction)(LoginCompleteEvent&);
+
+#define EVT_LOGIN_COMPLETE(fn) EVT_TASK_CUSTOM(wxEVT_LOGIN_COMPLETE, fn, LoginCompleteEventFunction)

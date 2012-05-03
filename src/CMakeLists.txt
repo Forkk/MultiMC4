@@ -17,6 +17,7 @@ data/instance.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
+tasks/gameupdatetask.cpp
 
 apputils.cpp
 insticonlist.cpp
@@ -34,6 +35,7 @@ data/instance.h
 
 tasks/task.h
 tasks/logintask.h
+tasks/gameupdatetask.h
 
 apputils.h
 insticonlist.h

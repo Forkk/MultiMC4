@@ -68,10 +68,10 @@ private:
 
 struct TaskEvent : wxNotifyEvent
 {
-	TaskEvent(wxEventType type, Task *task) : wxNotifyEvent(type, -1) { m_task = task; }
+	TaskEvent(wxEventType type, const Task *task) : wxNotifyEvent(type, -1) { m_task = task; }
 	
-	Task *m_task;
-	virtual wxEvent *Clone()
+	const Task *m_task;
+	virtual wxEvent *Clone() const
 	{
 		return new TaskEvent(GetEventType(), m_task);
 	}
@@ -79,11 +79,11 @@ struct TaskEvent : wxNotifyEvent
 
 struct TaskStatusEvent : TaskEvent
 {
-	TaskStatusEvent(Task *task, wxString &status)
+	TaskStatusEvent(const Task *task, const wxString &status)
 		: TaskEvent(wxEVT_TASK_STATUS, task) { m_status = status; }
 	
 	wxString m_status;
-	virtual wxEvent *Clone()
+	virtual wxEvent *Clone() const
 	{
 		return new TaskStatusEvent(m_task, m_status);
 	}
@@ -91,11 +91,11 @@ struct TaskStatusEvent : TaskEvent
 
 struct TaskProgressEvent : TaskEvent
 {
-	TaskProgressEvent(Task *task, int &progress) 
+	TaskProgressEvent(const Task *task, const int &progress) 
 		: TaskEvent(wxEVT_TASK_PROGRESS, task) { m_progress = progress; }
 	
 	int m_progress;
-	virtual wxEvent *Clone()
+	virtual wxEvent *Clone() const
 	{
 		return new TaskProgressEvent(m_task, m_progress);
 	}
@@ -107,7 +107,7 @@ struct TaskErrorEvent : TaskEvent
 		: TaskEvent(wxEVT_TASK_ERRORMSG, task) { m_errorMsg = errorMsg; }
 	
 	wxString m_errorMsg;
-	virtual wxEvent *Clone()
+	virtual wxEvent *Clone() const
 	{
 		return new TaskStatusEvent(m_task, m_errorMsg);
 	}
@@ -144,3 +144,7 @@ typedef void (wxEvtHandler::*TaskErrorEventFunction)(TaskErrorEvent&);
 		(wxObjectEventFunction)(wxEventFunction)\
 		(TaskProgressEventFunction) &fn, (wxObject*) NULL),
 
+#define EVT_TASK_CUSTOM(evt_id, fn, type)\
+	DECLARE_EVENT_TABLE_ENTRY(evt_id, wxID_ANY, -1,\
+		(wxObjectEventFunction)(wxEventFunction)\
+		(type) &fn, (wxObject*) NULL),

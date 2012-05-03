@@ -28,10 +28,10 @@
 #endif
 
 // Converts str to wxString
-wxString wxStr(std::string str);
+wxString wxStr(const std::string& str);
 
 // Converts str to a standard string
-std::string stdStr(wxString str);
+std::string stdStr(const wxString& str);
 
 namespace Utils
 {
@@ -44,7 +44,8 @@ namespace Utils
 	
 	wxString RemoveInvalidPathChars(wxString path, wxChar replaceWith = '-');
 	
-	wxString WebRequest(wxString request, wxProtocolError* error);
+	wxString ExecutePost(const wxString &address, const wxString &requestString, 
+		wxProtocolError *error);
 }
 
 namespace Path

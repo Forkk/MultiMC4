@@ -43,7 +43,7 @@ Instance::~Instance(void)
 
 }
 
-bool Instance::Save()
+bool Instance::Save() const
 {
 	if (!GetRootDir().DirExists())
 	{
@@ -92,17 +92,17 @@ bool Instance::Load(bool loadDefaults)
 	return true;
 }
 
-wxFileName Instance::GetRootDir()
+wxFileName Instance::GetRootDir() const
 {
 	return rootDir;
 }
 
-wxFileName Instance::GetConfigPath()
+wxFileName Instance::GetConfigPath() const
 {
 	return wxFileName(rootDir.GetFullPath(), cfgFileName);
 }
 
-wxString Instance::GetName()
+wxString Instance::GetName() const
 {
 	return name;
 }
@@ -112,7 +112,7 @@ void Instance::SetName(wxString name)
 	this->name = name;
 }
 
-wxString Instance::GetIconKey()
+wxString Instance::GetIconKey() const
 {
 	return iconKey;
 }

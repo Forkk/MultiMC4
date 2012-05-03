@@ -26,16 +26,16 @@ public:
 	Instance(wxFileName rootDir, wxString name);
 	~Instance(void);
 
-	bool Save();
+	bool Save() const;
 	bool Load(bool loadDefaults = false);
 
-	wxFileName GetRootDir();
-	wxFileName GetConfigPath();
+	wxFileName GetRootDir() const;
+	wxFileName GetConfigPath() const;
 
-	wxString GetName();
+	wxString GetName() const;
 	void SetName(wxString name);
 
-	wxString GetIconKey();
+	wxString GetIconKey() const;
 	void SetIconKey(wxString iconKey);
 
 protected:

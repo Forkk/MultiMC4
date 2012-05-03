@@ -250,8 +250,12 @@ void MainWindow::NotImplemented()
 // Instance menu
 void MainWindow::OnPlayClicked(wxCommandEvent& event)
 {
-	wxString errorMsg = _("");
-Retry:
+	ShowLoginDlg(_(""));
+}
+
+void MainWindow::ShowLoginDlg(wxString errorMsg)
+{
+	Retry:
 	LoginDialog loginDialog(this, errorMsg);
 	int response = loginDialog.ShowModal();
 	
@@ -263,10 +267,21 @@ Retry:
 	}
 }
 
-void MainWindow::OnLoginComplete::operator()(Task* loginTask, LoginInfo loginInfo) const
+void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 {
-	
+	LoginResult result = event.m_loginResult;
+	if (!result.loginFailed)
+	{
+		// Login success
+		wxLogMessage(_("Logged in."));
+	}
+	else
+	{
+		// Login failed
+		ShowLoginDlg(result.errorMessage);
+	}
 }
+
 
 void MainWindow::OnRenameClicked(wxCommandEvent& event)
 {
@@ -316,13 +331,14 @@ void MainWindow::OnInstMenuOpened(wxListEvent& event)
 
 void MainWindow::OnTaskStart(TaskEvent& event)
 {
-	wxLogMessage(_("Task started"));
+	
 }
 
 void MainWindow::OnTaskEnd(TaskEvent& event)
 {
 	
 }
+
 
 void MainWindow::StartTask(Task& task)
 {

@@ -59,6 +59,8 @@ public:
 	void OnTaskStart(TaskEvent &event);
 	void OnTaskEnd(TaskEvent& event);
 	
+	void OnLoginComplete(LoginCompleteEvent &event);
+	
 	
 	// Other events
 	void OnInstMenuOpened(wxListEvent& event);
@@ -66,16 +68,9 @@ public:
 	
 	// Other methods
 	void StartTask(Task &task);
+	void ShowLoginDlg(wxString errorMsg);
 	
 	
-	// Task signal slots
-	struct OnLoginComplete
-	{
-		OnLoginComplete(MainWindow *mainWin) { main = mainWin; }
-		void operator()(Task* loginTask, LoginInfo loginInfo) const;
-		MainWindow *main;
-	};
-
 	DECLARE_EVENT_TABLE()
 
 protected:
@@ -162,6 +157,8 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	
 	EVT_TASK_START(MainWindow::OnTaskStart)
 	EVT_TASK_END(MainWindow::OnTaskEnd)
+	
+	EVT_LOGIN_COMPLETE(MainWindow::OnLoginComplete)
 END_EVENT_TABLE()
 
 class MultiMC : public wxApp
