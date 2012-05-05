@@ -25,16 +25,27 @@ public:
 	static Instance *LoadInstance(wxFileName rootDir);
 	Instance(wxFileName rootDir, wxString name);
 	~Instance(void);
-
+	
 	bool Save() const;
 	bool Load(bool loadDefaults = false);
-
+	
+	// Directories
 	wxFileName GetRootDir() const;
+	wxFileName GetMCDir() const;
+	wxFileName GetBinDir() const;
+	
+	// Files
 	wxFileName GetConfigPath() const;
-
+	wxFileName GetVersionFile() const;
+	wxFileName GetMCBackup() const;
+	
+	
+	wxString ReadVersionFile();
+	void WriteVersionFile(const wxString& contents);
+	
 	wxString GetName() const;
 	void SetName(wxString name);
-
+	
 	wxString GetIconKey() const;
 	void SetIconKey(wxString iconKey);
 

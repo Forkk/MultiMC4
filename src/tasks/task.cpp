@@ -24,9 +24,10 @@ DEFINE_EVENT_TYPE(wxEVT_TASK_STATUS)
 DEFINE_EVENT_TYPE(wxEVT_TASK_ERRORMSG)
 
 Task::Task()
-	: wxThread(wxTHREAD_DETACHED)
+	: wxThread(wxTHREAD_JOINABLE)
 {
-
+	m_status = _("");
+	m_progress = 0;
 }
 
 Task::~Task()
@@ -38,6 +39,7 @@ void Task::Start()
 {
 	wxThread::Create();
 	wxThread::Run();
+	
 }
 
 void Task::Cancel()
@@ -49,8 +51,14 @@ void *Task::Entry()
 {
 	OnTaskStart();
 	TaskStart();
-	OnTaskEnd();
+	if (!endCalled)
+		OnTaskEnd();
 	return NULL;
+}
+
+void Task::Dispose()
+{
+	wxThread::Delete();
 }
 
 void Task::SetProgress(int progress, bool fireEvent /* = true */)
@@ -60,7 +68,7 @@ void Task::SetProgress(int progress, bool fireEvent /* = true */)
 		OnProgressChanged(progress);
 }
 
-int Task::GetProgress()
+int Task::GetProgress() const
 {
 	return m_progress;
 }
@@ -72,12 +80,12 @@ void Task::SetStatus(wxString status, bool fireEvent /* = true */)
 		OnStatusChanged(status);
 }
 
-wxString Task::GetStatus()
+wxString Task::GetStatus() const
 {
 	return m_status;
 }
 
-bool Task::IsRunning()
+bool Task::IsRunning() const
 {
 	return wxThread::IsRunning();
 }
@@ -95,21 +103,41 @@ void Task::OnTaskStart()
 
 void Task::OnTaskEnd()
 {
+	endCalled = true;
 	TaskEvent event(wxEVT_TASK_END, this);
 	m_evtHandler->AddPendingEvent(event);
 }
 
-void Task::OnStatusChanged(wxString& status)
+void Task::OnStatusChanged(const wxString& status)
 {
-	
+	TaskStatusEvent event(this, status);
+	m_evtHandler->AddPendingEvent(event);
 }
 
-void Task::OnProgressChanged(int& progress)
+void Task::OnProgressChanged(const int& progress)
 {
-	
+	TaskProgressEvent event(this, progress);
+	m_evtHandler->AddPendingEvent(event);
 }
 
-void Task::OnErrorMessage(wxString& msg)
+void Task::OnErrorMessage(const wxString& msg)
 {
-	
+	TaskErrorEvent event(this, msg);
+	m_evtHandler->AddPendingEvent(event);
+}
+
+void Task::SetProgressDialog(wxProgressDialog* dialog)
+{
+	m_progDlg = dialog;
+	m_modal = true;
+}
+
+wxProgressDialog* Task::GetProgressDialog() const
+{
+	return m_progDlg;
+}
+
+bool Task::IsModal() const
+{
+	return m_modal;
 }

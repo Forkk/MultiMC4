@@ -53,7 +53,7 @@ protected:
 
 struct LoginCompleteEvent : TaskEvent
 {
-	LoginCompleteEvent(const Task* task, const LoginResult &loginResult) 
+	LoginCompleteEvent(Task* task, const LoginResult &loginResult) 
 		: TaskEvent(wxEVT_LOGIN_COMPLETE, task) { m_loginResult = LoginResult(loginResult); }
 	
 	LoginResult m_loginResult;

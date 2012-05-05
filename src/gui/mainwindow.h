@@ -15,7 +15,8 @@
 //
 
 #pragma once
-#include "includes.h"
+#include <wx/wx.h>
+#include "task.h"
 #include "logintask.h"
 
 #include "settingsdialog.h"
@@ -57,7 +58,9 @@ public:
 	
 	// Task Events
 	void OnTaskStart(TaskEvent &event);
-	void OnTaskEnd(TaskEvent& event);
+	void OnTaskEnd(TaskEvent &event);
+	void OnTaskProgress(TaskProgressEvent &event);
+	void OnTaskStatus(TaskStatusEvent &event);
 	
 	void OnLoginComplete(LoginCompleteEvent &event);
 	
@@ -68,6 +71,8 @@ public:
 	
 	// Other methods
 	void StartTask(Task &task);
+	void StartModalTask(Task &task);
+	
 	void ShowLoginDlg(wxString errorMsg);
 	
 	
@@ -157,6 +162,8 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	
 	EVT_TASK_START(MainWindow::OnTaskStart)
 	EVT_TASK_END(MainWindow::OnTaskEnd)
+	EVT_TASK_STATUS(MainWindow::OnTaskStatus)
+	EVT_TASK_PROGRESS(MainWindow::OnTaskProgress)
 	
 	EVT_LOGIN_COMPLETE(MainWindow::OnLoginComplete)
 END_EVENT_TABLE()

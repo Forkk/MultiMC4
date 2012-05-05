@@ -27,6 +27,8 @@
 #define DEPRECATED(func) func
 #endif
 
+#define ENUM_CONTAINS(val, check) (val & check) == check
+
 // Converts str to wxString
 wxString wxStr(const std::string& str);
 

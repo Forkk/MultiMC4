@@ -263,7 +263,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	{
 		UserInfo info(loginDialog);
 		LoginTask *task = new LoginTask(info);
-		StartTask(*task);
+		StartModalTask(*task);
 	}
 }
 
@@ -336,7 +336,28 @@ void MainWindow::OnTaskStart(TaskEvent& event)
 
 void MainWindow::OnTaskEnd(TaskEvent& event)
 {
-	
+	if (event.m_task->IsModal())
+	{
+		event.m_task->GetProgressDialog()->EndModal(0);
+	}
+	event.m_task->Wait();
+	event.m_task->Dispose();
+}
+
+void MainWindow::OnTaskProgress(TaskProgressEvent& event)
+{
+	if (event.m_task->IsModal())
+	{
+		event.m_task->GetProgressDialog()->Update(event.m_progress, event.m_task->GetStatus());
+	}
+}
+
+void MainWindow::OnTaskStatus(TaskStatusEvent& event)
+{
+	if (event.m_task->IsModal())
+	{
+		event.m_task->GetProgressDialog()->Update(event.m_task->GetProgress(), event.m_status);
+	}
 }
 
 
@@ -345,6 +366,17 @@ void MainWindow::StartTask(Task& task)
 	task.SetEvtHandler(this);
 	task.Start();
 }
+
+void MainWindow::StartModalTask(Task& task)
+{
+	wxProgressDialog *progDialog = new wxProgressDialog(_("Please wait..."), 
+														task.GetStatus(), 100, this);
+	task.SetProgressDialog(progDialog);
+	task.SetEvtHandler(this);
+	task.Start();
+	progDialog->ShowModal();
+}
+
 
 // App
 bool MultiMC::OnInit()

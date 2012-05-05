@@ -15,6 +15,9 @@
 //
 
 #include "instance.h"
+#include <wx/filesys.h>
+#include <wx/sstream.h>
+#include <wx/wfstream.h>
 
 const wxString cfgFileName = _("instance.cfg");
 
@@ -101,6 +104,58 @@ wxFileName Instance::GetConfigPath() const
 {
 	return wxFileName(rootDir.GetFullPath(), cfgFileName);
 }
+
+wxFileName Instance::GetMCDir() const
+{
+	wxFileName mcDir(GetRootDir().GetFullPath(), _(".minecraft"));
+	
+	if (!mcDir.DirExists())
+	{
+		mcDir = wxFileName(GetRootDir().GetFullPath(), _("minecraft"));
+		if (!(ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_MAC)))
+		{
+			mcDir.SetName(_(".minecraft"));
+		}
+	}
+	
+	return mcDir;
+}
+
+wxFileName Instance::GetBinDir() const
+{
+	return wxFileName(GetMCDir().GetFullPath(), _("bin"));
+}
+
+wxFileName Instance::GetVersionFile() const
+{
+	return wxFileName(GetBinDir().GetFullPath(), _("version"));
+}
+
+wxFileName Instance::GetMCBackup() const
+{
+	return wxFileName(GetBinDir().GetFullPath(), _("mcbackup.jar"));
+}
+
+
+wxString Instance::ReadVersionFile()
+{
+	// Open the file for reading
+	wxFSFile *vFile = wxFileSystem().OpenFile(GetVersionFile().GetFullPath(), wxFS_READ);
+	wxString retVal;
+	wxStringOutputStream outStream(&retVal);
+	outStream.Write(*vFile->GetStream());
+	wxDELETE(vFile);
+	return retVal;
+}
+
+void Instance::WriteVersionFile(const wxString &contents)
+{
+	wxFile vFile(GetVersionFile().GetFullPath(), wxFile::write);
+	wxFileOutputStream outStream(vFile);
+	wxStringInputStream inStream(contents);
+	outStream.Write(inStream);
+}
+
 
 wxString Instance::GetName() const
 {

@@ -53,12 +53,18 @@ MESSAGE(STATUS "** wxWidgets Configuration: ${wxWidgets_CONFIGURATION}")
 # Find boost.
 set(Boost_USE_STATIC_LIBS ON)
 MESSAGE(STATUS "** Finding Boost...")
-find_package(Boost 1.46.0 COMPONENTS system filesystem signals REQUIRED)
+find_package(Boost 1.46.0 COMPONENTS signals REQUIRED)
 MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
 MESSAGE(STATUS "** Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
+# Find libCURL
+find_package(CURL REQUIRED)
+
 # Include wxWidgets.
 include("${wxWidgets_USE_FILE}")
+
+# Include CURL
+include_directories("${CURL_INCLUDE_DIR}")
 
 # Include boost.
 include_directories("${Boost_INCLUDE_DIRS}")
@@ -77,4 +83,5 @@ add_executable(MultiMC WIN32 ${SRCS} ${INCS})
 target_link_libraries(MultiMC
 	${wxWidgets_LIBRARIES}
 	${Boost_LIBRARIES}
+	${CURL_LIBRARIES}
 )

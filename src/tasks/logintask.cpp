@@ -23,12 +23,14 @@
 DEFINE_EVENT_TYPE(wxEVT_LOGIN_COMPLETE)
 
 LoginTask::LoginTask(UserInfo &uInfo)
+	: Task()
 {
 	m_userInfo = uInfo;
 }
 
 void LoginTask::TaskStart()
 {
+	SetStatus(_("Logging in..."));
 	// Get http://login.minecraft.net/?username=<username>&password=<password>&version=1337
 	wxURL loginURL = _("http://login.minecraft.net/?user=") + m_userInfo.username + 
 		_("&password=") + m_userInfo.password + _("&version=1337");
@@ -62,6 +64,8 @@ void LoginTask::TaskStart()
 
 void LoginTask::OnLoginComplete(LoginResult result)
 {
+	OnTaskEnd();
+	SetProgress(100);
 	LoginCompleteEvent event(this, new LoginResult(result));
 	m_evtHandler->AddPendingEvent(event);
 }
