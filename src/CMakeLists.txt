@@ -57,6 +57,11 @@ find_package(Boost 1.46.0 COMPONENTS signals REQUIRED)
 MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
 MESSAGE(STATUS "** Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
+IF(UNIX)
+  # assume GCC, add C++0x/C++11 stuff
+  SET(CMAKE_CXX_FLAGS "-std=c++0x")
+ENDIF()
+
 # Find libCURL
 find_package(CURL REQUIRED)
 
