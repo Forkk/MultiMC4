@@ -19,6 +19,7 @@
 
 #include "toolbaricons.h"
 #include <gameupdatetask.h>
+#include <wx/fs_arc.h>
 
 IMPLEMENT_APP(MultiMC)
 
@@ -186,7 +187,7 @@ Retry:
 	
 	int num = 0;
 	wxString dirName = Utils::RemoveInvalidPathChars(newInstName);
-	while (Path::Combine(settings.instanceDir, dirName).DirExists())
+	while (wxDirExists(Path::Combine(settings.instanceDir, dirName)))
 	{
 		num++;
 		dirName = Utils::RemoveInvalidPathChars(newInstName) + wxString::Format(_("_%i"), num);
@@ -195,11 +196,11 @@ Retry:
 		if (num > 9000)
 		{
 			wxLogError(_T("Couldn't create instance folder: %s"),
-					   stdStr(Path::Combine(settings.instanceDir, dirName).GetFullPath()).c_str());
+					   Path::Combine(settings.instanceDir, dirName).c_str());
 			goto Retry;
 		}
 	}
-	wxFileName instDir;
+	wxFileName instDir = wxFileName::DirName(Path::Combine(settings.instanceDir, dirName));
 	
 	Instance *inst = new Instance(instDir, newInstName);
 	inst->Save();
@@ -352,7 +353,7 @@ void MainWindow::OnTaskEnd(TaskEvent& event)
 {
 	if (event.m_task->IsModal())
 	{
-		event.m_task->GetProgressDialog()->EndModal(0);
+		event.m_task->GetProgressDialog()->Close();
 	}
 	event.m_task->Dispose();
 }
@@ -362,6 +363,7 @@ void MainWindow::OnTaskProgress(TaskProgressEvent& event)
 	if (event.m_task->IsModal())
 	{
 		event.m_task->GetProgressDialog()->Update(event.m_progress, event.m_task->GetStatus());
+		event.m_task->GetProgressDialog()->Fit();
 	}
 }
 
@@ -370,7 +372,13 @@ void MainWindow::OnTaskStatus(TaskStatusEvent& event)
 	if (event.m_task->IsModal())
 	{
 		event.m_task->GetProgressDialog()->Update(event.m_task->GetProgress(), event.m_status);
+		event.m_task->GetProgressDialog()->Fit();
 	}
+}
+
+void MainWindow::OnTaskError(TaskErrorEvent& event)
+{
+	wxLogError(event.m_errorMsg);
 }
 
 
@@ -384,6 +392,9 @@ void MainWindow::StartModalTask(Task& task)
 {
 	wxProgressDialog *progDialog = new wxProgressDialog(_("Please wait..."), 
 														task.GetStatus(), 100, this);
+	progDialog->SetMinSize(wxSize(400, 80));
+	progDialog->Fit();
+	progDialog->CenterOnParent();
 	task.SetProgressDialog(progDialog);
 	task.SetEvtHandler(this);
 	task.Start();

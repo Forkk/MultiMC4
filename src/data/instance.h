@@ -31,12 +31,21 @@ public:
 	
 	// Directories
 	wxFileName GetRootDir() const;
+	wxFileName GetInstModsDir() const;
+	
+	// Minecraft dir subfolders
 	wxFileName GetMCDir() const;
 	wxFileName GetBinDir() const;
+	wxFileName GetSavesDir() const;
+	wxFileName GetMLModsDir() const;
+	wxFileName GetResourceDir() const;
+	wxFileName GetScreenshotsDir() const;
+	wxFileName GetTexturePacksDir() const;
 	
 	// Files
 	wxFileName GetConfigPath() const;
 	wxFileName GetVersionFile() const;
+	wxFileName GetMCJar() const;
 	wxFileName GetMCBackup() const;
 	
 	
@@ -57,4 +66,6 @@ protected:
 	wxString notes;
 	bool needsRebuild;
 	bool askUpdate;
+	
+	void MkDirs();
 };

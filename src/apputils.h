@@ -30,10 +30,36 @@
 #define ENUM_CONTAINS(val, check) (val & check) == check
 
 // Converts str to wxString
-wxString wxStr(const std::string& str);
-
+// wxString wxStr(const std::string& str);
+// 
 // Converts str to a standard string
-std::string stdStr(const wxString& str);
+// std::string stdStr(const wxString& str);
+// 
+// Converts str to a char string
+// const char *cStr(const wxString& str);
+// 
+// Converts str to a char string
+// const char *cStr(const std::string& str);
+
+inline wxString wxStr(const std::string &str)
+{
+	return wxString(str.c_str(), wxConvUTF8);
+}
+
+inline std::string stdStr(const wxString &str)
+{
+	return std::string(str.mb_str());
+}
+
+inline const char* cStr(const std::string& str)
+{
+	return str.c_str();
+}
+
+inline const char* cStr(const wxString& str)
+{
+	return cStr(stdStr(str));
+}
 
 namespace Utils
 {
@@ -48,10 +74,12 @@ namespace Utils
 	
 	wxString ExecutePost(const wxString &address, const wxString &requestString, 
 		wxProtocolError *error);
+	
+	wxString BytesToString(unsigned char *bytes);
 }
 
 namespace Path
 {
-	wxFileName Combine(const wxFileName &path, const wxString &str);
-	wxFileName Combine(const wxString &path, const wxString &str);
+	wxString Combine(const wxString& path, const wxString& str);
+	wxString Combine(const wxFileName& path, const wxString& str);
 }

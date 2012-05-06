@@ -69,22 +69,26 @@ wxString Utils::RemoveInvalidPathChars(wxString path, wxChar replaceWith)
 	return path;
 }
 
-wxFileName Path::Combine(const wxFileName& path, const wxString& str)
+wxString Path::Combine(const wxFileName& path, const wxString& str)
 {
-	return wxFileName(path.GetFullPath(), str);
+	return wxFileName(path.GetFullPath(), str).GetFullPath();
 }
 
-wxFileName Path::Combine(const wxString& path, const wxString& str)
+wxString Path::Combine(const wxString& path, const wxString& str)
 {
-	return wxFileName(path, str);
+	return wxFileName(path, str).GetFullPath();
 }
 
-wxString wxStr(const std::string &str)
+wxString Utils::BytesToString(unsigned char *bytes)
 {
-	return wxString(str.c_str(), wxConvUTF8);
-}
-
-std::string stdStr(const wxString &str)
-{
-	return std::string(str.mb_str());
+	char asciihash[33];
+	
+	int p = 0;
+	for(int i=0; i<16; i++)
+	{
+		::sprintf(&asciihash[p],"%02x",bytes[i]);
+		p += 2;
+	}
+	asciihash[32] = '\0';
+	return wxStr(std::string(asciihash));
 }

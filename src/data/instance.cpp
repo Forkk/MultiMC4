@@ -23,7 +23,7 @@ const wxString cfgFileName = _("instance.cfg");
 
 bool IsValidInstance(wxFileName rootDir)
 {
-	return rootDir.DirExists() && Path::Combine(rootDir, cfgFileName).FileExists();
+	return rootDir.DirExists() && wxFileExists(Path::Combine(rootDir, cfgFileName));
 }
 
 Instance *Instance::LoadInstance(wxFileName rootDir)
@@ -39,11 +39,34 @@ Instance::Instance(wxFileName rootDir, wxString name)
 	this->rootDir = rootDir;
 	Load(true);
 	this->name = name;
+	MkDirs();
 }
 
 Instance::~Instance(void)
 {
 
+}
+
+// Makes ALL the directories! \o/
+void Instance::MkDirs()
+{
+	if (!GetMCDir().DirExists())
+		GetMCDir().Mkdir();
+	if (!GetBinDir().DirExists())
+		GetBinDir().Mkdir();
+	if (!GetSavesDir().DirExists())
+		GetSavesDir().Mkdir();
+	if (!GetMLModsDir().DirExists())
+		GetMLModsDir().Mkdir();
+	if (!GetResourceDir().DirExists())
+		GetResourceDir().Mkdir();
+	if (!GetScreenshotsDir().DirExists())
+		GetScreenshotsDir().Mkdir();
+	if (!GetTexturePacksDir().DirExists())
+		GetTexturePacksDir().Mkdir();
+	
+	if (!GetInstModsDir().DirExists())
+		GetInstModsDir().Mkdir();
 }
 
 bool Instance::Save() const
@@ -107,15 +130,16 @@ wxFileName Instance::GetConfigPath() const
 
 wxFileName Instance::GetMCDir() const
 {
-	wxFileName mcDir = wxFileName::DirName(GetRootDir().GetFullPath() + _("/.minecraft"));
+	wxFileName mcDir;
 	
-	if (!mcDir.DirExists())
+	if (ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_MAC) || 
+		wxFileExists(Path::Combine(GetRootDir(), _("minecraft"))))
 	{
-		mcDir = wxFileName::DirName(GetRootDir().GetFullPath() + _("/minecraft"));
-		if (!(ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_MAC)))
-		{
-			mcDir.SetName(_(".minecraft"));
-		}
+		mcDir = wxFileName::DirName(Path::Combine(GetRootDir(), _("minecraft")));
+	}
+	else
+	{
+		mcDir = wxFileName::DirName(Path::Combine(GetRootDir(), _(".minecraft")));
 	}
 	
 	return mcDir;
@@ -124,6 +148,37 @@ wxFileName Instance::GetMCDir() const
 wxFileName Instance::GetBinDir() const
 {
 	return wxFileName::DirName(GetMCDir().GetFullPath() + _("/bin"));
+}
+
+wxFileName Instance::GetMLModsDir() const
+{
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("mods")));
+}
+
+wxFileName Instance::GetResourceDir() const
+{
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("resources")));
+}
+
+wxFileName Instance::GetSavesDir() const
+{
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("saves")));
+}
+
+wxFileName Instance::GetScreenshotsDir() const
+{
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("screenshots")));
+}
+
+wxFileName Instance::GetTexturePacksDir() const
+{
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("texturepacks")));
+}
+
+
+wxFileName Instance::GetInstModsDir() const
+{
+	return wxFileName::DirName(Path::Combine(GetRootDir().GetFullPath(), _("instMods")));
 }
 
 wxFileName Instance::GetVersionFile() const

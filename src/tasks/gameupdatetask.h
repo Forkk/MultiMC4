@@ -1,5 +1,5 @@
 /*
-    Copyright 2012 <copyright holder> <email>
+    Copyright 2012 Andrew Okin
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ protected:
 	virtual void LoadJarURLs();
 	virtual void AskToUpdate();
 	virtual void DownloadJars();
+	virtual void ExtractNatives();
 	
 	virtual void SetState(UpdateState state);
 	
@@ -82,6 +83,9 @@ protected:
 };
 
 size_t CurlCallback(void *buffer, size_t size, size_t nmemb, void *userp);
+
+typedef std::function<size_t (void *buffer, size_t size)> CurlLambdaCallbackFunction;
+size_t CurlLambdaCallback(void *buffer, size_t size, size_t nmemb, void *userp);
 
 DECLARE_EVENT_TYPE(wxEVT_GAME_UPDATE_COMPLETE, -1)
 

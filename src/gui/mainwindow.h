@@ -61,6 +61,7 @@ public:
 	void OnTaskEnd(TaskEvent &event);
 	void OnTaskProgress(TaskProgressEvent &event);
 	void OnTaskStatus(TaskStatusEvent &event);
+	void OnTaskError(TaskErrorEvent &event);
 	
 	void OnLoginComplete(LoginCompleteEvent &event);
 	

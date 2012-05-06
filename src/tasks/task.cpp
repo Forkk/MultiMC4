@@ -28,6 +28,7 @@ Task::Task()
 {
 	m_status = _("");
 	m_progress = 0;
+	endCalled = false;
 }
 
 Task::~Task()
@@ -109,6 +110,7 @@ void Task::OnTaskStart()
 void Task::OnTaskEnd()
 {
 	endCalled = true;
+	SetProgress(100);
 	TaskEvent event(wxEVT_TASK_END, this);
 	m_evtHandler->AddPendingEvent(event);
 }
