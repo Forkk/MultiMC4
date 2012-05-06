@@ -57,6 +57,11 @@ find_package(Boost 1.46.0 COMPONENTS signals REQUIRED)
 MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
 MESSAGE(STATUS "** Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
+IF(UNIX)
+  # assume GCC, add C++0x/C++11 stuff
+  SET(CMAKE_CXX_FLAGS "-std=c++0x")
+ENDIF()
+
 # Find libCURL
 find_package(CURL REQUIRED)
 
@@ -68,6 +73,9 @@ include_directories("${CURL_INCLUDE_DIR}")
 
 # Include boost.
 include_directories("${Boost_INCLUDE_DIRS}")
+
+# Make the static md5 lib build
+add_subdirectory(md5)
 
 include_directories(
 "${PROJECT_SOURCE_DIR}"
@@ -84,4 +92,5 @@ target_link_libraries(MultiMC
 	${wxWidgets_LIBRARIES}
 	${Boost_LIBRARIES}
 	${CURL_LIBRARIES}
+        tinymd5
 )
