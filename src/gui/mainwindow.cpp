@@ -315,7 +315,12 @@ void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
 
 void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
 {
-	NotImplemented();
+	auto inst = GetSelectedInst();
+	if (inst)
+	{
+		printf( "%ls\n", inst->GetRootDir().GetFullPath().GetData());
+		Utils::OpenFile(inst->GetRootDir());
+	}
 }
 
 void MainWindow::OnDeleteClicked(wxCommandEvent& event)
