@@ -107,11 +107,11 @@ wxFileName Instance::GetConfigPath() const
 
 wxFileName Instance::GetMCDir() const
 {
-	wxFileName mcDir(GetRootDir().GetFullPath(), _(".minecraft"));
+	wxFileName mcDir = wxFileName::DirName(GetRootDir().GetFullPath() + _("/.minecraft"));
 	
 	if (!mcDir.DirExists())
 	{
-		mcDir = wxFileName(GetRootDir().GetFullPath(), _("minecraft"));
+		mcDir = wxFileName::DirName(GetRootDir().GetFullPath() + _("/minecraft"));
 		if (!(ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_MAC)))
 		{
 			mcDir.SetName(_(".minecraft"));
@@ -123,22 +123,25 @@ wxFileName Instance::GetMCDir() const
 
 wxFileName Instance::GetBinDir() const
 {
-	return wxFileName(GetMCDir().GetFullPath(), _("bin"));
+	return wxFileName::DirName(GetMCDir().GetFullPath() + _("/bin"));
 }
 
 wxFileName Instance::GetVersionFile() const
 {
-	return wxFileName(GetBinDir().GetFullPath(), _("version"));
+	return wxFileName::FileName(GetBinDir().GetFullPath() + _("/version"));
 }
 
 wxFileName Instance::GetMCBackup() const
 {
-	return wxFileName(GetBinDir().GetFullPath(), _("mcbackup.jar"));
+	return wxFileName::FileName(GetBinDir().GetFullPath() + _("/mcbackup.jar"));
 }
 
 
 wxString Instance::ReadVersionFile()
 {
+	if (!GetVersionFile().FileExists())
+		return _("");
+	
 	// Open the file for reading
 	wxFSFile *vFile = wxFileSystem().OpenFile(GetVersionFile().GetFullPath(), wxFS_READ);
 	wxString retVal;
@@ -150,7 +153,12 @@ wxString Instance::ReadVersionFile()
 
 void Instance::WriteVersionFile(const wxString &contents)
 {
-	wxFile vFile(GetVersionFile().GetFullPath(), wxFile::write);
+	if (!GetBinDir().DirExists())
+		GetBinDir().Mkdir();
+	
+	wxFile vFile;
+	if (!vFile.Create(GetVersionFile().GetFullPath(), true))
+		return;
 	wxFileOutputStream outStream(vFile);
 	wxStringInputStream inStream(contents);
 	outStream.Write(inStream);

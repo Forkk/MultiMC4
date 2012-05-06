@@ -51,8 +51,7 @@ void *Task::Entry()
 {
 	OnTaskStart();
 	TaskStart();
-	if (!endCalled)
-		OnTaskEnd();
+	OnTaskEnd();
 	return NULL;
 }
 
@@ -63,6 +62,12 @@ void Task::Dispose()
 
 void Task::SetProgress(int progress, bool fireEvent /* = true */)
 {
+	// For GTK to stop bitching
+	if (progress >= 100)
+		progress = 100;
+	if (progress <= 0)
+		progress = 0;
+	
 	m_progress = progress;
 	if (fireEvent)
 		OnProgressChanged(progress);

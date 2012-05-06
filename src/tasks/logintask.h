@@ -41,7 +41,10 @@ struct LoginResult
 class LoginTask : public Task
 {
 public:
-	LoginTask(UserInfo& uInfo);
+	LoginTask(UserInfo& uInfo, Instance *inst, bool forceUpdate);
+	
+	Instance *m_inst;
+	bool m_forceUpdate;
 	
 protected:
 	virtual void TaskStart();

@@ -18,6 +18,7 @@
 #include "logindialog.h"
 
 #include "toolbaricons.h"
+#include <gameupdatetask.h>
 
 IMPLEMENT_APP(MultiMC)
 
@@ -255,25 +256,33 @@ void MainWindow::OnPlayClicked(wxCommandEvent& event)
 
 void MainWindow::ShowLoginDlg(wxString errorMsg)
 {
-	Retry:
 	LoginDialog loginDialog(this, errorMsg);
 	int response = loginDialog.ShowModal();
 	
 	if (response == wxID_OK)
 	{
 		UserInfo info(loginDialog);
-		LoginTask *task = new LoginTask(info);
+		LoginTask *task = new LoginTask(info, GetSelectedInst(), loginDialog.ShouldForceUpdate());
 		StartModalTask(*task);
 	}
 }
 
 void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 {
+	LoginTask *loginTask = (LoginTask*)event.m_task;
 	LoginResult result = event.m_loginResult;
 	if (!result.loginFailed)
 	{
 		// Login success
-		wxLogMessage(_("Logged in."));
+		// If the session ID is empty, the game updater will not be run.
+		if (!result.sessionID.empty())
+		{
+			GameUpdateTask *task = new GameUpdateTask(loginTask->m_inst,
+													   result.latestVersion,
+													   _("minecraft.jar"), 
+													   loginTask->m_forceUpdate);
+			StartModalTask(*task);
+		}
 	}
 	else
 	{
@@ -340,7 +349,6 @@ void MainWindow::OnTaskEnd(TaskEvent& event)
 	{
 		event.m_task->GetProgressDialog()->EndModal(0);
 	}
-	event.m_task->Wait();
 	event.m_task->Dispose();
 }
 

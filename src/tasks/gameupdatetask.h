@@ -17,6 +17,7 @@
 #pragma once
 #include "task.h"
 #include <instance.h>
+#include <boost/array.hpp>
 #include <wx/url.h>
 #include <wx/wfstream.h>
 
@@ -32,6 +33,7 @@ enum UpdateState
 
 class GameUpdateTask : public Task
 {
+public:
 	GameUpdateTask(Instance *inst, 
 				   wxString latestVersion, 
 				   wxString mainGameURL, 
@@ -45,42 +47,41 @@ protected:
 	
 	bool m_shouldUpdate;
 	
-	std::vector<wxURL> jarURLs;
+	boost::array<wxURL, 5> jarURLs;
 	
 	virtual void TaskStart();
 	virtual void LoadJarURLs();
 	virtual void AskToUpdate();
 	virtual void DownloadJars();
 	
-	// CURL callback for downloading jars.
-	static size_t WriteJarData(void *buffer, size_t size, size_t nmemb, void *userp);
-	
 	virtual void SetState(UpdateState state);
 	
 	virtual void OnGameUpdateComplete();
 	
-	struct WriteJarCBkInfo
-	{
-		WriteJarCBkInfo(GameUpdateTask *task, 
-						wxFileOutputStream *fileOutStream, 
-						int initialProgress, 
-						int currentFileSize, 
-						int totalDownloadSize)
-		{
-			m_task = task;
-			m_fileOutStream = fileOutStream;
-			m_initialProgress = initialProgress;
-			m_currentFileSize = currentFileSize;
-			m_totalDLSize = totalDownloadSize;
-		}
-		
-		GameUpdateTask *m_task;
-		wxFileOutputStream *m_fileOutStream;
-		int m_initialProgress;
-		int m_currentFileSize;
-		int m_totalDLSize;
-	};
+// 	struct WriteJarCBkInfo
+// 	{
+// 		WriteJarCBkInfo(GameUpdateTask *task, 
+// 						wxFileOutputStream *fileOutStream, 
+// 						int initialProgress, 
+// 						int currentFileSize, 
+// 						int totalDownloadSize)
+// 		{
+// 			m_task = task;
+// 			m_fileOutStream = fileOutStream;
+// 			m_initialProgress = initialProgress;
+// 			m_currentFileSize = currentFileSize;
+// 			m_totalDLSize = totalDownloadSize;
+// 		}
+// 		
+// 		GameUpdateTask *m_task;
+// 		wxFileOutputStream *m_fileOutStream;
+// 		int m_initialProgress;
+// 		int m_currentFileSize;
+// 		int m_totalDLSize;
+// 	};
 };
+
+size_t CurlCallback(void *buffer, size_t size, size_t nmemb, void *userp);
 
 DECLARE_EVENT_TYPE(wxEVT_GAME_UPDATE_COMPLETE, -1)
 

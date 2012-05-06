@@ -28,17 +28,20 @@ public:
 	
 	void OnLoginClicked(wxCommandEvent &event);
 	
-	wxString GetUsername();
+	wxString GetUsername() const;
 	void SetUsername(wxString &username);
 	
-	wxString GetPassword();
+	wxString GetPassword() const;
 	void SetPassword(wxString &password);
 	
-	bool GetRememberUsername();
+	bool GetRememberUsername() const;
 	void SetRememberUsername(bool rememberUsername);
 	
-	bool GetRememberPassword();
+	bool GetRememberPassword() const;
 	void SetRememberPassword(bool rememberPassword);
+	
+	bool ShouldForceUpdate() const;
+	void SetForceUpdate(bool value);
 	
 	DECLARE_EVENT_TABLE()
 protected:

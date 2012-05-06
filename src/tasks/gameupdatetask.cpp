@@ -88,9 +88,10 @@ void GameUpdateTask::LoadJarURLs()
 	
 	wxString mojangURL = _("http://s3.amazonaws.com/MinecraftDownload/");
 	
-	for (int i = 0; i < sizeof(jarList); i++)
+	for (int i = 0; i < jarURLs.size() - 1; i++)
 	{
-		this->jarURLs.push_back(mojangURL + jarList[i]);
+		wxString url = (mojangURL + jarList[i]);
+		this->jarURLs[i] = url;
 	}
 	
 	wxString nativeJar = wxEmptyString;
@@ -110,9 +111,10 @@ void GameUpdateTask::LoadJarURLs()
 	else
 	{
 		OnErrorMessage(_("Your operating system does not support minecraft."));
+		Cancel();
 	}
 	
-	jarURLs.push_back(mojangURL + nativeJar);
+	jarURLs[jarURLs.size() - 1] = mojangURL + nativeJar;
 }
 
 void GameUpdateTask::AskToUpdate()
@@ -144,35 +146,38 @@ void GameUpdateTask::DownloadJars()
 		wxString etagOnDisk = wxStr(md5s.get<std::string>(
 			stdStr(jarURLs[i].GetPath()), ""));
 		
-		if (!m_forceUpdate && !etagOnDisk.empty())
+		struct curl_slist *headers = NULL;
+		headers = curl_slist_append(headers, stdStr(_("If-None-Match: ") + etagOnDisk).c_str());
+		
+		std::string urlStr = stdStr(jarURLs[i].GetURL()).c_str();
+		
+		CURL *curl = curl_easy_init();
+		curl_easy_setopt(curl, CURLOPT_HEADER, true);
+		curl_easy_setopt(curl, CURLOPT_URL, urlStr.c_str());
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlCallback);
+		curl_easy_setopt(curl, CURLOPT_NOBODY, true);
+		
+#ifdef HTTPDEBUG
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+#endif
+		
+		if (curl_easy_perform(curl) != 0)
 		{
-			curl_slist *headers;
-			headers = curl_slist_append(headers, stdStr(_("If-None-Match: ") + etagOnDisk).c_str());
 			
-			CURL *curl = curl_easy_init();
-// 			curl_easy_setopt(curl, CURLOPT_HEADER, true);
-// 			curl_easy_setopt(curl, CURLOPT_HTTPHEADER, true);
-			curl_easy_setopt(curl, CURLOPT_NOBODY, true);
-			
-			curl_easy_perform(curl);
-			
-			int response;
-			int contentLen;
-			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response);
-			curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &contentLen);
-			
-			if (response == 300)
-				skip[i] = true;
-			
-			fileSizes[i] = contentLen;
-			totalDownloadSize = contentLen;
-			
-			curl_easy_cleanup(curl);
 		}
-		else
-		{
-			skip[i] = false;
-		}
+		
+		long response = 0;
+		double contentLen = 0;
+		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response);
+		curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &contentLen);
+		
+		if (response == 300 && !m_forceUpdate)
+			skip[i] = true;
+		
+		fileSizes[i] = contentLen;
+		totalDownloadSize += contentLen;
+		
+		curl_easy_cleanup(curl);
 	}
 	
 	int initialProgress = 10;
@@ -201,25 +206,30 @@ void GameUpdateTask::DownloadJars()
 			
 			int downloadTries = 0;
 		DownloadFile:
+			if (downloadTries >= 5)
+			{
+				OnErrorMessage(_("Failed to download ") + currentFile.GetURL());
+				Cancel();
+				TestDestroy();
+			}
+			
 			downloadTries++;
 			
 			char *buffer = new char[1024];
 			int bytesRead = 0;
-			int currentFileSize = fileSizes[i];
+			int dlSize = 0;
 			
 			wxInputStream *downStream = currentFile.GetInputStream();
 			wxFileOutputStream outStream(dlDest.GetFullPath());
-			
-			currentFileSize = 0;
 			
 			while (!downStream->Eof())
 			{
 				downStream->Read(buffer, sizeof(buffer));
 				outStream.Write(buffer, downStream->LastRead());
-				currentFileSize += downStream->LastRead();
+				dlSize += downStream->LastRead();
 				
-				SetProgress(initialProgress + currentFileSize * 
-							(100 - initialProgress) / totalDownloadSize);
+				SetProgress(((initialProgress / dlSize) * 
+							(100 - initialProgress)) / totalDownloadSize);
 			}
 			
 			wxDELETE(downStream);
@@ -262,4 +272,9 @@ void GameUpdateTask::OnGameUpdateComplete()
 {
 	TaskEvent event(wxEVT_GAME_UPDATE_COMPLETE, this);
 	m_evtHandler->AddPendingEvent(event);
+}
+
+size_t CurlCallback(void* buffer, size_t size, size_t nmemb, void* userp)
+{
+
 }

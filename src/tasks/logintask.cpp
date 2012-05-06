@@ -22,10 +22,12 @@
 
 DEFINE_EVENT_TYPE(wxEVT_LOGIN_COMPLETE)
 
-LoginTask::LoginTask(UserInfo &uInfo)
+LoginTask::LoginTask(UserInfo& uInfo, Instance* inst, bool forceUpdate)
 	: Task()
 {
 	m_userInfo = uInfo;
+	m_inst = inst;
+	m_forceUpdate = forceUpdate;
 }
 
 void LoginTask::TaskStart()
@@ -64,7 +66,7 @@ void LoginTask::TaskStart()
 
 void LoginTask::OnLoginComplete(LoginResult result)
 {
-	OnTaskEnd();
+// 	OnTaskEnd();
 	SetProgress(100);
 	LoginCompleteEvent event(this, new LoginResult(result));
 	m_evtHandler->AddPendingEvent(event);

@@ -112,7 +112,7 @@ void LoginDialog::OnLoginClicked(wxCommandEvent& event)
 	
 }
 
-wxString LoginDialog::GetUsername()
+wxString LoginDialog::GetUsername() const
 {
 	return usernameTextBox->GetValue();
 }
@@ -122,7 +122,7 @@ void LoginDialog::SetUsername(wxString& username)
 	usernameTextBox->SetValue(username);
 }
 
-wxString LoginDialog::GetPassword()
+wxString LoginDialog::GetPassword() const
 {
 	return passwordTextBox->GetValue();
 }
@@ -132,7 +132,7 @@ void LoginDialog::SetPassword(wxString& password)
 	passwordTextBox->SetValue(password);
 }
 
-bool LoginDialog::GetRememberUsername()
+bool LoginDialog::GetRememberUsername() const
 {
 	return rememberUsernameCheck->GetValue();
 }
@@ -142,7 +142,7 @@ void LoginDialog::SetRememberUsername(bool rememberUsername)
 	rememberUsernameCheck->SetValue(rememberUsername);
 }
 
-bool LoginDialog::GetRememberPassword()
+bool LoginDialog::GetRememberPassword() const
 {
 	return rememberPasswordCheck->GetValue();
 }
@@ -151,6 +151,17 @@ void LoginDialog::SetRememberPassword(bool rememberPassword)
 {
 	rememberPasswordCheck->SetValue(rememberPassword);
 }
+
+void LoginDialog::SetForceUpdate(bool value)
+{
+	forceUpdateToggle->SetValue(value);
+}
+
+bool LoginDialog::ShouldForceUpdate() const
+{
+	return forceUpdateToggle->GetValue();
+}
+
 
 UserInfo::UserInfo()
 {
