@@ -74,6 +74,9 @@ include_directories("${CURL_INCLUDE_DIR}")
 # Include boost.
 include_directories("${Boost_INCLUDE_DIRS}")
 
+# Make the static md5 lib build
+add_subdirectory(md5)
+
 include_directories(
 "${PROJECT_SOURCE_DIR}"
 "${PROJECT_SOURCE_DIR}/data"
@@ -89,4 +92,5 @@ target_link_libraries(MultiMC
 	${wxWidgets_LIBRARIES}
 	${Boost_LIBRARIES}
 	${CURL_LIBRARIES}
+        tinymd5
 )
