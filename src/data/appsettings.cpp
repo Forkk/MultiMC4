@@ -56,7 +56,7 @@ void AppSettings::Load(const wxFileName &filename /* = iniConfigFile */)
 	minMemAlloc = pt.get<int>("MinMemoryAlloc", 512);
 	maxMemAlloc = pt.get<int>("MaxMemoryAlloc", 1024);
 	
-	javaPath = GetPathSetting(pt, "JavaPath", "java");
+	javaPath = GetPathSetting(pt, "JavaPath", "java", false);
 	instanceDir = GetPathSetting(pt, "InstanceDir", "instances");
 	modsDir = GetPathSetting(pt, "ModsDir", "mods");
 	

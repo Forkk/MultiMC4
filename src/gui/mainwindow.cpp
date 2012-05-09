@@ -16,9 +16,11 @@
 
 #include "mainwindow.h"
 #include "logindialog.h"
+#include "consolewindow.h"
 
 #include "toolbaricons.h"
 #include <gameupdatetask.h>
+#include <logintask.h>
 #include <wx/fs_arc.h>
 
 IMPLEMENT_APP(MultiMC)
@@ -278,11 +280,16 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 		// If the session ID is empty, the game updater will not be run.
 		if (!result.sessionID.empty())
 		{
-			GameUpdateTask *task = new GameUpdateTask(loginTask->m_inst,
+			Instance *inst = loginTask->m_inst;
+			GameUpdateTask *task = new GameUpdateTask(inst,
 													   result.latestVersion,
 													   _("minecraft.jar"), 
 													   loginTask->m_forceUpdate);
 			StartModalTask(*task);
+			Show(false);
+			inst->Launch(result.username, result.sessionID, true);
+			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this);
+			cwin->Show();
 		}
 	}
 	else
@@ -328,7 +335,7 @@ void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
 	auto inst = GetSelectedInst();
 	if (inst)
 	{
-		printf( "%ls\n", inst->GetRootDir().GetFullPath().GetData());
+		printf("%ls\n", inst->GetRootDir().GetFullPath().GetData());
 		Utils::OpenFile(inst->GetRootDir());
 	}
 }

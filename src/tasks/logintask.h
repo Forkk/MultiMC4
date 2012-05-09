@@ -15,9 +15,9 @@
 */
 
 #pragma once
-
 #include "task.h"
-#include <logindialog.h>
+#include "logindialog.h"
+#include "instance.h"
 
 #include <wx/wx.h>
 

@@ -43,7 +43,7 @@ public:
 
 	// Instance menu
 	void OnPlayClicked(wxCommandEvent& event);
-
+	
 	void OnRenameClicked(wxCommandEvent& event);
 	void OnChangeIconClicked(wxCommandEvent& event);
 	void OnNotesClicked(wxCommandEvent& event);
@@ -52,7 +52,7 @@ public:
 	void OnEditModsClicked(wxCommandEvent& event);
 	void OnRebuildJarClicked(wxCommandEvent& event);
 	void OnViewInstFolderClicked(wxCommandEvent& event);
-
+	
 	void OnDeleteClicked(wxCommandEvent& event);
 	
 	

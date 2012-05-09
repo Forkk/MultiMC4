@@ -18,6 +18,11 @@
 #include <wx/filesys.h>
 #include <wx/sstream.h>
 #include <wx/wfstream.h>
+#include <wx/mstream.h>
+
+#include "launcherdata.h"
+
+DEFINE_EVENT_TYPE(wxEVT_INST_OUTPUT)
 
 const wxString cfgFileName = _("instance.cfg");
 
@@ -39,12 +44,16 @@ Instance::Instance(wxFileName rootDir, wxString name)
 	this->rootDir = rootDir;
 	Load(true);
 	this->name = name;
+	evtHandler = NULL;
 	MkDirs();
 }
 
 Instance::~Instance(void)
 {
-
+	if (IsRunning())
+	{
+		instProc->Detach();
+	}
 }
 
 // Makes ALL the directories! \o/
@@ -191,6 +200,11 @@ wxFileName Instance::GetMCBackup() const
 	return wxFileName::FileName(GetBinDir().GetFullPath() + _("/mcbackup.jar"));
 }
 
+wxFileName Instance::GetMCJar() const
+{
+	return wxFileName::FileName(GetBinDir().GetFullPath() + _("/minecraft.jar"));
+}
+
 
 wxString Instance::ReadVersionFile()
 {
@@ -239,3 +253,72 @@ void Instance::SetIconKey(wxString iconKey)
 {
 	this->iconKey = iconKey;
 }
+
+wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirectOutput)
+{
+	if (username.IsEmpty())
+		username = _("Offline");
+	
+	if (sessionID.IsEmpty())
+		sessionID = _("Offline");
+	
+	ExtractLauncher();
+	
+	wxString javaPath = settings.javaPath.GetFullPath();
+	int xms = settings.minMemAlloc;
+	int xmx = settings.maxMemAlloc;
+	wxFileName mcDirFN = GetMCDir().GetFullPath();
+	mcDirFN.MakeAbsolute();
+	wxString mcDir = mcDirFN.GetFullPath();
+	
+	wxString launchCmd = wxString::Format(_("\"%s\" -Xmx%im -Xms%im -cp \"%s\" MultiMCLauncher \"%s\" \"%s\" \"%s\""),
+		javaPath.c_str(), xmx, xms, wxGetCwd().c_str(), mcDir.c_str(), username.c_str(), sessionID.c_str());
+	
+	instProc = new wxProcess(this);
+	
+	if (redirectOutput)
+		instProc->Redirect();
+	
+	wxExecute(launchCmd, wxEXEC_ASYNC, instProc);
+	m_running = true;
+	
+	return instProc;
+}
+
+void Instance::ExtractLauncher()
+{
+	wxMemoryInputStream launcherInputStream(MultiMCLauncher_class, MultiMCLauncher_class_len);
+	wxFileOutputStream launcherOutStream(_("MultiMCLauncher.class"));
+	launcherOutStream.Write(launcherInputStream);
+}
+
+
+void Instance::OnInstProcExited(wxProcessEvent& event)
+{
+	m_running = false;
+	printf("Instance exited with code %i.\n", event.GetExitCode());
+	if (evtHandler != NULL)
+	{
+		evtHandler->AddPendingEvent(event);
+	}
+}
+
+void Instance::SetEvtHandler(wxEvtHandler* handler)
+{
+	evtHandler = handler;
+}
+
+bool Instance::IsRunning() const
+{
+	return m_running;
+}
+
+wxProcess* Instance::GetInstProcess() const
+{
+	return instProc;
+}
+
+
+BEGIN_EVENT_TABLE(Instance, wxEvtHandler)
+	EVT_END_PROCESS(wxID_ANY, Instance::OnInstProcExited)
+END_EVENT_TABLE()

@@ -15,7 +15,10 @@
 //
 
 #pragma once
-#include "includes.h"
+#include <wx/wx.h>
+#include <wx/tglbtn.h>
+
+#include "instance.h"
 
 class LoginDialog : public wxDialog
 {

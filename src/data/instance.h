@@ -15,11 +15,17 @@
 //
 
 #pragma once
-#include "includes.h"
+#include <wx/wx.h>
+#include <wx/filesys.h>
+#include <wx/process.h>
+
+#include <boost/property_tree/ini_parser.hpp>
+
+#include "appsettings.h"
 
 bool IsValidInstance(wxFileName rootDir);
 
-class Instance
+class Instance : public wxEvtHandler
 {
 public:
 	static Instance *LoadInstance(wxFileName rootDir);
@@ -48,6 +54,7 @@ public:
 	wxFileName GetMCJar() const;
 	wxFileName GetMCBackup() const;
 	
+	bool IsRunning() const;
 	
 	wxString ReadVersionFile();
 	void WriteVersionFile(const wxString& contents);
@@ -57,15 +64,56 @@ public:
 	
 	wxString GetIconKey() const;
 	void SetIconKey(wxString iconKey);
+	
+	wxProcess *GetInstProcess() const;
+	
+	void SetEvtHandler(wxEvtHandler *handler);
+	
+	wxProcess* Launch(wxString username, wxString sessionID, bool redirectOutput = false);
 
 protected:
 	wxFileName rootDir;
-
+	
 	wxString name;
 	wxString iconKey;
 	wxString notes;
 	bool needsRebuild;
 	bool askUpdate;
 	
+	wxProcess *instProc;
+	bool m_running;
+	
+	wxEvtHandler *evtHandler;
+	
 	void MkDirs();
+	
+	void ExtractLauncher();
+	
+	void OnInstProcExited(wxProcessEvent &event);
+	
+	DECLARE_EVENT_TABLE()
 };
+
+
+DECLARE_EVENT_TYPE(wxEVT_INST_OUTPUT, -1)
+
+struct InstOutputEvent : wxNotifyEvent
+{
+	InstOutputEvent(Instance *inst, wxString output) : wxNotifyEvent(wxEVT_INST_OUTPUT) 
+		{ m_inst = inst; m_output = output; }
+	
+	Instance *m_inst;
+	wxString m_output;
+	virtual wxEvent *Clone() const
+	{
+		return new InstOutputEvent(m_inst, m_output);
+	}
+};
+
+typedef void (wxEvtHandler::*InstOutputEventFunction)(InstOutputEvent&);
+
+#define EVT_INST_OUTPUT(fn)\
+	DECLARE_EVENT_TABLE_ENTRY(wxEVT_INST_OUTPUT, wxID_ANY, -1,\
+		(wxObjectEventFunction)(InstOutputEventFunction)\
+		(InstOutputEventFunction) &fn, (wxObject*) NULL),
+

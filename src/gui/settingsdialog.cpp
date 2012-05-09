@@ -84,8 +84,7 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 		_T("Minimum memory allocation: "));
 	minMemBox->Add(minMemLabel, 1, wxEXPAND);
 	minMemorySpin = new wxSpinCtrl(advancedPanel, -1);
-//	minMemorySpin->SetMin(256);
-//	minMemorySpin->SetMax(Utils::GetMaxAllowedMemAlloc());
+	minMemorySpin->SetRange(256, Utils::GetMaxAllowedMemAlloc());
 	minMemBox->Add(minMemorySpin);
 
 	// Max memory
@@ -95,8 +94,7 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 		_T("Maximum memory allocation: "));
 	maxMemBox->Add(maxMemLabel, 1, wxEXPAND);
 	maxMemorySpin = new wxSpinCtrl(advancedPanel, -1);
-//	maxMemorySpin->SetMin(512);
-//	maxMemorySpin->SetMax(Utils::GetMaxAllowedMemAlloc());
+	maxMemorySpin->SetRange(512, Utils::GetMaxAllowedMemAlloc());
 	maxMemBox->Add(maxMemorySpin);
 
 	// Java path
