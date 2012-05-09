@@ -121,25 +121,25 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 {
 	s.showConsole = showConsoleCheck->IsChecked();
 	s.autoCloseConsole = autoCloseConsoleCheck->IsChecked();
-
+	
 	s.autoUpdate = autoUpdateCheck->IsChecked();
-
-	wxFileName newInstDir(instDirTextBox->GetValue());
-	if (s.instanceDir.SameAs(newInstDir))
+	
+	wxFileName newInstDir = wxFileName::DirName(instDirTextBox->GetValue());
+	if (!s.instanceDir.SameAs(newInstDir))
 	{
 		wxFileName oldInstDir = s.instanceDir;
-
+		
 		int response = wxMessageBox(_T("You've changed your instance \
 			directory, would you like to transfer all of your instances?"),
 			_T("Instance directory changed."), 
 			wxYES | wxNO | wxCANCEL | wxCENTER, this);
-
+		
 	RetryTransfer:
 		if (response != wxID_CANCEL)
 		{
 			s.instanceDir = newInstDir;
 		}
-
+		
 		if (response == wxID_OK)
 		{
 			
