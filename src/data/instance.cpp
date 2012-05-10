@@ -59,6 +59,9 @@ Instance::~Instance(void)
 // Makes ALL the directories! \o/
 void Instance::MkDirs()
 {
+	if (!GetRootDir().DirExists())
+		GetRootDir().Mkdir();
+	
 	if (!GetMCDir().DirExists())
 		GetMCDir().Mkdir();
 	if (!GetBinDir().DirExists())

@@ -16,6 +16,7 @@
 
 #pragma once
 #include "task.h"
+#include <functional>
 #include <instance.h>
 #include <boost/array.hpp>
 #include <wx/url.h>

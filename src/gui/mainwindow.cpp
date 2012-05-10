@@ -332,7 +332,7 @@ void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
 
 void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
 {
-	auto inst = GetSelectedInst();
+	Instance *inst = GetSelectedInst();
 	if (inst)
 	{
 		printf("%ls\n", inst->GetRootDir().GetFullPath().GetData());

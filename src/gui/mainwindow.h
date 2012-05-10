@@ -16,6 +16,9 @@
 
 #pragma once
 #include <wx/wx.h>
+
+#include <map>
+
 #include "task.h"
 #include "logintask.h"
 
@@ -96,7 +99,7 @@ protected:
 
 	Instance* GetSelectedInst();
 
-	boost::unordered_map<long, Instance*> instItems;
+	std::map<long, Instance*> instItems;
 
 private:
 	void NotImplemented();
