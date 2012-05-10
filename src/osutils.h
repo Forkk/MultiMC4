@@ -19,8 +19,8 @@
 
 #include "apputils.h"
 
-#define IS_WINDOWS() ENUM_CONTAINS(osID, wxOS_WINDOWS_NT)
+#define IS_WINDOWS() ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_WINDOWS_NT)
 
-#define IS_LINUX() ENUM_CONTAINS(osID, wxOS_UNIX_LINUX)
+#define IS_LINUX() ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_UNIX_LINUX)
 
-#define IS_MAC() ENUM_CONTAINS(osID, wxOS_MAC)
+#define IS_MAC() ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_MAC)

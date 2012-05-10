@@ -21,7 +21,6 @@
 void Utils::OpenFile(wxFileName path)
 {
 	wxString cmd;
-	wxOperatingSystemId osID = wxPlatformInfo::Get().GetOperatingSystemId();
 	if (IS_WINDOWS())
 	{
 		cmd = _("explorer ");

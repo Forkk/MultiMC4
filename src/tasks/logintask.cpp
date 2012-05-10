@@ -44,10 +44,13 @@ void LoginTask::TaskStart()
 	wxURL loginURL = _("http://login.minecraft.net/?user=") + m_userInfo.username + 
 		_("&password=") + m_userInfo.password + _("&version=1337");
 #ifdef CURL_LOGIN
+	char errorBuffer[CURL_ERROR_SIZE];
+	
 	CURL *curl = curl_easy_init();
 	
 	curl_easy_setopt(curl, CURLOPT_URL, cStr(loginURL.GetURL()));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
+	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, &errorBuffer);
 	
 	wxString outString;
 	wxStringOutputStream outStream(&outString);
@@ -58,12 +61,17 @@ void LoginTask::TaskStart()
 	};
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curlWrite);
 	
-	curl_easy_perform(curl);
+	int status = curl_easy_perform(curl);
 	
 	long response = 0;
 	curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response);
 	
 	curl_easy_cleanup(curl);
+	
+	if (status != 0)
+	{
+		OnLoginComplete(wxStr(errorBuffer));
+	}
 	
 	if (response == 200)
 	{

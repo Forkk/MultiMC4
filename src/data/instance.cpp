@@ -21,6 +21,7 @@
 #include <wx/mstream.h>
 
 #include "launcherdata.h"
+#include "osutils.h"
 
 DEFINE_EVENT_TYPE(wxEVT_INST_OUTPUT)
 
@@ -273,9 +274,16 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 	wxFileName mcDirFN = GetMCDir().GetFullPath();
 	mcDirFN.MakeAbsolute();
 	wxString mcDir = mcDirFN.GetFullPath();
+	wxString wdArg = wxGetCwd();
+	
+// 	if (IS_WINDOWS())
+// 	{
+	mcDir.Replace(_("\\"), _("\\\\"));
+	wdArg.Replace(_("\\"), _("\\\\"));
+// 	}
 	
 	wxString launchCmd = wxString::Format(_("\"%s\" -Xmx%im -Xms%im -cp \"%s\" MultiMCLauncher \"%s\" \"%s\" \"%s\""),
-		javaPath.c_str(), xmx, xms, wxGetCwd().c_str(), mcDir.c_str(), username.c_str(), sessionID.c_str());
+		javaPath.c_str(), xmx, xms, wdArg.c_str(), mcDir.c_str(), username.c_str(), sessionID.c_str());
 	m_lastLaunchCommand = launchCmd;
 	
 	instProc = new wxProcess(this);

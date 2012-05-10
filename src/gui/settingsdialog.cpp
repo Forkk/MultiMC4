@@ -22,17 +22,17 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 {
 	wxBoxSizer *mainBox = new wxBoxSizer(wxVERTICAL);
 	SetSizer(mainBox);
-
+	
 	// Tab control
 	tabCtrl = new wxNotebook(this, -1);
 	mainBox->Add(tabCtrl, 1, wxEXPAND | wxALL, 8);
-
+	
 	// General tab
 	wxPanel *generalPanel = new wxPanel(tabCtrl, -1);
-	wxBoxSizer *generalBox = new wxBoxSizer(wxVERTICAL);
+	wxGridBagSizer *generalBox = new wxGridBagSizer();
 	generalPanel->SetSizer(generalBox);
 	tabCtrl->AddPage(generalPanel, _T("General"), true);
-
+	
 	// Console settings group box
 	wxStaticBoxSizer *consoleBox = new wxStaticBoxSizer(wxVERTICAL, 
 		generalPanel, _T("Console Settings"));
@@ -42,41 +42,42 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	autoCloseConsoleCheck = new wxCheckBox(generalPanel, -1,
 		_T("Automatically close console when the game quits."));
 	consoleBox->Add(autoCloseConsoleCheck, 0, wxALL, 4);
-	generalBox->Add(consoleBox, 0, wxALL, 4);
-
+	generalBox->Add(consoleBox, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+	
 	// Update settings group box
 	wxStaticBoxSizer *updateBox = new wxStaticBoxSizer(wxVERTICAL,
 		generalPanel, _T("Update Settings"));
-	generalBox->Add(updateBox, 0, wxALL, 4);
 	autoUpdateCheck = new wxCheckBox(generalPanel, -1,
 		_T("Check for updates when MultiMC starts?"));
 	updateBox->Add(autoUpdateCheck, 0, wxALL, 4);
 	forceUpdateToggle = new wxToggleButton(generalPanel, -1,
 		_T("Force-update MultiMC"));
 	updateBox->Add(forceUpdateToggle, 0, wxALL, 4);
-
+	generalBox->Add(updateBox, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+	
 	// Instance directory group box
 	wxStaticBoxSizer *instDirBox = new wxStaticBoxSizer(wxHORIZONTAL,
 		generalPanel, _T("Instance Folder"));
-	generalBox->Add(instDirBox, 0, wxALL, 4);
 	instDirTextBox = new wxTextCtrl(generalPanel, -1);
 	instDirBox->Add(instDirTextBox, 1, wxEXPAND | wxALL, 4);
 	wxButton *instDirBrowseButton = new wxButton(generalPanel, 
 		ID_BrowseInstDir, _T("Browse..."));
 	instDirBox->Add(instDirBrowseButton, 0, wxALL, 4);
-
-
+	generalBox->Add(instDirBox, wxGBPosition(2, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+	
+	generalBox->SetSizeHints(generalPanel);
+	
 	// Advanced tab
 	wxPanel *advancedPanel = new wxPanel(tabCtrl, -1);
-	wxBoxSizer *advancedBox = new wxBoxSizer(wxVERTICAL);
+	wxGridBagSizer *advancedBox = new wxGridBagSizer();
 	advancedPanel->SetSizer(advancedBox);
 	tabCtrl->AddPage(advancedPanel, _T("Advanced"), false);
-
+	
 	// Memory group box
 	wxStaticBoxSizer *memoryBox = new wxStaticBoxSizer(wxVERTICAL,
 		advancedPanel, _T("Memory"));
-	advancedBox->Add(memoryBox, 0, wxALL, 4);
-
+	advancedBox->Add(memoryBox, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+	
 	// Min memory
 	wxBoxSizer *minMemBox = new wxBoxSizer(wxHORIZONTAL);
 	memoryBox->Add(minMemBox, 0, wxALL, 4);
@@ -86,7 +87,7 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	minMemorySpin = new wxSpinCtrl(advancedPanel, -1);
 	minMemorySpin->SetRange(256, Utils::GetMaxAllowedMemAlloc());
 	minMemBox->Add(minMemorySpin);
-
+	
 	// Max memory
 	wxBoxSizer *maxMemBox = new wxBoxSizer(wxHORIZONTAL);
 	memoryBox->Add(maxMemBox, 0, wxALL, 4);
@@ -96,15 +97,15 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	maxMemorySpin = new wxSpinCtrl(advancedPanel, -1);
 	maxMemorySpin->SetRange(512, Utils::GetMaxAllowedMemAlloc());
 	maxMemBox->Add(maxMemorySpin);
-
+	
 	// Java path
-	wxStaticBoxSizer *javaPathBox = new wxStaticBoxSizer(wxVERTICAL, 
+	wxStaticBoxSizer *javaPathBox = new wxStaticBoxSizer(wxHORIZONTAL, 
 		advancedPanel, _T("Java path"));
-	advancedBox->Add(javaPathBox, 0, wxALL, 4);
 	javaPathTextBox = new wxTextCtrl(advancedPanel, -1);
-	javaPathBox->Add(javaPathTextBox, 0, wxALL, 4);
-
-
+	javaPathBox->Add(javaPathTextBox, 1, wxALL | wxEXPAND, 4);
+	advancedBox->Add(javaPathBox, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+	
+	
 	// Buttons
 	wxSizer *btnBox = CreateButtonSizer(wxOK | wxCANCEL);
 	mainBox->Add(btnBox, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 8);
