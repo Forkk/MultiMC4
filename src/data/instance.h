@@ -67,6 +67,8 @@ public:
 	
 	wxProcess *GetInstProcess() const;
 	
+	wxString GetLastLaunchCommand() const;
+	
 	void SetEvtHandler(wxEvtHandler *handler);
 	
 	wxProcess* Launch(wxString username, wxString sessionID, bool redirectOutput = false);
@@ -82,6 +84,7 @@ protected:
 	
 	wxProcess *instProc;
 	bool m_running;
+	wxString m_lastLaunchCommand;
 	
 	wxEvtHandler *evtHandler;
 	

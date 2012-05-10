@@ -33,7 +33,10 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
 	mainPanel->SetSizer(mainSizer);
 	
-	consoleTextCtrl = new wxTextCtrl(mainPanel, -1, wxEmptyString, 
+	wxString launchCmdMessage = wxString::Format(_("Instance started with command: %s\n"), 
+												 inst->GetLastLaunchCommand().c_str());
+	
+	consoleTextCtrl = new wxTextCtrl(mainPanel, -1, launchCmdMessage, 
 									 wxDefaultPosition, wxSize(200, 100), 
 									 wxTE_MULTILINE | wxTE_READONLY);
 	mainSizer->Add(consoleTextCtrl, wxSizerFlags(1).Expand().Border(wxALL, 8));
@@ -59,8 +62,7 @@ InstConsoleWindow::~InstConsoleWindow()
 
 void InstConsoleWindow::AppendMessage(const wxString& msg)
 {
-	consoleTextCtrl->AppendText(msg);
-	consoleTextCtrl->AppendText(_("\n"));
+	(*consoleTextCtrl) << msg << _("\n");
 }
 
 void InstConsoleWindow::OnInstExit(wxProcessEvent& event)

@@ -276,6 +276,7 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 	
 	wxString launchCmd = wxString::Format(_("\"%s\" -Xmx%im -Xms%im -cp \"%s\" MultiMCLauncher \"%s\" \"%s\" \"%s\""),
 		javaPath.c_str(), xmx, xms, wxGetCwd().c_str(), mcDir.c_str(), username.c_str(), sessionID.c_str());
+	m_lastLaunchCommand = launchCmd;
 	
 	instProc = new wxProcess(this);
 	
@@ -319,6 +320,11 @@ bool Instance::IsRunning() const
 wxProcess* Instance::GetInstProcess() const
 {
 	return instProc;
+}
+
+wxString Instance::GetLastLaunchCommand() const
+{
+	return m_lastLaunchCommand;
 }
 
 
