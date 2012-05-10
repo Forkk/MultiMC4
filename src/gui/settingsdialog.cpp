@@ -141,9 +141,9 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 			s.instanceDir = newInstDir;
 		}
 		
-		if (response == wxID_OK)
+		if (response == wxID_YES)
 		{
-			
+			// TODO Move all instances to new instance directory
 		}
 	}
 
@@ -169,3 +169,16 @@ void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
 
 	javaPathTextBox->SetValue(s.javaPath.GetFullPath());
 }
+
+void SettingsDialog::OnBrowseInstDirClicked(wxCommandEvent& event)
+{
+	wxDirDialog *dirDlg = new wxDirDialog(this, _("Select a new instance folder."), 
+		instDirTextBox->GetValue());
+	if (dirDlg->ShowModal() == wxID_OK)
+		instDirTextBox->ChangeValue(dirDlg->GetPath());
+}
+
+
+BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
+	EVT_BUTTON(ID_BrowseInstDir, SettingsDialog::OnBrowseInstDirClicked)
+END_EVENT_TABLE()

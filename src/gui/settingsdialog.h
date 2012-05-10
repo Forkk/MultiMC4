@@ -21,27 +21,31 @@ class SettingsDialog : public wxDialog
 {
 public:
 	SettingsDialog(wxWindow *parent, wxWindowID id);
-
+	
 	void OnButtonClicked(wxCommandEvent& event);
-
+	
 	void ApplySettings(AppSettings &s = settings);
 	void LoadSettings(AppSettings &s = settings);
-
+	
 protected:
+	void OnBrowseInstDirClicked(wxCommandEvent &event);
+	
 	wxNotebook *tabCtrl;
-
+	
 	wxCheckBox *showConsoleCheck;
 	wxCheckBox *autoCloseConsoleCheck;
-
+	
 	wxCheckBox *autoUpdateCheck;
 	wxToggleButton *forceUpdateToggle;
-
+	
 	wxTextCtrl *instDirTextBox;
-
+	
 	wxSpinCtrl *minMemorySpin;
 	wxSpinCtrl *maxMemorySpin;
-
+	
 	wxTextCtrl *javaPathTextBox;
+	
+	DECLARE_EVENT_TABLE()
 };
 
 enum
