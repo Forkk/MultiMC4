@@ -14,11 +14,18 @@
     limitations under the License.
 */
 
+#define CURL_LOGIN
 
 #include "logintask.h"
+#include <apputils.h>
 #include <wx/tokenzr.h>
 #include <wx/url.h>
 #include <wx/sstream.h>
+
+#ifdef CURL_LOGIN
+	#include "curlutils.h"
+#endif
+
 
 DEFINE_EVENT_TYPE(wxEVT_LOGIN_COMPLETE)
 
@@ -36,7 +43,38 @@ void LoginTask::TaskStart()
 	// Get http://login.minecraft.net/?username=<username>&password=<password>&version=1337
 	wxURL loginURL = _("http://login.minecraft.net/?user=") + m_userInfo.username + 
 		_("&password=") + m_userInfo.password + _("&version=1337");
+#ifdef CURL_LOGIN
+	CURL *curl = curl_easy_init();
 	
+	curl_easy_setopt(curl, CURLOPT_URL, cStr(loginURL.GetURL()));
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
+	
+	wxString outString;
+	wxStringOutputStream outStream(&outString);
+	CurlLambdaCallbackFunction curlWrite = [&] (void *buffer, size_t size) -> size_t
+	{
+		outStream.Write(buffer, size);
+		return outStream.LastWrite();
+	};
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curlWrite);
+	
+	curl_easy_perform(curl);
+	
+	long response = 0;
+	curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response);
+	
+	curl_easy_cleanup(curl);
+	
+	if (response == 200)
+	{
+		OnLoginComplete(outString);
+	}
+	else
+	{
+		OnLoginComplete(wxString::Format(_("Unknown HTTP error %i occurred."), response));
+	}
+	
+#else
 	if (loginURL.GetError() == wxURL_NOERR)
 	{
 		wxInputStream *inputStream = loginURL.GetInputStream();
@@ -62,6 +100,7 @@ void LoginTask::TaskStart()
 			break;
 		}
 	}
+#endif
 }
 
 void LoginTask::OnLoginComplete(LoginResult result)

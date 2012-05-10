@@ -22,6 +22,9 @@
 #include <wx/url.h>
 #include <wx/wfstream.h>
 
+#include "curlutils.h"
+#include "osutils.h"
+
 enum UpdateState
 {
 	STATE_INIT,
@@ -82,11 +85,6 @@ protected:
 // 		int m_totalDLSize;
 // 	};
 };
-
-size_t CurlCallback(void *buffer, size_t size, size_t nmemb, void *userp);
-
-typedef std::function<size_t (void *buffer, size_t size)> CurlLambdaCallbackFunction;
-size_t CurlLambdaCallback(void *buffer, size_t size, size_t nmemb, void *userp);
 
 DECLARE_EVENT_TYPE(wxEVT_GAME_UPDATE_COMPLETE, -1)
 

@@ -31,6 +31,7 @@ tasks/logintask.cpp
 tasks/gameupdatetask.cpp
 
 apputils.cpp
+curlutils.cpp
 insticonlist.cpp
 )
 
@@ -50,6 +51,8 @@ tasks/logintask.h
 tasks/gameupdatetask.h
 
 apputils.h
+curlutils.h
+osutils.h
 insticonlist.h
 
 insticons.h

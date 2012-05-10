@@ -16,20 +16,21 @@
 
 #include "apputils.h"
 #include <wx/wx.h>
+#include "osutils.h"
 
 void Utils::OpenFile(wxFileName path)
 {
 	wxString cmd;
 	wxOperatingSystemId osID = wxPlatformInfo::Get().GetOperatingSystemId();
-	if ((osID & wxOS_WINDOWS) == wxOS_WINDOWS)
+	if (IS_WINDOWS())
 	{
 		cmd = _("explorer ");
 	}
-	else if ((osID & wxOS_MAC) == wxOS_MAC)
+	else if (IS_MAC())
 	{
 		cmd = _("open ");
 	}
-	else if ((osID & wxOS_UNIX_LINUX) == wxOS_UNIX_LINUX)
+	else if (IS_LINUX())
 	{
 		cmd = _("xdg-open ");
 	}

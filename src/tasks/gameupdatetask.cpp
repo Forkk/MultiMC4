@@ -14,7 +14,6 @@
     limitations under the License.
 */
 
-
 #include "gameupdatetask.h"
 #include <apputils.h>
 
@@ -22,15 +21,12 @@
 #include <wx/sstream.h>
 #include <wx/zipstrm.h>
 
-#include <curl/curl.h>
-#include <curl/easy.h>
-
 #include <boost/property_tree/ini_parser.hpp>
 // #include <boost/regex.hpp>
 
 #include <md5/md5.h>
 
-#include <functional>
+#include "curlutils.h"
 
 DEFINE_EVENT_TYPE(wxEVT_GAME_UPDATE_COMPLETE)
 
@@ -109,15 +105,15 @@ void GameUpdateTask::LoadJarURLs()
 	
 	wxString nativeJar = wxEmptyString;
 	wxOperatingSystemId osID = wxPlatformInfo::Get().GetOperatingSystemId();
-	if (ENUM_CONTAINS(osID, wxOS_WINDOWS))
+	if (IS_WINDOWS())
 	{
 		nativeJar = _("windows_natives.jar");
 	}
-	else if (ENUM_CONTAINS(osID, wxOS_MAC))
+	else if (IS_MAC())
 	{
 		nativeJar = _("macosx_natives.jar");
 	}
-	else if (ENUM_CONTAINS(osID, wxOS_UNIX_LINUX))
+	else if (IS_LINUX())
 	{
 		nativeJar = _("linux_natives.jar");
 	}
@@ -172,7 +168,7 @@ void GameUpdateTask::DownloadJars()
 #ifdef HTTPDEBUG
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
 #else
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlBlankCallback);
 #endif
 		
 		if (curl_easy_perform(curl) != 0)
@@ -371,16 +367,4 @@ void GameUpdateTask::OnGameUpdateComplete()
 {
 	TaskEvent event(wxEVT_GAME_UPDATE_COMPLETE, this);
 	m_evtHandler->AddPendingEvent(event);
-}
-
-size_t CurlCallback(void* buffer, size_t size, size_t nmemb, void* userp)
-{
-	return size * nmemb;
-}
-
-size_t CurlLambdaCallback(void* buffer, size_t size, size_t nmemb, void* userp)
-{
-	// Attempt to cast userp to a lambda function
-	CurlLambdaCallbackFunction *lambda = (CurlLambdaCallbackFunction*)userp;
-	return lambda->operator()(buffer, size * nmemb);
 }
