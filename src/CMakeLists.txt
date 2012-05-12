@@ -25,13 +25,17 @@ gui/consolewindow.cpp
 
 data/appsettings.cpp
 data/instance.cpp
+data/mod.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
+tasks/moddertask.cpp
 tasks/gameupdatetask.cpp
 
 apputils.cpp
 curlutils.cpp
+datautils.cpp
+
 insticonlist.cpp
 )
 
@@ -45,14 +49,17 @@ gui/consolewindow.h
 
 data/appsettings.h
 data/instance.h
+data/mod.h
 
 tasks/task.h
 tasks/logintask.h
+tasks/moddertask.h
 tasks/gameupdatetask.h
 
 apputils.h
 curlutils.h
 osutils.h
+datautils.h
 insticonlist.h
 
 insticons.h

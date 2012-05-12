@@ -15,6 +15,7 @@
 //
 
 #pragma once
+#include <vector>
 #include <wx/wx.h>
 #include <wx/filesys.h>
 #include <wx/process.h>
@@ -22,6 +23,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 
 #include "appsettings.h"
+#include "mod.h"
 
 bool IsValidInstance(wxFileName rootDir);
 
@@ -53,6 +55,7 @@ public:
 	wxFileName GetVersionFile() const;
 	wxFileName GetMCJar() const;
 	wxFileName GetMCBackup() const;
+	wxFileName GetModListFile() const;
 	
 	bool IsRunning() const;
 	
@@ -72,8 +75,18 @@ public:
 	void SetEvtHandler(wxEvtHandler *handler);
 	
 	wxProcess* Launch(wxString username, wxString sessionID, bool redirectOutput = false);
+	
+	// Reloads the instance's modlist
+	void LoadModList();
+	
+	void SaveModList();
+	
+	void UpdateModList();
+	
 
 protected:
+	std::vector<Mod> modList;
+	
 	wxFileName rootDir;
 	
 	wxString name;
@@ -93,6 +106,8 @@ protected:
 	void ExtractLauncher();
 	
 	void OnInstProcExited(wxProcessEvent &event);
+	
+	void LoadModListFromDir(const wxFileName &dir);
 	
 	DECLARE_EVENT_TABLE()
 };

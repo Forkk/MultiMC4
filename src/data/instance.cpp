@@ -22,6 +22,7 @@
 
 #include "launcherdata.h"
 #include "osutils.h"
+#include <datautils.h>
 
 DEFINE_EVENT_TYPE(wxEVT_INST_OUTPUT)
 
@@ -47,6 +48,7 @@ Instance::Instance(wxFileName rootDir, wxString name)
 	this->name = name;
 	evtHandler = NULL;
 	MkDirs();
+	UpdateModList();
 }
 
 Instance::~Instance(void)
@@ -209,6 +211,11 @@ wxFileName Instance::GetMCJar() const
 	return wxFileName::FileName(GetBinDir().GetFullPath() + _("/minecraft.jar"));
 }
 
+wxFileName Instance::GetModListFile() const
+{
+	return wxFileName::FileName(Path::Combine(GetRootDir(), _("modlist")));
+}
+
 
 wxString Instance::ReadVersionFile()
 {
@@ -335,6 +342,92 @@ wxString Instance::GetLastLaunchCommand() const
 	return m_lastLaunchCommand;
 }
 
+void Instance::LoadModList()
+{
+	modList.clear();
+	
+	wxFileInputStream inputStream(GetModListFile().GetFullPath());
+	wxStringList modListFile = ReadAllLines(inputStream);
+	
+	for (wxStringList::iterator iter = modListFile.begin(); iter != modListFile.end(); iter++)
+	{
+		// Normalize the path to the instMods dir.
+		wxFileName modFile(*iter);
+		modFile.Normalize(wxPATH_NORM_ALL, GetInstModsDir().GetFullPath());
+		modFile.MakeRelativeTo();
+		
+		modList.push_back(Mod(modFile));
+	}
+	
+	for (int i = 0; i < modList.size(); i++)
+	{
+		if (!modList[i].GetFileName().FileExists())
+		{
+			modList.erase(modList.begin() + i);
+			i--;
+		}
+	}
+	
+	LoadModListFromDir(GetInstModsDir());
+}
+
+void Instance::LoadModListFromDir(const wxFileName& dir)
+{
+	wxDir modDir(dir.GetFullPath());
+	
+	if (!modDir.IsOpened())
+	{
+		wxLogError(_("Failed to open directory: ") + dir.GetFullPath());
+		return;
+	}
+	
+	wxString currentFile;
+	if (modDir.GetFirst(&currentFile))
+	{
+		do
+		{
+			currentFile = Path::Combine(modDir.GetName(), currentFile);
+			if (wxFileExists(currentFile))
+			{
+				Mod mod(currentFile);
+				
+				if (!Any(modList.begin(), modList.end(), [&currentFile] (Mod mod) -> bool
+					{
+						return mod.GetFileName().SameAs(wxFileName(currentFile)); 
+					}))
+				{
+					modList.push_back(mod);
+				}
+			}
+			else if (wxDirExists(currentFile))
+			{
+				LoadModListFromDir(wxFileName(currentFile));
+			}
+		} while (modDir.GetNext(&currentFile));
+	}
+}
+
+void Instance::SaveModList()
+{
+	wxString text;
+	for (std::vector<Mod>::iterator iter = modList.begin(); iter != modList.end(); iter++)
+	{
+		wxFileName modFile = iter->GetFileName();
+		modFile.MakeRelativeTo(GetInstModsDir().GetFullPath());
+		text.Append(modFile.GetFullPath());
+		text.Append(_("\n"));
+	}
+	
+	wxFile outFile(GetModListFile().GetFullPath(), wxFile::write);
+	wxFileOutputStream out(outFile);
+	WriteAllText(out, text);
+}
+
+void Instance::UpdateModList()
+{
+	LoadModList();
+	SaveModList();
+}
 
 BEGIN_EVENT_TABLE(Instance, wxEvtHandler)
 	EVT_END_PROCESS(wxID_ANY, Instance::OnInstProcExited)
