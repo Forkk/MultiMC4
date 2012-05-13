@@ -45,6 +45,7 @@ void Task::Start()
 
 void Task::Cancel()
 {
+	SetProgress(100);
 	wxThread::Delete();
 }
 

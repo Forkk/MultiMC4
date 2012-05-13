@@ -10,11 +10,11 @@ IF (CMAKE_CROSSCOMPILING)
 	set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS "-Wl,-Bstatic -static-libgcc -static-libstdc++")
 	set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS "-Wl,-Bstatic -static-libgcc -static-libstdc++")
 
-	set(CMAKE_C_FLAGS "-DCURL_STATICLIB")
-	set(CMAKE_CXX_FLAGS "-DCURL_STATICLIB")
-	
 	set(MULTIMC_ADDITIONAL_LINKS "ws2_32")
 ENDIF ()
+
+set(CMAKE_C_FLAGS "-DCURL_STATICLIB")
+set(CMAKE_CXX_FLAGS "-DCURL_STATICLIB")
 
 # Set the sources and headers variables.
 set(SRCS 
@@ -35,6 +35,7 @@ tasks/gameupdatetask.cpp
 apputils.cpp
 curlutils.cpp
 datautils.cpp
+fsutils.cpp
 
 insticonlist.cpp
 )
@@ -60,8 +61,9 @@ apputils.h
 curlutils.h
 osutils.h
 datautils.h
-insticonlist.h
+fsutils.h
 
+insticonlist.h
 insticons.h
 toolbaricons.h
 )

@@ -168,6 +168,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TASK_END(MainWindow::OnTaskEnd)
 	EVT_TASK_STATUS(MainWindow::OnTaskStatus)
 	EVT_TASK_PROGRESS(MainWindow::OnTaskProgress)
+	EVT_TASK_ERRORMSG(MainWindow::OnTaskError)
 	
 	EVT_LOGIN_COMPLETE(MainWindow::OnLoginComplete)
 END_EVENT_TABLE()

@@ -15,15 +15,117 @@
 //
 
 #include "moddertask.h"
+#include <fsutils.h>
+#include <wx/wfstream.h>
+#include <wx/fs_mem.h>
 
 
-ModderTask::ModderTask(Instance* m_inst)
+ModderTask::ModderTask(Instance* inst)
+	: Task()
 {
-	
+	m_inst = inst;
+	step = 0;
 }
 
 void ModderTask::TaskStart()
 {
+	// Get the mod list
+	const ModList *modList = m_inst->GetModList();
 	
+	wxFileName mcBin = m_inst->GetBinDir();
+	wxFileName mcJar = m_inst->GetMCJar();
+	wxFileName mcBackup = m_inst->GetMCBackup();
+	
+	SetStatus(_("Installing mods - backing up minecraft.jar..."));
+	if (!mcBackup.FileExists() && !wxCopyFile(mcJar.GetFullPath(), mcBackup.GetFullPath()))
+	{
+		OnErrorMessage(_("Can't backup minecraft.jar"));
+		Cancel();
+		TestDestroy();
+		return;
+	}
+	
+	if (mcJar.FileExists() && !wxRemoveFile(mcJar.GetFullPath()))
+	{
+		OnErrorMessage(_("Can't delete old minecraft.jar"));
+		Cancel();
+		TestDestroy();
+		return;
+	}
+	
+	
+	if (TestDestroy())
+		return;
+	TaskStep(); // STEP 1
+	SetStatus(_("Installing mods - Extracting minecraft.jar"));
+	
+	wxString mctmpDir = Path::Combine(mcBin, _("mctmp"));
+	
+	if (wxDirExists(mctmpDir) && !RecursiveDelete(mctmpDir))
+	{
+		OnErrorMessage(_("Can't delete old mctmp."));
+		Cancel();
+		TestDestroy();
+		return;
+	}
+	
+	if (!wxMkdir(mctmpDir))
+	{
+		OnErrorMessage(_("Can't create mctmp!"));
+		Cancel();
+		TestDestroy();
+		return;
+	}
+	
+	// Extract the jar
+	{
+		wxFileInputStream jarStream(mcBackup.GetFullPath());
+		ExtractZipArchive(jarStream, mctmpDir);
+	}
+	
+	// Modify the jar
+	TaskStep(); // STEP 2
+	SetStatus(_("Installing mods - Adding mod files..."));
+	for (ConstModIterator iter = modList->begin(); iter != modList->end(); iter++)
+	{
+		wxFileName modFileName = iter->GetFileName();
+		SetStatus(_("Installing mods - Adding ") + modFileName.GetFullName());
+		if (iter->IsZipMod())
+		{
+			wxFileInputStream modStream(modFileName.GetFullPath());
+			ExtractZipArchive(modStream, mctmpDir);
+		}
+		else
+		{
+			wxFileName destFileName = modFileName;
+			destFileName.MakeRelativeTo(m_inst->GetInstModsDir().GetFullPath());
+			destFileName.Normalize(wxPATH_NORM_ALL, mctmpDir);
+			destFileName.MakeRelativeTo();
+			wxCopyFile(modFileName.GetFullPath(), destFileName.GetFullPath());
+		}
+	}
+	
+	if (wxDirExists(Path::Combine(mctmpDir, _("META-INF"))))
+	{
+		RecursiveDelete(Path::Combine(mctmpDir, _("META-INF")));
+	}
+	
+	// Recompress the jar
+	TaskStep(); // STEP 3
+	SetStatus(_("Installing mods - Recompressing jar..."));
+	{
+		wxFileOutputStream jarOutStream(mcJar.GetFullPath());
+		CompressZipArchive(jarOutStream, mctmpDir);
+	}
+	
+	RecursiveDelete(mctmpDir);
+}
+
+
+void ModderTask::TaskStep()
+{
+	step++;
+	int p = (int)(((float)step / 4.0f) * 100);
+	SetProgress(p);
 }
 

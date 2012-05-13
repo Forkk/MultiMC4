@@ -27,6 +27,10 @@
 
 bool IsValidInstance(wxFileName rootDir);
 
+typedef std::vector<Mod> ModList;
+typedef ModList::iterator ModIterator;
+typedef ModList::const_iterator ConstModIterator;
+
 class Instance : public wxEvtHandler
 {
 public:
@@ -76,16 +80,14 @@ public:
 	
 	wxProcess* Launch(wxString username, wxString sessionID, bool redirectOutput = false);
 	
-	// Reloads the instance's modlist
 	void LoadModList();
-	
 	void SaveModList();
-	
 	void UpdateModList();
+	const ModList *GetModList();
 	
-
+	
 protected:
-	std::vector<Mod> modList;
+	ModList modList;
 	
 	wxFileName rootDir;
 	

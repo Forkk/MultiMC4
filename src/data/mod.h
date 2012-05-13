@@ -30,6 +30,9 @@ public:
 	wxString GetModVersion() const;
 	wxString GetMCVersion() const;
 	
+	// True if this mod is a zip file.
+	bool IsZipMod() const;
+	
 protected:
 	wxFileName modFile;
 	

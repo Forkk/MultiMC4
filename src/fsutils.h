@@ -15,19 +15,11 @@
 //
 
 #pragma once
-#include "task.h"
-#include <instance.h>
+#include <wx/wx.h>
+#include <wx/zipstrm.h>
 
-class ModderTask : public Task
-{
-public:
-	ModderTask(Instance *inst);
-	
-	virtual void TaskStart();
-	
-protected:
-	Instance *m_inst;
-	
-	void TaskStep();
-	int step;
-};
+bool RecursiveDelete(const wxString &path);
+
+void ExtractZipArchive(wxInputStream &stream, const wxString &dest);
+
+bool CompressZipArchive(wxOutputStream &stream, const wxString &srcDir);

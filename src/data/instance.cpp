@@ -410,7 +410,7 @@ void Instance::LoadModListFromDir(const wxFileName& dir)
 void Instance::SaveModList()
 {
 	wxString text;
-	for (std::vector<Mod>::iterator iter = modList.begin(); iter != modList.end(); iter++)
+	for (ModIterator iter = modList.begin(); iter != modList.end(); iter++)
 	{
 		wxFileName modFile = iter->GetFileName();
 		modFile.MakeRelativeTo(GetInstModsDir().GetFullPath());
@@ -428,6 +428,12 @@ void Instance::UpdateModList()
 	LoadModList();
 	SaveModList();
 }
+
+const ModList *Instance::GetModList()
+{
+	return &modList;
+}
+
 
 BEGIN_EVENT_TABLE(Instance, wxEvtHandler)
 	EVT_END_PROCESS(wxID_ANY, Instance::OnInstProcExited)

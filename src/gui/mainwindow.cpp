@@ -21,7 +21,9 @@
 #include "toolbaricons.h"
 #include <gameupdatetask.h>
 #include <logintask.h>
+#include <moddertask.h>
 #include <wx/fs_arc.h>
+#include <wx/fs_mem.h>
 
 IMPLEMENT_APP(MultiMC)
 
@@ -327,7 +329,8 @@ void MainWindow::OnEditModsClicked(wxCommandEvent& event)
 
 void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
 {
-	NotImplemented();
+	ModderTask *modTask = new ModderTask(GetSelectedInst());
+	StartModalTask(*modTask);
 }
 
 void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
@@ -335,7 +338,6 @@ void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
 	Instance *inst = GetSelectedInst();
 	if (inst)
 	{
-		printf("%ls\n", inst->GetRootDir().GetFullPath().GetData());
 		Utils::OpenFile(inst->GetRootDir());
 	}
 }
@@ -413,6 +415,9 @@ void MainWindow::StartModalTask(Task& task)
 bool MultiMC::OnInit()
 {
 	wxInitAllImageHandlers();
+	
+	wxFileSystem::AddHandler(new wxArchiveFSHandler);
+// 	wxFileSystem::AddHandler(new wxMemoryFSHandler);
 	
 	if (!InitAppSettings())
 	{

@@ -161,7 +161,7 @@ typedef void (wxEvtHandler::*TaskErrorEventFunction)(TaskErrorEvent&);
 #define EVT_TASK_ERRORMSG(fn)\
 	DECLARE_EVENT_TABLE_ENTRY(wxEVT_TASK_ERRORMSG, wxID_ANY, -1,\
 		(wxObjectEventFunction)(wxEventFunction)\
-		(TaskProgressEventFunction) &fn, (wxObject*) NULL),
+		(TaskErrorEventFunction) &fn, (wxObject*) NULL),
 
 #define EVT_TASK_CUSTOM(evt_id, fn, type)\
 	DECLARE_EVENT_TABLE_ENTRY(evt_id, wxID_ANY, -1,\

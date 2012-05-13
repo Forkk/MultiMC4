@@ -50,3 +50,8 @@ wxString Mod::GetMCVersion() const
 {
 	return mcVersion;
 }
+
+bool Mod::IsZipMod() const
+{
+	return GetFileName().GetExt() == _("zip") || GetFileName().GetExt() == _("jar");
+}
