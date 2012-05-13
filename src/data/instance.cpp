@@ -429,9 +429,16 @@ void Instance::UpdateModList()
 	SaveModList();
 }
 
-const ModList *Instance::GetModList()
+ModList *Instance::GetModList()
 {
 	return &modList;
+}
+
+void Instance::InsertMod(int index, const wxFileName &source)
+{
+	wxFileName dest(Path::Combine(GetInstModsDir().GetFullPath(), source.GetFullName()));
+	wxCopyFile(source.GetFullPath(), dest.GetFullPath());
+	modList.insert(modList.begin() + index, Mod(dest));
 }
 
 

@@ -83,8 +83,9 @@ public:
 	void LoadModList();
 	void SaveModList();
 	void UpdateModList();
-	const ModList *GetModList();
+	ModList *GetModList();
 	
+	void InsertMod(int index, const wxFileName &source);
 	
 protected:
 	ModList modList;

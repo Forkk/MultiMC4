@@ -18,13 +18,14 @@
 
 SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	: wxDialog(parent, id, _T("Settings"), wxDefaultPosition,
-		wxSize(450, 450))
+		wxSize(500, 450))
 {
 	wxBoxSizer *mainBox = new wxBoxSizer(wxVERTICAL);
 	SetSizer(mainBox);
 	
 	// Tab control
-	tabCtrl = new wxNotebook(this, -1);
+	tabCtrl = new wxNotebook(this, -1, wxDefaultPosition, 
+							 wxDefaultSize, wxNB_LEFT);
 	mainBox->Add(tabCtrl, 1, wxEXPAND | wxALL, 8);
 	
 	// General tab
