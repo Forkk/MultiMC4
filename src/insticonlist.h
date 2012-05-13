@@ -19,6 +19,8 @@
 
 const wxString instIconPrefix = _T("icons/inst/");
 
+typedef std::map<wxString, int> IconListIndexMap;
+
 class InstIconList
 {
 public:
@@ -34,6 +36,6 @@ public:
 
 protected:
 	wxImageList *imageList;
-	boost::unordered_map<wxString, int> *indexMap;
+	IconListIndexMap *indexMap;
 };
 

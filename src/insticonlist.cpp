@@ -47,7 +47,7 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 	};
 
 	imageList = new wxImageList(width, height);
-	indexMap = new boost::unordered_map<wxString, int>();
+	indexMap = new IconListIndexMap();
 
 	BOOST_FOREACH(InstIconDef builtInIcon, builtInIcons)
 	{
