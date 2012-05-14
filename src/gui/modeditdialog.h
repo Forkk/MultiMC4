@@ -25,17 +25,23 @@ public:
 	ModEditDialog(wxWindow *parent, Instance *inst);
 	
 protected:
-	class JarModListCtrl : public wxListCtrl
+	class ModListCtrl : public wxListCtrl
 	{
 	public:
-		JarModListCtrl(wxWindow *parent	, Instance *inst);
+		ModListCtrl(wxWindow *parent, int id, Instance *inst);
 		
 		virtual wxString OnGetItemText(long int item, long int column) const;
 		
-		virtual void Update();
+		virtual void UpdateItems();
+		
+		virtual void SetInsertMark(const int index);
+		
+		void DrawInsertMark(int index);
 		
 	protected:
 		Instance *m_inst;
+		
+		int m_insMarkIndex;
 	} *jarModList;
 	
 	wxListCtrl *mlModList;
@@ -49,18 +55,28 @@ protected:
 	
 	Instance *m_inst;
 	
+	void OnDeleteJarMod();
+	void OnJarListKeyDown(wxListEvent &event);
+	
+	class ModsDropTarget : public wxFileDropTarget
+	{
+	public:
+		ModsDropTarget(ModListCtrl *owner, Instance *inst);
+		
+		virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames);
+		
+		virtual wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
+		virtual void OnLeave();
+		
+		ModListCtrl *m_owner;
+		Instance *m_inst;
+	};
+	
 	DECLARE_EVENT_TABLE()
 };
 
-class ModsDropTarget : public wxFileDropTarget
+enum
 {
-public:
-	ModsDropTarget(wxListCtrl *owner, Instance *inst);
-	
-	virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames);
-	
-	virtual wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
-	
-	wxListCtrl *m_owner;
-	Instance *m_inst;
+	ID_JAR_MOD_LIST,
+	ID_ML_MOD_LIST,
 };

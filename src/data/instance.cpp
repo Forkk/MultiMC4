@@ -438,7 +438,24 @@ void Instance::InsertMod(int index, const wxFileName &source)
 {
 	wxFileName dest(Path::Combine(GetInstModsDir().GetFullPath(), source.GetFullName()));
 	wxCopyFile(source.GetFullPath(), dest.GetFullPath());
-	modList.insert(modList.begin() + index, Mod(dest));
+	
+	if (modList.begin() + index > modList.end())
+		modList.insert(modList.begin() + index, Mod(dest));
+	else
+		modList.push_back(Mod(dest));
+}
+
+void Instance::DeleteMod(int index)
+{
+	Mod *mod = &modList[index];
+	if (wxRemoveFile(mod->GetFileName().GetFullPath()))
+	{
+		modList.erase(modList.begin() + index);
+	}
+	else
+	{
+		wxLogError(_("Failed to delete mod."));
+	}
 }
 
 

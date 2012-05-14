@@ -86,6 +86,7 @@ public:
 	ModList *GetModList();
 	
 	void InsertMod(int index, const wxFileName &source);
+	void DeleteMod(int index);
 	
 protected:
 	ModList modList;

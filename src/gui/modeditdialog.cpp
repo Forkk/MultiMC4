@@ -32,7 +32,7 @@ ModEditDialog::ModEditDialog(wxWindow *parent, Instance *inst)
 	jarModPanel->SetSizer(jarModSizer);
 	modEditNotebook->AddPage(jarModPanel, _("Jar Mods"), true);
 	
-	jarModList = new JarModListCtrl(jarModPanel, inst);
+	jarModList = new ModListCtrl(jarModPanel, ID_JAR_MOD_LIST, inst);
 	jarModList->InsertColumn(0, _("Mod Name"));
 	jarModList->InsertColumn(1, _("Mod Version"), wxLIST_FORMAT_RIGHT);
 	jarModList->SetDropTarget(new ModsDropTarget(jarModList, inst));
@@ -58,13 +58,12 @@ ModEditDialog::ModEditDialog(wxWindow *parent, Instance *inst)
 
 void ModEditDialog::LoadJarMods()
 {
-	jarModList->Update();
+	jarModList->UpdateItems();
 }
 
-void ModEditDialog::JarModListCtrl::Update()
+void ModEditDialog::ModListCtrl::UpdateItems()
 {
 	SetItemCount(m_inst->GetModList()->size());
-	wxGenericListCtrl::Update();
 }
 
 void ModEditDialog::LoadMLMods()
@@ -72,14 +71,15 @@ void ModEditDialog::LoadMLMods()
 	
 }
 
-ModEditDialog::JarModListCtrl::JarModListCtrl(wxWindow *parent, Instance *inst)
-	: wxListCtrl(parent, -1, wxDefaultPosition, wxDefaultSize, 
+ModEditDialog::ModListCtrl::ModListCtrl(wxWindow *parent, int id, Instance *inst)
+	: wxListCtrl(parent, id, wxDefaultPosition, wxDefaultSize, 
 				 wxLC_REPORT | wxLC_VIRTUAL | wxLC_VRULES)
 {
 	m_inst = inst;
+	m_insMarkIndex = -1;
 }
 
-wxString ModEditDialog::JarModListCtrl::OnGetItemText(long int item, long int column) const
+wxString ModEditDialog::ModListCtrl::OnGetItemText(long int item, long int column) const
 {
 	switch (column)
 	{
@@ -111,31 +111,121 @@ bool ModEditDialog::Show(bool show)
 	return response;
 }
 
-ModsDropTarget::ModsDropTarget(wxListCtrl *owner, Instance *inst)
+ModEditDialog::ModsDropTarget::ModsDropTarget(ModEditDialog::ModListCtrl *owner, Instance *inst)
 {
 	m_owner = owner;
 	m_inst = inst;
 }
 
-wxDragResult ModsDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
+wxDragResult ModEditDialog::ModsDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
 {
+	int flags = wxLIST_HITTEST_BELOW;
+	long index = m_owner->HitTest(wxPoint(x, y), flags);
+	
 	def = wxDragResult::wxDragCopy;
+	if (index != wxNOT_FOUND)
+	{
+		m_owner->SetInsertMark(index);
+	}
+	else
+	{
+		m_owner->SetInsertMark(m_owner->GetItemCount());
+	}
+	
 	return def;
 }
 
-bool ModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
+void ModEditDialog::ModsDropTarget::OnLeave()
+{
+	m_owner->SetInsertMark(-1);
+}
+
+bool ModEditDialog::ModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
 {
 	int flags = wxLIST_HITTEST_ONITEM;
 	long index = m_owner->HitTest(wxPoint(x, y), flags);
+	if (index != 0)
+	{
+		
+	}
 	
 	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); iter++)
 	{
 		wxFileName modFileName(*iter);
 		m_inst->InsertMod(index, modFileName);
-		m_owner->Update();
+		m_owner->UpdateItems();
 	}
 }
 
-BEGIN_EVENT_TABLE(ModEditDialog, wxDialog)
+void ModEditDialog::OnDeleteJarMod()
+{
+	if (jarModList->GetItemCount() <= 0)
+		return;
 	
+	wxArrayInt indices;
+	long item = -1;
+	while (true)
+	{
+		item = jarModList->GetNextItem(item, wxLIST_NEXT_ALL, 
+										wxLIST_STATE_SELECTED);
+		
+		if (item == -1)
+			break;
+		
+		indices.Add(item);
+	}
+	
+	for (int i = indices.GetCount() -1; i >= 0; i--)
+	{
+		m_inst->DeleteMod(indices[i]);
+	}
+	jarModList->UpdateItems();
+}
+
+void ModEditDialog::OnJarListKeyDown(wxListEvent &event)
+{
+	if (event.GetKeyCode() == WXK_DELETE)
+	{
+		OnDeleteJarMod();
+	}
+}
+
+void ModEditDialog::ModListCtrl::SetInsertMark(const int index)
+{
+	m_insMarkIndex = index;
+	Refresh();
+	Update();
+	DrawInsertMark(index);
+}
+
+void ModEditDialog::ModListCtrl::DrawInsertMark(int index)
+{
+	if (index < 0)
+		return;
+	
+	wxWindow *listMainWin = (wxWindow*)this->m_mainWin;
+	
+	int lineY = 0;
+	wxRect itemRect;
+	this->GetItemRect(index, itemRect);
+	lineY = itemRect.GetTop() - listMainWin->GetPosition().y;
+	
+	if (index == GetItemCount())
+	{
+		this->GetItemRect(index - 1, itemRect);
+		lineY = itemRect.GetBottom() - listMainWin->GetPosition().y;
+	}
+	
+	wxWindowDC dc(listMainWin);
+	dc.SetPen(wxPen(wxColour(_("white")), 2, wxSOLID));
+	
+	const wxBrush *brush = wxTRANSPARENT_BRUSH;
+	dc.SetBrush(*brush);
+	dc.SetLogicalFunction(wxXOR);
+	dc.DrawLine(0, lineY, this->GetClientSize().GetWidth(), lineY);
+}
+
+
+BEGIN_EVENT_TABLE(ModEditDialog, wxDialog)
+	EVT_LIST_KEY_DOWN(ID_JAR_MOD_LIST, ModEditDialog::OnJarListKeyDown)
 END_EVENT_TABLE()
