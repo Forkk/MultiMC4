@@ -35,7 +35,7 @@ ModEditDialog::ModEditDialog(wxWindow *parent, Instance *inst)
 	jarModList = new ModListCtrl(jarModPanel, ID_JAR_MOD_LIST, inst);
 	jarModList->InsertColumn(0, _("Mod Name"));
 	jarModList->InsertColumn(1, _("Mod Version"), wxLIST_FORMAT_RIGHT);
-	jarModList->SetDropTarget(new ModsDropTarget(jarModList, inst));
+	jarModList->SetDropTarget(new JarModsDropTarget(jarModList, inst));
 	jarModSizer->Add(jarModList, wxSizerFlags(1).Expand().Border(wxALL, 8));
 	
 	
@@ -44,7 +44,10 @@ ModEditDialog::ModEditDialog(wxWindow *parent, Instance *inst)
 	mlModPanel->SetSizer(mlModSizer);
 	modEditNotebook->AddPage(mlModPanel, _("Mods Folder"));
 	
-	mlModList = new wxListCtrl(mlModPanel, -1);
+	mlModList = new ModListCtrl(mlModPanel, ID_ML_MOD_LIST, inst);
+	mlModList->InsertColumn(0, _("Mod Name"));
+	mlModList->InsertColumn(1, _("Mod Version"), wxLIST_FORMAT_RIGHT);
+	mlModList->SetDropTarget(new MLModsDropTarget(mlModList, inst));
 	mlModSizer->Add(mlModList, wxSizerFlags(1).Expand().Border(wxALL, 8));
 	
 	wxSizer *btnBox = CreateButtonSizer(wxOK);
@@ -63,12 +66,12 @@ void ModEditDialog::LoadJarMods()
 
 void ModEditDialog::ModListCtrl::UpdateItems()
 {
-	SetItemCount(m_inst->GetModList()->size());
+	SetItemCount(GetModList()->size());
 }
 
 void ModEditDialog::LoadMLMods()
 {
-	
+	mlModList->UpdateItems();
 }
 
 ModEditDialog::ModListCtrl::ModListCtrl(wxWindow *parent, int id, Instance *inst)
@@ -84,12 +87,20 @@ wxString ModEditDialog::ModListCtrl::OnGetItemText(long int item, long int colum
 	switch (column)
 	{
 	case 0:
-		return (*m_inst->GetModList())[item].GetName();
+		return (*GetModList())[item].GetName();
 	case 1:
-		return (*m_inst->GetModList())[item].GetModVersion();
+		return (*GetModList())[item].GetModVersion();
 	default:
 		return wxEmptyString;
 	}
+}
+
+ModList *ModEditDialog::ModListCtrl::GetModList() const
+{
+	if (GetId() == ID_ML_MOD_LIST)
+		return m_inst->GetMLModList();
+	else
+		return m_inst->GetModList();
 }
 
 void ModEditDialog::UpdateColSizes()
@@ -100,6 +111,9 @@ void ModEditDialog::UpdateColSizes()
 	
 	jarModList->SetColumnWidth(0, width - versionColumnWidth);
 	jarModList->SetColumnWidth(1, versionColumnWidth);
+	
+	mlModList->SetColumnWidth(0, width - versionColumnWidth);
+	mlModList->SetColumnWidth(1, versionColumnWidth);
 }
 
 
@@ -111,16 +125,21 @@ bool ModEditDialog::Show(bool show)
 	return response;
 }
 
-ModEditDialog::ModsDropTarget::ModsDropTarget(ModEditDialog::ModListCtrl *owner, Instance *inst)
+ModEditDialog::JarModsDropTarget::JarModsDropTarget(ModEditDialog::ModListCtrl *owner, Instance *inst)
 {
 	m_owner = owner;
 	m_inst = inst;
 }
 
-wxDragResult ModEditDialog::ModsDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
+wxDragResult ModEditDialog::JarModsDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
 {
 	int flags = wxLIST_HITTEST_BELOW;
-	long index = m_owner->HitTest(wxPoint(x, y), flags);
+	long index = 0;
+	
+	if (m_owner->GetItemCount() > 0)
+	{
+		index = m_owner->HitTest(wxPoint(x, y), flags);
+	}
 	
 	def = wxDragResult::wxDragCopy;
 	if (index != wxNOT_FOUND)
@@ -135,19 +154,23 @@ wxDragResult ModEditDialog::ModsDropTarget::OnDragOver(wxCoord x, wxCoord y, wxD
 	return def;
 }
 
-void ModEditDialog::ModsDropTarget::OnLeave()
+void ModEditDialog::JarModsDropTarget::OnLeave()
 {
 	m_owner->SetInsertMark(-1);
 }
 
-bool ModEditDialog::ModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
+bool ModEditDialog::JarModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
 {
 	int flags = wxLIST_HITTEST_ONITEM;
-	long index = m_owner->HitTest(wxPoint(x, y), flags);
-	if (index != 0)
+	
+	long index = 0;
+	
+	if (m_owner->GetItemCount() > 0)
 	{
-		
+		index = m_owner->HitTest(wxPoint(x, y), flags);
 	}
+	
+	m_owner->SetInsertMark(-1);
 	
 	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); iter++)
 	{
@@ -182,11 +205,45 @@ void ModEditDialog::OnDeleteJarMod()
 	jarModList->UpdateItems();
 }
 
+void ModEditDialog::OnDeleteMLMod()
+{
+	if (mlModList->GetItemCount() <= 0)
+		return;
+	
+	wxArrayInt indices;
+	long item = -1;
+	while (true)
+	{
+		item = mlModList->GetNextItem(item, wxLIST_NEXT_ALL, 
+									  wxLIST_STATE_SELECTED);
+		
+		if (item == -1)
+			break;
+		
+		indices.Add(item);
+	}
+	
+	for (int i = indices.GetCount() -1; i >= 0; i--)
+	{
+		m_inst->DeleteMLMod(indices[i]);
+	}
+	m_inst->LoadMLModList();
+	mlModList->UpdateItems();
+}
+
 void ModEditDialog::OnJarListKeyDown(wxListEvent &event)
 {
 	if (event.GetKeyCode() == WXK_DELETE)
 	{
 		OnDeleteJarMod();
+	}
+}
+
+void ModEditDialog::OnMLListKeyDown(wxListEvent &event)
+{
+	if (event.GetKeyCode() == WXK_DELETE)
+	{
+		OnDeleteMLMod();
 	}
 }
 
@@ -202,15 +259,18 @@ void ModEditDialog::ModListCtrl::DrawInsertMark(int index)
 {
 	if (index < 0)
 		return;
-	
+#ifdef WIN32
+	wxWindow *listMainWin = (wxWindow*)this;
+#else
 	wxWindow *listMainWin = (wxWindow*)this->m_mainWin;
+#endif
 	
 	int lineY = 0;
 	wxRect itemRect;
 	this->GetItemRect(index, itemRect);
 	lineY = itemRect.GetTop() - listMainWin->GetPosition().y;
 	
-	if (index == GetItemCount())
+	if (index == GetItemCount() && GetItemCount() > 0)
 	{
 		this->GetItemRect(index - 1, itemRect);
 		lineY = itemRect.GetBottom() - listMainWin->GetPosition().y;
@@ -225,7 +285,31 @@ void ModEditDialog::ModListCtrl::DrawInsertMark(int index)
 	dc.DrawLine(0, lineY, this->GetClientSize().GetWidth(), lineY);
 }
 
+ModEditDialog::MLModsDropTarget::MLModsDropTarget(ModEditDialog::ModListCtrl *owner, Instance *inst)
+{
+	m_owner = owner;
+	m_inst = inst;
+}
+
+wxDragResult ModEditDialog::MLModsDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
+{
+	return wxDragResult::wxDragCopy;
+}
+
+bool ModEditDialog::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
+{
+	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
+	{
+		wxFileName dest(Path::Combine(m_inst->GetMLModsDir().GetFullPath(), *iter));
+		wxCopyFile(*iter, dest.GetFullPath());
+	}
+	
+	m_inst->LoadMLModList();
+	m_owner->UpdateItems();
+}
+
 
 BEGIN_EVENT_TABLE(ModEditDialog, wxDialog)
 	EVT_LIST_KEY_DOWN(ID_JAR_MOD_LIST, ModEditDialog::OnJarListKeyDown)
+	EVT_LIST_KEY_DOWN(ID_ML_MOD_LIST, ModEditDialog::OnMLListKeyDown)
 END_EVENT_TABLE()

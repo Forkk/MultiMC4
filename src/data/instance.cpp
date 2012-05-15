@@ -49,6 +49,7 @@ Instance::Instance(wxFileName rootDir, wxString name)
 	evtHandler = NULL;
 	MkDirs();
 	UpdateModList();
+	LoadMLModList();
 }
 
 Instance::~Instance(void)
@@ -344,8 +345,6 @@ wxString Instance::GetLastLaunchCommand() const
 
 void Instance::LoadModList()
 {
-	modList.clear();
-	
 	wxFileInputStream inputStream(GetModListFile().GetFullPath());
 	wxStringList modListFile = ReadAllLines(inputStream);
 	
@@ -356,7 +355,9 @@ void Instance::LoadModList()
 		modFile.Normalize(wxPATH_NORM_ALL, GetInstModsDir().GetFullPath());
 		modFile.MakeRelativeTo();
 		
-		modList.push_back(Mod(modFile));
+		if (!Any(modList.begin(), modList.end(), [&modFile] (Mod mod) -> bool
+			{ return mod.GetFileName().SameAs(wxFileName(modFile)); }))
+			modList.push_back(Mod(modFile));
 	}
 	
 	for (int i = 0; i < modList.size(); i++)
@@ -371,8 +372,15 @@ void Instance::LoadModList()
 	LoadModListFromDir(GetInstModsDir());
 }
 
-void Instance::LoadModListFromDir(const wxFileName& dir)
+void Instance::LoadModListFromDir(const wxFileName& dir, bool mlMod)
 {
+	ModList *list;
+	
+	if (mlMod)
+		list = &mlModList;
+	else
+		list = &modList;
+	
 	wxDir modDir(dir.GetFullPath());
 	
 	if (!modDir.IsOpened())
@@ -391,17 +399,18 @@ void Instance::LoadModListFromDir(const wxFileName& dir)
 			{
 				Mod mod(currentFile);
 				
-				if (!Any(modList.begin(), modList.end(), [&currentFile] (Mod mod) -> bool
+				if (!Any(list->begin(), list->end(), [&currentFile] (Mod mod) -> bool
 					{
 						return mod.GetFileName().SameAs(wxFileName(currentFile)); 
 					}))
 				{
-					modList.push_back(mod);
+					
+					list->push_back(mod);
 				}
 			}
 			else if (wxDirExists(currentFile))
 			{
-				LoadModListFromDir(wxFileName(currentFile));
+				LoadModListFromDir(wxFileName(currentFile), mlMod);
 			}
 		} while (modDir.GetNext(&currentFile));
 	}
@@ -438,11 +447,20 @@ void Instance::InsertMod(int index, const wxFileName &source)
 {
 	wxFileName dest(Path::Combine(GetInstModsDir().GetFullPath(), source.GetFullName()));
 	wxCopyFile(source.GetFullPath(), dest.GetFullPath());
+	dest.MakeRelativeTo();
 	
-	if (modList.begin() + index > modList.end())
-		modList.insert(modList.begin() + index, Mod(dest));
-	else
+	int oldIndex = Find(modList.begin(), modList.end(), [&dest] (Mod mod) -> bool
+		{ return mod.GetFileName().SameAs(dest); });
+	
+	if (oldIndex != -1)
+	{
+		modList.erase(modList.begin() + oldIndex);
+	}
+	
+	if (index >= modList.size())
 		modList.push_back(Mod(dest));
+	else
+		modList.insert(modList.begin() + index, Mod(dest));
 }
 
 void Instance::DeleteMod(int index)
@@ -456,6 +474,38 @@ void Instance::DeleteMod(int index)
 	{
 		wxLogError(_("Failed to delete mod."));
 	}
+}
+
+void Instance::DeleteMLMod(int index)
+{
+	Mod *mod = &mlModList[index];
+	if (wxRemoveFile(mod->GetFileName().GetFullPath()))
+	{
+		mlModList.erase(mlModList.begin() + index);
+	}
+	else
+	{
+		wxLogError(_("Failed to delete mod."));
+	}
+}
+
+ModList *Instance::GetMLModList()
+{
+	return &mlModList;
+}
+
+void Instance::LoadMLModList()
+{
+	for (int i = 0; i < mlModList.size(); i++)
+	{
+		if (!mlModList[i].GetFileName().FileExists())
+		{
+			mlModList.erase(mlModList.begin() + i);
+			i--;
+		}
+	}
+	
+	LoadModListFromDir(GetMLModsDir(), true);
 }
 
 

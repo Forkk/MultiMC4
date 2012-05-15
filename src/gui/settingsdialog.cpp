@@ -25,7 +25,7 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	
 	// Tab control
 	tabCtrl = new wxNotebook(this, -1, wxDefaultPosition, 
-							 wxDefaultSize, wxNB_LEFT);
+							 wxDefaultSize);
 	mainBox->Add(tabCtrl, 1, wxEXPAND | wxALL, 8);
 	
 	// General tab

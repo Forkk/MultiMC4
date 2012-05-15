@@ -33,6 +33,29 @@ bool Any(InputIterator first, InputIterator last, Function f)
 	return false;
 }
 
+template<class InputIterator, class Predicate>
+int Count(InputIterator first, InputIterator last, Predicate pred)
+{
+	int count = 0;
+	for (; first != last; ++first)
+	{
+		if (pred(*first))
+			count++;
+	}
+	return count;
+}
+
+template<class InputIterator, class Predicate>
+size_t Find(InputIterator first, InputIterator last, Predicate pred)
+{
+	for (int i = 0; first != last; ++first, ++i)
+	{
+		if (pred(*first))
+			return i;
+	}
+	return -1;
+}
+
 wxString ReadAllText(wxInputStream &input);
 wxStringList ReadAllLines(wxInputStream &input);
 

@@ -85,11 +85,17 @@ public:
 	void UpdateModList();
 	ModList *GetModList();
 	
+	void LoadMLModList();
+	ModList *GetMLModList();
+	
 	void InsertMod(int index, const wxFileName &source);
 	void DeleteMod(int index);
 	
+	void DeleteMLMod(int index);
+	
 protected:
 	ModList modList;
+	ModList mlModList;
 	
 	wxFileName rootDir;
 	
@@ -111,7 +117,7 @@ protected:
 	
 	void OnInstProcExited(wxProcessEvent &event);
 	
-	void LoadModListFromDir(const wxFileName &dir);
+	void LoadModListFromDir(const wxFileName &dir, bool mlMod = false);
 	
 	DECLARE_EVENT_TABLE()
 };

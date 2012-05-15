@@ -41,10 +41,10 @@ protected:
 	protected:
 		Instance *m_inst;
 		
+		ModList *GetModList() const;
+		
 		int m_insMarkIndex;
-	} *jarModList;
-	
-	wxListCtrl *mlModList;
+	} *jarModList, *mlModList;
 	
 	void LoadJarMods();
 	void LoadMLMods();
@@ -56,17 +56,31 @@ protected:
 	Instance *m_inst;
 	
 	void OnDeleteJarMod();
+	void OnDeleteMLMod();
 	void OnJarListKeyDown(wxListEvent &event);
+	void OnMLListKeyDown(wxListEvent &event);
 	
-	class ModsDropTarget : public wxFileDropTarget
+	class JarModsDropTarget : public wxFileDropTarget
 	{
 	public:
-		ModsDropTarget(ModListCtrl *owner, Instance *inst);
+		JarModsDropTarget(ModListCtrl *owner, Instance *inst);
 		
 		virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames);
 		
 		virtual wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
 		virtual void OnLeave();
+		
+		ModListCtrl *m_owner;
+		Instance *m_inst;
+	};
+	
+	class MLModsDropTarget : public wxFileDropTarget
+	{
+	public:
+		MLModsDropTarget(ModListCtrl *owner, Instance *inst);
+		
+		virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames);
+		virtual wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
 		
 		ModListCtrl *m_owner;
 		Instance *m_inst;
