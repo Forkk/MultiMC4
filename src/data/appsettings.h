@@ -15,7 +15,10 @@
 //
 
 #pragma once
-#include "includes.h"
+#include <wx/wx.h>
+#include <wx/filesys.h>
+
+#include <boost/property_tree/ptree.hpp>
 
 const wxFileName iniConfigFile(_("multimc.cfg"));
 

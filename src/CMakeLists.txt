@@ -42,8 +42,6 @@ insticonlist.cpp
 )
 
 set (INCS
-includes.h
-
 gui/mainwindow.h
 gui/settingsdialog.h
 gui/logindialog.h

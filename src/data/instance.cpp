@@ -19,6 +19,7 @@
 #include <wx/sstream.h>
 #include <wx/wfstream.h>
 #include <wx/mstream.h>
+#include <wx/dir.h>
 
 #include "launcherdata.h"
 #include "osutils.h"

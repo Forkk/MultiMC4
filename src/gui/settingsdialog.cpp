@@ -15,6 +15,8 @@
 //
 
 #include "settingsdialog.h"
+#include <wx/gbsizer.h>
+#include <apputils.h>
 
 SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	: wxDialog(parent, id, _T("Settings"), wxDefaultPosition,

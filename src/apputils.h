@@ -15,7 +15,8 @@
 //
 
 #pragma once
-#include "includes.h"
+#include <wx/wx.h>
+#include <wx/filesys.h>
 #include <wx/protocol/http.h>
 
 #ifdef __GNUC__

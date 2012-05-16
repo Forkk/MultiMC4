@@ -18,6 +18,8 @@
 
 #include "insticons.h"
 
+#include <wx/imaglist.h>
+
 struct InstIconDef
 {
 	InstIconDef(wxString key, wxImage image)

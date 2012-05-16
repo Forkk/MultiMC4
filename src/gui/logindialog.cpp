@@ -15,6 +15,7 @@
 //
 
 #include "logindialog.h"
+#include <wx/gbsizer.h>
 
 BEGIN_EVENT_TABLE(LoginDialog, wxDialog)
 	

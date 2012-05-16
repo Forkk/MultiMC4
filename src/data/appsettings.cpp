@@ -15,6 +15,8 @@
 //
 
 #include "appsettings.h"
+#include <apputils.h>
+#include <boost/property_tree/ini_parser.hpp>
 
 AppSettings settings;
 

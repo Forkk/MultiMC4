@@ -15,6 +15,8 @@
 //
 
 #include "modeditdialog.h"
+#include <wx/notebook.h>
+#include <apputils.h>
 
 ModEditDialog::ModEditDialog(wxWindow *parent, Instance *inst)
 	: wxDialog(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))

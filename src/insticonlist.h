@@ -15,7 +15,11 @@
 //
 
 #pragma once
-#include "includes.h"
+#include <wx/wx.h>
+
+#include <boost/foreach.hpp>
+
+#include <map>
 
 const wxString instIconPrefix = _T("icons/inst/");
 

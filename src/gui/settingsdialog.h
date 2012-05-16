@@ -15,7 +15,12 @@
 //
 
 #pragma once
-#include "includes.h"
+#include <wx/wx.h>
+#include <wx/spinctrl.h>
+#include <wx/tglbtn.h>
+#include <wx/notebook.h>
+
+#include "appsettings.h"
 
 class SettingsDialog : public wxDialog
 {

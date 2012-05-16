@@ -18,7 +18,7 @@
 #include <fsutils.h>
 #include <wx/wfstream.h>
 #include <wx/fs_mem.h>
-
+#include <apputils.h>
 
 ModderTask::ModderTask(Instance* inst)
 	: Task()

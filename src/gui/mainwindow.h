@@ -22,6 +22,8 @@
 #include "task.h"
 #include "logintask.h"
 
+#include "insticonlist.h"
+
 #include "settingsdialog.h"
 
 //const wxString tbarIconPrefix = _T("resources/toolbar/");

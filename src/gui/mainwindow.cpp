@@ -20,9 +20,12 @@
 #include "modeditdialog.h"
 
 #include "toolbaricons.h"
-#include <gameupdatetask.h>
-#include <logintask.h>
-#include <moddertask.h>
+#include "gameupdatetask.h"
+#include "logintask.h"
+#include "moddertask.h"
+
+#include <wx/filesys.h>
+#include <wx/dir.h>
 #include <wx/fs_arc.h>
 #include <wx/fs_mem.h>
 
