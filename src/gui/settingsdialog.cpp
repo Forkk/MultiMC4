@@ -123,15 +123,15 @@ void SettingsDialog::OnButtonClicked(wxCommandEvent& event)
 
 void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 {
-	s.showConsole = showConsoleCheck->IsChecked();
-	s.autoCloseConsole = autoCloseConsoleCheck->IsChecked();
+	s.SetShowConsole(showConsoleCheck->IsChecked());
+	s.SetAutoCloseConsole(autoCloseConsoleCheck->IsChecked());
 	
-	s.autoUpdate = autoUpdateCheck->IsChecked();
+	s.SetAutoUpdate(autoUpdateCheck->IsChecked());
 	
 	wxFileName newInstDir = wxFileName::DirName(instDirTextBox->GetValue());
-	if (!s.instanceDir.SameAs(newInstDir))
+	if (!s.GetInstDir().SameAs(newInstDir))
 	{
-		wxFileName oldInstDir = s.instanceDir;
+		wxFileName oldInstDir = s.GetInstDir();
 		
 		int response = wxMessageBox(_T("You've changed your instance \
 			directory, would you like to transfer all of your instances?"),
@@ -141,7 +141,7 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 	RetryTransfer:
 		if (response != wxID_CANCEL)
 		{
-			s.instanceDir = newInstDir;
+			s.SetInstDir(newInstDir);
 		}
 		
 		if (response == wxID_YES)
@@ -150,27 +150,27 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 		}
 	}
 
-	s.minMemAlloc = minMemorySpin->GetValue();
-	s.maxMemAlloc = maxMemorySpin->GetValue();
+	s.SetMinMemAlloc(minMemorySpin->GetValue());
+	s.SetMaxMemAlloc(maxMemorySpin->GetValue());
 
-	s.javaPath = javaPathTextBox->GetValue().c_str();
+	s.SetJavaPath(javaPathTextBox->GetValue());
 	
-	s.Save();
+// 	s.Save();
 }
 
 void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
 {
-	showConsoleCheck->SetValue(s.showConsole);
-	autoCloseConsoleCheck->SetValue(s.autoCloseConsole);
+	showConsoleCheck->SetValue(s.GetShowConsole());
+	autoCloseConsoleCheck->SetValue(s.GetAutoCloseConsole());
 
-	autoUpdateCheck->SetValue(s.autoUpdate);
+	autoUpdateCheck->SetValue(s.GetAutoUpdate());
 
-	instDirTextBox->SetValue(s.instanceDir.GetFullPath());
+	instDirTextBox->SetValue(s.GetInstDir().GetFullPath());
 
-	minMemorySpin->SetValue(s.minMemAlloc);
-	maxMemorySpin->SetValue(s.maxMemAlloc);
+	minMemorySpin->SetValue(s.GetMinMemAlloc());
+	maxMemorySpin->SetValue(s.GetMaxMemAlloc());
 
-	javaPathTextBox->SetValue(s.javaPath.GetFullPath());
+	javaPathTextBox->SetValue(s.GetJavaPath());
 }
 
 void SettingsDialog::OnBrowseInstDirClicked(wxCommandEvent& event)

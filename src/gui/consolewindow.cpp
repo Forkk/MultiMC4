@@ -75,7 +75,7 @@ void InstConsoleWindow::OnInstExit(wxProcessEvent& event)
 		Show();
 		AllowClose();
 	}
-	else if (settings.autoCloseConsole)
+	else if (settings.GetAutoCloseConsole())
 	{
 		Close();
 	}

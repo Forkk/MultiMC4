@@ -17,8 +17,8 @@
 #pragma once
 #include <wx/wx.h>
 #include <wx/filesys.h>
-
-#include <boost/property_tree/ptree.hpp>
+#include <wx/config.h>
+#include <wx/confbase.h>
 
 const wxFileName iniConfigFile(_("multimc.cfg"));
 
@@ -29,27 +29,50 @@ const wxString defJavaPath = _("java");
 const wxString defInstDir = _("instances");
 const wxString defModsDir = _("mods");
 
-struct AppSettings
+class AppSettings
 {
-	int minMemAlloc;
-	int maxMemAlloc;
+public:
+	AppSettings();
+	virtual ~AppSettings();
 	
-	wxFileName javaPath;
-	wxFileName instanceDir;
-	wxFileName modsDir;
+	int GetMinMemAlloc() const;
+	void SetMinMemAlloc(int value);
 	
-	bool showConsole;
-	bool autoCloseConsole;
-	bool autoUpdate;
-	bool quitIfProblem;
+	int GetMaxMemAlloc() const;
+	void SetMaxMemAlloc(int value);
 	
-	void Save(const wxFileName& filename = iniConfigFile);
-	void Load(const wxFileName& filename = iniConfigFile);
+	wxString GetJavaPath() const;
+	void SetJavaPath(wxString value);
 	
-	wxFileName GetPathSetting(boost::property_tree::ptree& pt, 
-							  const std::string& key, 
-							  const std::string& def, 
-							  bool isDir = true);
+	wxFileName GetInstDir() const;
+	void SetInstDir(wxFileName value);
+	
+	wxFileName GetModsDir() const;
+	void SetModsDir(wxFileName value);
+	
+	bool GetShowConsole() const;
+	void SetShowConsole(bool value);
+	
+	bool GetAutoCloseConsole() const;
+	void SetAutoCloseConsole(bool value);
+	
+	bool GetAutoUpdate() const;
+	void SetAutoUpdate(bool value);
+	
+	bool GetQuitIfProblem() const;
+	void SetQuitIfProblem(bool value);
+	
+protected:
+// 	boost::property_tree::ptree ptree;
+	wxConfig *config;
+	
+	template <typename T>
+	T GetSetting(const wxString &key, T defValue) const;
+	template <typename T>
+	void SetSetting(const wxString &key, T value, bool suppressErrors = false);
+	
+	wxFileName GetSetting(const wxString &key, wxFileName defValue) const;
+	void SetSetting(const wxString &key, wxFileName value, bool suppressErrors = false);
 };
 
 extern AppSettings settings;

@@ -20,8 +20,6 @@
 #include <wx/filesys.h>
 #include <wx/process.h>
 
-#include <boost/property_tree/ini_parser.hpp>
-
 #include "appsettings.h"
 #include "mod.h"
 
@@ -35,7 +33,7 @@ class Instance : public wxEvtHandler
 {
 public:
 	static Instance *LoadInstance(wxFileName rootDir);
-	Instance(wxFileName rootDir, wxString name);
+	Instance(const wxFileName &rootDir);
 	~Instance(void);
 	
 	bool Save() const;
@@ -93,17 +91,21 @@ public:
 	
 	void DeleteMLMod(int index);
 	
+	template <typename T>
+	T GetSetting(const wxString &key, T defValue) const;
+	template <typename T>
+	void SetSetting(const wxString &key, T value, bool suppressErrors = false);
+	
+	wxFileName GetSetting(const wxString &key, wxFileName defValue) const;
+	void SetSetting(const wxString &key, wxFileName value, bool suppressErrors = false);
+	
 protected:
+	wxFileConfig *config;
+	
 	ModList modList;
 	ModList mlModList;
 	
 	wxFileName rootDir;
-	
-	wxString name;
-	wxString iconKey;
-	wxString notes;
-	bool needsRebuild;
-	bool askUpdate;
 	
 	wxProcess *instProc;
 	bool m_running;

@@ -75,11 +75,11 @@ MESSAGE(STATUS "** wxWidgets Root: ${wxWidgets_ROOT_DIR}")
 MESSAGE(STATUS "** wxWidgets Configuration: ${wxWidgets_CONFIGURATION}")
 
 # Find boost.
-set(Boost_USE_STATIC_LIBS ON)
-MESSAGE(STATUS "** Finding Boost...")
-find_package(Boost 1.46.0 REQUIRED)
-MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
-MESSAGE(STATUS "** Boost Libraries: ${Boost_LIBRARY_DIRS}")
+#set(Boost_USE_STATIC_LIBS ON)
+#MESSAGE(STATUS "** Finding Boost...")
+#find_package(Boost 1.46.0 REQUIRED)
+#MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
+#MESSAGE(STATUS "** Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
 #find_package(winsock REQUIRED)
 
@@ -100,7 +100,7 @@ include("${wxWidgets_USE_FILE}")
 include_directories("${CURL_INCLUDE_DIR}")
 
 # Include boost.
-include_directories("${Boost_INCLUDE_DIRS}")
+#include_directories("${Boost_INCLUDE_DIRS}")
 
 # Make the static md5 lib build
 add_subdirectory(md5)
@@ -118,7 +118,7 @@ add_executable(MultiMC WIN32 ${SRCS} ${INCS})
 # Link the libraries.
 target_link_libraries(MultiMC
 	${wxWidgets_LIBRARIES}
-	${Boost_LIBRARIES}
+	#${Boost_LIBRARIES}
 	${CURL_LIBRARIES}
 	tinymd5
 	${MULTIMC_ADDITIONAL_LINKS}

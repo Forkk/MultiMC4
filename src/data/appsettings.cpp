@@ -22,64 +22,155 @@ AppSettings settings;
 
 bool InitAppSettings(void)
 {
-	settings.Load();
+// 	settings.Load();
 	return true;
 }
 
-void AppSettings::Save(const wxFileName &filename /* = iniConfigFile */)
+AppSettings::AppSettings()
 {
-	using boost::property_tree::ptree;
-	ptree pt;
-	
-	pt.put<int>("MinMemoryAlloc", minMemAlloc);
-	pt.put<int>("MaxMemoryAlloc", maxMemAlloc);
-	
-	pt.put<std::string>("JavaPath", stdStr(javaPath.GetFullPath()));
-	pt.put<std::string>("InstanceDir", stdStr(instanceDir.GetFullPath()));
-	pt.put<std::string>("ModsDir", stdStr(modsDir.GetFullPath()));
-	
-	pt.put<bool>("ShowConsole", showConsole);
-	pt.put<bool>("AutoCloseConsole", autoCloseConsole);
-	pt.put<bool>("AutoUpdate", autoUpdate);
-	pt.put<bool>("QuitIfProblem", quitIfProblem);
-	
-	wxString str = filename.GetFullPath();
-	write_ini(stdStr(filename.GetFullPath()).c_str(), pt);
+	config = new wxConfig(_("MultiMC"));
 }
 
-void AppSettings::Load(const wxFileName &filename /* = iniConfigFile */)
+AppSettings::~AppSettings()
 {
-	using boost::property_tree::ptree;
-	ptree pt;
-	
-	if (filename.FileExists())
-		read_ini(stdStr(filename.GetFullPath()).c_str(), pt);
-	
-	minMemAlloc = pt.get<int>("MinMemoryAlloc", 512);
-	maxMemAlloc = pt.get<int>("MaxMemoryAlloc", 1024);
-	
-	javaPath = GetPathSetting(pt, "JavaPath", "java", false);
-	instanceDir = GetPathSetting(pt, "InstanceDir", "instances");
-	modsDir = GetPathSetting(pt, "ModsDir", "mods");
-	
-	showConsole = pt.get<bool>("ShowConsole", false);
-	autoCloseConsole = pt.get<bool>("AutoCloseConsole", true);
-	autoUpdate = pt.get<bool>("AutoUpdate", true);
-	quitIfProblem = pt.get<bool>("QuitIfProblem", false);
+	delete config;
 }
 
-wxFileName AppSettings::GetPathSetting(boost::property_tree::ptree &pt, 
-									   const std::string &key, 
-									   const std::string &def, 
-									   bool isDir)
+
+int AppSettings::GetMinMemAlloc() const
 {
-	std::string path = pt.get<std::string>(key, def);
-	if (path.empty())
-	{
-		path = def;
-	}
-	if (isDir)
-		return wxFileName(wxStr(path), wxEmptyString);
+	return GetSetting<int>(_("MinMemoryAlloc"), 512);
+}
+
+void AppSettings::SetMinMemAlloc(int value)
+{
+	SetSetting<int>(_("MinMemoryAlloc"), value);
+}
+
+
+int AppSettings::GetMaxMemAlloc() const
+{
+	return GetSetting<int>(_("MaxMemoryAlloc"), 1024);
+}
+
+void AppSettings::SetMaxMemAlloc(int value)
+{
+	SetSetting<int>(_("MaxMemoryAlloc"), value);
+}
+
+
+wxFileName AppSettings::GetInstDir() const
+{
+	return GetSetting(_("InstanceDir"), wxFileName::DirName(_("instances")));
+}
+
+void AppSettings::SetInstDir(wxFileName value)
+{
+	SetSetting(_("InstanceDir"), value);
+}
+
+
+wxString AppSettings::GetJavaPath() const
+{
+	return GetSetting<wxString>(_("JavaPath"), _("java"));
+}
+
+void AppSettings::SetJavaPath(wxString value)
+{
+	SetSetting<wxString>(_("JavaPath"), value);
+}
+
+
+wxFileName AppSettings::GetModsDir() const
+{
+	return GetSetting(_("ModsDir"), wxFileName::DirName(_("mods")));
+}
+
+void AppSettings::SetModsDir(wxFileName value)
+{
+	SetSetting(_("ModsDir"), value);
+}
+
+
+bool AppSettings::GetAutoCloseConsole() const
+{
+	return GetSetting<bool>(_("AutoCloseConsole"), true);
+}
+
+void AppSettings::SetAutoCloseConsole(bool value)
+{
+	SetSetting<bool>(_("AutoCloseConsole"), value);
+}
+
+
+bool AppSettings::GetAutoUpdate() const
+{
+	return GetSetting<bool>(_("AutoUpdate"), true);
+}
+
+void AppSettings::SetAutoUpdate(bool value)
+{
+	SetSetting<bool>(_("AutoUpdate"), value);
+}
+
+
+bool AppSettings::GetQuitIfProblem() const
+{
+	return GetSetting<bool>(_("QuitIfProblem"), false);
+}
+
+void AppSettings::SetQuitIfProblem(bool value)
+{
+	SetSetting<bool>(_("QuitIfProblem"), true);
+}
+
+
+bool AppSettings::GetShowConsole() const
+{
+	return GetSetting<bool>(_("ShowConsole"), true);
+}
+
+void AppSettings::SetShowConsole(bool value)
+{
+	SetSetting<bool>(_("ShowConsole"), value);
+}
+
+
+template <typename T>
+T AppSettings::GetSetting(const wxString &key, T defValue) const
+{
+	T val;
+	if (config->Read(key, &val))
+		return val;
 	else
-		return wxFileName(wxStr(path));
+		return defValue;
+}
+
+template <typename T>
+void AppSettings::SetSetting(const wxString &key, T value, bool suppressErrors)
+{
+	if (!config->Write(key, value) && !suppressErrors)
+		wxLogError(_("Failed to write config setting %s"), key.c_str());
+	config->Flush();
+}
+
+wxFileName AppSettings::GetSetting(const wxString &key, wxFileName defValue) const
+{
+	wxString val;
+	if (config->Read(key, &val))
+	{
+		if (defValue.IsDir())
+			return wxFileName::DirName(val);
+		else
+			return wxFileName::FileName(val);
+	}
+	else
+		return defValue;
+}
+
+void AppSettings::SetSetting(const wxString &key, wxFileName value, bool suppressErrors)
+{
+	if (!config->Write(key, value.GetFullPath()) && !suppressErrors)
+		wxLogError(_("Failed to write config setting %s"), key.c_str());
+	config->Flush();
 }

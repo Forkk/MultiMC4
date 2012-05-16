@@ -36,17 +36,14 @@ bool IsValidInstance(wxFileName rootDir)
 
 Instance *Instance::LoadInstance(wxFileName rootDir)
 {
-	Instance *inst = new Instance(rootDir, _(""));
-	if (!inst->Load())
-		return (Instance*)(NULL);
-	return inst;
+	return new Instance(rootDir);
 }
 
-Instance::Instance(wxFileName rootDir, wxString name)
+Instance::Instance(const wxFileName &rootDir)
 {
 	this->rootDir = rootDir;
-	Load(true);
-	this->name = name;
+	config = new wxFileConfig(wxEmptyString, wxEmptyString, GetConfigPath().GetFullPath(), wxEmptyString,
+							  wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
 	evtHandler = NULL;
 	MkDirs();
 	UpdateModList();
@@ -55,6 +52,7 @@ Instance::Instance(wxFileName rootDir, wxString name)
 
 Instance::~Instance(void)
 {
+	delete config;
 	if (IsRunning())
 	{
 		instProc->Detach();
@@ -88,51 +86,51 @@ void Instance::MkDirs()
 
 bool Instance::Save() const
 {
-	if (!GetRootDir().DirExists())
-	{
-		GetRootDir().Mkdir();
-	}
-
-	wxFileName filename = GetConfigPath();
-	using boost::property_tree::ptree;
-	ptree pt;
-
-	pt.put<std::string>("name", stdStr(name));
-	pt.put<std::string>("iconKey", stdStr(iconKey));
-	pt.put<std::string>("notes", stdStr(notes));
-	pt.put<bool>("NeedsRebuild", needsRebuild);
-	pt.put<bool>("AskUpdate", askUpdate);
-
-	write_ini(stdStr(filename.GetFullPath()).c_str(), pt);
-	return true;
+// 	if (!GetRootDir().DirExists())
+// 	{
+// 		GetRootDir().Mkdir();
+// 	}
+// 
+// 	wxFileName filename = GetConfigPath();
+// 	using boost::property_tree::ptree;
+// 	ptree pt;
+// 
+// 	pt.put<std::string>("name", stdStr(name));
+// 	pt.put<std::string>("iconKey", stdStr(iconKey));
+// 	pt.put<std::string>("notes", stdStr(notes));
+// 	pt.put<bool>("NeedsRebuild", needsRebuild);
+// 	pt.put<bool>("AskUpdate", askUpdate);
+// 
+// 	write_ini(stdStr(filename.GetFullPath()).c_str(), pt);
+// 	return true;
 }
 
 bool Instance::Load(bool loadDefaults)
 {
-	using boost::property_tree::ptree;
-	ptree pt;
-
-	wxFileName filename = GetConfigPath();
-	try
-	{
-		if (!loadDefaults)
-			read_ini(stdStr(filename.GetFullPath()).c_str(), pt);
-	}
-	catch (boost::property_tree::ini_parser_error e)
-	{
-		wxLogError(_("Failed to parse instance config file '%s'. %s"), 
-			stdStr(filename.GetFullPath()).c_str(),
-			e.message().c_str());
-		return false;
-	}
-
-	name = wxStr(pt.get<std::string>("name", "Unnamed Instance"));
-	iconKey = wxStr(pt.get<std::string>("iconKey", "default"));
-	notes = wxStr(pt.get<std::string>("notes", ""));
-	
-	needsRebuild = pt.get<bool>("NeedsRebuild", false);
-	askUpdate = pt.get<bool>("AskUpdate", true);
-	return true;
+// 	using boost::property_tree::ptree;
+// 	ptree pt;
+// 
+// 	wxFileName filename = GetConfigPath();
+// 	try
+// 	{
+// 		if (!loadDefaults)
+// 			read_ini(stdStr(filename.GetFullPath()).c_str(), pt);
+// 	}
+// 	catch (boost::property_tree::ini_parser_error e)
+// 	{
+// 		wxLogError(_("Failed to parse instance config file '%s'. %s"), 
+// 			stdStr(filename.GetFullPath()).c_str(),
+// 			e.message().c_str());
+// 		return false;
+// 	}
+// 
+// 	name = wxStr(pt.get<std::string>("name", "Unnamed Instance"));
+// 	iconKey = wxStr(pt.get<std::string>("iconKey", "default"));
+// 	notes = wxStr(pt.get<std::string>("notes", ""));
+// 	
+// 	needsRebuild = pt.get<bool>("NeedsRebuild", false);
+// 	askUpdate = pt.get<bool>("AskUpdate", true);
+// 	return true;
 }
 
 wxFileName Instance::GetRootDir() const
@@ -249,22 +247,22 @@ void Instance::WriteVersionFile(const wxString &contents)
 
 wxString Instance::GetName() const
 {
-	return name;
+	return GetSetting<wxString>(_("name"), _("Unnamed Instance"));
 }
 
 void Instance::SetName(wxString name)
 {
-	this->name = name;
+	SetSetting<wxString>(_("name"), name);
 }
 
 wxString Instance::GetIconKey() const
 {
-	return iconKey;
+	return GetSetting<wxString>(_("iconKey"), _("default"));
 }
 
 void Instance::SetIconKey(wxString iconKey)
 {
-	this->iconKey = iconKey;
+	SetSetting<wxString>(_("iconKey"), iconKey);
 }
 
 wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirectOutput)
@@ -277,9 +275,9 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 	
 	ExtractLauncher();
 	
-	wxString javaPath = settings.javaPath.GetFullPath();
-	int xms = settings.minMemAlloc;
-	int xmx = settings.maxMemAlloc;
+	wxString javaPath = settings.GetJavaPath();
+	int xms = settings.GetMinMemAlloc();
+	int xmx = settings.GetMaxMemAlloc();
 	wxFileName mcDirFN = GetMCDir().GetFullPath();
 	mcDirFN.MakeAbsolute();
 	wxString mcDir = mcDirFN.GetFullPath();
@@ -507,6 +505,45 @@ void Instance::LoadMLModList()
 	}
 	
 	LoadModListFromDir(GetMLModsDir(), true);
+}
+
+template <typename T>
+T Instance::GetSetting(const wxString &key, T defValue) const
+{
+	T val;
+	if (config->Read(key, &val))
+		return val;
+	else
+		return defValue;
+}
+
+template <typename T>
+void Instance::SetSetting(const wxString &key, T value, bool suppressErrors)
+{
+	if (!config->Write(key, value) && !suppressErrors)
+		wxLogError(_("Failed to write config setting %s"), key.c_str());
+	config->Flush();
+}
+
+wxFileName Instance::GetSetting(const wxString &key, wxFileName defValue) const
+{
+	wxString val;
+	if (config->Read(key, &val))
+	{
+		if (defValue.IsDir())
+			return wxFileName::DirName(val);
+		else
+			return wxFileName::FileName(val);
+	}
+	else
+		return defValue;
+}
+
+void Instance::SetSetting(const wxString &key, wxFileName value, bool suppressErrors)
+{
+	if (!config->Write(key, value.GetFullPath()) && !suppressErrors)
+		wxLogError(_("Failed to write config setting %s"), key.c_str());
+	config->Flush();
 }
 
 

@@ -93,7 +93,7 @@ protected:
 	InstIconList instIcons;
 	void LoadInstIconList(wxString customIconDirName = _T("icons"));
 
-	void LoadInstanceList(wxFileName instDir = settings.instanceDir);
+	void LoadInstanceList(wxFileName instDir = settings.GetInstDir());
 
 	void AddInstance(Instance *inst);
 

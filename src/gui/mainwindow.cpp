@@ -195,7 +195,7 @@ Retry:
 	
 	int num = 0;
 	wxString dirName = Utils::RemoveInvalidPathChars(newInstName);
-	while (wxDirExists(Path::Combine(settings.instanceDir, dirName)))
+	while (wxDirExists(Path::Combine(settings.GetInstDir(), dirName)))
 	{
 		num++;
 		dirName = Utils::RemoveInvalidPathChars(newInstName) + wxString::Format(_("_%i"), num);
@@ -204,20 +204,20 @@ Retry:
 		if (num > 9000)
 		{
 			wxLogError(_T("Couldn't create instance folder: %s"),
-					   Path::Combine(settings.instanceDir, dirName).c_str());
+					   Path::Combine(settings.GetInstDir(), dirName).c_str());
 			goto Retry;
 		}
 	}
-	wxFileName instDir = wxFileName::DirName(Path::Combine(settings.instanceDir, dirName));
+	wxFileName instDir = wxFileName::DirName(Path::Combine(settings.GetInstDir(), dirName));
 	
-	Instance *inst = new Instance(instDir, newInstName);
-	inst->Save();
+	Instance *inst = new Instance(instDir);
+	inst->SetName(newInstName);
 	AddInstance(inst);
 }
 
 void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
 {
-	Utils::OpenFile(settings.instanceDir);
+	Utils::OpenFile(settings.GetInstDir());
 }
 
 void MainWindow::OnRefreshClicked(wxCommandEvent& event)
@@ -430,9 +430,9 @@ bool MultiMC::OnInit()
 		return false;
 	}
 	
-	if (!settings.instanceDir.DirExists())
+	if (!settings.GetInstDir().DirExists())
 	{
-		settings.instanceDir.Mkdir();
+		settings.GetInstDir().Mkdir();
 	}
 	
 	MainWindow *mainWin = new MainWindow();
