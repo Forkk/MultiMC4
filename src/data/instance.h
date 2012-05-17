@@ -18,6 +18,8 @@
 #include <vector>
 #include <wx/wx.h>
 #include <wx/filesys.h>
+#include <wx/config.h>
+#include <wx/fileconf.h>
 #include <wx/process.h>
 
 #include "appsettings.h"
@@ -69,6 +71,9 @@ public:
 	
 	wxString GetIconKey() const;
 	void SetIconKey(wxString iconKey);
+	
+	bool ShouldRebuild() const;
+	void SetNeedsRebuild(bool value = true);
 	
 	wxProcess *GetInstProcess() const;
 	

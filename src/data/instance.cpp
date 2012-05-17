@@ -36,7 +36,10 @@ bool IsValidInstance(wxFileName rootDir)
 
 Instance *Instance::LoadInstance(wxFileName rootDir)
 {
-	return new Instance(rootDir);
+	if (IsValidInstance(rootDir))
+		return new Instance(rootDir);
+	else
+		return NULL;
 }
 
 Instance::Instance(const wxFileName &rootDir)
@@ -57,6 +60,7 @@ Instance::~Instance(void)
 	{
 		instProc->Detach();
 	}
+	Save();
 }
 
 // Makes ALL the directories! \o/
@@ -265,6 +269,17 @@ void Instance::SetIconKey(wxString iconKey)
 	SetSetting<wxString>(_("iconKey"), iconKey);
 }
 
+bool Instance::ShouldRebuild() const
+{
+	return GetSetting<bool>(_("NeedsRebuild"), false);
+}
+
+void Instance::SetNeedsRebuild(bool value)
+{
+	SetSetting<bool>(_("NeedsRebuild"), value);
+}
+
+
 wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirectOutput)
 {
 	if (username.IsEmpty())
@@ -344,25 +359,32 @@ wxString Instance::GetLastLaunchCommand() const
 
 void Instance::LoadModList()
 {
-	wxFileInputStream inputStream(GetModListFile().GetFullPath());
-	wxStringList modListFile = ReadAllLines(inputStream);
-	
-	for (wxStringList::iterator iter = modListFile.begin(); iter != modListFile.end(); iter++)
+	if (GetModListFile().FileExists())
 	{
-		// Normalize the path to the instMods dir.
-		wxFileName modFile(*iter);
-		modFile.Normalize(wxPATH_NORM_ALL, GetInstModsDir().GetFullPath());
-		modFile.MakeRelativeTo();
+		wxFileInputStream inputStream(GetModListFile().GetFullPath());
+		wxStringList modListFile = ReadAllLines(inputStream);
 		
-		if (!Any(modList.begin(), modList.end(), [&modFile] (Mod mod) -> bool
-			{ return mod.GetFileName().SameAs(wxFileName(modFile)); }))
-			modList.push_back(Mod(modFile));
+		for (wxStringList::iterator iter = modListFile.begin(); iter != modListFile.end(); iter++)
+		{
+			// Normalize the path to the instMods dir.
+			wxFileName modFile(*iter);
+			modFile.Normalize(wxPATH_NORM_ALL, GetInstModsDir().GetFullPath());
+			modFile.MakeRelativeTo();
+			
+			if (!Any(modList.begin(), modList.end(), [&modFile] (Mod mod) -> bool
+				{ return mod.GetFileName().SameAs(wxFileName(modFile)); }))
+			{
+				SetNeedsRebuild();
+				modList.push_back(Mod(modFile));
+			}
+		}
 	}
 	
 	for (int i = 0; i < modList.size(); i++)
 	{
 		if (!modList[i].GetFileName().FileExists())
 		{
+			SetNeedsRebuild();
 			modList.erase(modList.begin() + i);
 			i--;
 		}
@@ -403,7 +425,7 @@ void Instance::LoadModListFromDir(const wxFileName& dir, bool mlMod)
 						return mod.GetFileName().SameAs(wxFileName(currentFile)); 
 					}))
 				{
-					
+					SetNeedsRebuild();
 					list->push_back(mod);
 				}
 			}
@@ -447,6 +469,7 @@ void Instance::InsertMod(int index, const wxFileName &source)
 	wxFileName dest(Path::Combine(GetInstModsDir().GetFullPath(), source.GetFullName()));
 	wxCopyFile(source.GetFullPath(), dest.GetFullPath());
 	dest.MakeRelativeTo();
+	SetNeedsRebuild();
 	
 	int oldIndex = Find(modList.begin(), modList.end(), [&dest] (Mod mod) -> bool
 		{ return mod.GetFileName().SameAs(dest); });
@@ -460,6 +483,8 @@ void Instance::InsertMod(int index, const wxFileName &source)
 		modList.push_back(Mod(dest));
 	else
 		modList.insert(modList.begin() + index, Mod(dest));
+	
+	SaveModList();
 }
 
 void Instance::DeleteMod(int index)
@@ -467,7 +492,9 @@ void Instance::DeleteMod(int index)
 	Mod *mod = &modList[index];
 	if (wxRemoveFile(mod->GetFileName().GetFullPath()))
 	{
+		SetNeedsRebuild();
 		modList.erase(modList.begin() + index);
+		SaveModList();
 	}
 	else
 	{

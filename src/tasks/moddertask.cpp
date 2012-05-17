@@ -119,6 +119,8 @@ void ModderTask::TaskStart()
 	}
 	
 	RecursiveDelete(mctmpDir);
+	
+	m_inst->SetNeedsRebuild(false);
 }
 
 

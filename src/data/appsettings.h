@@ -16,8 +16,10 @@
 
 #pragma once
 #include <wx/wx.h>
+#include <wx/listctrl.h>
 #include <wx/filesys.h>
 #include <wx/config.h>
+#include <wx/fileconf.h>
 #include <wx/confbase.h>
 
 const wxFileName iniConfigFile(_("multimc.cfg"));

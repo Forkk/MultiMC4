@@ -287,11 +287,15 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 		if (!result.sessionID.empty())
 		{
 			Instance *inst = loginTask->m_inst;
-			GameUpdateTask *task = new GameUpdateTask(inst,
-													   result.latestVersion,
-													   _("minecraft.jar"), 
-													   loginTask->m_forceUpdate);
-			StartModalTask(*task);
+			GameUpdateTask task(inst, result.latestVersion, _("minecraft.jar"), loginTask->m_forceUpdate);
+			StartModalTask(task);
+			
+			if (inst->ShouldRebuild())
+			{
+				ModderTask modTask(inst);
+				StartModalTask(modTask);
+			}
+			
 			Show(false);
 			inst->Launch(result.username, result.sessionID, true);
 			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this);
@@ -419,6 +423,8 @@ void MainWindow::StartModalTask(Task& task)
 // App
 bool MultiMC::OnInit()
 {
+	SetAppName(_("MultiMC"));
+	
 	wxInitAllImageHandlers();
 	
 	wxFileSystem::AddHandler(new wxArchiveFSHandler);
@@ -439,4 +445,10 @@ bool MultiMC::OnInit()
 	mainWin->Show();
 
 	return true;
+}
+
+void MultiMC::OnFatalException()
+{
+	wxMessageBox(_("A fatal error has occurred and MultiMC has to exit. Sorry for the inconvenience."), 
+				 _("Fatal Error"));
 }

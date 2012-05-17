@@ -179,4 +179,5 @@ class MultiMC : public wxApp
 {
 public:
 	virtual bool OnInit();
+	virtual void OnFatalException();
 };

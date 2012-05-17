@@ -17,8 +17,8 @@
 #pragma once
 #include "task.h"
 #include <functional>
+#include <array>
 #include <instance.h>
-#include <boost/array.hpp>
 #include <wx/url.h>
 #include <wx/wfstream.h>
 
@@ -51,7 +51,7 @@ protected:
 	
 	bool m_shouldUpdate;
 	
-	boost::array<wxURL, 5> jarURLs;
+	std::array<wxURL, 5> jarURLs;
 	
 	virtual void TaskStart();
 	virtual void LoadJarURLs();
