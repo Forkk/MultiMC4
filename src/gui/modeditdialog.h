@@ -37,6 +37,8 @@ protected:
 		
 		virtual void SetInsertMark(const int index);
 		
+		wxArrayInt GetSelectedItems();
+		
 		void DrawInsertMark(int index);
 		
 	protected:
@@ -46,6 +48,10 @@ protected:
 		
 		int m_insMarkIndex;
 	} *jarModList, *mlModList;
+	
+	wxButton *delJarModBtn;
+	wxButton *jarModUpBtn;
+	wxButton *jarModDownBtn;
 	
 	void LoadJarMods();
 	void LoadMLMods();
@@ -60,6 +66,16 @@ protected:
 	void OnDeleteMLMod();
 	void OnJarListKeyDown(wxListEvent &event);
 	void OnMLListKeyDown(wxListEvent &event);
+	
+	void OnAddJarMod(wxCommandEvent &event);
+	void OnDeleteJarMod(wxCommandEvent &event);
+	void OnMoveJarModUp(wxCommandEvent &event);
+	void OnMoveJarModDown(wxCommandEvent &event);
+	void OnJarModSelChanged(wxListEvent &event);
+	void OnDragJarMod(wxListEvent &event);
+	
+	void OnAddMLMod(wxCommandEvent &event);
+	void OnDeleteMLMod(wxCommandEvent &event);
 	
 	class JarModsDropTarget : public wxFileDropTarget
 	{
@@ -94,4 +110,12 @@ enum
 {
 	ID_JAR_MOD_LIST,
 	ID_ML_MOD_LIST,
+	
+	ID_ADD_JAR_MOD,
+	ID_DEL_JAR_MOD,
+	ID_MOVE_JAR_MOD_UP,
+	ID_MOVE_JAR_MOD_DOWN,
+	
+	ID_ADD_ML_MOD,
+	ID_DEL_ML_MOD,
 };

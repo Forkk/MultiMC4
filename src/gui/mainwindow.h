@@ -77,7 +77,7 @@ public:
 	
 	// Other methods
 	void StartTask(Task &task);
-	void StartModalTask(Task &task);
+	void StartModalTask(Task &task, bool forceModal = true);
 	
 	void ShowLoginDlg(wxString errorMsg);
 	
@@ -88,6 +88,8 @@ protected:
 	wxListCtrl *instListCtrl;
 
 	wxMenu *instMenu;
+	
+	bool modalTaskRunning;
 
 	// An unordered map to map icon keys to their icon list indices.
 	InstIconList instIcons;

@@ -50,7 +50,6 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	btnBox->Add(closeButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
 	
 	instListener.Create();
-	instListener.Run();
 	
 	CenterOnScreen();
 }
@@ -97,6 +96,13 @@ void InstConsoleWindow::Close()
 	wxFrame::Close();
 	m_mainWin->Show();
 }
+
+bool InstConsoleWindow::Show(bool show)
+{
+	wxFrame::Show(show);
+	instListener.Run();
+}
+
 
 void InstConsoleWindow::OnCloseClicked(wxCommandEvent& event)
 {
@@ -148,7 +154,10 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		readError = errorStream->CanRead();
 		
 		if (!readConsole && !readError)
+		{
 			wxMicroSleep(100);
+			continue;
+		}
 		
 		// Read from input / error
 		wxString temp;

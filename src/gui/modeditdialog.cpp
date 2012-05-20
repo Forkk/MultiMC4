@@ -40,6 +40,21 @@ ModEditDialog::ModEditDialog(wxWindow *parent, Instance *inst)
 	jarModList->SetDropTarget(new JarModsDropTarget(jarModList, inst));
 	jarModSizer->Add(jarModList, wxSizerFlags(1).Expand().Border(wxALL, 8));
 	
+	wxBoxSizer *jarListBtnBox = new wxBoxSizer(wxVERTICAL);
+	jarModSizer->Add(jarListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
+	
+	wxButton *addJarModBtn = new wxButton(jarModPanel, ID_ADD_JAR_MOD, _("&Add"));
+	jarListBtnBox->Add(addJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+	
+	delJarModBtn = new wxButton(jarModPanel, ID_DEL_JAR_MOD, _("&Remove"));
+	jarListBtnBox->Add(delJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+	
+	jarModUpBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_UP, _("Move &Up"));
+	jarListBtnBox->Add(jarModUpBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM));
+	
+	jarModDownBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_DOWN, _("Move &Down"));
+	jarListBtnBox->Add(jarModDownBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM));
+	
 	
 	wxPanel *mlModPanel = new wxPanel(modEditNotebook, -1);
 	wxBoxSizer *mlModSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -52,8 +67,18 @@ ModEditDialog::ModEditDialog(wxWindow *parent, Instance *inst)
 	mlModList->SetDropTarget(new MLModsDropTarget(mlModList, inst));
 	mlModSizer->Add(mlModList, wxSizerFlags(1).Expand().Border(wxALL, 8));
 	
+	wxBoxSizer *mlModListBtnBox = new wxBoxSizer(wxVERTICAL);
+	mlModSizer->Add(mlModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
+	
+	wxButton *addMLModBtn = new wxButton(mlModPanel, ID_ADD_ML_MOD, _("&Add"));
+	mlModListBtnBox->Add(addMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+	
+	wxButton *delMLModBtn = new wxButton(mlModPanel, ID_DEL_ML_MOD, _("&Remove"));
+	mlModListBtnBox->Add(delMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+	
+	
 	wxSizer *btnBox = CreateButtonSizer(wxOK);
-	mainBox->Add(btnBox, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 8);
+	mainBox->Add(btnBox, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT | wxLEFT, 8);
 	
 	CenterOnParent();
 	
@@ -187,19 +212,7 @@ void ModEditDialog::OnDeleteJarMod()
 	if (jarModList->GetItemCount() <= 0)
 		return;
 	
-	wxArrayInt indices;
-	long item = -1;
-	while (true)
-	{
-		item = jarModList->GetNextItem(item, wxLIST_NEXT_ALL, 
-										wxLIST_STATE_SELECTED);
-		
-		if (item == -1)
-			break;
-		
-		indices.Add(item);
-	}
-	
+	wxArrayInt indices = jarModList->GetSelectedItems();
 	for (int i = indices.GetCount() -1; i >= 0; i--)
 	{
 		m_inst->DeleteMod(indices[i]);
@@ -310,8 +323,138 @@ bool ModEditDialog::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wx
 	m_owner->UpdateItems();
 }
 
+void ModEditDialog::OnAddJarMod(wxCommandEvent &event)
+{
+	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."), 
+		wxGetCwd(), wxEmptyString);
+	if (addModDialog->ShowModal() == wxID_OK)
+	{
+		wxFileName file(addModDialog->GetPath());
+		m_inst->InsertMod(m_inst->GetModList()->size(), file);
+		jarModList->UpdateItems();
+	}
+}
+
+void ModEditDialog::OnDeleteJarMod(wxCommandEvent &event)
+{
+	OnDeleteJarMod();
+}
+
+void ModEditDialog::OnMoveJarModUp(wxCommandEvent &event)
+{
+	if (jarModList->GetItemCount() <= 0)
+		return;
+	
+	wxArrayInt indices = jarModList->GetSelectedItems();
+	ModList *mods= m_inst->GetModList();
+	for (int i = 0; i < indices.GetCount(); ++i)
+	{
+		if (indices[i] == 0)
+			continue;
+		
+		Mod mod = mods->at(indices[i]);
+		mods->erase(mods->begin() + indices[i]);
+		mods->insert(mods->begin() + indices[i] - 1, mod);
+		
+		jarModList->SetItemState(indices[i], 0, wxLIST_STATE_SELECTED);
+		jarModList->SetItemState(indices[i] - 1, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+	}
+	
+	jarModList->UpdateItems();
+}
+
+void ModEditDialog::OnMoveJarModDown(wxCommandEvent &event)
+{
+	if (jarModList->GetItemCount() <= 0)
+		return;
+	
+	wxArrayInt indices = jarModList->GetSelectedItems();
+	ModList *mods= m_inst->GetModList();
+	for (int i = indices.GetCount() - 1; i >= 0; --i)
+	{
+		if (indices[i] + 1 >= mods->size())
+			continue;
+		
+		Mod mod = mods->at(indices[i]);
+		mods->erase(mods->begin() + indices[i]);
+		mods->insert(mods->begin() + indices[i] + 1, mod);
+		
+		jarModList->SetItemState(indices[i], 0, wxLIST_STATE_SELECTED);
+		jarModList->SetItemState(indices[i] + 1, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+	}
+}
+
+void ModEditDialog::OnJarModSelChanged(wxListEvent &event)
+{
+	int selCount = jarModList->GetSelectedItemCount();
+	delJarModBtn->Enable(selCount > 0);
+	jarModUpBtn->Enable(selCount > 0);
+	jarModDownBtn->Enable(selCount > 0);
+}
+
+
+void ModEditDialog::OnAddMLMod(wxCommandEvent &event)
+{
+	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."), 
+												  wxGetCwd(), wxEmptyString);
+	if (addModDialog->ShowModal() == wxID_OK)
+	{
+		wxFileName file(addModDialog->GetPath());
+		wxCopyFile(file.GetFullPath(), Path::Combine(m_inst->GetMLModsDir(), file.GetFullName()));
+		jarModList->UpdateItems();
+	}
+}
+
+void ModEditDialog::OnDeleteMLMod(wxCommandEvent &event)
+{
+	OnDeleteMLMod();
+}
+
+wxArrayInt ModEditDialog::ModListCtrl::GetSelectedItems()
+{
+	wxArrayInt indices;
+	long item = -1;
+	while (true)
+	{
+		item = GetNextItem(item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+		
+		if (item == -1)
+			break;
+		
+		indices.Add(item);
+	}
+	return indices;
+}
+
+void ModEditDialog::OnDragJarMod(wxListEvent &event)
+{
+	ModList *mods = m_inst->GetModList();
+	wxFileDataObject modFileObj;
+	
+	wxArrayInt indices = jarModList->GetSelectedItems();
+	for (wxArrayInt::const_iterator iter = indices.begin(); iter != indices.end(); ++iter)
+	{
+		wxFileName modFile = mods->at(*iter).GetFileName();
+		modFile.MakeAbsolute();
+		modFileObj.AddFile(modFile.GetFullPath());
+	}
+	
+	wxDropSource modsDropSource(modFileObj, jarModList);
+	modsDropSource.DoDragDrop(wxDrag_CopyOnly);
+}
+
 
 BEGIN_EVENT_TABLE(ModEditDialog, wxDialog)
 	EVT_LIST_KEY_DOWN(ID_JAR_MOD_LIST, ModEditDialog::OnJarListKeyDown)
 	EVT_LIST_KEY_DOWN(ID_ML_MOD_LIST, ModEditDialog::OnMLListKeyDown)
+	
+	EVT_BUTTON(ID_ADD_JAR_MOD, ModEditDialog::OnAddJarMod)
+	EVT_BUTTON(ID_DEL_JAR_MOD, ModEditDialog::OnDeleteJarMod)
+	EVT_BUTTON(ID_MOVE_JAR_MOD_UP, ModEditDialog::OnMoveJarModUp)
+	EVT_BUTTON(ID_MOVE_JAR_MOD_DOWN, ModEditDialog::OnMoveJarModDown)
+	
+	EVT_LIST_ITEM_SELECTED(ID_JAR_MOD_LIST, ModEditDialog::OnJarModSelChanged)
+	EVT_LIST_ITEM_DESELECTED(ID_JAR_MOD_LIST, ModEditDialog::OnJarModSelChanged)
+	
+	EVT_LIST_BEGIN_DRAG(ID_JAR_MOD_LIST, ModEditDialog::OnDragJarMod)
 END_EVENT_TABLE()

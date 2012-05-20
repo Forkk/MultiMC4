@@ -25,6 +25,8 @@ public:
 	InstConsoleWindow(Instance* inst, wxWindow* mainWin);
 	virtual ~InstConsoleWindow();
 	
+	virtual bool Show(bool show = true);
+	
 protected:
 	wxScrolledWindow *scrollWindow;
 	wxTextCtrl *consoleTextCtrl;

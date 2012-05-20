@@ -272,7 +272,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	{
 		UserInfo info(loginDialog);
 		LoginTask *task = new LoginTask(info, GetSelectedInst(), loginDialog.ShouldForceUpdate());
-		StartModalTask(*task);
+		StartModalTask(*task, false);
 	}
 }
 
@@ -371,25 +371,38 @@ void MainWindow::OnTaskEnd(TaskEvent& event)
 {
 	if (event.m_task->IsModal())
 	{
-		event.m_task->GetProgressDialog()->Close();
+		event.m_task->GetProgressDialog()->Destroy();
+		modalTaskRunning = false;
 	}
 	event.m_task->Dispose();
 }
 
 void MainWindow::OnTaskProgress(TaskProgressEvent& event)
 {
+	if (!event.m_task->IsRunning())
+		return;
+	
 	if (event.m_task->IsModal())
 	{
-		event.m_task->GetProgressDialog()->Update(event.m_progress, event.m_task->GetStatus());
+		int progress = event.m_task->GetProgress();
+		if (progress >= 100)
+			progress = 100;
+		event.m_task->GetProgressDialog()->Update(progress, event.m_task->GetStatus());
 		event.m_task->GetProgressDialog()->Fit();
 	}
 }
 
 void MainWindow::OnTaskStatus(TaskStatusEvent& event)
 {
+	if (!event.m_task->IsRunning())
+		return;
+	
 	if (event.m_task->IsModal())
 	{
-		event.m_task->GetProgressDialog()->Update(event.m_task->GetProgress(), event.m_status);
+		int progress = event.m_task->GetProgress();
+		if (progress >= 100)
+			progress = 100;
+		event.m_task->GetProgressDialog()->Update(progress, event.m_status);
 		event.m_task->GetProgressDialog()->Fit();
 	}
 }
@@ -406,17 +419,24 @@ void MainWindow::StartTask(Task& task)
 	task.Start();
 }
 
-void MainWindow::StartModalTask(Task& task)
+void MainWindow::StartModalTask(Task& task, bool forceModal)
 {
 	wxProgressDialog *progDialog = new wxProgressDialog(_("Please wait..."), 
-														task.GetStatus(), 100, this);
+														task.GetStatus(), 100, this, 
+														wxPD_APP_MODAL);
 	progDialog->SetMinSize(wxSize(400, 80));
+	progDialog->Update(0);
 	progDialog->Fit();
 	progDialog->CenterOnParent();
 	task.SetProgressDialog(progDialog);
 	task.SetEvtHandler(this);
+	modalTaskRunning = true;
 	task.Start();
 	progDialog->ShowModal();
+	while (task.IsRunning() && forceModal)
+	{
+		wxSafeYield();
+	}
 }
 
 

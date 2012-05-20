@@ -71,7 +71,7 @@ void Task::SetProgress(int progress, bool fireEvent /* = true */)
 		progress = 0;
 	
 	m_progress = progress;
-	if (fireEvent)
+	if (fireEvent && !endCalled)
 		OnProgressChanged(progress);
 }
 
@@ -83,7 +83,7 @@ int Task::GetProgress() const
 void Task::SetStatus(wxString status, bool fireEvent /* = true */)
 {
 	m_status = status;
-	if (fireEvent)
+	if (fireEvent && !endCalled)
 		OnStatusChanged(status);
 }
 
@@ -118,12 +118,22 @@ void Task::OnTaskEnd()
 
 void Task::OnStatusChanged(const wxString& status)
 {
+	if (endCalled)
+	{
+		wxLogWarning(_("OnStatusChanged should not be called after the task ends!"));
+		return;
+	}
 	TaskStatusEvent event(this, status);
 	m_evtHandler->AddPendingEvent(event);
 }
 
 void Task::OnProgressChanged(const int& progress)
 {
+	if (endCalled)
+	{
+		wxLogWarning(_("OnProgressChanged should not be called after the task ends!"));
+		return;
+	}
 	TaskProgressEvent event(this, progress);
 	m_evtHandler->AddPendingEvent(event);
 }

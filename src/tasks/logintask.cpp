@@ -71,15 +71,18 @@ void LoginTask::TaskStart()
 	if (status != 0)
 	{
 		OnLoginComplete(wxStr(errorBuffer));
+		return;
 	}
 	
 	if (response == 200)
 	{
 		OnLoginComplete(outString);
+		return;
 	}
 	else
 	{
 		OnLoginComplete(wxString::Format(_("Unknown HTTP error %i occurred."), response));
+		return;
 	}
 	
 #else
@@ -113,8 +116,8 @@ void LoginTask::TaskStart()
 
 void LoginTask::OnLoginComplete(LoginResult result)
 {
-// 	OnTaskEnd();
 	SetProgress(100);
+	OnTaskEnd();
 	LoginCompleteEvent event(this, new LoginResult(result));
 	m_evtHandler->AddPendingEvent(event);
 }
