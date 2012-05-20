@@ -23,6 +23,7 @@
 #include "gameupdatetask.h"
 #include "logintask.h"
 #include "moddertask.h"
+#include "version.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -35,7 +36,10 @@ const int instNameLengthLimit = 20;
 
 // Main window
 MainWindow::MainWindow(void)
-	: wxFrame(NULL, -1, _T("MultiMC"), wxPoint(0, 0), wxSize(620, 400))
+	: wxFrame(NULL, -1, 
+		wxString::Format(_("MultiMC Alpha Version %i.%i.%i"), 
+			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision()),
+		wxPoint(0, 0), wxSize(620, 400))
 {
 	wxToolBar *mainToolBar = CreateToolBar();
 	

@@ -6,6 +6,13 @@ include("${CMAKE_TOOLCHAIN_FILE}")
 # Set the path where CMake will look for modules.
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 
+set(MultiMC_VERSION_MAJOR		4)
+set(MultiMC_VERSION_MINOR		0)
+set(MultiMC_VERSION_REV			0)
+
+configure_file("${PROJECT_SOURCE_DIR}/config.h.in"
+			   "${PROJECT_BINARY_DIR}/config.h")
+
 IF (CMAKE_CROSSCOMPILING)
 	set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS "-Wl,-Bstatic -static-libgcc -static-libstdc++")
 	set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS "-Wl,-Bstatic -static-libgcc -static-libstdc++")
@@ -38,6 +45,8 @@ curlutils.cpp
 datautils.cpp
 fsutils.cpp
 
+version.cpp
+
 insticonlist.cpp
 )
 
@@ -62,6 +71,8 @@ curlutils.h
 osutils.h
 datautils.h
 fsutils.h
+
+version.h
 
 insticonlist.h
 insticons.h
@@ -96,6 +107,10 @@ find_package(CURL REQUIRED)
 # Include wxWidgets.
 include("${wxWidgets_USE_FILE}")
 
+if(WIN32)
+  set(SRCS ${SRCS} multimc.rc)
+endif(WIN32)
+
 # Include CURL
 include_directories("${CURL_INCLUDE_DIR}")
 
@@ -104,6 +119,8 @@ include_directories("${CURL_INCLUDE_DIR}")
 
 # Make the static md5 lib build
 add_subdirectory(md5)
+
+include_directories("${PROJECT_BINARY_DIR}")
 
 include_directories(
 "${PROJECT_SOURCE_DIR}"
