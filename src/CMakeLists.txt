@@ -30,6 +30,7 @@ gui/settingsdialog.cpp
 gui/logindialog.cpp
 gui/consolewindow.cpp
 gui/modeditdialog.cpp
+gui/changeicondialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -56,6 +57,7 @@ gui/settingsdialog.h
 gui/logindialog.h
 gui/consolewindow.h
 gui/modeditdialog.h
+gui/changeicondialog.h
 
 data/appsettings.h
 data/instance.h

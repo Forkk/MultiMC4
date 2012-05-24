@@ -16,34 +16,31 @@
 
 #pragma once
 #include <wx/wx.h>
-#include <map>
-#include <wx/imaglist.h>
 
-const wxString instIconPrefix = _T("icons/inst/");
+#include "insticonlist.h"
 
-typedef std::map<wxString, int> IconListIndexMap;
-
-class InstIconList
+class ChangeIconDialog : public wxDialog
 {
 public:
-	InstIconList(int width = 32, int height = 32, 
-		wxString customIconDir = _T("icons"));
-
-	int Add(const wxImage image, const wxString key);
-
-	int operator[](wxString key);
-
-	const wxImageList &GetImageList();
-	wxImageList *CreateImageList() const;
+	ChangeIconDialog(wxWindow *parent, InstIconList *iconList);
 	
-	const IconListIndexMap &GetIndexMap() const;
+	wxString GetSelectedIconKey() const;
 	
-	int GetCount() const;
-
 protected:
-	wxImageList imageList;
-	IconListIndexMap indexMap;
+	InstIconList *m_iconList;
 	
-	int width, height;
+	void OnItemActivated(wxListEvent &event);
+	
+	class InstIconListCtrl : public wxListCtrl
+	{
+	public:
+		InstIconListCtrl(wxWindow *parent, InstIconList *iconList);
+		
+		void UpdateItems();
+		
+	protected:
+		InstIconList *m_iconList;
+	} *iconListCtrl;
+	
+	DECLARE_EVENT_TABLE()
 };
-

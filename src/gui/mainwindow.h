@@ -91,7 +91,6 @@ protected:
 	
 	bool modalTaskRunning;
 
-	// An unordered map to map icon keys to their icon list indices.
 	InstIconList instIcons;
 	void LoadInstIconList(wxString customIconDirName = _T("icons"));
 

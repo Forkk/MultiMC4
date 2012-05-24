@@ -18,8 +18,6 @@
 
 #include "insticons.h"
 
-#include <wx/imaglist.h>
-
 struct InstIconDef
 {
 	InstIconDef(wxString key, wxImage image)
@@ -33,8 +31,13 @@ struct InstIconDef
 };
 
 InstIconList::InstIconList(int width, int height, wxString customIconDirName)
+	: imageList(width, height)
 {
-	const InstIconDef builtInIcons[] =
+	this->width = width;
+	this->height = height;
+	
+	const int builtInIconCount = 10;
+	const InstIconDef builtInIcons[builtInIconCount] =
 	{
 		InstIconDef(_T("grass"), wxMEMORY_IMAGE(grass)),
 		InstIconDef(_T("dirt"), wxMEMORY_IMAGE(dirt)),
@@ -48,12 +51,9 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		InstIconDef(_T("infinity"), wxMEMORY_IMAGE(infinity)),
 	};
 
-	imageList = new wxImageList(width, height);
-	indexMap = new IconListIndexMap();
-
-	BOOST_FOREACH(InstIconDef builtInIcon, builtInIcons)
+	for (int i = 0; i < builtInIconCount; i++)
 	{
-		Add(builtInIcon.image, builtInIcon.key);
+		Add(builtInIcons[i].image, builtInIcons[i].key);
 	}
 
 //	namespace fs = boost::filesystem;
@@ -78,26 +78,38 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 //	}
 }
 
-InstIconList::~InstIconList(void)
+int InstIconList::Add(const wxImage image, const wxString key)
 {
-	indexMap->clear();
-	delete indexMap;
-
-	imageList->RemoveAll();
-	delete imageList;
-}
-
-int InstIconList::Add(wxImage image, wxString &key)
-{
-	return (*indexMap)[key] = imageList->Add(image);
+	return indexMap[key] = imageList.Add(image);
 }
 
 int InstIconList::operator [](wxString key)
 {
-	return (*indexMap)[key];
+	return indexMap[key];
 }
 
-wxImageList *InstIconList::GetImageList()
+const wxImageList &InstIconList::GetImageList()
 {
 	return imageList;
+}
+
+const IconListIndexMap &InstIconList::GetIndexMap() const
+{
+	return indexMap;
+}
+
+wxImageList *InstIconList::CreateImageList() const
+{
+	wxImageList *newImgList = new wxImageList(width, height);
+	
+	for (int i = 0; i < imageList.GetImageCount(); i++)
+	{
+		newImgList->Add(imageList.GetBitmap(i));
+	}
+	return newImgList;
+}
+
+int InstIconList::GetCount() const
+{
+	return indexMap.size();
 }

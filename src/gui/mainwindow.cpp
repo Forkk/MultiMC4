@@ -18,6 +18,7 @@
 #include "logindialog.h"
 #include "consolewindow.h"
 #include "modeditdialog.h"
+#include "changeicondialog.h"
 
 #include "toolbaricons.h"
 #include "gameupdatetask.h"
@@ -39,7 +40,8 @@ MainWindow::MainWindow(void)
 	: wxFrame(NULL, -1, 
 		wxString::Format(_("MultiMC Alpha Version %i.%i.%i"), 
 			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision()),
-		wxPoint(0, 0), wxSize(620, 400))
+		wxPoint(0, 0), wxSize(620, 400)),
+		instIcons(32, 32)
 {
 	wxToolBar *mainToolBar = CreateToolBar();
 	
@@ -110,9 +112,7 @@ MainWindow::~MainWindow(void)
 
 void MainWindow::LoadInstIconList(wxString customIconDirName)
 {
-	//instIcons.
-
-	instListCtrl->SetImageList(instIcons.GetImageList(), 0);
+	instListCtrl->AssignImageList(instIcons.CreateImageList(), wxIMAGE_LIST_NORMAL);
 }
 
 void MainWindow::LoadInstanceList(wxFileName instDir)
@@ -321,7 +321,13 @@ void MainWindow::OnRenameClicked(wxCommandEvent& event)
 
 void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 {
-	NotImplemented();
+	ChangeIconDialog iconDlg(this, &instIcons);
+	if (iconDlg.ShowModal() == wxID_OK)
+	{
+		Instance *inst = GetSelectedInst();
+		inst->SetIconKey(iconDlg.GetSelectedIconKey());
+		LoadInstanceList();
+	}
 }
 
 void MainWindow::OnNotesClicked(wxCommandEvent& event)
