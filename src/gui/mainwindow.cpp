@@ -381,7 +381,13 @@ void MainWindow::OnTaskEnd(TaskEvent& event)
 {
 	if (event.m_task->IsModal())
 	{
-		event.m_task->GetProgressDialog()->Destroy();
+		auto dlg = event.m_task->GetProgressDialog();
+		printf("Destroying dialog 0x%x!\n", dlg);
+		if(dlg != nullptr)
+		{
+			dlg->Destroy();
+			event.m_task->SetProgressDialog(nullptr);
+		}
 		modalTaskRunning = false;
 	}
 	event.m_task->Dispose();
@@ -397,8 +403,13 @@ void MainWindow::OnTaskProgress(TaskProgressEvent& event)
 		int progress = event.m_task->GetProgress();
 		if (progress >= 100)
 			progress = 100;
-		event.m_task->GetProgressDialog()->Update(progress, event.m_task->GetStatus());
-		event.m_task->GetProgressDialog()->Fit();
+		auto dlg = event.m_task->GetProgressDialog();
+		if(dlg)
+		{
+			printf("Progressing dialog 0x%x!\n", dlg);
+			dlg->Update(progress, event.m_task->GetStatus());
+			dlg->Fit();
+		}
 	}
 }
 
@@ -412,8 +423,13 @@ void MainWindow::OnTaskStatus(TaskStatusEvent& event)
 		int progress = event.m_task->GetProgress();
 		if (progress >= 100)
 			progress = 100;
-		event.m_task->GetProgressDialog()->Update(progress, event.m_status);
-		event.m_task->GetProgressDialog()->Fit();
+		auto dlg = event.m_task->GetProgressDialog();
+		printf("Statusing dialog 0x%x!\n", dlg);
+		if(dlg)
+		{
+			dlg->Update(progress, event.m_status);
+			dlg->Fit();
+		}
 	}
 }
 
