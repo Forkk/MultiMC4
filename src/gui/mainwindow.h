@@ -181,4 +181,11 @@ class MultiMC : public wxApp
 public:
 	virtual bool OnInit();
 	virtual void OnFatalException();
+	
+	const wxIcon &GetAppIcon() const;
+	
+protected:
+	wxIcon AppIcon;
 };
+
+DECLARE_APP(MultiMC)

@@ -42,6 +42,7 @@ public:
 				   wxString latestVersion, 
 				   wxString mainGameURL, 
 				   bool forceUpdate);
+	virtual ~GameUpdateTask();
 	
 protected:
 	Instance *m_inst;
@@ -51,7 +52,7 @@ protected:
 	
 	bool m_shouldUpdate;
 	
-	std::array<wxURL, 5> jarURLs;
+	std::array<wxString, 5> jarURLs;
 	
 	virtual void TaskStart();
 	virtual void LoadJarURLs();

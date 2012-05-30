@@ -21,6 +21,8 @@
 #include "changeicondialog.h"
 
 #include "toolbaricons.h"
+#include "windowicon.h"
+
 #include "gameupdatetask.h"
 #include "logintask.h"
 #include "moddertask.h"
@@ -38,11 +40,13 @@ const int instNameLengthLimit = 20;
 // Main window
 MainWindow::MainWindow(void)
 	: wxFrame(NULL, -1, 
-		wxString::Format(_("MultiMC Alpha Version %i.%i.%i"), 
+		wxString::Format(_("MultiMC"), 
 			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision()),
 		wxPoint(0, 0), wxSize(620, 400)),
 		instIcons(32, 32)
 {
+	SetIcon(wxGetApp().GetAppIcon());
+	
 	wxToolBar *mainToolBar = CreateToolBar();
 	
 	// Load toolbar icons
@@ -382,7 +386,7 @@ void MainWindow::OnTaskEnd(TaskEvent& event)
 	if (event.m_task->IsModal())
 	{
 		auto dlg = event.m_task->GetProgressDialog();
-		printf("Destroying dialog 0x%x!\n", dlg);
+		printf("Destroying dialog %p!\n", dlg);
 		if(dlg != nullptr)
 		{
 			dlg->Destroy();
@@ -406,7 +410,7 @@ void MainWindow::OnTaskProgress(TaskProgressEvent& event)
 		auto dlg = event.m_task->GetProgressDialog();
 		if(dlg)
 		{
-			printf("Progressing dialog 0x%x!\n", dlg);
+			printf("Progressing dialog %p!\n", dlg);
 			dlg->Update(progress, event.m_task->GetStatus());
 			dlg->Fit();
 		}
@@ -424,7 +428,7 @@ void MainWindow::OnTaskStatus(TaskStatusEvent& event)
 		if (progress >= 100)
 			progress = 100;
 		auto dlg = event.m_task->GetProgressDialog();
-		printf("Statusing dialog 0x%x!\n", dlg);
+		printf("Statusing dialog %p!\n", dlg);
 		if(dlg)
 		{
 			dlg->Update(progress, event.m_status);
@@ -458,7 +462,11 @@ void MainWindow::StartModalTask(Task& task, bool forceModal)
 	task.SetEvtHandler(this);
 	modalTaskRunning = true;
 	task.Start();
-	progDialog->ShowModal();
+	if(progDialog != nullptr)
+	{
+		printf("Showing dialog %p\n", progDialog);
+		progDialog->ShowModal();
+	}
 	while (task.IsRunning() && forceModal)
 	{
 		wxSafeYield();
@@ -472,6 +480,9 @@ bool MultiMC::OnInit()
 	SetAppName(_("MultiMC"));
 	
 	wxInitAllImageHandlers();
+	
+	wxMemoryInputStream iconInput(MultiMC64_png, MultiMC64_png_len);
+	AppIcon.CopyFromBitmap(wxBitmap(wxImage(iconInput)));
 	
 	wxFileSystem::AddHandler(new wxArchiveFSHandler);
 // 	wxFileSystem::AddHandler(new wxMemoryFSHandler);
@@ -497,4 +508,9 @@ void MultiMC::OnFatalException()
 {
 	wxMessageBox(_("A fatal error has occurred and MultiMC has to exit. Sorry for the inconvenience."), 
 				 _("Fatal Error"));
+}
+
+const wxIcon &MultiMC::GetAppIcon() const
+{
+	return AppIcon;
 }

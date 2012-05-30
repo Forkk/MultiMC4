@@ -15,3 +15,5 @@
 */
 
 #include "wx/msw/wx.rc"
+
+IDI_ICON1	ICON	MultiMC.ico

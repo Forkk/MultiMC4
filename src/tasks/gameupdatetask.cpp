@@ -42,6 +42,11 @@ GameUpdateTask::GameUpdateTask(Instance *inst,
 	m_forceUpdate = forceUpdate;
 }
 
+GameUpdateTask::~GameUpdateTask()
+{
+	
+}
+
 void GameUpdateTask::TaskStart()
 {
 	LoadJarURLs();
@@ -81,7 +86,7 @@ void GameUpdateTask::TaskStart()
 				DownloadJars();
 				ExtractNatives();
 				wxRemoveFile(Path::Combine(m_inst->GetBinDir(), 
-					wxFileName(jarURLs[jarURLs.size() - 1].GetURL()).GetFullName()));
+					wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
 			}
 		}
 	}
@@ -153,12 +158,12 @@ void GameUpdateTask::DownloadJars()
 	for (int i = 0; i < jarURLs.size(); i++)
 	{
 		wxString etagOnDisk = wxStr(md5s.get<std::string>(
-			stdStr(jarURLs[i].GetPath()), ""));
+			stdStr(wxURL(jarURLs[i]).GetPath()), ""));
 		
 		struct curl_slist *headers = NULL;
 		headers = curl_slist_append(headers, stdStr(_("If-None-Match: ") + etagOnDisk).c_str());
 		
-		std::string urlStr = stdStr(jarURLs[i].GetURL()).c_str();
+		std::string urlStr = stdStr(jarURLs[i]).c_str();
 		
 		CURL *curl = curl_easy_init();
 		curl_easy_setopt(curl, CURLOPT_HEADER, true);
@@ -232,7 +237,6 @@ void GameUpdateTask::DownloadJars()
 			unsigned char md5digest[16];
 			int currentDownloadedSize = 0;
 			
-// 			wxInputStream *downStream = currentFile.GetInputStream();
 			CURL *curl = curl_easy_init();
 			curl_easy_setopt(curl, CURLOPT_URL, cStr(currentFile.GetURL()));
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
@@ -312,7 +316,7 @@ void GameUpdateTask::ExtractNatives()
 	SetProgress(90);
 	
 	wxFileName nativesJar(Path::Combine(m_inst->GetBinDir(), 
-		wxFileName(jarURLs[jarURLs.size() - 1].GetURL()).GetFullName()));
+		wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
 	wxFileName nativesDir = wxFileName::DirName(Path::Combine(m_inst->GetBinDir(), 
 															  _("natives")));
 	
