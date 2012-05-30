@@ -481,7 +481,7 @@ bool MultiMC::OnInit()
 	
 	wxInitAllImageHandlers();
 	
-	wxMemoryInputStream iconInput(MultiMC64_png, MultiMC64_png_len);
+	wxMemoryInputStream iconInput(MultiMC32_png, MultiMC32_png_len);
 	AppIcon.CopyFromBitmap(wxBitmap(wxImage(iconInput)));
 	
 	wxFileSystem::AddHandler(new wxArchiveFSHandler);
