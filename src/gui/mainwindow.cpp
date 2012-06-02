@@ -380,7 +380,12 @@ void MainWindow::OnTaskStart(TaskEvent& event)
 {
 	if (event.m_task->IsModal())
 	{
-		event.m_task->GetProgressDialog()->ShowModal();
+		wxProgressDialog *dlg = event.m_task->GetProgressDialog();
+		if (!event.m_task->HasStarted() && dlg != nullptr)
+		{
+			dlg->ShowModal();
+			event.m_task->SetStarted(true);
+		}
 	}
 }
 
@@ -389,11 +394,15 @@ void MainWindow::OnTaskEnd(TaskEvent& event)
 	if (event.m_task->IsModal())
 	{
 		auto dlg = event.m_task->GetProgressDialog();
-		printf("Destroying dialog %p!\n", dlg);
 		if (dlg != nullptr)
 		{
+			printf("Destroying dialog %p!\n", dlg);
 			dlg->Destroy();
 			event.m_task->SetProgressDialog(nullptr);
+		}
+		else
+		{
+			printf("Dialog %p already destroyed!\n", dlg);
 		}
 		modalTaskRunning = false;
 	}

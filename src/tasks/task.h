@@ -42,6 +42,10 @@ public:
 	virtual wxString GetStatus() const;
 	virtual int GetProgress() const;
 	virtual bool IsRunning() const;
+	virtual bool HasStarted() const;
+	virtual bool HasEnded() const;
+	
+	virtual void SetStarted(bool value);
 	
 	virtual void SetEvtHandler(wxEvtHandler *handler);
 	
@@ -76,6 +80,7 @@ private:
 	int m_taskID;
 	
 	bool endCalled;
+	bool started;
 };
 
 DECLARE_EVENT_TYPE(wxEVT_TASK_START, -1)

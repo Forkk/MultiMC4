@@ -90,6 +90,8 @@ protected:
 	wxMenu *instMenu;
 	
 	bool modalTaskRunning;
+	
+	bool canLaunch;
 
 	InstIconList instIcons;
 	void LoadInstIconList(wxString customIconDirName = _T("icons"));

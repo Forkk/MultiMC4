@@ -28,6 +28,7 @@ Task::Task()
 {
 	m_status = _("");
 	m_progress = 0;
+	started = false;
 	endCalled = false;
 }
 
@@ -110,6 +111,8 @@ void Task::OnTaskStart()
 
 void Task::OnTaskEnd()
 {
+	if (endCalled)
+		return;
 	endCalled = true;
 	SetProgress(100);
 	TaskEvent event(wxEVT_TASK_END, this);
@@ -195,3 +198,19 @@ bool Task::IsModal() const
 {
 	return m_modal;
 }
+
+bool Task::HasEnded() const
+{
+	return endCalled;
+}
+
+bool Task::HasStarted() const
+{
+	return started;
+}
+
+void Task::SetStarted(bool value)
+{
+	started = value;
+}
+
