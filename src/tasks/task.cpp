@@ -123,6 +123,24 @@ void Task::OnStatusChanged(const wxString& status)
 		wxLogWarning(_("OnStatusChanged should not be called after the task ends!"));
 		return;
 	}
+	
+	if (IsModal())
+	{
+		int progress = GetProgress();
+		if (progress >= 100)
+			progress = 100;
+		
+		auto dlg = GetProgressDialog();
+		printf("Statusing dialog %p!\n", dlg);
+		if (dlg != nullptr)
+		{
+			wxMutexGuiEnter();
+			dlg->Update(GetProgress(), status);
+			dlg->Fit();
+			wxMutexGuiLeave();
+		}
+	}
+	
 	TaskStatusEvent event(this, status);
 	m_evtHandler->AddPendingEvent(event);
 }
@@ -134,6 +152,24 @@ void Task::OnProgressChanged(const int& progress)
 		wxLogWarning(_("OnProgressChanged should not be called after the task ends!"));
 		return;
 	}
+	
+	
+	if (IsModal())
+	{
+		int progress = GetProgress();
+		if (progress >= 100)
+			progress = 100;
+		auto dlg = GetProgressDialog();
+		printf("Progressing dialog %p!\n", dlg);
+		if (dlg != nullptr)
+		{
+			wxMutexGuiEnter();
+			dlg->Update(progress, GetStatus());
+			dlg->Fit();
+			wxMutexGuiLeave();
+		}
+	}
+	
 	TaskProgressEvent event(this, progress);
 	m_evtHandler->AddPendingEvent(event);
 }

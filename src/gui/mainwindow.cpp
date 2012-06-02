@@ -378,7 +378,10 @@ void MainWindow::OnInstMenuOpened(wxListEvent& event)
 
 void MainWindow::OnTaskStart(TaskEvent& event)
 {
-	
+	if (event.m_task->IsModal())
+	{
+		event.m_task->GetProgressDialog()->ShowModal();
+	}
 }
 
 void MainWindow::OnTaskEnd(TaskEvent& event)
@@ -387,7 +390,7 @@ void MainWindow::OnTaskEnd(TaskEvent& event)
 	{
 		auto dlg = event.m_task->GetProgressDialog();
 		printf("Destroying dialog %p!\n", dlg);
-		if(dlg != nullptr)
+		if (dlg != nullptr)
 		{
 			dlg->Destroy();
 			event.m_task->SetProgressDialog(nullptr);
@@ -401,40 +404,12 @@ void MainWindow::OnTaskProgress(TaskProgressEvent& event)
 {
 	if (!event.m_task->IsRunning())
 		return;
-	
-	if (event.m_task->IsModal())
-	{
-		int progress = event.m_task->GetProgress();
-		if (progress >= 100)
-			progress = 100;
-		auto dlg = event.m_task->GetProgressDialog();
-		if(dlg)
-		{
-			printf("Progressing dialog %p!\n", dlg);
-			dlg->Update(progress, event.m_task->GetStatus());
-			dlg->Fit();
-		}
-	}
 }
 
 void MainWindow::OnTaskStatus(TaskStatusEvent& event)
 {
 	if (!event.m_task->IsRunning())
 		return;
-	
-	if (event.m_task->IsModal())
-	{
-		int progress = event.m_task->GetProgress();
-		if (progress >= 100)
-			progress = 100;
-		auto dlg = event.m_task->GetProgressDialog();
-		printf("Statusing dialog %p!\n", dlg);
-		if(dlg)
-		{
-			dlg->Update(progress, event.m_status);
-			dlg->Fit();
-		}
-	}
 }
 
 void MainWindow::OnTaskError(TaskErrorEvent& event)
@@ -462,11 +437,11 @@ void MainWindow::StartModalTask(Task& task, bool forceModal)
 	task.SetEvtHandler(this);
 	modalTaskRunning = true;
 	task.Start();
-	if(progDialog != nullptr)
-	{
-		printf("Showing dialog %p\n", progDialog);
-		progDialog->ShowModal();
-	}
+// 	if(progDialog != nullptr)
+// 	{
+// 		printf("Showing dialog %p\n", progDialog);
+// 		progDialog->ShowModal();
+// 	}
 	while (task.IsRunning() && forceModal)
 	{
 		wxSafeYield();
