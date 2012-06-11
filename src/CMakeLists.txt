@@ -83,7 +83,7 @@ toolbaricons.h
 
 # Find wxWidgets.
 MESSAGE(STATUS "** Finding wxWidgets")
-find_package(wxWidgets REQUIRED core base net)
+find_package(wxWidgets REQUIRED core base net adv)
 MESSAGE(STATUS "** wxWidgets Root: ${wxWidgets_ROOT_DIR}")
 MESSAGE(STATUS "** wxWidgets Configuration: ${wxWidgets_CONFIGURATION}")
 
