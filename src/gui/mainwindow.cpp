@@ -255,11 +255,14 @@ void MainWindow::OnHelpClicked(wxCommandEvent& event)
 
 void MainWindow::OnAboutClicked(wxCommandEvent& event)
 {
+#ifndef __WXMSW__
 	wxAboutDialogInfo info;
 	info.SetName(_("MultiMC"));
 	info.SetVersion(AppVersion.ToString() + _(" Beta"));
 	info.SetDescription(_("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once."));
 	info.SetCopyright(_("(C) 2012 Andrew Okin"));
+	
+#ifdef __WXGTK__
 	info.SetWebSite(_("http://forkk.net/MultiMC"));
 	info.SetLicense(_("Licensed under the Apache License, Version 2.0 (the \"License\");\n\
 you may not use this file except in compliance with the License.\n\
@@ -273,11 +276,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n\
 See the License for the specific language governing permissions and\n\
 limitations under the License."));
 	info.SetIcon(wxGetApp().GetAppIcon());
+#endif
+	
 	info.AddDeveloper(_("Andrew Okin <forkk@forkk.net>"));
 	info.AddDeveloper(_("Petr Mrázek"));
 	
-	
 	wxAboutBox(info);
+#else
+	wxMessageBox(_("The about dialog is currently not supported in Windows."));
+#endif
 }
 
 
