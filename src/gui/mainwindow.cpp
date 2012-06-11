@@ -348,7 +348,14 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 
 void MainWindow::OnRenameClicked(wxCommandEvent& event)
 {
-	NotImplemented();
+	Instance *inst = GetSelectedInst();
+	wxTextEntryDialog textDlg(this, _("Enter a new name for this instance."), 
+		_("Rename Instance"), inst->GetName());
+	if (textDlg.ShowModal() == wxID_OK)
+	{
+		inst->SetName(textDlg.GetValue());
+		LoadInstanceList();
+	}
 }
 
 void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
