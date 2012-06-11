@@ -433,8 +433,10 @@ void MainWindow::OnTaskStart(TaskEvent& event)
 		wxProgressDialog *dlg = event.m_task->GetProgressDialog();
 		if (!event.m_task->HasStarted() && dlg != nullptr)
 		{
-			dlg->ShowModal();
 			event.m_task->SetStarted(true);
+			dlg->SetModal(true);
+			dlg->ShowModal();
+			dlg->Destroy();
 		}
 	}
 }
@@ -447,7 +449,7 @@ void MainWindow::OnTaskEnd(TaskEvent& event)
 		if (dlg != nullptr)
 		{
 			printf("Destroying dialog %p!\n", dlg);
-			dlg->Destroy();
+			dlg->EndModal(0);
 			event.m_task->SetProgressDialog(nullptr);
 		}
 		else
@@ -503,7 +505,7 @@ void MainWindow::StartModalTask(Task& task, bool forceModal)
 // 	}
 	while (task.IsRunning() && forceModal)
 	{
-		wxSafeYield();
+		wxYield();
 	}
 }
 

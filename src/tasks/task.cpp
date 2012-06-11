@@ -30,6 +30,7 @@ Task::Task()
 	m_progress = 0;
 	started = false;
 	endCalled = false;
+	startCalled = false;
 }
 
 Task::~Task()
@@ -105,6 +106,8 @@ void Task::SetEvtHandler(wxEvtHandler* handler)
 
 void Task::OnTaskStart()
 {
+	if (startCalled || endCalled)
+		return;
 	TaskEvent event(wxEVT_TASK_START, this);
 	m_evtHandler->AddPendingEvent(event);
 }

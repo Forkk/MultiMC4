@@ -81,6 +81,7 @@ private:
 	
 	bool endCalled;
 	bool started;
+	bool startCalled;
 };
 
 DECLARE_EVENT_TYPE(wxEVT_TASK_START, -1)
