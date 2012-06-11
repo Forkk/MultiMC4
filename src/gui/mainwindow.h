@@ -48,6 +48,7 @@ public:
 
 	// Instance menu
 	void OnPlayClicked(wxCommandEvent& event);
+	void OnInstActivated(wxListEvent& event);
 	
 	void OnRenameClicked(wxCommandEvent& event);
 	void OnChangeIconClicked(wxCommandEvent& event);
@@ -167,6 +168,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
 	EVT_MENU(ID_DeleteInst, MainWindow::OnDeleteClicked)
 
+	EVT_LIST_ITEM_ACTIVATED(ID_InstListCtrl, MainWindow::OnInstActivated)
 	EVT_LIST_ITEM_RIGHT_CLICK(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
 	
 	EVT_TASK_START(MainWindow::OnTaskStart)

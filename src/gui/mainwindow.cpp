@@ -271,6 +271,11 @@ void MainWindow::OnPlayClicked(wxCommandEvent& event)
 	ShowLoginDlg(_(""));
 }
 
+void MainWindow::OnInstActivated(wxListEvent &event)
+{
+	ShowLoginDlg(_(""));
+}
+
 void MainWindow::ShowLoginDlg(wxString errorMsg)
 {
 	LoginDialog loginDialog(this, errorMsg);
