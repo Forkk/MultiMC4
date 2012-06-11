@@ -371,7 +371,15 @@ void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 
 void MainWindow::OnNotesClicked(wxCommandEvent& event)
 {
-	NotImplemented();
+	Instance *inst = GetSelectedInst();
+	wxTextEntryDialog textDlg(this, _("Instance notes"), _("Notes"), inst->GetNotes(), 
+		wxOK | wxCANCEL | wxTE_MULTILINE);
+	textDlg.SetSize(600, 400);
+	if (textDlg.ShowModal() == wxID_OK)
+	{
+		inst->SetNotes(textDlg.GetValue());
+		LoadInstanceList();
+	}
 }
 
 void MainWindow::OnManageSavesClicked(wxCommandEvent& event)

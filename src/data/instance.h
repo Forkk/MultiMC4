@@ -72,6 +72,9 @@ public:
 	wxString GetIconKey() const;
 	void SetIconKey(wxString iconKey);
 	
+	wxString GetNotes() const;
+	void SetNotes(wxString notes);
+	
 	bool ShouldRebuild() const;
 	void SetNeedsRebuild(bool value = true);
 	

@@ -269,6 +269,16 @@ void Instance::SetIconKey(wxString iconKey)
 	SetSetting<wxString>(_("iconKey"), iconKey);
 }
 
+wxString Instance::GetNotes() const
+{
+	return GetSetting<wxString>(_("notes"), _(""));
+}
+
+void Instance::SetNotes(wxString notes)
+{
+	SetSetting<wxString>(_("notes"), notes);
+}
+
 bool Instance::ShouldRebuild() const
 {
 	return GetSetting<bool>(_("NeedsRebuild"), false);
