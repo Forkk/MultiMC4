@@ -217,3 +217,22 @@ void Task::SetStarted(bool value)
 	started = value;
 }
 
+bool Task::CanUserCancel() const
+{
+	return false;
+}
+
+bool Task::UserCancelled() const
+{
+	if (userCancelled)
+		return true;
+	
+	if (IsModal())
+	{
+		wxMutexGuiEnter();
+		bool userCancelled = !m_progDlg->Update(m_progress);
+		wxMutexGuiLeave();
+		return userCancelled;
+	}
+	return false;
+}

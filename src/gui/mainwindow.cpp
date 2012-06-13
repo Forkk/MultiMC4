@@ -60,15 +60,15 @@ MainWindow::MainWindow(void)
 	wxBitmap aboutIcon = wxMEMORY_IMAGE(abouticon);
 
 	// Build the toolbar
-	mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon);
-	mainToolBar->AddTool(ID_Refresh, _("Refresh"), reloadIcon);
-	mainToolBar->AddTool(ID_ViewFolder, _("View folder"), viewFolderIcon);
+	mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."));
+	mainToolBar->AddTool(ID_Refresh, _("Refresh"), reloadIcon, _("Reload ALL the instances!"));
+	mainToolBar->AddTool(ID_ViewFolder, _("View folder"), viewFolderIcon, _("Open the instance folder."));
 	mainToolBar->AddSeparator();
-	mainToolBar->AddTool(ID_Settings, _("Settings"), settingsIcon);
-	mainToolBar->AddTool(ID_CheckUpdate, _("Check for updates"), checkUpdateIcon);
+	mainToolBar->AddTool(ID_Settings, _("Settings"), settingsIcon, _("Settings"));
+	mainToolBar->AddTool(ID_CheckUpdate, _("Check for updates"), checkUpdateIcon, _("Check for MultiMC updates."));
 	mainToolBar->AddSeparator();
-	mainToolBar->AddTool(ID_Help, _("Help"), helpIcon);
-	mainToolBar->AddTool(ID_About, _("About"), aboutIcon);
+	mainToolBar->AddTool(ID_Help, _("Help"), helpIcon, _("Help"));
+	mainToolBar->AddTool(ID_About, _("About"), aboutIcon, _("About MultiMC"));
 
 	mainToolBar->Realize();
 
@@ -89,6 +89,7 @@ MainWindow::MainWindow(void)
 	
 	// Create the status bar
 	CreateStatusBar(1);
+	SetStatusBarPane(0);
 	
 	// Set up the main panel and sizers
 	wxPanel *panel = new wxPanel(this, -1);
@@ -331,7 +332,10 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 		{
 			Instance *inst = loginTask->m_inst;
 			GameUpdateTask task(inst, result.latestVersion, _("minecraft.jar"), loginTask->m_forceUpdate);
-			StartModalTask(task);
+			if (!StartModalTask(task))
+			{
+				return;
+			}
 			
 			if (inst->ShouldRebuild())
 			{
@@ -485,11 +489,13 @@ void MainWindow::StartTask(Task& task)
 	task.Start();
 }
 
-void MainWindow::StartModalTask(Task& task, bool forceModal)
+bool MainWindow::StartModalTask(Task& task, bool forceModal)
 {
-	wxProgressDialog *progDialog = new wxProgressDialog(_("Please wait..."), 
-														task.GetStatus(), 100, this, 
-														wxPD_APP_MODAL);
+	int style = wxPD_APP_MODAL;
+	if (task.CanUserCancel())
+		style = style | wxPD_CAN_ABORT;
+	
+	wxProgressDialog *progDialog = new wxProgressDialog(_("Please wait..."), task.GetStatus(), 100, this, style);
 	progDialog->SetMinSize(wxSize(400, 80));
 	progDialog->Update(0);
 	progDialog->Fit();
@@ -503,10 +509,14 @@ void MainWindow::StartModalTask(Task& task, bool forceModal)
 // 		printf("Showing dialog %p\n", progDialog);
 // 		progDialog->ShowModal();
 // 	}
+	bool cancelled = false;
 	while (task.IsRunning() && forceModal)
 	{
 		wxYield();
+		if (task.CanUserCancel())
+			cancelled = task.UserCancelled();
 	}
+	return !cancelled;
 }
 
 

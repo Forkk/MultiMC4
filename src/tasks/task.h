@@ -42,8 +42,11 @@ public:
 	virtual wxString GetStatus() const;
 	virtual int GetProgress() const;
 	virtual bool IsRunning() const;
+	virtual bool CanUserCancel() const;
 	virtual bool HasStarted() const;
 	virtual bool HasEnded() const;
+	
+	virtual bool UserCancelled() const;
 	
 	virtual void SetStarted(bool value);
 	
@@ -82,6 +85,8 @@ private:
 	bool endCalled;
 	bool started;
 	bool startCalled;
+	
+	bool userCancelled;
 };
 
 DECLARE_EVENT_TYPE(wxEVT_TASK_START, -1)

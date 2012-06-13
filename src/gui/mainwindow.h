@@ -78,7 +78,7 @@ public:
 	
 	// Other methods
 	void StartTask(Task &task);
-	void StartModalTask(Task &task, bool forceModal = true);
+	bool StartModalTask(Task &task, bool forceModal = true);
 	
 	void ShowLoginDlg(wxString errorMsg);
 	
