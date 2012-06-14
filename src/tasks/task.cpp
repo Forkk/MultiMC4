@@ -224,6 +224,11 @@ bool Task::CanUserCancel() const
 
 bool Task::UserCancelled() const
 {
+	return userCancelled;
+}
+
+bool Task::CheckUserCancelled() const
+{
 	if (userCancelled)
 		return true;
 	

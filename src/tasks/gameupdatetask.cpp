@@ -83,11 +83,11 @@ void GameUpdateTask::TaskStart()
 			if (m_shouldUpdate)
 			{
 				m_inst->WriteVersionFile(m_latestVersion);
-				if (UserCancelled()) return;
+				if (CheckUserCancelled()) return;
 				DownloadJars();
-				if (UserCancelled()) return;
+				if (CheckUserCancelled()) return;
 				ExtractNatives();
-				if (UserCancelled()) return;
+				if (CheckUserCancelled()) return;
 				wxRemoveFile(Path::Combine(m_inst->GetBinDir(), 
 					wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
 			}
@@ -258,7 +258,7 @@ void GameUpdateTask::DownloadJars()
 				outStream.Write(buffer, size);
 				MD5Update(&md5ctx, (unsigned char*)buffer, size);
 				
-				if (UserCancelled())
+				if (CheckUserCancelled())
 				{
 					cancel = true;
 					return 0;
@@ -284,7 +284,7 @@ void GameUpdateTask::DownloadJars()
 			int errorCode = curl_easy_perform(curl);
 			curl_easy_cleanup(curl);
 			
-			if (UserCancelled())
+			if (CheckUserCancelled())
 			{
 				return;
 			}
@@ -386,9 +386,4 @@ void GameUpdateTask::OnGameUpdateComplete()
 {
 	TaskEvent event(wxEVT_GAME_UPDATE_COMPLETE, this);
 	m_evtHandler->AddPendingEvent(event);
-}
-
-bool GameUpdateTask::CanUserCancel() const
-{
-	return true;
 }

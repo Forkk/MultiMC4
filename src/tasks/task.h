@@ -61,6 +61,8 @@ public:
 	int GetID() const;
 	
 protected:
+	virtual bool CheckUserCancelled() const;
+	
 	virtual void TaskStart() = 0;
 	
 	virtual void SetStatus(wxString status, bool fireEvent = true);

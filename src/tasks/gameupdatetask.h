@@ -44,8 +44,6 @@ public:
 				   bool forceUpdate);
 	virtual ~GameUpdateTask();
 	
-	virtual bool CanUserCancel() const;
-	
 protected:
 	Instance *m_inst;
 	wxString m_latestVersion;
