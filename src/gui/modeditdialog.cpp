@@ -453,6 +453,9 @@ BEGIN_EVENT_TABLE(ModEditDialog, wxDialog)
 	EVT_BUTTON(ID_MOVE_JAR_MOD_UP, ModEditDialog::OnMoveJarModUp)
 	EVT_BUTTON(ID_MOVE_JAR_MOD_DOWN, ModEditDialog::OnMoveJarModDown)
 	
+	EVT_BUTTON(ID_ADD_ML_MOD, ModEditDialog::OnAddMLMod)
+	EVT_BUTTON(ID_DEL_ML_MOD, ModEditDialog::OnDeleteMLMod)
+	
 	EVT_LIST_ITEM_SELECTED(ID_JAR_MOD_LIST, ModEditDialog::OnJarModSelChanged)
 	EVT_LIST_ITEM_DESELECTED(ID_JAR_MOD_LIST, ModEditDialog::OnJarModSelChanged)
 	
