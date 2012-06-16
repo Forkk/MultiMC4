@@ -10,6 +10,13 @@ set(MultiMC_VERSION_MAJOR		4)
 set(MultiMC_VERSION_MINOR		0)
 set(MultiMC_VERSION_REV			0)
 
+IF (DEFINED MultiMC_VERSION_BUILD)
+	message(STATUS "MultiMC build #${MultiMC_VERSION_BUILD}")
+ELSE ()
+	set(MultiMC_VERSION_BUILD	0)
+	message(STATUS "Build number not specified. Defaulted to 0.")
+ENDIF ()
+
 configure_file("${PROJECT_SOURCE_DIR}/config.h.in"
 			   "${PROJECT_BINARY_DIR}/config.h")
 

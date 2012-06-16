@@ -17,13 +17,14 @@
 #include "version.h"
 #include "config.h"
 
-const Version AppVersion(VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION);
+const Version AppVersion(VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD);
 
-Version::Version(int major, int minor, int revision)
+Version::Version(int major, int minor, int revision, int build)
 {
 	m_major = major;
 	m_minor = minor;
 	m_revision = revision;
+	m_build = build;
 }
 
 Version::Version(const Version &version)
@@ -31,6 +32,7 @@ Version::Version(const Version &version)
 	m_major = version.GetMajor();
 	m_minor = version.GetMinor();
 	m_revision = version.GetRevision();
+	m_build = version.GetBuild();
 }
 
 int Version::GetMajor() const
@@ -65,12 +67,23 @@ void Version::SetRevision(int value)
 	m_revision = value;
 }
 
+int Version::GetBuild() const
+{
+	return m_build;
+}
+
+void Version::SetBuild(int value)
+{
+	m_build = value;
+}
+
 
 bool Version::Equals(const Version &other) const
 {
 	return GetMajor() == other.GetMajor() && 
 		   GetMinor() == other.GetMinor() &&
-		   GetRevision() == other.GetRevision();
+		   GetRevision() == other.GetRevision() &&
+		   GetBuild() == other.GetBuild();
 }
 
 bool Version::operator<(const Version &other) const
@@ -100,10 +113,15 @@ int Version::CompareTo(const Version &other) const
 	else if (GetRevision() < other.GetRevision())
 		return -1;
 	
+	if (GetBuild() > other.GetBuild())
+		return 1;
+	else if (GetBuild() < other.GetBuild())
+		return -1;
+	
 	return 0;
 }
 
 wxString Version::ToString() const
 {
-	return wxString::Format(_T("%i.%i.%i"), GetMajor(), GetMinor(), GetRevision());
+	return wxString::Format(_T("%i.%i.%i.%i"), GetMajor(), GetMinor(), GetRevision(), GetBuild());
 }
