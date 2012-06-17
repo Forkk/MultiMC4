@@ -310,8 +310,11 @@ void MainWindow::OnInstActivated(wxListEvent &event)
 void MainWindow::ShowLoginDlg(wxString errorMsg)
 {
 	UserInfo lastLogin;
-	wxFFileInputStream inStream(_("lastlogin"));
-	lastLogin.LoadFromStream(inStream);
+	if (wxFileExists(_("lastlogin")))
+	{
+		wxFFileInputStream inStream(_("lastlogin"));
+		lastLogin.LoadFromStream(inStream);
+	}
 	
 	LoginDialog loginDialog(this, errorMsg);
 	if (lastLogin.rememberUsername)
