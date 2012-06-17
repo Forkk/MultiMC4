@@ -18,10 +18,11 @@
 #include <wx/gbsizer.h>
 
 BEGIN_EVENT_TABLE(LoginDialog, wxDialog)
-	
+	EVT_TEXT_ENTER(ID_USERNAME_TEXTCTRL, LoginDialog::OnUsernameEnter)
+	EVT_TEXT_ENTER(ID_PASSWORD_TEXTCTRL, LoginDialog::OnPasswordEnter)
 END_EVENT_TABLE()
 
-LoginDialog::LoginDialog (wxWindow* parent, wxString errorMsg)
+LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info)
 	: wxDialog(parent, -1, _T("Login"), wxDefaultPosition, wxSize(520, 140))
 {
 	wxGridBagSizer *mainBox = new wxGridBagSizer();
@@ -42,7 +43,8 @@ LoginDialog::LoginDialog (wxWindow* parent, wxString errorMsg)
 	mainBox->Add(usernameLabel, wxGBPosition(0 + offset, 0), wxGBSpan(1, 1), 
 				 wxALL | wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT, padding);
 	
-	usernameTextBox = new wxTextCtrl(this, -1);
+	usernameTextBox = new wxTextCtrl(this, ID_USERNAME_TEXTCTRL, info.username,
+		wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
 	mainBox->Add(usernameTextBox, wxGBPosition(0 + offset, 1), wxGBSpan(1, cols - 1), 
 				 wxALL | wxEXPAND, padding);
 	
@@ -50,12 +52,12 @@ LoginDialog::LoginDialog (wxWindow* parent, wxString errorMsg)
 	// Password text field
 	wxStaticText *passwordLabel = new wxStaticText(this, -1, _T("Password: "));
 	mainBox->Add(passwordLabel, wxGBPosition(1 + offset, 0), wxGBSpan(1, 1), 
-				 wxALL | wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT, padding);
+		wxALL | wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT, padding);
 	
-	passwordTextBox = new wxTextCtrl(this, -1, wxEmptyString, wxDefaultPosition, 
-									 wxDefaultSize, wxTE_PASSWORD);
+	passwordTextBox = new wxTextCtrl(this, ID_PASSWORD_TEXTCTRL, info.password, 
+		wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER | wxTE_PASSWORD);
 	mainBox->Add(passwordTextBox, wxGBPosition(1 + offset, 1), wxGBSpan(1, cols - 1), 
-				 wxALL | wxEXPAND, padding);
+		wxALL | wxEXPAND, padding);
 	
 	
 	// Checkboxes
@@ -63,9 +65,11 @@ LoginDialog::LoginDialog (wxWindow* parent, wxString errorMsg)
 	mainBox->Add(forceUpdateToggle, wxGBPosition(2 + offset, 0), wxGBSpan(1, 1), wxALL, padding);
 	
 	rememberUsernameCheck = new wxCheckBox(this, -1, _T("&Remember username?"));
+	rememberUsernameCheck->SetValue(info.rememberUsername);
 	mainBox->Add(rememberUsernameCheck, wxGBPosition(2 + offset, 1), wxGBSpan(1, 1), wxALL, padding);
 	
 	rememberPasswordCheck = new wxCheckBox(this, -1, _T("&Remember password?"));
+	rememberPasswordCheck->SetValue(info.rememberPassword);
 	mainBox->Add(rememberPasswordCheck, wxGBPosition(2 + offset, 2), wxGBSpan(1, 1), wxALL, padding);
 	
 	
@@ -88,11 +92,11 @@ void LoginDialog::OnUsernameEnter(wxCommandEvent& event)
 {
 	if (passwordTextBox->GetValue().empty())
 	{
-		usernameTextBox->SetFocus();
+		passwordTextBox->SetFocus();
 	}
 	else
 	{
-		
+		EndModal(GetAffirmativeId());
 	}
 }
 
@@ -100,17 +104,12 @@ void LoginDialog::OnPasswordEnter(wxCommandEvent& event)
 {
 	if (usernameTextBox->GetValue().empty())
 	{
-		passwordTextBox->SetFocus();
+		usernameTextBox->SetFocus();
 	}
 	else
 	{
-		
+		EndModal(GetAffirmativeId());
 	}
-}
-
-void LoginDialog::OnLoginClicked(wxCommandEvent& event)
-{
-	
 }
 
 wxString LoginDialog::GetUsername() const

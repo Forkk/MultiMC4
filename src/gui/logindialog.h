@@ -24,13 +24,11 @@
 class LoginDialog : public wxDialog
 {
 public:
-	LoginDialog(wxWindow* parent, wxString errorMsg = _(""));
+	LoginDialog(wxWindow* parent, wxString errorMsg = _(""), UserInfo info = UserInfo());
 	~LoginDialog();
 	
 	void OnUsernameEnter(wxCommandEvent &event);
 	void OnPasswordEnter(wxCommandEvent &event);
-	
-	void OnLoginClicked(wxCommandEvent &event);
 	
 	wxString GetUsername() const;
 	void SetUsername(wxString &username);
@@ -60,4 +58,10 @@ protected:
 	wxButton *playOfflineButton;
 	
 	wxToggleButton *forceUpdateToggle;
+};
+
+enum
+{
+	ID_USERNAME_TEXTCTRL = 1,
+	ID_PASSWORD_TEXTCTRL,
 };

@@ -316,17 +316,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 		lastLogin.LoadFromStream(inStream);
 	}
 	
-	LoginDialog loginDialog(this, errorMsg);
-	if (lastLogin.rememberUsername)
-	{
-		loginDialog.SetRememberUsername(true);
-		loginDialog.SetUsername(lastLogin.username);
-	}
-	if (lastLogin.rememberPassword)
-	{
-		loginDialog.SetRememberPassword(true);
-		loginDialog.SetPassword(lastLogin.password);
-	}
+	LoginDialog loginDialog(this, errorMsg, lastLogin);
 	int response = loginDialog.ShowModal();
 	
 	if (response == wxID_OK)
