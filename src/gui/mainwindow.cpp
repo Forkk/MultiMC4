@@ -259,7 +259,7 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 #ifndef __WXMSW__
 	wxAboutDialogInfo info;
 	info.SetName(_("MultiMC"));
-	info.SetVersion(AppVersion.ToString() + _(" Beta"));
+	info.SetVersion(AppVersion.ToString());
 	info.SetDescription(_("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once."));
 	info.SetCopyright(_("(C) 2012 Andrew Okin"));
 	
@@ -284,7 +284,7 @@ limitations under the License."));
 	
 	wxAboutBox(info);
 #else
-	wxMessageBox(_("The about dialog is currently not supported in Windows."));
+	wxMessageBox(wxString::Format(_("The about dialog is currently not supported in Windows.\nYou are using MultiMC version %s."), AppVersion.ToString().c_str()));
 #endif
 }
 
