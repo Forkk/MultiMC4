@@ -41,6 +41,7 @@ gui/changeicondialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
+data/userinfo.cpp
 data/mod.cpp
 
 tasks/task.cpp
@@ -68,6 +69,7 @@ gui/changeicondialog.h
 
 data/appsettings.h
 data/instance.h
+data/userinfo.h
 data/mod.h
 
 tasks/task.h

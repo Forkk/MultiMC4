@@ -309,12 +309,30 @@ void MainWindow::OnInstActivated(wxListEvent &event)
 
 void MainWindow::ShowLoginDlg(wxString errorMsg)
 {
+	UserInfo lastLogin;
+	wxFFileInputStream inStream(_("lastlogin"));
+	lastLogin.LoadFromStream(inStream);
+	
 	LoginDialog loginDialog(this, errorMsg);
+	if (lastLogin.rememberUsername)
+	{
+		loginDialog.SetRememberUsername(true);
+		loginDialog.SetUsername(lastLogin.username);
+	}
+	if (lastLogin.rememberPassword)
+	{
+		loginDialog.SetRememberPassword(true);
+		loginDialog.SetPassword(lastLogin.password);
+	}
 	int response = loginDialog.ShowModal();
 	
 	if (response == wxID_OK)
 	{
 		UserInfo info(loginDialog);
+		
+		wxFFileOutputStream outStream(_("lastlogin"));
+		info.SaveToStream(outStream);
+		
 		LoginTask *task = new LoginTask(info, GetSelectedInst(), loginDialog.ShouldForceUpdate());
 		StartModalTask(*task, false);
 	}

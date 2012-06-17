@@ -19,6 +19,7 @@
 #include <wx/tglbtn.h>
 
 #include "instance.h"
+#include "userinfo.h"
 
 class LoginDialog : public wxDialog
 {
@@ -59,20 +60,4 @@ protected:
 	wxButton *playOfflineButton;
 	
 	wxToggleButton *forceUpdateToggle;
-};
-
-struct UserInfo
-{
-	UserInfo();
-	UserInfo(LoginDialog &loginDlg);
-	UserInfo(UserInfo &uInfo);
-	UserInfo(wxString &username, 
-			  wxString &password, 
-			  bool rememberUsername,
-			  bool rememberPassword);
-	
-	wxString username;
-	wxString password;
-	bool rememberUsername;
-	bool rememberPassword;
 };
