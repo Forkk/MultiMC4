@@ -21,6 +21,7 @@
 
 #include "task.h"
 #include "logintask.h"
+#include "checkupdatetask.h"
 
 #include "insticonlist.h"
 
@@ -70,6 +71,8 @@ public:
 	void OnTaskError(TaskErrorEvent &event);
 	
 	void OnLoginComplete(LoginCompleteEvent &event);
+	
+	void OnCheckUpdateComplete(CheckUpdateEvent &event);
 	
 	
 	// Other events
@@ -178,6 +181,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TASK_ERRORMSG(MainWindow::OnTaskError)
 	
 	EVT_LOGIN_COMPLETE(MainWindow::OnLoginComplete)
+	EVT_CHECK_UPDATE(MainWindow::OnCheckUpdateComplete)
 END_EVENT_TABLE()
 
 class MultiMC : public wxApp

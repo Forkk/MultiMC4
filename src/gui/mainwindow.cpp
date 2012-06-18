@@ -26,6 +26,7 @@
 #include "gameupdatetask.h"
 #include "logintask.h"
 #include "moddertask.h"
+#include <checkupdatetask.h>
 #include "version.h"
 
 #include <wx/filesys.h>
@@ -246,7 +247,13 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 
 void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
 {
-	NotImplemented();
+	CheckUpdateTask *task = new CheckUpdateTask();
+	StartModalTask(*task);
+}
+
+void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
+{
+	wxMessageBox(wxString::Format(_("%i"), event.m_latestBuildNumber));
 }
 
 void MainWindow::OnHelpClicked(wxCommandEvent& event)
