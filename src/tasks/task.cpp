@@ -130,22 +130,23 @@ void Task::OnStatusChanged(const wxString& status)
 		return;
 	}
 	
+#if TASK_UPDATE_DIRECT
 	if (IsModal())
 	{
+		wxMutexGuiLocker lock;
+		
 		int progress = GetProgress();
 		if (progress >= 100)
 			progress = 100;
 		
 		auto dlg = GetProgressDialog();
-		printf("Statusing dialog %p!\n", dlg);
 		if (dlg != nullptr)
 		{
-			wxMutexGuiEnter();
 			dlg->Update(GetProgress(), status);
 			dlg->Fit();
-			wxMutexGuiLeave();
 		}
 	}
+#endif
 	
 	TaskStatusEvent event(this, status);
 	m_evtHandler->AddPendingEvent(event);
@@ -159,22 +160,22 @@ void Task::OnProgressChanged(const int& progress)
 		return;
 	}
 	
-	
+#if TASK_UPDATE_DIRECT
 	if (IsModal())
 	{
+		wxMutexGuiLocker lock;
+		
 		int progress = GetProgress();
 		if (progress >= 100)
 			progress = 100;
 		auto dlg = GetProgressDialog();
-		printf("Progressing dialog %p!\n", dlg);
 		if (dlg != nullptr)
 		{
-			wxMutexGuiEnter();
 			dlg->Update(progress, GetStatus());
 			dlg->Fit();
-			wxMutexGuiLeave();
 		}
 	}
+#endif
 	
 	TaskProgressEvent event(this, progress);
 	m_evtHandler->AddPendingEvent(event);
@@ -182,6 +183,10 @@ void Task::OnProgressChanged(const int& progress)
 
 void Task::OnErrorMessage(const wxString& msg)
 {
+#if TASK_UPDATE_DIRECT
+	wxLogError(msg);
+#endif
+	
 	TaskErrorEvent event(this, msg);
 	m_evtHandler->AddPendingEvent(event);
 }

@@ -27,6 +27,7 @@
 #include "logintask.h"
 #include "moddertask.h"
 #include <checkupdatetask.h>
+#include <filedownloadtask.h>
 #include "version.h"
 
 #include <wx/filesys.h>
@@ -253,7 +254,16 @@ void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
 
 void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 {
-	wxMessageBox(wxString::Format(_("%i"), event.m_latestBuildNumber));
+	if (event.m_latestBuildNumber > AppVersion.GetBuild())
+	{
+		if (wxMessageBox(wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
+				event.m_latestBuildNumber), _("Update Available"), wxYES_NO) == wxYES)
+		{
+			FileDownloadTask *dlTask = new FileDownloadTask(event.m_downloadURL, 
+				wxFileName(_("MultiMCUpdate")), _("Downloading updates..."));
+			StartModalTask(*dlTask, false);
+		}
+	}
 }
 
 void MainWindow::OnHelpClicked(wxCommandEvent& event)
@@ -487,17 +497,52 @@ void MainWindow::OnTaskProgress(TaskProgressEvent& event)
 {
 	if (!event.m_task->IsRunning())
 		return;
+	
+#if !TASK_UPDATE_DIRECT
+	Task *task = event.m_task;
+	if (task->IsModal())
+	{
+		int progress = task->GetProgress();
+		if (progress >= 100)
+			progress = 100;
+		auto dlg = task->GetProgressDialog();
+		if (dlg != nullptr)
+		{
+			dlg->Update(progress, task->GetStatus());
+			dlg->Fit();
+		}
+	}
+#endif
 }
 
 void MainWindow::OnTaskStatus(TaskStatusEvent& event)
 {
 	if (!event.m_task->IsRunning())
 		return;
+	
+#if !TASK_UPDATE_DIRECT	
+	Task *task = event.m_task;
+	if (task->IsModal())
+	{
+		int progress = task->GetProgress();
+		if (progress >= 100)
+			progress = 100;
+		
+		auto dlg = task->GetProgressDialog();
+		if (dlg != nullptr)
+		{
+			dlg->Update(progress, task->GetStatus());
+			dlg->Fit();
+		}
+	}
+#endif
 }
 
 void MainWindow::OnTaskError(TaskErrorEvent& event)
 {
+#if !TASK_UPDATE_DIRECT
 	wxLogError(event.m_errorMsg);
+#endif
 }
 
 

@@ -32,19 +32,21 @@ public:
 protected:
 	int GetBuildNumber(const wxString &mainPageJSON, bool stableOnly = true);
 	
-	void OnCheckComplete(int buildNumber);
+	void OnCheckComplete(int buildNumber, wxString downloadURL);
 };
 
 struct CheckUpdateEvent : TaskEvent
 {
-	CheckUpdateEvent(Task* task, const int latestBuildNumber) 
-		: TaskEvent(wxEVT_CHECK_UPDATE, task) { m_latestBuildNumber = latestBuildNumber; }
+	CheckUpdateEvent(Task* task, const int latestBuildNumber, const wxString downloadURL) 
+		: TaskEvent(wxEVT_CHECK_UPDATE, task)
+		{ m_latestBuildNumber = latestBuildNumber; m_downloadURL = downloadURL; }
 	
 	int m_latestBuildNumber;
+	wxString m_downloadURL;
 	
 	virtual wxEvent *Clone() const
 	{
-		return new CheckUpdateEvent(m_task, m_latestBuildNumber);
+		return new CheckUpdateEvent(m_task, m_latestBuildNumber, m_downloadURL);
 	}
 };
 

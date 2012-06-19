@@ -16,7 +16,8 @@
 
 #include "checkupdatetask.h"
 #include "httputils.h"
-#include <apputils.h>
+#include "apputils.h"
+#include "osutils.h"
 
 #include <boost/property_tree/json_parser.hpp>
 
@@ -27,6 +28,7 @@ DEFINE_EVENT_TYPE(wxEVT_CHECK_UPDATE)
 const wxString ciURL = _("http://forkk.net:8080/job/MultiMC4/");
 
 CheckUpdateTask::CheckUpdateTask()
+	: Task()
 {
 	
 }
@@ -46,8 +48,26 @@ void CheckUpdateTask::TaskStart()
 	// Determine the latest stable build.
 	int buildNumber = GetBuildNumber(mainPageJSON);
 	
+	// Figure out where to download the latest update.
+	wxString dlFileName;
+	if (IS_WINDOWS())
+		dlFileName = _("MultiMC.exe");
+	else if (IS_LINUX() || IS_MAC())
+		dlFileName = _("MultiMC");
+	
+	wxString osName;
+	if (IS_WINDOWS())
+		osName = _("Windows");
+	else if (IS_LINUX())
+		osName = _("Linux");
+	else if (IS_MAC())
+		osName = _("OSX");
+	
+	wxString dlURL = wxString::Format(_("%s%i/os=%s/artifact/%s"), ciURL.c_str(), 
+		buildNumber, osName.c_str(), dlFileName.c_str());
+	
 	SetProgress(75);
-	OnCheckComplete(buildNumber);
+	OnCheckComplete(buildNumber, dlURL);
 }
 
 int CheckUpdateTask::GetBuildNumber(const wxString &mainPageJSON, bool stableOnly)
@@ -64,10 +84,10 @@ int CheckUpdateTask::GetBuildNumber(const wxString &mainPageJSON, bool stableOnl
 		return pt.get<int>("lastSuccessfulBuild.number");
 }
 
-void CheckUpdateTask::OnCheckComplete(int buildNumber)
+void CheckUpdateTask::OnCheckComplete(int buildNumber, wxString downloadURL)
 {
 	SetProgress(100);
 	OnTaskEnd();
-	CheckUpdateEvent event(this, buildNumber);
+	CheckUpdateEvent event(this, buildNumber, downloadURL);
 	m_evtHandler->AddPendingEvent(event);
 }

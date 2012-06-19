@@ -19,6 +19,8 @@
 #include <wx/event.h>
 #include <wx/progdlg.h>
 
+#define TASK_UPDATE_DIRECT 1
+
 class Task;
 struct TaskEvent;
 struct TaskStatusEvent;

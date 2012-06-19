@@ -49,6 +49,7 @@ tasks/logintask.cpp
 tasks/moddertask.cpp
 tasks/gameupdatetask.cpp
 tasks/checkupdatetask.cpp
+tasks/filedownloadtask.cpp
 
 apputils.cpp
 curlutils.cpp
@@ -79,6 +80,7 @@ tasks/logintask.h
 tasks/moddertask.h
 tasks/gameupdatetask.h
 tasks/checkupdatetask.h
+tasks/filedownloadtask.h
 
 apputils.h
 curlutils.h
