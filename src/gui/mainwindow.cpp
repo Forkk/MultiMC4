@@ -267,6 +267,7 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 				wxFileName(_("MultiMCUpdate")), _("Downloading updates..."));
 			wxGetApp().updateOnExit = true;
 			StartModalTask(dlTask);
+			Close(false);
 		}
 	}
 }
@@ -497,6 +498,8 @@ void MainWindow::StartTask(Task& task)
 
 bool MainWindow::StartModalTask(Task& task, bool forceModal)
 {
+	wxYield();
+	
 	int style = wxPD_APP_MODAL;
 	if (task.CanUserCancel())
 		style = style | wxPD_CAN_ABORT;
@@ -515,8 +518,6 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 	bool cancelled = false;
 	while (!task.HasEnded())
 	{
-		wxMilliSleep(100);
-		
 		bool retVal = true;
 		if (task.GetProgress() == 0 || task.GetProgress() == 100)
 			retVal = progDialog->Pulse(task.GetStatus());
@@ -532,6 +533,8 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 		}
 		progDialog->Fit();
 		wxYield();
+		
+		wxMilliSleep(100);
 	}
 	progDialog->Close(false);
 	progDialog->Destroy();
@@ -606,6 +609,8 @@ void MultiMC::InstallUpdate(wxFileName thisFile, wxFileName targetFile)
 {
 	// Let the other process exit.
 	wxSleep(3);
+	
+	printf("Installing updates...");
 	wxCopyFile(thisFile.GetFullPath(), targetFile.GetFullPath());
 	
 	targetFile.MakeAbsolute();
@@ -626,8 +631,8 @@ int MultiMC::OnExit()
 		}
 		
 		wxProcess proc;
-		wxExecute(updateFile.GetFullPath() + _(" -u:") + wxStandardPaths::Get().GetExecutablePath(),
-			wxEXEC_ASYNC, &proc);
+		wxString launchCmd = updateFile.GetFullPath() + _(" -u:") + wxStandardPaths::Get().GetExecutablePath();
+		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
 		proc.Detach();
 	}
 	
