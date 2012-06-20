@@ -35,6 +35,8 @@
 #include <wx/fs_arc.h>
 #include <wx/fs_mem.h>
 #include <wx/aboutdlg.h>
+#include <wx/cmdline.h>
+#include <wx/stdpaths.h>
 
 IMPLEMENT_APP(MultiMC)
 
@@ -48,6 +50,8 @@ MainWindow::MainWindow(void)
 		wxPoint(0, 0), wxSize(620, 400)),
 		instIcons(32, 32)
 {
+	closeOnTaskEnd = false;
+	
 	SetIcon(wxGetApp().GetAppIcon());
 	
 	wxToolBar *mainToolBar = CreateToolBar();
@@ -259,9 +263,10 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 		if (wxMessageBox(wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
 				event.m_latestBuildNumber), _("Update Available"), wxYES_NO) == wxYES)
 		{
-			FileDownloadTask *dlTask = new FileDownloadTask(event.m_downloadURL, 
+			FileDownloadTask dlTask(event.m_downloadURL, 
 				wxFileName(_("MultiMCUpdate")), _("Downloading updates..."));
-			StartModalTask(*dlTask, false);
+			wxGetApp().updateOnExit = true;
+			StartModalTask(dlTask);
 		}
 	}
 }
@@ -344,7 +349,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 		info.SaveToStream(outStream);
 		
 		LoginTask *task = new LoginTask(info, GetSelectedInst(), loginDialog.ShouldForceUpdate());
-		StartModalTask(*task, false);
+		StartModalTask(*task, true);
 	}
 }
 
@@ -460,89 +465,27 @@ void MainWindow::OnInstMenuOpened(wxListEvent& event)
 
 void MainWindow::OnTaskStart(TaskEvent& event)
 {
-	if (event.m_task->IsModal())
-	{
-		wxProgressDialog *dlg = event.m_task->GetProgressDialog();
-		if (!event.m_task->HasStarted() && dlg != nullptr)
-		{
-			event.m_task->SetStarted(true);
-			dlg->SetModal(true);
-			dlg->ShowModal();
-			dlg->Destroy();
-		}
-	}
+	
 }
 
 void MainWindow::OnTaskEnd(TaskEvent& event)
 {
-	if (event.m_task->IsModal())
-	{
-		auto dlg = event.m_task->GetProgressDialog();
-		if (dlg != nullptr)
-		{
-			printf("Destroying dialog %p!\n", dlg);
-			dlg->EndModal(0);
-			event.m_task->SetProgressDialog(nullptr);
-		}
-		else
-		{
-			printf("Dialog %p already destroyed!\n", dlg);
-		}
-		modalTaskRunning = false;
-	}
-	event.m_task->Dispose();
+	
 }
 
 void MainWindow::OnTaskProgress(TaskProgressEvent& event)
 {
-	if (!event.m_task->IsRunning())
-		return;
 	
-#if !TASK_UPDATE_DIRECT
-	Task *task = event.m_task;
-	if (task->IsModal())
-	{
-		int progress = task->GetProgress();
-		if (progress >= 100)
-			progress = 100;
-		auto dlg = task->GetProgressDialog();
-		if (dlg != nullptr)
-		{
-			dlg->Update(progress, task->GetStatus());
-			dlg->Fit();
-		}
-	}
-#endif
 }
 
 void MainWindow::OnTaskStatus(TaskStatusEvent& event)
 {
-	if (!event.m_task->IsRunning())
-		return;
 	
-#if !TASK_UPDATE_DIRECT	
-	Task *task = event.m_task;
-	if (task->IsModal())
-	{
-		int progress = task->GetProgress();
-		if (progress >= 100)
-			progress = 100;
-		
-		auto dlg = task->GetProgressDialog();
-		if (dlg != nullptr)
-		{
-			dlg->Update(progress, task->GetStatus());
-			dlg->Fit();
-		}
-	}
-#endif
 }
 
 void MainWindow::OnTaskError(TaskErrorEvent& event)
 {
-#if !TASK_UPDATE_DIRECT
 	wxLogError(event.m_errorMsg);
-#endif
 }
 
 
@@ -567,18 +510,31 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 	task.SetEvtHandler(this);
 	modalTaskRunning = true;
 	task.Start();
-// 	if(progDialog != nullptr)
-// 	{
-// 		printf("Showing dialog %p\n", progDialog);
-// 		progDialog->ShowModal();
-// 	}
+	
+	progDialog->Show();
 	bool cancelled = false;
-	while (task.IsRunning() && forceModal)
+	while (!task.HasEnded())
 	{
+		wxMilliSleep(100);
+		
+		bool retVal = true;
+		if (task.GetProgress() == 0 || task.GetProgress() == 100)
+			retVal = progDialog->Pulse(task.GetStatus());
+		else
+			retVal = progDialog->Update(task.GetProgress(), task.GetStatus());
+		
+		if (!retVal)
+		{
+			if (task.CanUserCancel())
+				task.Cancel();
+			else
+				progDialog->Resume();
+		}
+		progDialog->Fit();
 		wxYield();
-		if (task.CanUserCancel())
-			cancelled = task.UserCancelled();
 	}
+	progDialog->Close(false);
+	progDialog->Destroy();
 	return !cancelled;
 }
 
@@ -586,6 +542,13 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 // App
 bool MultiMC::OnInit()
 {
+	startNormally = true;
+	
+	wxApp::OnInit();
+	
+	if (!startNormally)
+		return false;
+	
 	SetAppName(_("MultiMC"));
 	
 	wxInitAllImageHandlers();
@@ -613,10 +576,68 @@ bool MultiMC::OnInit()
 	return true;
 }
 
+void MultiMC::OnInitCmdLine(wxCmdLineParser &parser)
+{
+	wxCmdLineEntryDesc updateOption;
+	updateOption.kind = wxCMD_LINE_OPTION;
+	updateOption.type = wxCMD_LINE_VAL_STRING;
+	updateOption.shortName = _("u");
+	updateOption.longName = _("update");
+	updateOption.description = _("Used by the update system. Causes the running executable to replace the given file with itself, run it, and exit.");
+	
+	wxCmdLineEntryDesc descriptions[] = 
+	{
+		updateOption
+	};
+	parser.SetDesc(descriptions);
+	parser.Parse();
+	
+	if (parser.Found(_("u")))
+	{
+		wxString fileToUpdate;
+		parser.Found(_("u"), &fileToUpdate);
+		startNormally = false;
+		InstallUpdate(wxFileName(wxStandardPaths::Get().GetExecutablePath()), 
+			wxFileName(fileToUpdate));
+	}
+}
+
+void MultiMC::InstallUpdate(wxFileName thisFile, wxFileName targetFile)
+{
+	// Let the other process exit.
+	wxSleep(3);
+	wxCopyFile(thisFile.GetFullPath(), targetFile.GetFullPath());
+	
+	targetFile.MakeAbsolute();
+	
+	wxProcess proc;
+	wxExecute(targetFile.GetFullPath(), wxEXEC_ASYNC, &proc);
+	proc.Detach();
+}
+
+int MultiMC::OnExit()
+{
+	if (updateOnExit && wxFileExists(_("MultiMCUpdate")))
+	{
+		wxFileName updateFile(Path::Combine(wxGetCwd(), _("MultiMCUpdate")));
+		if (IS_LINUX())
+		{
+			wxExecute(_("chmod +x ") + updateFile.GetFullPath());
+		}
+		
+		wxProcess proc;
+		wxExecute(updateFile.GetFullPath() + _(" -u:") + wxStandardPaths::Get().GetExecutablePath(),
+			wxEXEC_ASYNC, &proc);
+		proc.Detach();
+	}
+	
+	return wxApp::OnExit();
+}
+
 void MultiMC::OnFatalException()
 {
 	wxMessageBox(_("A fatal error has occurred and MultiMC has to exit. Sorry for the inconvenience."), 
-				 _("Fatal Error"));
+		_("Fatal Error"));
 }
 
 const wxIcon &MultiMC::GetAppIcon() const

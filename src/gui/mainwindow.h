@@ -74,7 +74,6 @@ public:
 	
 	void OnCheckUpdateComplete(CheckUpdateEvent &event);
 	
-	
 	// Other events
 	void OnInstMenuOpened(wxListEvent& event);
 	
@@ -90,12 +89,14 @@ public:
 
 protected:
 	wxListCtrl *instListCtrl;
-
+	
 	wxMenu *instMenu;
 	
 	bool modalTaskRunning;
 	
 	bool canLaunch;
+	
+	bool closeOnTaskEnd;
 
 	InstIconList instIcons;
 	void LoadInstIconList(wxString customIconDirName = _T("icons"));
@@ -188,12 +189,19 @@ class MultiMC : public wxApp
 {
 public:
 	virtual bool OnInit();
+	virtual void OnInitCmdLine(wxCmdLineParser &parser);
+	virtual int OnExit();
 	virtual void OnFatalException();
 	
 	const wxIcon &GetAppIcon() const;
 	
+	bool updateOnExit;
 protected:
 	wxIcon AppIcon;
+	
+	bool startNormally;
+	
+	void InstallUpdate(wxFileName thisFile, wxFileName targetFile);
 };
 
 DECLARE_APP(MultiMC)
