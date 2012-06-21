@@ -18,6 +18,8 @@ IMPLEMENT_APP(MultiMC)
 // App
 bool MultiMC::OnInit()
 {
+	wxHandleFatalExceptions();
+	
 	startNormally = true;
 	
 	wxApp::OnInit();
@@ -115,7 +117,12 @@ int MultiMC::OnExit()
 void MultiMC::OnFatalException()
 {
 	wxMessageBox(_("A fatal error has occurred and MultiMC has to exit. Sorry for the inconvenience."), 
-				 _("Fatal Error"));
+		_("Oh no!"), wxICON_ERROR | wxCENTER);
+}
+
+void MultiMC::OnUnhandledException()
+{
+	OnFatalException();
 }
 
 const wxIcon &MultiMC::GetAppIcon() const

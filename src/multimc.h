@@ -11,6 +11,7 @@ public:
 	virtual void OnInitCmdLine(wxCmdLineParser &parser);
 	virtual int OnExit();
 	virtual void OnFatalException();
+	virtual void OnUnhandledException();
 	
 	const wxIcon &GetAppIcon() const;
 	
