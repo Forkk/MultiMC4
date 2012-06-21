@@ -19,6 +19,7 @@
 
 #include <wx/gbsizer.h>
 #include <wx/sstream.h>
+#include <gui/mainwindow.h>
 
 InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250)),
@@ -34,7 +35,7 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	mainPanel->SetSizer(mainSizer);
 	
 	wxString launchCmdMessage = wxString::Format(_("Instance started with command: %s\n"), 
-												 inst->GetLastLaunchCommand().c_str());
+		inst->GetLastLaunchCommand().c_str());
 	
 	consoleTextCtrl = new wxTextCtrl(mainPanel, -1, launchCmdMessage, 
 									 wxDefaultPosition, wxSize(200, 100), 
@@ -48,6 +49,11 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	closeButton = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
 	closeButton->Enable(m_closeAllowed);
 	btnBox->Add(closeButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
+	
+	
+	// Create the task bar icon.
+	trayIcon = new ConsoleIcon(this);
+	trayIcon->SetIcon(wxGetApp().GetAppIcon());
 	
 	instListener.Create();
 	
@@ -94,6 +100,8 @@ void InstConsoleWindow::AllowClose()
 void InstConsoleWindow::Close()
 {
 	wxFrame::Close();
+	if (trayIcon->IsIconInstalled())
+		trayIcon->RemoveIcon();
 	m_mainWin->Show();
 }
 
@@ -117,6 +125,8 @@ void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
 	}
 	else
 	{
+		if (trayIcon->IsIconInstalled())
+			trayIcon->RemoveIcon();
 		m_mainWin->Show();
 	}
 }
@@ -150,12 +160,16 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 	size_t readSize = 0;
 	while (m_inst->IsRunning() && !TestDestroy())
 	{
+		TestDestroy();
 		readConsole = consoleStream->CanRead();
+		TestDestroy();
 		readError = errorStream->CanRead();
+		TestDestroy();
 		
 		if (!readConsole && !readError)
 		{
 			wxMicroSleep(100);
+			TestDestroy();
 			continue;
 		}
 		
@@ -165,13 +179,19 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		
 		if (readConsole)
 		{
+			TestDestroy();
 			consoleStream->Read(buffer, bufSize);
+			TestDestroy();
 			readSize = consoleStream->LastRead();
+			TestDestroy();
 		}
 		else if (readError)
 		{
+			TestDestroy();
 			errorStream->Read(buffer, bufSize);
+			TestDestroy();
 			readSize = errorStream->LastRead();
+			TestDestroy();
 		}
 		else
 			continue;
@@ -197,10 +217,96 @@ void InstConsoleWindow::OnInstOutput(InstOutputEvent& event)
 	AppendMessage(event.m_output);
 }
 
+InstConsoleWindow::ConsoleIcon::ConsoleIcon(InstConsoleWindow *console)
+{
+	m_console = console;
+}
+
+Instance *InstConsoleWindow::GetInstance()
+{
+	return m_inst;
+}
+
+void InstConsoleWindow::StopListening()
+{
+	instListener.Pause();
+}
+
+wxMenu *InstConsoleWindow::ConsoleIcon::CreatePopupMenu()
+{
+	wxMenu *menu = new wxMenu();
+	menu->AppendCheckItem(ID_SHOW_CONSOLE, _("Show Console"), _("Shows or hides the console."))->
+		Check(m_console->IsShown());
+	menu->Append(ID_KILL_MC, _("Kill Minecraft"), _("Kills Minecraft's process."));
+	
+	return menu;
+}
+
+void InstConsoleWindow::ConsoleIcon::OnShowConsole(wxCommandEvent &event)
+{
+	m_console->Show(event.IsChecked());
+}
+
+void InstConsoleWindow::ConsoleIcon::OnKillMC(wxCommandEvent &event)
+{
+	if (wxMessageBox(_("Killing Minecraft may damage saves. You should only do this if the game is frozen."),
+		_("Are you sure?"), wxOK | wxCANCEL | wxCENTER) == wxOK)
+	{
+		wxProcess *instProc = m_console->GetInstance()->GetInstProcess();
+		
+		if (instProc->GetPid() == 0)
+			return;
+		
+		int pid = instProc->GetPid();
+		
+		m_console->StopListening();
+		wxKillError error = wxProcess::Kill(pid, wxSIGTERM);
+		if (error != wxKILL_OK)
+		{
+			wxString errorName;
+			switch (error)
+			{
+			case wxKILL_ACCESS_DENIED:
+				errorName = _("wxKILL_ACCESS_DENIED");
+				break;
+				
+			case wxKILL_BAD_SIGNAL:
+				errorName = _("wxKILL_BAD_SIGNAL");
+				break;
+				
+			case wxKILL_ERROR:
+				errorName = _("wxKILL_ERROR");
+				break;
+				
+			case wxKILL_NO_PROCESS:
+				errorName = _("wxKILL_NO_PROCESS");
+				break;
+				
+			default:
+				errorName = _("Unknown error.");
+			}
+			
+			wxLogError(_("Error %i (%s) when killing process %i!"), error, errorName.c_str(), 
+				m_console->GetInstance()->GetInstProcess()->GetPid());
+		}
+		else
+		{
+			m_console->AppendMessage(wxString::Format(_("Killed Minecraft (pid: %i)"), pid));
+			wxProcessEvent fakeEvent(0, pid, -1);
+			m_console->OnInstExit(fakeEvent);
+		}
+	}
+}
+
 
 BEGIN_EVENT_TABLE(InstConsoleWindow, wxFrame)
 	EVT_END_PROCESS(-1, InstConsoleWindow::OnInstExit)
 	EVT_BUTTON(wxID_CLOSE, InstConsoleWindow::OnCloseClicked)
 	
 	EVT_INST_OUTPUT(InstConsoleWindow::OnInstOutput)
+END_EVENT_TABLE()
+
+BEGIN_EVENT_TABLE(InstConsoleWindow::ConsoleIcon, wxTaskBarIcon)
+	EVT_MENU(ID_SHOW_CONSOLE, InstConsoleWindow::ConsoleIcon::OnShowConsole)
+	EVT_MENU(ID_KILL_MC, InstConsoleWindow::ConsoleIcon::OnKillMC)
 END_EVENT_TABLE()

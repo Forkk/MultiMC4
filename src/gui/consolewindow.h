@@ -16,6 +16,7 @@
 
 #pragma once
 #include <wx/wx.h>
+#include <wx/taskbar.h>
 
 #include "instance.h"
 
@@ -27,7 +28,26 @@ public:
 	
 	virtual bool Show(bool show = true);
 	
+	Instance *GetInstance();
+	void StopListening();
+	
 protected:
+	class ConsoleIcon : public wxTaskBarIcon
+	{
+	public:
+		ConsoleIcon(InstConsoleWindow *console);
+		
+		virtual wxMenu *CreatePopupMenu();
+		
+		void OnShowConsole(wxCommandEvent &event);
+		void OnKillMC(wxCommandEvent &event);
+	protected:
+		
+		InstConsoleWindow *m_console;
+		
+		DECLARE_EVENT_TABLE()
+	} *trayIcon;
+	
 	wxScrolledWindow *scrollWindow;
 	wxTextCtrl *consoleTextCtrl;
 	
@@ -65,5 +85,13 @@ protected:
 	
 	bool m_closeAllowed;
 	
+	friend void ConsoleIcon::OnKillMC(wxCommandEvent &event);
+	
 	DECLARE_EVENT_TABLE()
+};
+
+enum
+{
+	ID_SHOW_CONSOLE = 1,
+	ID_KILL_MC
 };

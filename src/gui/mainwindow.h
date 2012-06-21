@@ -147,44 +147,6 @@ enum
 	ID_InstListCtrl,
 };
 
-BEGIN_EVENT_TABLE(MainWindow, wxFrame)
-	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)
-	EVT_TOOL(ID_ViewFolder, MainWindow::OnViewFolderClicked)
-	EVT_TOOL(ID_Refresh, MainWindow::OnRefreshClicked)
-
-	EVT_TOOL(ID_Settings, MainWindow::OnSettingsClicked)
-	EVT_TOOL(ID_CheckUpdate, MainWindow::OnCheckUpdateClicked)
-
-	EVT_TOOL(ID_Help, MainWindow::OnHelpClicked)
-	EVT_TOOL(ID_About, MainWindow::OnAboutClicked)
-
-
-	EVT_MENU(ID_Play, MainWindow::OnPlayClicked)
-
-	EVT_MENU(ID_Rename, MainWindow::OnRenameClicked)
-	EVT_MENU(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
-	EVT_MENU(ID_Notes, MainWindow::OnNotesClicked)
-
-	EVT_MENU(ID_ManageSaves, MainWindow::OnManageSavesClicked)
-	EVT_MENU(ID_EditMods, MainWindow::OnEditModsClicked)
-	EVT_MENU(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
-	EVT_MENU(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
-
-	EVT_MENU(ID_DeleteInst, MainWindow::OnDeleteClicked)
-
-	EVT_LIST_ITEM_ACTIVATED(ID_InstListCtrl, MainWindow::OnInstActivated)
-	EVT_LIST_ITEM_RIGHT_CLICK(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
-	
-	EVT_TASK_START(MainWindow::OnTaskStart)
-	EVT_TASK_END(MainWindow::OnTaskEnd)
-	EVT_TASK_STATUS(MainWindow::OnTaskStatus)
-	EVT_TASK_PROGRESS(MainWindow::OnTaskProgress)
-	EVT_TASK_ERRORMSG(MainWindow::OnTaskError)
-	
-	EVT_LOGIN_COMPLETE(MainWindow::OnLoginComplete)
-	EVT_CHECK_UPDATE(MainWindow::OnCheckUpdateComplete)
-END_EVENT_TABLE()
-
 class MultiMC : public wxApp
 {
 public:

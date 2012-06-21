@@ -323,7 +323,7 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 	if (redirectOutput)
 		instProc->Redirect();
 	
-	wxExecute(launchCmd, wxEXEC_ASYNC, instProc);
+	instProc = wxProcess::Open(launchCmd, wxEXEC_ASYNC);
 	m_running = true;
 	
 	return instProc;
