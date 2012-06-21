@@ -265,6 +265,13 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 				wxFileName(_("MultiMCUpdate")), _("Downloading updates..."));
 			wxGetApp().updateOnExit = true;
 			StartModalTask(dlTask);
+			
+			// Give the task dialogs some time to close.
+			for (int i = 0; i < 100; i++)
+			{
+				wxSafeYield();
+			}
+			
 			Close(false);
 		}
 	}
