@@ -21,6 +21,8 @@
 #include <wx/sstream.h>
 #include <gui/mainwindow.h>
 
+#include "multimc.h"
+
 InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250)),
 	  instListener(inst, this)

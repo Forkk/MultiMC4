@@ -32,6 +32,8 @@ set(CMAKE_CXX_FLAGS "-DCURL_STATICLIB")
 
 # Set the sources and headers variables.
 set(SRCS 
+multimc.cpp
+
 gui/mainwindow.cpp
 gui/settingsdialog.cpp
 gui/logindialog.cpp
@@ -63,6 +65,8 @@ insticonlist.cpp
 )
 
 set (INCS
+multimc.h
+
 gui/mainwindow.h
 gui/settingsdialog.h
 gui/logindialog.h
