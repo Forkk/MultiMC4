@@ -1,5 +1,6 @@
 #include "multimc.h"
 
+#include <wx/utils.h>
 #include <wx/mstream.h>
 #include <wx/cmdline.h>
 #include <wx/process.h>
@@ -18,7 +19,10 @@ IMPLEMENT_APP(MultiMC)
 // App
 bool MultiMC::OnInit()
 {
+#if __WXGTK__
+	// Only works with Linux GCC or MSVC
 	wxHandleFatalExceptions();
+#endif
 	
 	startNormally = true;
 	
