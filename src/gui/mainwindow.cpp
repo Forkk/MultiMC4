@@ -17,7 +17,7 @@
 #include "mainwindow.h"
 #include "logindialog.h"
 #include "consolewindow.h"
-#include "modeditdialog.h"
+#include "modeditwindow.h"
 #include "changeicondialog.h"
 
 #include "toolbaricons.h"
@@ -439,8 +439,8 @@ void MainWindow::OnManageSavesClicked(wxCommandEvent& event)
 
 void MainWindow::OnEditModsClicked(wxCommandEvent& event)
 {
-	ModEditDialog *editDlg = new ModEditDialog(this, GetSelectedInst());
-	editDlg->ShowModal();
+	ModEditWindow *editDlg = new ModEditWindow(this, GetSelectedInst());
+	editDlg->Show();
 }
 
 void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)

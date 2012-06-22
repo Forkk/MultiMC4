@@ -20,10 +20,12 @@
 #include <wx/dnd.h>
 #include <instance.h>
 
-class ModEditDialog : public wxDialog
+class ModEditWindow : public wxFrame
 {
 public:
-	ModEditDialog(wxWindow *parent, Instance *inst);
+	ModEditWindow(wxWindow *parent, Instance *inst);
+	
+	virtual bool Show(bool show = true);
 	
 protected:
 	class ModListCtrl : public wxListCtrl
@@ -58,8 +60,6 @@ protected:
 	
 	void UpdateColSizes();
 	
-	virtual bool Show(bool show = true);
-	
 	Instance *m_inst;
 	
 	void OnDeleteJarMod();
@@ -76,6 +76,8 @@ protected:
 	
 	void OnAddMLMod(wxCommandEvent &event);
 	void OnDeleteMLMod(wxCommandEvent &event);
+	
+	void OnCloseClicked(wxCommandEvent &event);
 	
 	class JarModsDropTarget : public wxFileDropTarget
 	{

@@ -14,13 +14,15 @@
 //    limitations under the License.
 //
 
-#include "modeditdialog.h"
+#include "modeditwindow.h"
 #include <wx/notebook.h>
 #include <apputils.h>
 
-ModEditDialog::ModEditDialog(wxWindow *parent, Instance *inst)
-	: wxDialog(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))
+ModEditWindow::ModEditWindow(wxWindow *parent, Instance *inst)
+	: wxFrame(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))
 {
+	SetTitle(wxString::Format(_("Edit Mods for %s"), inst->GetName().c_str()));
+	
 	m_inst = inst;
 	
 	wxBoxSizer *mainBox = new wxBoxSizer(wxVERTICAL);
@@ -77,8 +79,12 @@ ModEditDialog::ModEditDialog(wxWindow *parent, Instance *inst)
 	mlModListBtnBox->Add(delMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
 	
 	
-	wxSizer *btnBox = CreateButtonSizer(wxOK);
+	wxBoxSizer *btnBox = new wxBoxSizer(wxHORIZONTAL);
 	mainBox->Add(btnBox, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT | wxLEFT, 8);
+	
+	wxButton *btnClose = new wxButton(this, wxID_CLOSE, _("&Close"));
+	
+	btnBox->Add(btnClose, wxSizerFlags(0).Align(wxALIGN_RIGHT).Border(wxALL, 4));
 	
 	CenterOnParent();
 	
@@ -86,22 +92,22 @@ ModEditDialog::ModEditDialog(wxWindow *parent, Instance *inst)
 	LoadMLMods();
 }
 
-void ModEditDialog::LoadJarMods()
+void ModEditWindow::LoadJarMods()
 {
 	jarModList->UpdateItems();
 }
 
-void ModEditDialog::ModListCtrl::UpdateItems()
+void ModEditWindow::ModListCtrl::UpdateItems()
 {
 	SetItemCount(GetModList()->size());
 }
 
-void ModEditDialog::LoadMLMods()
+void ModEditWindow::LoadMLMods()
 {
 	mlModList->UpdateItems();
 }
 
-ModEditDialog::ModListCtrl::ModListCtrl(wxWindow *parent, int id, Instance *inst)
+ModEditWindow::ModListCtrl::ModListCtrl(wxWindow *parent, int id, Instance *inst)
 	: wxListCtrl(parent, id, wxDefaultPosition, wxDefaultSize, 
 				 wxLC_REPORT | wxLC_VIRTUAL | wxLC_VRULES)
 {
@@ -109,7 +115,7 @@ ModEditDialog::ModListCtrl::ModListCtrl(wxWindow *parent, int id, Instance *inst
 	m_insMarkIndex = -1;
 }
 
-wxString ModEditDialog::ModListCtrl::OnGetItemText(long int item, long int column) const
+wxString ModEditWindow::ModListCtrl::OnGetItemText(long int item, long int column) const
 {
 	switch (column)
 	{
@@ -122,7 +128,7 @@ wxString ModEditDialog::ModListCtrl::OnGetItemText(long int item, long int colum
 	}
 }
 
-ModList *ModEditDialog::ModListCtrl::GetModList() const
+ModList *ModEditWindow::ModListCtrl::GetModList() const
 {
 	if (GetId() == ID_ML_MOD_LIST)
 		return m_inst->GetMLModList();
@@ -130,7 +136,7 @@ ModList *ModEditDialog::ModListCtrl::GetModList() const
 		return m_inst->GetModList();
 }
 
-void ModEditDialog::UpdateColSizes()
+void ModEditWindow::UpdateColSizes()
 {
 	const int versionColumnWidth = 100;
 	
@@ -143,22 +149,20 @@ void ModEditDialog::UpdateColSizes()
 	mlModList->SetColumnWidth(1, versionColumnWidth);
 }
 
-
-
-bool ModEditDialog::Show(bool show)
+bool ModEditWindow::Show(bool show)
 {
-	int response = wxDialog::Show(show);
+	bool response = wxFrame::Show(show);
 	UpdateColSizes();
 	return response;
 }
 
-ModEditDialog::JarModsDropTarget::JarModsDropTarget(ModEditDialog::ModListCtrl *owner, Instance *inst)
+ModEditWindow::JarModsDropTarget::JarModsDropTarget(ModEditWindow::ModListCtrl *owner, Instance *inst)
 {
 	m_owner = owner;
 	m_inst = inst;
 }
 
-wxDragResult ModEditDialog::JarModsDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
+wxDragResult ModEditWindow::JarModsDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
 {
 	int flags = wxLIST_HITTEST_BELOW;
 	long index = 0;
@@ -181,12 +185,12 @@ wxDragResult ModEditDialog::JarModsDropTarget::OnDragOver(wxCoord x, wxCoord y, 
 	return def;
 }
 
-void ModEditDialog::JarModsDropTarget::OnLeave()
+void ModEditWindow::JarModsDropTarget::OnLeave()
 {
 	m_owner->SetInsertMark(-1);
 }
 
-bool ModEditDialog::JarModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
+bool ModEditWindow::JarModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
 {
 	int flags = wxLIST_HITTEST_ONITEM;
 	
@@ -207,7 +211,7 @@ bool ModEditDialog::JarModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const w
 	}
 }
 
-void ModEditDialog::OnDeleteJarMod()
+void ModEditWindow::OnDeleteJarMod()
 {
 	if (jarModList->GetItemCount() <= 0)
 		return;
@@ -220,7 +224,7 @@ void ModEditDialog::OnDeleteJarMod()
 	jarModList->UpdateItems();
 }
 
-void ModEditDialog::OnDeleteMLMod()
+void ModEditWindow::OnDeleteMLMod()
 {
 	if (mlModList->GetItemCount() <= 0)
 		return;
@@ -246,7 +250,7 @@ void ModEditDialog::OnDeleteMLMod()
 	mlModList->UpdateItems();
 }
 
-void ModEditDialog::OnJarListKeyDown(wxListEvent &event)
+void ModEditWindow::OnJarListKeyDown(wxListEvent &event)
 {
 	if (event.GetKeyCode() == WXK_DELETE)
 	{
@@ -254,7 +258,7 @@ void ModEditDialog::OnJarListKeyDown(wxListEvent &event)
 	}
 }
 
-void ModEditDialog::OnMLListKeyDown(wxListEvent &event)
+void ModEditWindow::OnMLListKeyDown(wxListEvent &event)
 {
 	if (event.GetKeyCode() == WXK_DELETE)
 	{
@@ -262,7 +266,7 @@ void ModEditDialog::OnMLListKeyDown(wxListEvent &event)
 	}
 }
 
-void ModEditDialog::ModListCtrl::SetInsertMark(const int index)
+void ModEditWindow::ModListCtrl::SetInsertMark(const int index)
 {
 	m_insMarkIndex = index;
 	Refresh();
@@ -270,7 +274,7 @@ void ModEditDialog::ModListCtrl::SetInsertMark(const int index)
 	DrawInsertMark(index);
 }
 
-void ModEditDialog::ModListCtrl::DrawInsertMark(int index)
+void ModEditWindow::ModListCtrl::DrawInsertMark(int index)
 {
 	if (index < 0)
 		return;
@@ -300,18 +304,18 @@ void ModEditDialog::ModListCtrl::DrawInsertMark(int index)
 	dc.DrawLine(0, lineY, this->GetClientSize().GetWidth(), lineY);
 }
 
-ModEditDialog::MLModsDropTarget::MLModsDropTarget(ModEditDialog::ModListCtrl *owner, Instance *inst)
+ModEditWindow::MLModsDropTarget::MLModsDropTarget(ModEditWindow::ModListCtrl *owner, Instance *inst)
 {
 	m_owner = owner;
 	m_inst = inst;
 }
 
-wxDragResult ModEditDialog::MLModsDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
+wxDragResult ModEditWindow::MLModsDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
 {
 	return wxDragResult::wxDragCopy;
 }
 
-bool ModEditDialog::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
+bool ModEditWindow::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
 {
 	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
 	{
@@ -323,7 +327,7 @@ bool ModEditDialog::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wx
 	m_owner->UpdateItems();
 }
 
-void ModEditDialog::OnAddJarMod(wxCommandEvent &event)
+void ModEditWindow::OnAddJarMod(wxCommandEvent &event)
 {
 	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."), 
 		wxGetCwd(), wxEmptyString);
@@ -335,12 +339,12 @@ void ModEditDialog::OnAddJarMod(wxCommandEvent &event)
 	}
 }
 
-void ModEditDialog::OnDeleteJarMod(wxCommandEvent &event)
+void ModEditWindow::OnDeleteJarMod(wxCommandEvent &event)
 {
 	OnDeleteJarMod();
 }
 
-void ModEditDialog::OnMoveJarModUp(wxCommandEvent &event)
+void ModEditWindow::OnMoveJarModUp(wxCommandEvent &event)
 {
 	if (jarModList->GetItemCount() <= 0)
 		return;
@@ -363,7 +367,7 @@ void ModEditDialog::OnMoveJarModUp(wxCommandEvent &event)
 	jarModList->UpdateItems();
 }
 
-void ModEditDialog::OnMoveJarModDown(wxCommandEvent &event)
+void ModEditWindow::OnMoveJarModDown(wxCommandEvent &event)
 {
 	if (jarModList->GetItemCount() <= 0)
 		return;
@@ -384,7 +388,7 @@ void ModEditDialog::OnMoveJarModDown(wxCommandEvent &event)
 	}
 }
 
-void ModEditDialog::OnJarModSelChanged(wxListEvent &event)
+void ModEditWindow::OnJarModSelChanged(wxListEvent &event)
 {
 	int selCount = jarModList->GetSelectedItemCount();
 	delJarModBtn->Enable(selCount > 0);
@@ -393,7 +397,7 @@ void ModEditDialog::OnJarModSelChanged(wxListEvent &event)
 }
 
 
-void ModEditDialog::OnAddMLMod(wxCommandEvent &event)
+void ModEditWindow::OnAddMLMod(wxCommandEvent &event)
 {
 	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."), 
 												  wxGetCwd(), wxEmptyString);
@@ -405,12 +409,12 @@ void ModEditDialog::OnAddMLMod(wxCommandEvent &event)
 	}
 }
 
-void ModEditDialog::OnDeleteMLMod(wxCommandEvent &event)
+void ModEditWindow::OnDeleteMLMod(wxCommandEvent &event)
 {
 	OnDeleteMLMod();
 }
 
-wxArrayInt ModEditDialog::ModListCtrl::GetSelectedItems()
+wxArrayInt ModEditWindow::ModListCtrl::GetSelectedItems()
 {
 	wxArrayInt indices;
 	long item = -1;
@@ -426,7 +430,7 @@ wxArrayInt ModEditDialog::ModListCtrl::GetSelectedItems()
 	return indices;
 }
 
-void ModEditDialog::OnDragJarMod(wxListEvent &event)
+void ModEditWindow::OnDragJarMod(wxListEvent &event)
 {
 	ModList *mods = m_inst->GetModList();
 	wxFileDataObject modFileObj;
@@ -443,21 +447,28 @@ void ModEditDialog::OnDragJarMod(wxListEvent &event)
 	modsDropSource.DoDragDrop(wxDrag_CopyOnly);
 }
 
+void ModEditWindow::OnCloseClicked(wxCommandEvent &event)
+{
+	Close();
+}
 
-BEGIN_EVENT_TABLE(ModEditDialog, wxDialog)
-	EVT_LIST_KEY_DOWN(ID_JAR_MOD_LIST, ModEditDialog::OnJarListKeyDown)
-	EVT_LIST_KEY_DOWN(ID_ML_MOD_LIST, ModEditDialog::OnMLListKeyDown)
+
+BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
+	EVT_LIST_KEY_DOWN(ID_JAR_MOD_LIST, ModEditWindow::OnJarListKeyDown)
+	EVT_LIST_KEY_DOWN(ID_ML_MOD_LIST, ModEditWindow::OnMLListKeyDown)
 	
-	EVT_BUTTON(ID_ADD_JAR_MOD, ModEditDialog::OnAddJarMod)
-	EVT_BUTTON(ID_DEL_JAR_MOD, ModEditDialog::OnDeleteJarMod)
-	EVT_BUTTON(ID_MOVE_JAR_MOD_UP, ModEditDialog::OnMoveJarModUp)
-	EVT_BUTTON(ID_MOVE_JAR_MOD_DOWN, ModEditDialog::OnMoveJarModDown)
+	EVT_BUTTON(ID_ADD_JAR_MOD, ModEditWindow::OnAddJarMod)
+	EVT_BUTTON(ID_DEL_JAR_MOD, ModEditWindow::OnDeleteJarMod)
+	EVT_BUTTON(ID_MOVE_JAR_MOD_UP, ModEditWindow::OnMoveJarModUp)
+	EVT_BUTTON(ID_MOVE_JAR_MOD_DOWN, ModEditWindow::OnMoveJarModDown)
 	
-	EVT_BUTTON(ID_ADD_ML_MOD, ModEditDialog::OnAddMLMod)
-	EVT_BUTTON(ID_DEL_ML_MOD, ModEditDialog::OnDeleteMLMod)
+	EVT_BUTTON(ID_ADD_ML_MOD, ModEditWindow::OnAddMLMod)
+	EVT_BUTTON(ID_DEL_ML_MOD, ModEditWindow::OnDeleteMLMod)
 	
-	EVT_LIST_ITEM_SELECTED(ID_JAR_MOD_LIST, ModEditDialog::OnJarModSelChanged)
-	EVT_LIST_ITEM_DESELECTED(ID_JAR_MOD_LIST, ModEditDialog::OnJarModSelChanged)
+	EVT_LIST_ITEM_SELECTED(ID_JAR_MOD_LIST, ModEditWindow::OnJarModSelChanged)
+	EVT_LIST_ITEM_DESELECTED(ID_JAR_MOD_LIST, ModEditWindow::OnJarModSelChanged)
 	
-	EVT_LIST_BEGIN_DRAG(ID_JAR_MOD_LIST, ModEditDialog::OnDragJarMod)
+	EVT_LIST_BEGIN_DRAG(ID_JAR_MOD_LIST, ModEditWindow::OnDragJarMod)
+	
+	EVT_BUTTON(wxID_CLOSE, ModEditWindow::OnCloseClicked)
 END_EVENT_TABLE()
