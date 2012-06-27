@@ -57,6 +57,8 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	trayIcon = new ConsoleIcon(this);
 	trayIcon->SetIcon(wxGetApp().GetAppIcon());
 	
+	inst->GetInstProcess()->SetNextHandler(this);
+	
 	instListener.Create();
 	
 	CenterOnScreen();
@@ -75,12 +77,13 @@ void InstConsoleWindow::AppendMessage(const wxString& msg)
 void InstConsoleWindow::OnInstExit(wxProcessEvent& event)
 {
 	AppendMessage(wxString::Format(_("Instance exited with code %i."), 
-								   event.GetExitCode()));
+		event.GetExitCode()));
+	
+	AllowClose();
 	if (event.GetExitCode() != 0)
 	{
 		AppendMessage(_("Minecraft has crashed!"));
 		Show();
-		AllowClose();
 	}
 	else if (settings.GetAutoCloseConsole())
 	{
@@ -89,7 +92,6 @@ void InstConsoleWindow::OnInstExit(wxProcessEvent& event)
 	else
 	{
 		Show();
-		AllowClose();
 	}
 }
 
@@ -146,8 +148,11 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 	if (!instProc->IsRedirected())
 	{
 		printf("Output not redirected!\n");
+		m_console->AppendMessage(_("Output not redirected!\n"));
 		return NULL;
 	}
+	
+	int instPid = instProc->GetPid();
 	
 	wxInputStream *consoleStream = instProc->GetInputStream();
 	wxInputStream *errorStream = instProc->GetErrorStream();
@@ -160,18 +165,17 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 	char *buffer = new char[bufSize];
 	
 	size_t readSize = 0;
-	while (m_inst->IsRunning() && !TestDestroy())
+	while (m_inst->IsRunning() && !TestDestroy() && wxProcess::Exists(instPid))
 	{
-		TestDestroy();
 		readConsole = consoleStream->CanRead();
-		TestDestroy();
 		readError = errorStream->CanRead();
-		TestDestroy();
+		
+		if (TestDestroy())
+			break;
 		
 		if (!readConsole && !readError)
 		{
 			wxMicroSleep(100);
-			TestDestroy();
 			continue;
 		}
 		
@@ -181,19 +185,13 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		
 		if (readConsole)
 		{
-			TestDestroy();
 			consoleStream->Read(buffer, bufSize);
-			TestDestroy();
 			readSize = consoleStream->LastRead();
-			TestDestroy();
 		}
 		else if (readError)
 		{
-			TestDestroy();
 			errorStream->Read(buffer, bufSize);
-			TestDestroy();
 			readSize = errorStream->LastRead();
-			TestDestroy();
 		}
 		else
 			continue;
