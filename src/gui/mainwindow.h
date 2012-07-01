@@ -29,6 +29,9 @@
 
 //const wxString tbarIconPrefix = _T("resources/toolbar/");
 
+class wxListbookEvent;
+class wxListbook;
+
 class MainWindow : public wxFrame
 {
 public:
@@ -54,6 +57,7 @@ public:
 	void OnRenameClicked(wxCommandEvent& event);
 	void OnChangeIconClicked(wxCommandEvent& event);
 	void OnNotesClicked(wxCommandEvent& event);
+	void OnCancelEditNotesClicked(wxCommandEvent& event);
 
 	void OnManageSavesClicked(wxCommandEvent& event);
 	void OnEditModsClicked(wxCommandEvent& event);
@@ -88,7 +92,7 @@ public:
 	DECLARE_EVENT_TABLE()
 
 protected:
-	wxListCtrl *instListCtrl;
+	wxListbook *instListbook;
 	
 	wxMenu *instMenu;
 	
@@ -105,11 +109,27 @@ protected:
 
 	void AddInstance(Instance *inst);
 
-	Instance* GetLinkedInst(long item);
+	Instance* GetLinkedInst(int id);
 
 	Instance* GetSelectedInst();
 
-	std::map<long, Instance*> instItems;
+	std::map<int, Instance*> instItems;
+	
+	void OnPageChanged(wxListbookEvent &event);
+	
+	wxPanel *instPanel;
+	wxGridBagSizer *instSz;
+	wxStaticText *instNameLabel;
+	
+	wxTextCtrl *instNotesEditor;
+	wxButton *editNotesBtn;
+	wxButton *cancelEditNotesBtn;
+	
+	void StartEditNotes();
+	void FinishEditNotes();
+	void CancelEditNotes();
+	
+	void InitInstPanel(wxBoxSizer *mainSz);
 
 private:
 	void NotImplemented();
@@ -134,7 +154,8 @@ enum
 
 	ID_Rename,
 	ID_ChangeIcon,
-	ID_Notes,
+	ID_EditNotes,
+	ID_Cancel_EditNotes,
 
 	ID_ManageSaves,
 	ID_EditMods,
