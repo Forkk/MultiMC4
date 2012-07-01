@@ -31,6 +31,12 @@ const wxString defJavaPath = _("java");
 const wxString defInstDir = _("instances");
 const wxString defModsDir = _("mods");
 
+enum GUIMode
+{
+	GUI_Default,
+	GUI_Simple,
+};
+
 class AppSettings
 {
 public:
@@ -63,6 +69,9 @@ public:
 	
 	bool GetQuitIfProblem() const;
 	void SetQuitIfProblem(bool value);
+	
+	GUIMode GetGUIMode() const;
+	void SetGUIMode(GUIMode value);
 	
 protected:
 // 	boost::property_tree::ptree ptree;

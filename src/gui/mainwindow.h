@@ -92,8 +92,6 @@ public:
 	DECLARE_EVENT_TABLE()
 
 protected:
-	wxListbook *instListbook;
-	
 	wxMenu *instMenu;
 	
 	bool modalTaskRunning;
@@ -115,8 +113,21 @@ protected:
 
 	std::map<int, Instance*> instItems;
 	
+	
+	GUIMode GetGUIMode() const;
+	
+	// Basic GUI (a simple list control with a context menu)
+	void InitBasicGUI(wxBoxSizer *mainSz);
+	
+	wxListCtrl *instListCtrl;
+	
+	
+	// Advanced GUI
+	void InitAdvancedGUI(wxBoxSizer *mainSz);
+	
 	void OnPageChanged(wxListbookEvent &event);
 	
+	wxListbook *instListbook;
 	wxPanel *instPanel;
 	wxGridBagSizer *instSz;
 	wxStaticText *instNameLabel;
@@ -129,8 +140,6 @@ protected:
 	void FinishEditNotes();
 	void CancelEditNotes();
 	
-	void InitInstPanel(wxBoxSizer *mainSz);
-
 private:
 	void NotImplemented();
 };

@@ -136,6 +136,17 @@ void AppSettings::SetShowConsole(bool value)
 }
 
 
+GUIMode AppSettings::GetGUIMode() const
+{
+	return (GUIMode)GetSetting<int>(_("GUIMode"), GUI_Default);
+}
+
+void AppSettings::SetGUIMode(GUIMode value)
+{
+	SetSetting<int>(_("GUIMode"), value);
+}
+
+
 template <typename T>
 T AppSettings::GetSetting(const wxString &key, T defValue) const
 {

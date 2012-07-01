@@ -50,6 +50,8 @@ protected:
 	
 	wxTextCtrl *javaPathTextBox;
 	
+	wxComboBox *guiStyleDropDown;
+	
 	DECLARE_EVENT_TABLE()
 };
 

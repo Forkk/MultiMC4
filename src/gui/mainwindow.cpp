@@ -68,7 +68,7 @@ MainWindow::MainWindow(void)
 	wxBitmap checkUpdateIcon = wxMEMORY_IMAGE(checkupdateicon);
 	wxBitmap helpIcon = wxMEMORY_IMAGE(helpicon);
 	wxBitmap aboutIcon = wxMEMORY_IMAGE(abouticon);
-
+	
 	// Build the toolbar
 	mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."));
 	mainToolBar->AddTool(ID_Refresh, _("Refresh"), reloadIcon, _("Reload ALL the instances!"));
@@ -79,23 +79,9 @@ MainWindow::MainWindow(void)
 	mainToolBar->AddSeparator();
 	mainToolBar->AddTool(ID_Help, _("Help"), helpIcon, _("Help"));
 	mainToolBar->AddTool(ID_About, _("About"), aboutIcon, _("About MultiMC"));
-
+	
 	mainToolBar->Realize();
-
-	// Build the instance context menu
-	instMenu = new wxMenu();
-	instMenu->Append(ID_Play, _T("&Play"), _T("Launch the instance."));
-	instMenu->AppendSeparator();
-	instMenu->Append(ID_Rename, _T("&Rename"), _T("Change the instance's name."));
-	instMenu->Append(ID_ChangeIcon, _T("&Change Icon"), _T("Change this instance's icon."));
-	instMenu->Append(ID_EditNotes, _T("&Notes"), _T("View / edit this instance's notes."));
-	instMenu->AppendSeparator();
-	instMenu->Append(ID_ManageSaves, _T("&Manage Saves"), _T("Backup / restore your saves."));
-	instMenu->Append(ID_EditMods, _T("&Edit Mods"), _T("Install or remove mods."));
-	instMenu->Append(ID_RebuildJar, _T("Re&build Jar"), _T("Reinstall all the instance's jar mods."));
-	instMenu->Append(ID_ViewInstFolder, _T("&View Folder"), _T("Open the instance's folder."));
-	instMenu->AppendSeparator();
-	instMenu->Append(ID_DeleteInst, _T("Delete"), _T("Delete this instance."));
+	
 	
 	// Create the status bar
 	CreateStatusBar(1);
@@ -106,19 +92,18 @@ MainWindow::MainWindow(void)
 	wxBoxSizer *box = new wxBoxSizer(wxVERTICAL);
 	SetSizer(box);
 	
-	// Create the instance list
-// 	int instListStyle;
-// 	if (IS_WINDOWS())
-// 	{
-// 		instListStyle = wxLC_ICON | wxLC_ALIGN_LEFT | wxLC_SINGLE_SEL;
-// 	}
-// 	else
-// 	{
-// 		instListStyle = wxLC_ICON | wxLC_SINGLE_SEL;
-// 	}
-	
-	// Initialize the instance list
-	InitInstPanel(box);
+	// Initialize the GUI
+	instListbook = nullptr;
+	instListCtrl = nullptr;
+	switch (settings.GetGUIMode())
+	{
+	case GUI_Simple:
+		InitBasicGUI(box);
+		break;
+	case GUI_Default:
+		InitAdvancedGUI(box);
+		break;
+	}
 	
 	// Load instance icons
 	LoadInstIconList();
@@ -134,7 +119,38 @@ MainWindow::~MainWindow(void)
 	
 }
 
-void MainWindow::InitInstPanel(wxBoxSizer *mainSz)
+GUIMode MainWindow::GetGUIMode() const
+{
+	if (instListCtrl == nullptr)
+		return GUI_Default;
+	else
+		return GUI_Simple;
+}
+
+void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
+{
+	instListCtrl = new wxListCtrl(this, ID_InstListCtrl, wxDefaultPosition, wxDefaultSize,
+		wxLC_SINGLE_SEL | wxLC_ICON | wxLC_ALIGN_LEFT);
+	
+	// Build the instance context menu
+	instMenu = new wxMenu();
+	instMenu->Append(ID_Play, _T("&Play"), _T("Launch the instance."));
+	instMenu->AppendSeparator();
+	instMenu->Append(ID_Rename, _T("&Rename"), _T("Change the instance's name."));
+	instMenu->Append(ID_ChangeIcon, _T("&Change Icon"), _T("Change this instance's icon."));
+	instMenu->Append(ID_EditNotes, _T("&Notes"), _T("View / edit this instance's notes."));
+	instMenu->AppendSeparator();
+	instMenu->Append(ID_ManageSaves, _T("&Manage Saves"), _T("Backup / restore your saves."));
+	instMenu->Append(ID_EditMods, _T("&Edit Mods"), _T("Install or remove mods."));
+	instMenu->Append(ID_RebuildJar, _T("Re&build Jar"), _T("Reinstall all the instance's jar mods."));
+	instMenu->Append(ID_ViewInstFolder, _T("&View Folder"), _T("Open the instance's folder."));
+	instMenu->AppendSeparator();
+	instMenu->Append(ID_DeleteInst, _T("Delete"), _T("Delete this instance."));
+	
+	mainSz->Add(instListCtrl, 1, wxEXPAND);
+}
+
+void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 {
 	instListbook = new wxListbook(this, ID_InstListCtrl, 
 		wxDefaultPosition, wxDefaultSize, wxLB_LEFT);
@@ -211,14 +227,32 @@ void MainWindow::OnPageChanged(wxListbookEvent &event)
 
 void MainWindow::LoadInstIconList(wxString customIconDirName)
 {
-	instListbook->AssignImageList(instIcons.CreateImageList());
+	switch (GetGUIMode())
+	{
+	case GUI_Simple:
+		instListCtrl->AssignImageList(instIcons.CreateImageList(), wxIMAGE_LIST_NORMAL);
+		break;
+		
+	case GUI_Default:
+		instListbook->AssignImageList(instIcons.CreateImageList());
+		break;
+	}
 }
 
 void MainWindow::LoadInstanceList(wxFileName instDir)
 {
-	for (int i = instListbook->GetPageCount() - 1; i >= 0; i--)
+	switch (GetGUIMode())
 	{
-		instListbook->RemovePage(i);
+	case GUI_Simple:
+		instListCtrl->ClearAll();
+		break;
+		
+	case GUI_Default:
+		for (int i = instListbook->GetPageCount() - 1; i >= 0; i--)
+		{
+			instListbook->RemovePage(i);
+		}
+		break;
 	}
 	
 	instItems.clear();
@@ -245,7 +279,8 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		cont = dir.GetNext(&subFolder);
 	}
 	
-	instListbook->SetSelection(0);
+	if (GetGUIMode() == GUI_Default)
+		instListbook->SetSelection(0);
 }
 
 void MainWindow::AddInstance(Instance *inst)
@@ -257,9 +292,21 @@ void MainWindow::AddInstance(Instance *inst)
 		instName.Append(_("..."));
 	}
 	
-	int pageIndex = instListbook->GetPageCount();
-	instItems[pageIndex] = inst;
-	instListbook->InsertPage(pageIndex, instPanel, inst->GetName(), true, instIcons[inst->GetIconKey()]);
+	int item;
+	switch (GetGUIMode())
+	{
+	case GUI_Simple:
+		item = instListCtrl->InsertItem(instListCtrl->GetItemCount(), 
+			instName, instIcons[inst->GetIconKey()]);
+		instItems[item] = inst;
+		break;
+		
+	case GUI_Default:
+		item = instListbook->GetPageCount();
+		instItems[item] = inst;
+		instListbook->InsertPage(item, instPanel, inst->GetName(), true, instIcons[inst->GetIconKey()]);
+		break;
+	}
 }
 
 Instance* MainWindow::GetLinkedInst(int id)
@@ -269,9 +316,29 @@ Instance* MainWindow::GetLinkedInst(int id)
 
 Instance* MainWindow::GetSelectedInst()
 {
-	if (instListbook->GetPageCount() <= 0)
+	switch (GetGUIMode())
+	{
+	case GUI_Simple:
+	{
+		long item = -1;
+		while (true)
+		{
+			item = instListCtrl->GetNextItem(item, wxLIST_NEXT_ALL, 
+				wxLIST_STATE_SELECTED);
+			
+			if (item == -1)
+				break;
+			
+			return GetLinkedInst(item);
+		}
 		return nullptr;
-	return GetLinkedInst(instListbook->GetSelection());
+	}
+	
+	case GUI_Default:
+		if (instListbook->GetPageCount() <= 0)
+			return nullptr;
+		return GetLinkedInst(instListbook->GetSelection());
+	}
 }
 
 
@@ -507,10 +574,29 @@ void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 
 void MainWindow::OnNotesClicked(wxCommandEvent& event)
 {
-	if (instNotesEditor->IsEditable())
-		FinishEditNotes();
-	else
-		StartEditNotes();
+	switch (GetGUIMode())
+	{
+	case GUI_Simple:
+	{
+		Instance *inst = GetSelectedInst();
+		wxTextEntryDialog textDlg(this, _("Instance notes"), _("Notes"), inst->GetNotes(), 
+			wxOK | wxCANCEL | wxTE_MULTILINE);
+		textDlg.SetSize(600, 400);
+		if (textDlg.ShowModal() == wxID_OK)
+		{
+			inst->SetNotes(textDlg.GetValue());
+			LoadInstanceList();
+		}
+		break;
+	}
+		
+	case GUI_Default:
+		if (instNotesEditor->IsEditable())
+			FinishEditNotes();
+		else
+			StartEditNotes();
+		break;
+	}
 }
 
 void MainWindow::OnCancelEditNotesClicked(wxCommandEvent &event)
@@ -670,20 +756,36 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_About, MainWindow::OnAboutClicked)
 
 
+	EVT_MENU(ID_Play, MainWindow::OnPlayClicked)
+	
+	EVT_MENU(ID_Rename, MainWindow::OnRenameClicked)
+	EVT_MENU(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
+	EVT_MENU(ID_EditNotes, MainWindow::OnNotesClicked)
+	EVT_MENU(ID_Cancel_EditNotes, MainWindow::OnCancelEditNotesClicked)
+	
+	EVT_MENU(ID_ManageSaves, MainWindow::OnManageSavesClicked)
+	EVT_MENU(ID_EditMods, MainWindow::OnEditModsClicked)
+	EVT_MENU(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
+	EVT_MENU(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
+	
+	EVT_MENU(ID_DeleteInst, MainWindow::OnDeleteClicked)
+	
+	
 	EVT_BUTTON(ID_Play, MainWindow::OnPlayClicked)
-
+	
 	EVT_BUTTON(ID_Rename, MainWindow::OnRenameClicked)
 	EVT_BUTTON(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
 	EVT_BUTTON(ID_EditNotes, MainWindow::OnNotesClicked)
 	EVT_BUTTON(ID_Cancel_EditNotes, MainWindow::OnCancelEditNotesClicked)
-
+	
 	EVT_BUTTON(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_BUTTON(ID_EditMods, MainWindow::OnEditModsClicked)
 	EVT_BUTTON(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_BUTTON(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
-
+	
 	EVT_BUTTON(ID_DeleteInst, MainWindow::OnDeleteClicked)
-
+	
+	
 	EVT_LIST_ITEM_ACTIVATED(ID_InstListCtrl, MainWindow::OnInstActivated)
 	EVT_LIST_ITEM_RIGHT_CLICK(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
 	

@@ -18,6 +18,9 @@
 #include <wx/gbsizer.h>
 #include <apputils.h>
 
+const wxString guiModeDefault = _("Default");
+const wxString guiModeSimple = _("Simple");
+
 SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	: wxDialog(parent, id, _T("Settings"), wxDefaultPosition,
 		wxSize(500, 450))
@@ -30,11 +33,27 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 							 wxDefaultSize);
 	mainBox->Add(tabCtrl, 1, wxEXPAND | wxALL, 8);
 	
+	int row = 0;
+	
 	// General tab
 	wxPanel *generalPanel = new wxPanel(tabCtrl, -1);
 	wxGridBagSizer *generalBox = new wxGridBagSizer();
+	generalBox->AddGrowableCol(0, 0);
 	generalPanel->SetSizer(generalBox);
 	tabCtrl->AddPage(generalPanel, _T("General"), true);
+	
+	// Visual settings group box
+	wxStaticBoxSizer *visualBox = new wxStaticBoxSizer(wxVERTICAL, 
+		generalPanel, _T("Visual Settings"));
+	wxBoxSizer *styleSz = new wxBoxSizer(wxHORIZONTAL);
+	wxStaticText *styleLabel = new wxStaticText(generalPanel, -1, _("GUI Style (requires restart): "));
+	styleSz->Add(styleLabel, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 4));
+	wxArrayString choices; choices.Add(guiModeDefault); choices.Add(guiModeSimple);
+	guiStyleDropDown = new wxComboBox(generalPanel, -1, wxEmptyString,
+		wxDefaultPosition, wxDefaultSize, choices, wxCB_DROPDOWN | wxCB_READONLY);
+	styleSz->Add(guiStyleDropDown, wxSizerFlags(1).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 4));
+	visualBox->Add(styleSz, wxSizerFlags(0).Expand());
+	generalBox->Add(visualBox, wxGBPosition(row++, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
 	
 	// Console settings group box
 	wxStaticBoxSizer *consoleBox = new wxStaticBoxSizer(wxVERTICAL, 
@@ -45,7 +64,7 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	autoCloseConsoleCheck = new wxCheckBox(generalPanel, -1,
 		_T("Automatically close console when the game quits."));
 	consoleBox->Add(autoCloseConsoleCheck, 0, wxALL, 4);
-	generalBox->Add(consoleBox, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+	generalBox->Add(consoleBox, wxGBPosition(row++, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
 	
 	// Update settings group box
 	wxStaticBoxSizer *updateBox = new wxStaticBoxSizer(wxVERTICAL,
@@ -56,7 +75,7 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	forceUpdateToggle = new wxToggleButton(generalPanel, -1,
 		_T("Force-update MultiMC"));
 	updateBox->Add(forceUpdateToggle, 0, wxALL, 4);
-	generalBox->Add(updateBox, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+	generalBox->Add(updateBox, wxGBPosition(row++, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
 	
 	// Instance directory group box
 	wxStaticBoxSizer *instDirBox = new wxStaticBoxSizer(wxHORIZONTAL,
@@ -66,13 +85,14 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	wxButton *instDirBrowseButton = new wxButton(generalPanel, 
 		ID_BrowseInstDir, _T("Browse..."));
 	instDirBox->Add(instDirBrowseButton, 0, wxALL, 4);
-	generalBox->Add(instDirBox, wxGBPosition(2, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+	generalBox->Add(instDirBox, wxGBPosition(row++, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
 	
 	generalBox->SetSizeHints(generalPanel);
 	
 	// Advanced tab
 	wxPanel *advancedPanel = new wxPanel(tabCtrl, -1);
 	wxGridBagSizer *advancedBox = new wxGridBagSizer();
+	advancedBox->AddGrowableCol(0, 0);
 	advancedPanel->SetSizer(advancedBox);
 	tabCtrl->AddPage(advancedPanel, _T("Advanced"), false);
 	
@@ -155,7 +175,18 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 
 	s.SetJavaPath(javaPathTextBox->GetValue());
 	
-// 	s.Save();
+	GUIMode newGUIMode;
+	if (guiStyleDropDown->GetValue() == guiModeDefault)
+		newGUIMode = GUI_Default;
+	else if (guiStyleDropDown->GetValue() == guiModeSimple)
+		newGUIMode = GUI_Simple;
+	
+	if (newGUIMode != s.GetGUIMode())
+	{
+		s.SetGUIMode(newGUIMode);
+		wxMessageBox(_("Changing the GUI style requires a restart in order to take effect. Please restart MultiMC."),
+			_("Restart Required"));
+	}
 }
 
 void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
@@ -171,6 +202,17 @@ void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
 	maxMemorySpin->SetValue(s.GetMaxMemAlloc());
 
 	javaPathTextBox->SetValue(s.GetJavaPath());
+	
+	switch (s.GetGUIMode())
+	{
+	case GUI_Simple:
+		guiStyleDropDown->SetValue(guiModeSimple);
+		break;
+		
+	case GUI_Default:
+		guiStyleDropDown->SetValue(guiModeDefault);
+		break;
+	}
 }
 
 void SettingsDialog::OnBrowseInstDirClicked(wxCommandEvent& event)
