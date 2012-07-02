@@ -53,6 +53,9 @@ MainWindow::MainWindow(void)
 		instIcons(32, 32)
 {
 	closeOnTaskEnd = false;
+	editingNotes = false;
+	renamingInst = false;
+	instActionsEnabled = true;
 	
 	SetMinSize(minSize);
 	
@@ -169,11 +172,22 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	const int rows = 3;
 	
 	wxFont titleFont(18, wxSWISS, wxNORMAL, wxNORMAL);
+	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
+	
+	instNameSz = new wxBoxSizer(wxVERTICAL);
+	instSz->Add(instNameSz, wxGBPosition(0, 0), wxGBSpan(1, cols), 
+		wxEXPAND | wxALL, 4);
+	
+	instNameEditor = new wxTextCtrl(instPanel, ID_InstNameEditor, wxEmptyString,
+		wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+	instNameEditor->SetMaxLength(instNameLengthLimit);
+	instNameEditor->SetFont(nameEditFont);
+	instNameSz->Add(instNameEditor, wxSizerFlags(0).Align(wxALIGN_CENTER).Expand());
+	
 	instNameLabel = new wxStaticText(instPanel, -1, _("InstName"), 
 		wxDefaultPosition, wxDefaultSize);
 	instNameLabel->SetFont(titleFont);
-	instSz->Add(instNameLabel, wxGBPosition(0, 0), wxGBSpan(1, cols), 
-		wxALIGN_CENTER_HORIZONTAL | wxALL, 4);
+	instNameSz->Add(instNameLabel, wxSizerFlags(0).Align(wxALIGN_CENTER));
 	
 	
 	instNotesEditor = new wxTextCtrl(instPanel, -1, _("InstNotes"),
@@ -190,8 +204,6 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	instSz->Add(editNotesBtn, wxGBPosition(rows - 1, cols - 2), wxGBSpan(1, 1),
 		wxALL, 4);
 	
-	CancelEditNotes();
-	
 	
 	wxPanel *btnPanel = new wxPanel(instPanel);
 	wxBoxSizer *btnSz = new wxBoxSizer(wxVERTICAL);
@@ -199,20 +211,23 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 		wxALIGN_RIGHT | wxLEFT | wxRIGHT, 8);
 	btnPanel->SetSizer(btnSz);
 	
-	wxButton *btnPlay = new wxButton(btnPanel, ID_Play, _("&Play"));
+	btnPlay = new wxButton(btnPanel, ID_Play, _("&Play"));
 	btnSz->Add(btnPlay, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 	btnSz->AddSpacer(16);
-	wxButton *btnRename = new wxButton(btnPanel, ID_Rename, _("&Rename"));
+	btnRename = new wxButton(btnPanel, ID_Rename, _("&Rename"));
 	btnSz->Add(btnRename, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
-	wxButton *btnChangeIcon = new wxButton(btnPanel, ID_ChangeIcon, _("Change &Icon"));
+	btnChangeIcon = new wxButton(btnPanel, ID_ChangeIcon, _("Change &Icon"));
 	btnSz->Add(btnChangeIcon, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 	btnSz->AddSpacer(16);
-	wxButton *btnEditMods = new wxButton(btnPanel, ID_EditMods, _("Edit &Mods"));
+	btnEditMods = new wxButton(btnPanel, ID_EditMods, _("Edit &Mods"));
 	btnSz->Add(btnEditMods, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
-	wxButton *btnRebuildJar = new wxButton(btnPanel, ID_RebuildJar, _("Re&build Jar"));
+	btnRebuildJar = new wxButton(btnPanel, ID_RebuildJar, _("Re&build Jar"));
 	btnSz->Add(btnRebuildJar, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
-	wxButton *btnViewFolder = new wxButton(btnPanel, ID_ViewInstFolder, _("&View Folder"));
+	btnViewFolder = new wxButton(btnPanel, ID_ViewInstFolder, _("&View Folder"));
 	btnSz->Add(btnViewFolder, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	
+	CancelEditNotes();
+	CancelRename();
 }
 
 void MainWindow::OnPageChanged(wxListbookEvent &event)
@@ -221,6 +236,7 @@ void MainWindow::OnPageChanged(wxListbookEvent &event)
 	
 	instNameLabel->SetLabel(inst->GetName());
 	CancelEditNotes();
+	CancelRename();
 	
 	instPanel->Layout();
 }
@@ -551,13 +567,24 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 
 void MainWindow::OnRenameClicked(wxCommandEvent& event)
 {
-	Instance *inst = GetSelectedInst();
-	wxTextEntryDialog textDlg(this, _("Enter a new name for this instance."), 
-		_("Rename Instance"), inst->GetName());
-	if (textDlg.ShowModal() == wxID_OK)
+	switch (GetGUIMode())
 	{
-		inst->SetName(textDlg.GetValue());
-		LoadInstanceList();
+	case GUI_Default:
+		StartRename();
+		break;
+		
+	case GUI_Simple:
+	{
+		Instance *inst = GetSelectedInst();
+		wxTextEntryDialog textDlg(this, _("Enter a new name for this instance."), 
+			_("Rename Instance"), inst->GetName());
+		if (textDlg.ShowModal() == wxID_OK)
+		{
+			inst->SetName(textDlg.GetValue());
+			LoadInstanceList();
+		}
+		break;
+	}
 	}
 }
 
@@ -609,7 +636,14 @@ void MainWindow::StartEditNotes()
 	editNotesBtn->SetLabel(_("&Done"));
 	cancelEditNotesBtn->Enable(true);
 	instNotesEditor->SetEditable(true);
-	instNotesEditor->Enable(true);
+	instNotesEditor->SetFocus();
+	instNotesEditor->SetInsertionPointEnd();
+	
+	GetStatusBar()->PushStatusText(wxString::Format(_("Editing notes for instance '%s'..."), 
+		GetSelectedInst()->GetName().c_str()), 0);
+	editingNotes = true;
+	
+	DisableInstActions();
 }
 
 void MainWindow::FinishEditNotes()
@@ -623,10 +657,99 @@ void MainWindow::CancelEditNotes()
 	editNotesBtn->SetLabel(_("E&dit"));
 	cancelEditNotesBtn->Enable(false);
 	instNotesEditor->SetEditable(false);
-	instNotesEditor->Enable(false);
+	
+	if (editingNotes)
+	{
+		editingNotes = false;
+		GetStatusBar()->PopStatusText(0);
+	}
 	
 	if (GetSelectedInst() != nullptr)
 		instNotesEditor->SetValue(GetSelectedInst()->GetNotes());
+	
+	EnableInstActions();
+}
+
+
+void MainWindow::StartRename()
+{
+	DisableInstActions();
+	renamingInst = true;
+	
+	GetStatusBar()->PushStatusText(wxString::Format(
+		_("Renaming instance '%s'... (Press enter to finish)"), 
+		GetSelectedInst()->GetName().c_str()), 0);
+	
+	instNameEditor->SetValue(GetSelectedInst()->GetName());
+	
+	instNameLabel->Show(false);
+	instNameSz->Hide(instNameLabel);
+	
+	instNameEditor->Show(true);
+	instNameSz->Show(instNameEditor);
+	instNameEditor->SetFocus();
+	
+	instNameSz->Layout();
+}
+
+void MainWindow::FinishRename()
+{
+	if (!instNameEditor->IsEmpty())
+		GetSelectedInst()->SetName(instNameEditor->GetValue());
+	CancelRename();
+	LoadInstanceList();
+}
+
+void MainWindow::CancelRename()
+{
+	EnableInstActions();
+	
+	if (renamingInst)
+	{
+		renamingInst = false;
+		GetStatusBar()->PopStatusText(0);
+	}
+	
+	instNameEditor->Show(false);
+	instNameSz->Hide(instNameEditor);
+	
+	instNameLabel->Show(true);
+	instNameSz->Show(instNameLabel);
+	
+	instNameSz->Layout();
+	
+	if (GetSelectedInst() != nullptr)
+		instNameLabel->SetLabel(GetSelectedInst()->GetName());
+}
+
+void MainWindow::OnRenameEnterPressed(wxCommandEvent &event)
+{
+	FinishRename();
+}
+
+
+void MainWindow::EnableInstActions(bool enabled)
+{
+	instActionsEnabled = enabled;
+	switch (GetGUIMode())
+	{
+	case GUI_Default:
+		btnPlay->Enable(enabled);
+		btnRename->Enable(enabled);
+		btnChangeIcon->Enable(enabled);
+		btnEditMods->Enable(enabled);
+		btnRebuildJar->Enable(enabled);
+		btnViewFolder->Enable(enabled);
+		break;
+		
+	case GUI_Simple:
+		break;
+	}
+}
+
+void MainWindow::DisableInstActions()
+{
+	EnableInstActions(false);
 }
 
 
@@ -663,7 +786,8 @@ void MainWindow::OnDeleteClicked(wxCommandEvent& event)
 
 void MainWindow::OnInstMenuOpened(wxListEvent& event)
 {
-	PopupMenu(instMenu, event.GetPoint());
+	if (instActionsEnabled)
+		PopupMenu(instMenu, event.GetPoint());
 }
 
 
@@ -744,6 +868,7 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 	return !cancelled;
 }
 
+
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)
 	EVT_TOOL(ID_ViewFolder, MainWindow::OnViewFolderClicked)
@@ -799,4 +924,6 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	
 	EVT_LOGIN_COMPLETE(MainWindow::OnLoginComplete)
 	EVT_CHECK_UPDATE(MainWindow::OnCheckUpdateComplete)
+	
+	EVT_TEXT_ENTER(ID_InstNameEditor, MainWindow::OnRenameEnterPressed)
 END_EVENT_TABLE()

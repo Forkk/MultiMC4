@@ -130,15 +130,36 @@ protected:
 	wxListbook *instListbook;
 	wxPanel *instPanel;
 	wxGridBagSizer *instSz;
-	wxStaticText *instNameLabel;
+	
+	wxButton *btnPlay;
+	wxButton *btnRename;
+	wxButton *btnChangeIcon;
+	wxButton *btnEditMods;
+	wxButton *btnRebuildJar;
+	wxButton *btnViewFolder;
 	
 	wxTextCtrl *instNotesEditor;
 	wxButton *editNotesBtn;
 	wxButton *cancelEditNotesBtn;
 	
+	wxBoxSizer *instNameSz;
+	wxStaticText *instNameLabel;
+	wxTextCtrl *instNameEditor;
+	
 	void StartEditNotes();
 	void FinishEditNotes();
 	void CancelEditNotes();
+	bool editingNotes;
+	
+	void StartRename();
+	void FinishRename();
+	void CancelRename();
+	void OnRenameEnterPressed(wxCommandEvent &event);
+	bool renamingInst;
+	
+	void EnableInstActions(bool enabled = true);
+	void DisableInstActions();
+	bool instActionsEnabled;
 	
 private:
 	void NotImplemented();
@@ -175,5 +196,7 @@ enum
 
 	// Other
 	ID_InstListCtrl,
+	
+	ID_InstNameEditor,
 };
 
