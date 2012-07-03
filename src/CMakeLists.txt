@@ -17,6 +17,13 @@ ELSE ()
 	message(STATUS "Build number not specified. Defaulted to 0.")
 ENDIF ()
 
+IF (DEFINED MultiMC_ARCH)
+	message (STATUS "Architecture is ${MultiMC_ARCH}")
+ELSE()
+	set (MultiMC_ARCH "x86")
+	message (STATUS "Architecture not specified. Defaulted to x86.")
+ENDIF ()
+
 configure_file("${PROJECT_SOURCE_DIR}/config.h.in"
 			   "${PROJECT_BINARY_DIR}/config.h")
 

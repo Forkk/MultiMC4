@@ -18,6 +18,7 @@
 #include "httputils.h"
 #include "apputils.h"
 #include "osutils.h"
+#include "config.h"
 
 #include <boost/property_tree/json_parser.hpp>
 
@@ -63,8 +64,16 @@ void CheckUpdateTask::TaskStart()
 	else if (IS_MAC())
 		osName = _("OSX");
 	
-	wxString dlURL = wxString::Format(_("%s%i/os=%s/artifact/%s"), ciURL.c_str(), 
-		buildNumber, osName.c_str(), dlFileName.c_str());
+#if ARCH == x86
+		wxString arch = _("x86");
+#elif ARCH == x64
+		wxString arch = _("x64");
+#else
+#error Unknown architecture.
+#endif
+	
+	wxString dlURL = wxString::Format(_("%s%i/arch=%s,os=%s/artifact/%s"), ciURL.c_str(), 
+		buildNumber, arch.c_str(), osName.c_str(), dlFileName.c_str());
 	
 	SetProgress(75);
 	OnCheckComplete(buildNumber, dlURL);
