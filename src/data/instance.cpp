@@ -426,7 +426,7 @@ void Instance::LoadModListFromDir(const wxFileName& dir, bool mlMod)
 		do
 		{
 			currentFile = Path::Combine(modDir.GetName(), currentFile);
-			if (wxFileExists(currentFile))
+			if (wxFileExists(currentFile) || mlMod)
 			{
 				Mod mod(currentFile);
 				
