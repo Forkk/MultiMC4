@@ -88,6 +88,8 @@ public:
 	
 	void ShowLoginDlg(wxString errorMsg);
 	
+	void LoadInstanceList(wxFileName instDir = settings.GetInstDir());
+	
 	
 	DECLARE_EVENT_TABLE()
 
@@ -102,8 +104,6 @@ protected:
 
 	InstIconList instIcons;
 	void LoadInstIconList(wxString customIconDirName = _T("icons"));
-
-	void LoadInstanceList(wxFileName instDir = settings.GetInstDir());
 
 	void AddInstance(Instance *inst);
 

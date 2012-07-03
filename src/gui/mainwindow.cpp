@@ -111,9 +111,6 @@ MainWindow::MainWindow(void)
 	// Load instance icons
 	LoadInstIconList();
 	
-	// Load instance list
-	LoadInstanceList();
-	
 	CenterOnScreen();
 }
 
@@ -257,6 +254,8 @@ void MainWindow::LoadInstIconList(wxString customIconDirName)
 
 void MainWindow::LoadInstanceList(wxFileName instDir)
 {
+	GetStatusBar()->PushStatusText(_("Loading instances..."), 0);
+	
 	switch (GetGUIMode())
 	{
 	case GUI_Simple:
@@ -280,6 +279,7 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 	}
 	
 	wxString subFolder;
+	int ctr = 0;
 	bool cont = dir.GetFirst(&subFolder, wxEmptyString, wxDIR_DIRS);
 	while (cont)
 	{
@@ -291,12 +291,20 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 			{
 				AddInstance(inst);
 			}
+			
+			ctr++;
 		}
+		
+		GetStatusBar()->SetStatusText(
+			wxString::Format(_("Loaded %i instances..."), ctr), 0);
+		wxSafeYield();
 		cont = dir.GetNext(&subFolder);
 	}
 	
 	if (GetGUIMode() == GUI_Default)
 		instListbook->SetSelection(0);
+	
+	GetStatusBar()->PopStatusText(0);
 }
 
 void MainWindow::AddInstance(Instance *inst)
