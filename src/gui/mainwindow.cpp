@@ -278,6 +278,7 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		return;
 	}
 	
+	Enable(false);
 	wxString subFolder;
 	int ctr = 0;
 	bool cont = dir.GetFirst(&subFolder, wxEmptyString, wxDIR_DIRS);
@@ -297,9 +298,10 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		
 		GetStatusBar()->SetStatusText(
 			wxString::Format(_("Loaded %i instances..."), ctr), 0);
-		wxSafeYield();
+		wxGetApp().Yield();
 		cont = dir.GetNext(&subFolder);
 	}
+	Enable(true);
 	
 	if (GetGUIMode() == GUI_Default)
 		instListbook->SetSelection(0);
