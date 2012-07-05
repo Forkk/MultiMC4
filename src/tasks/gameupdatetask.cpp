@@ -105,7 +105,7 @@ void GameUpdateTask::LoadJarURLs()
 	
 	wxString mojangURL = _("http://s3.amazonaws.com/MinecraftDownload/");
 	
-	for (int i = 0; i < jarURLs.size() - 1; i++)
+	for (size_t i = 0; i < jarURLs.size() - 1; i++)
 	{
 		wxString url = (mojangURL + jarList[i]);
 		this->jarURLs[i] = url;
@@ -158,7 +158,7 @@ void GameUpdateTask::DownloadJars()
 	bool *skip = new bool[jarURLs.size()];
 	
 	// Compare MD5s and skip ones that match.
-	for (int i = 0; i < jarURLs.size(); i++)
+	for (size_t i = 0; i < jarURLs.size(); i++)
 	{
 		wxString etagOnDisk = wxStr(md5s.get<std::string>(
 			stdStr(wxURL(jarURLs[i]).GetPath()), ""));
@@ -205,7 +205,7 @@ void GameUpdateTask::DownloadJars()
 	
 	// Download jars
 	int totalDownloadedSize = 0;
-	for (int i = 0; i < jarURLs.size(); i++)
+	for (size_t i = 0; i < jarURLs.size(); i++)
 	{
 		// Skip this file because we already have it.
 		if (skip[i])

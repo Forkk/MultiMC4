@@ -107,6 +107,7 @@ bool Instance::Save() const
 // 
 // 	write_ini(stdStr(filename.GetFullPath()).c_str(), pt);
 // 	return true;
+	return false;
 }
 
 bool Instance::Load(bool loadDefaults)
@@ -135,6 +136,7 @@ bool Instance::Load(bool loadDefaults)
 // 	needsRebuild = pt.get<bool>("NeedsRebuild", false);
 // 	askUpdate = pt.get<bool>("AskUpdate", true);
 // 	return true;
+	return false;
 }
 
 wxFileName Instance::GetRootDir() const
@@ -390,7 +392,7 @@ void Instance::LoadModList()
 		}
 	}
 	
-	for (int i = 0; i < modList.size(); i++)
+	for (size_t i = 0; i < modList.size(); i++)
 	{
 		if (!modList[i].GetFileName().FileExists())
 		{
@@ -474,7 +476,7 @@ ModList *Instance::GetModList()
 	return &modList;
 }
 
-void Instance::InsertMod(int index, const wxFileName &source)
+void Instance::InsertMod(size_t index, const wxFileName &source)
 {
 	wxFileName dest(Path::Combine(GetInstModsDir().GetFullPath(), source.GetFullName()));
 	wxCopyFile(source.GetFullPath(), dest.GetFullPath());
@@ -497,7 +499,7 @@ void Instance::InsertMod(int index, const wxFileName &source)
 	SaveModList();
 }
 
-void Instance::DeleteMod(int index)
+void Instance::DeleteMod(size_t index)
 {
 	Mod *mod = &modList[index];
 	if (wxRemoveFile(mod->GetFileName().GetFullPath()))
@@ -512,7 +514,7 @@ void Instance::DeleteMod(int index)
 	}
 }
 
-void Instance::DeleteMLMod(int index)
+void Instance::DeleteMLMod(size_t index)
 {
 	Mod *mod = &mlModList[index];
 	if (wxRemoveFile(mod->GetFileName().GetFullPath()))
@@ -532,7 +534,7 @@ ModList *Instance::GetMLModList()
 
 void Instance::LoadMLModList()
 {
-	for (int i = 0; i < mlModList.size(); i++)
+	for (size_t i = 0; i < mlModList.size(); i++)
 	{
 		if (!mlModList[i].GetFileName().FileExists())
 		{

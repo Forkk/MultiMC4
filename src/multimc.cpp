@@ -61,24 +61,25 @@ bool MultiMC::OnInit()
 
 void MultiMC::OnInitCmdLine(wxCmdLineParser &parser)
 {
-	wxCmdLineEntryDesc updateOption;
-	updateOption.kind = wxCMD_LINE_OPTION;
-	updateOption.type = wxCMD_LINE_VAL_STRING;
-	updateOption.shortName = _("u");
-	updateOption.longName = _("update");
-	updateOption.description = _("Used by the update system. Causes the running executable to replace the given file with itself, run it, and exit.");
-	
-	wxCmdLineEntryDesc descriptions[] = 
+	parser.AddOption(_("u"), _("update"), 
+		_("Used by the update system. Causes the running executable to replace the given file with itself, run it, and exit."),
+		wxCMD_LINE_VAL_STRING);
+
+	int pRetVal = parser.Parse();
+	if (pRetVal == -1)
 	{
-		updateOption
-	};
-	parser.SetDesc(descriptions);
-	parser.Parse();
-	
-	if (parser.Found(_("u")))
+		startNormally = false;
+		return;
+	}
+	else if (pRetVal > 0)
 	{
-		wxString fileToUpdate;
-		parser.Found(_("u"), &fileToUpdate);
+		startNormally = false;
+		return;
+	}
+	
+	wxString fileToUpdate;
+	if (parser.Found(_("u"), &fileToUpdate))
+	{
 		startNormally = false;
 		InstallUpdate(wxFileName(wxStandardPaths::Get().GetExecutablePath()), 
 					  wxFileName(fileToUpdate));

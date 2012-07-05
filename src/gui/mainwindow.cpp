@@ -364,6 +364,9 @@ Instance* MainWindow::GetSelectedInst()
 		if (instListbook->GetPageCount() <= 0)
 			return nullptr;
 		return GetLinkedInst(instListbook->GetSelection());
+
+	default:
+		return nullptr;
 	}
 }
 

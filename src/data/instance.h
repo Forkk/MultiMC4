@@ -94,10 +94,10 @@ public:
 	void LoadMLModList();
 	ModList *GetMLModList();
 	
-	void InsertMod(int index, const wxFileName &source);
-	void DeleteMod(int index);
+	void InsertMod(size_t index, const wxFileName &source);
+	void DeleteMod(size_t index);
 	
-	void DeleteMLMod(int index);
+	void DeleteMLMod(size_t index);
 	
 	template <typename T>
 	T GetSetting(const wxString &key, T defValue) const;

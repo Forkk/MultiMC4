@@ -111,8 +111,9 @@ void InstConsoleWindow::Close()
 
 bool InstConsoleWindow::Show(bool show)
 {
-	wxFrame::Show(show);
+	bool retval = wxFrame::Show(show);
 	instListener.Run();
+	return retval;
 }
 
 
@@ -210,6 +211,8 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 			m_console->AddPendingEvent(event);
 		}
 	}
+
+	return NULL;
 }
 
 void InstConsoleWindow::OnInstOutput(InstOutputEvent& event)

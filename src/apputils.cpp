@@ -59,7 +59,7 @@ int Utils::GetMaxAllowedMemAlloc()
 
 wxString Utils::RemoveInvalidPathChars(wxString path, wxChar replaceWith)
 {
-	for (int i = 0; i < path.Len(); i++)
+	for (size_t i = 0; i < path.Len(); i++)
 	{
 		if (wxFileName::GetForbiddenChars().Contains(path[i]))
 		{

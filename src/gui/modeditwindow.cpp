@@ -172,7 +172,7 @@ wxDragResult ModEditWindow::JarModsDropTarget::OnDragOver(wxCoord x, wxCoord y, 
 		index = m_owner->HitTest(wxPoint(x, y), flags);
 	}
 	
-	def = wxDragResult::wxDragCopy;
+	def = wxDragCopy;
 	if (index != wxNOT_FOUND)
 	{
 		m_owner->SetInsertMark(index);
@@ -209,6 +209,8 @@ bool ModEditWindow::JarModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const w
 		m_inst->InsertMod(index, modFileName);
 		m_owner->UpdateItems();
 	}
+
+	return true;
 }
 
 void ModEditWindow::OnDeleteJarMod()
@@ -312,7 +314,7 @@ ModEditWindow::MLModsDropTarget::MLModsDropTarget(ModEditWindow::ModListCtrl *ow
 
 wxDragResult ModEditWindow::MLModsDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
 {
-	return wxDragResult::wxDragCopy;
+	return wxDragCopy;
 }
 
 bool ModEditWindow::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
@@ -325,6 +327,8 @@ bool ModEditWindow::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wx
 	
 	m_inst->LoadMLModList();
 	m_owner->UpdateItems();
+
+	return true;
 }
 
 void ModEditWindow::OnAddJarMod(wxCommandEvent &event)
@@ -351,7 +355,7 @@ void ModEditWindow::OnMoveJarModUp(wxCommandEvent &event)
 	
 	wxArrayInt indices = jarModList->GetSelectedItems();
 	ModList *mods= m_inst->GetModList();
-	for (int i = 0; i < indices.GetCount(); ++i)
+	for (size_t i = 0; i < indices.GetCount(); ++i)
 	{
 		if (indices[i] == 0)
 			continue;
@@ -374,9 +378,9 @@ void ModEditWindow::OnMoveJarModDown(wxCommandEvent &event)
 	
 	wxArrayInt indices = jarModList->GetSelectedItems();
 	ModList *mods= m_inst->GetModList();
-	for (int i = indices.GetCount() - 1; i >= 0; --i)
+	for (size_t i = indices.GetCount() - 1; i >= 0; --i)
 	{
-		if (indices[i] + 1 >= mods->size())
+		if ((size_t)indices[i] + 1 >= mods->size())
 			continue;
 		
 		Mod mod = mods->at(indices[i]);
