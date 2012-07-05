@@ -1,7 +1,23 @@
 cmake_minimum_required (VERSION 2.8)
 project (MultiMC)
 
-include("${CMAKE_TOOLCHAIN_FILE}")
+IF (DEFINED CMAKE_TOOLCHAIN_FILE)
+	include("${CMAKE_TOOLCHAIN_FILE}")
+ENDIF ()
+
+IF (MSVC)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D CURL_STATICLIB")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D CURL_STATICLIB")
+ELSE ()
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DCURL_STATICLIB")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DCURL_STATICLIB")
+ENDIF ()
+
+IF (WIN32)
+	SET(MULTIMC_ADDITIONAL_LINKS "ws2_32")
+ENDIF ()
 
 # Set the path where CMake will look for modules.
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
@@ -30,12 +46,7 @@ configure_file("${PROJECT_SOURCE_DIR}/config.h.in"
 IF (CMAKE_CROSSCOMPILING)
 	set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS "-Wl,-Bstatic -static-libgcc -static-libstdc++")
 	set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS "-Wl,-Bstatic -static-libgcc -static-libstdc++")
-
-	set(MULTIMC_ADDITIONAL_LINKS "ws2_32")
 ENDIF ()
-
-set(CMAKE_C_FLAGS "-DCURL_STATICLIB")
-set(CMAKE_CXX_FLAGS "-DCURL_STATICLIB")
 
 # Set the sources and headers variables.
 set(SRCS 
@@ -116,7 +127,7 @@ MESSAGE(STATUS "** wxWidgets Configuration: ${wxWidgets_CONFIGURATION}")
 # Find boost.
 set(Boost_USE_STATIC_LIBS ON)
 MESSAGE(STATUS "** Finding Boost...")
-find_package(Boost 1.46.0 REQUIRED)
+find_package(Boost 1.46.0 REQUIRED system exception)
 MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
 MESSAGE(STATUS "** Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
