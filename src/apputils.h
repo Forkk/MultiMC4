@@ -42,16 +42,6 @@
 // Converts str to a char string
 // const char *cStr(const std::string& str);
 
-inline wxString wxStr(const std::string &str)
-{
-	return wxString(str.c_str(), wxConvUTF8);
-}
-
-inline std::string stdStr(const wxString &str)
-{
-	return std::string(str.mb_str());
-}
-
 inline const char* cStr(const std::string& str)
 {
 	return str.c_str();
@@ -59,7 +49,17 @@ inline const char* cStr(const std::string& str)
 
 inline const char* cStr(const wxString& str)
 {
-	return cStr(stdStr(str));
+	return str.mb_str();
+}
+
+inline wxString wxStr(const std::string &str)
+{
+	return wxString(str.c_str(), wxConvUTF8);
+}
+
+inline std::string stdStr(const wxString &str)
+{
+	return std::string(cStr(str));
 }
 
 namespace Utils

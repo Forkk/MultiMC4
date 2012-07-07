@@ -6,6 +6,7 @@
 #include <wx/process.h>
 #include <wx/stdpaths.h>
 #include <wx/fs_arc.h>
+#include <wx/socket.h>
 
 #include "mainwindow.h"
 
@@ -34,6 +35,7 @@ bool MultiMC::OnInit()
 	SetAppName(_("MultiMC"));
 	
 	wxInitAllImageHandlers();
+	wxSocketBase::Initialize();
 	
 	wxMemoryInputStream iconInput(MultiMC32_png, MultiMC32_png_len);
 	AppIcon.CopyFromBitmap(wxBitmap(wxImage(iconInput)));

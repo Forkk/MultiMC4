@@ -63,8 +63,7 @@ void UserInfo::SaveToStream(wxOutputStream &output) const
 	
 	for (size_t i = 0; i < outString.Length(); i++)
 	{
-		// TODO Add better encryption.
-		outString[i] = outString[i] << 1;
+		outString[i] = -outString[i];
 	}
 	
 	wxStringInputStream stringInput(outString);
@@ -79,7 +78,7 @@ void UserInfo::LoadFromStream(wxInputStream &input)
 	
 	for (size_t i = 0; i < inString.Length(); i++)
 	{
-		inString[i] = inString[i] >> 1;
+		inString[i] = -inString[i] >> 1;
 	}
 	
 	if (inString.Length() == 0)

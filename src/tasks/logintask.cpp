@@ -41,8 +41,11 @@ void LoginTask::TaskStart()
 {
 	SetStatus(_("Logging in..."));
 	// Get http://login.minecraft.net/?username=<username>&password=<password>&version=1337
-	wxURL loginURL = _("http://login.minecraft.net/?user=") + m_userInfo.username + 
-		_("&password=") + m_userInfo.password + _("&version=1337");
+	wxURL loginURL = wxString::Format(_("http://login.minecraft.net/?user=%s&password=%s&version=1337"),
+		m_userInfo.username.c_str(), m_userInfo.password.c_str());
+
+	//_("http://login.minecraft.net/?user=") + m_userInfo.username + 
+	//	_("&password=") + m_userInfo.password + _("&version=1337");
 #ifdef CURL_LOGIN
 	char errorBuffer[CURL_ERROR_SIZE];
 	
