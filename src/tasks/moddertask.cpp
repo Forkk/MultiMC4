@@ -39,17 +39,13 @@ void ModderTask::TaskStart()
 	SetStatus(_("Installing mods - backing up minecraft.jar..."));
 	if (!mcBackup.FileExists() && !wxCopyFile(mcJar.GetFullPath(), mcBackup.GetFullPath()))
 	{
-		OnErrorMessage(_("Can't backup minecraft.jar"));
-		Cancel();
-		TestDestroy();
+		OnFail(_("Failed to back up minecraft.jar"));
 		return;
 	}
 	
 	if (mcJar.FileExists() && !wxRemoveFile(mcJar.GetFullPath()))
 	{
-		OnErrorMessage(_("Can't delete old minecraft.jar"));
-		Cancel();
-		TestDestroy();
+		OnFail(_("Failed to delete old minecraft.jar"));
 		return;
 	}
 	
@@ -63,17 +59,13 @@ void ModderTask::TaskStart()
 	
 	if (wxDirExists(mctmpDir) && !RecursiveDelete(mctmpDir))
 	{
-		OnErrorMessage(_("Can't delete old mctmp."));
-		Cancel();
-		TestDestroy();
+		OnFail(_("Failed to delete old mctmp."));
 		return;
 	}
 	
 	if (!wxMkdir(mctmpDir))
 	{
-		OnErrorMessage(_("Can't create mctmp!"));
-		Cancel();
-		TestDestroy();
+		OnFail(_("Failed to create mctmp!"));
 		return;
 	}
 	
@@ -131,3 +123,9 @@ void ModderTask::TaskStep()
 	SetProgress(p);
 }
 
+void ModderTask::OnFail(const wxString &errorMsg)
+{
+	SetStatus(errorMsg);
+	wxSleep(3);
+	OnErrorMessage(errorMsg);
+}

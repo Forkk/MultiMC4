@@ -28,6 +28,8 @@ public:
 protected:
 	Instance *m_inst;
 	
+	void OnFail(const wxString &errorMsg);
+
 	void TaskStep();
 	int step;
 };
