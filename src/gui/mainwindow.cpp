@@ -865,7 +865,7 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 	while (!task.HasEnded())
 	{
 		bool retVal = true;
-		if (task.GetProgress() == 0 || task.GetProgress() == 100)
+		if (task.GetProgress() == 0)
 			retVal = progDialog->Pulse(task.GetStatus());
 		else
 			retVal = progDialog->Update(task.GetProgress(), task.GetStatus());
