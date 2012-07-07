@@ -20,11 +20,12 @@ IMPLEMENT_APP(MultiMC)
 // App
 bool MultiMC::OnInit()
 {
-#if __WXGTK__
+#if __WXGTK__ || defined MSVC
 	// Only works with Linux GCC or MSVC
 	wxHandleFatalExceptions();
 #endif
-	
+
+	updateOnExit = false;
 	startNormally = true;
 	
 	wxApp::OnInit();
