@@ -31,6 +31,7 @@ Task::Task()
 	started = false;
 	endCalled = false;
 	startCalled = false;
+	userCancelled = false;
 }
 
 Task::~Task()
