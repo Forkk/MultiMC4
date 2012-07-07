@@ -127,7 +127,7 @@ MESSAGE(STATUS "** wxWidgets Configuration: ${wxWidgets_CONFIGURATION}")
 # Find boost.
 set(Boost_USE_STATIC_LIBS ON)
 MESSAGE(STATUS "** Finding Boost...")
-find_package(Boost 1.46.0 REQUIRED system exception)
+find_package(Boost 1.46.0 REQUIRED)
 MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
 MESSAGE(STATUS "** Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
