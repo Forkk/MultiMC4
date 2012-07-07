@@ -438,13 +438,19 @@ void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
 
 void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 {
+#ifdef __WXMSW__
+	wxString updaterFileName = _("MultiMCUpdate.exe");
+#else
+	wxString updaterFileName = _("MultiMCUpdate");
+#endif
+
 	if (event.m_latestBuildNumber > AppVersion.GetBuild())
 	{
 		if (wxMessageBox(wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
 				event.m_latestBuildNumber), _("Update Available"), wxYES_NO) == wxYES)
 		{
 			FileDownloadTask dlTask(event.m_downloadURL, 
-				wxFileName(_("MultiMCUpdate")), _("Downloading updates..."));
+				wxFileName(updaterFileName), _("Downloading updates..."));
 			wxGetApp().updateOnExit = true;
 			StartModalTask(dlTask);
 			

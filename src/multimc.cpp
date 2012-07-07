@@ -91,9 +91,9 @@ void MultiMC::OnInitCmdLine(wxCmdLineParser &parser)
 void MultiMC::InstallUpdate(wxFileName thisFile, wxFileName targetFile)
 {
 	// Let the other process exit.
+	printf("Installing updates, please wait...");
 	wxSleep(3);
 	
-	printf("Installing updates...");
 	wxCopyFile(thisFile.GetFullPath(), targetFile.GetFullPath());
 	
 	targetFile.MakeAbsolute();
@@ -105,9 +105,15 @@ void MultiMC::InstallUpdate(wxFileName thisFile, wxFileName targetFile)
 
 int MultiMC::OnExit()
 {
-	if (updateOnExit && wxFileExists(_("MultiMCUpdate")))
+#ifdef __WXMSW__
+	wxString updaterFileName = _("MultiMCUpdate.exe");
+#else
+	wxString updaterFileName = _("MultiMCUpdate");
+#endif
+
+	if (updateOnExit && wxFileExists(updaterFileName))
 	{
-		wxFileName updateFile(Path::Combine(wxGetCwd(), _("MultiMCUpdate")));
+		wxFileName updateFile(Path::Combine(wxGetCwd(), updaterFileName));
 		if (IS_LINUX())
 		{
 			wxExecute(_("chmod +x ") + updateFile.GetFullPath());
@@ -115,6 +121,12 @@ int MultiMC::OnExit()
 		
 		wxProcess proc;
 		wxString launchCmd = updateFile.GetFullPath() + _(" -u:") + wxStandardPaths::Get().GetExecutablePath();
+
+		if (IS_WINDOWS())
+		{
+			launchCmd = wxString::Format(_("cmd /C \"%s\""), launchCmd.c_str());
+		}
+
 		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
 		proc.Detach();
 	}
