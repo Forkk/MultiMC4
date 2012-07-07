@@ -78,7 +78,7 @@ void UserInfo::LoadFromStream(wxInputStream &input)
 	
 	for (size_t i = 0; i < inString.Length(); i++)
 	{
-		inString[i] = -inString[i] >> 1;
+		inString[i] = -inString[i];
 	}
 	
 	if (inString.Length() == 0)
@@ -89,7 +89,7 @@ void UserInfo::LoadFromStream(wxInputStream &input)
 	
 	if (inString.Last('=') != wxString::npos)
 	{
-		password = inString.SubString(inString.Last('=') + 1, wxString::npos);
+		password = inString.Mid(inString.Last('=') + 1);
 		rememberPassword = true;
 	}
 }
