@@ -21,14 +21,16 @@
 ModEditWindow::ModEditWindow(wxWindow *parent, Instance *inst)
 	: wxFrame(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))
 {
+	wxPanel *mainPanel = new wxPanel(this);
+
 	SetTitle(wxString::Format(_("Edit Mods for %s"), inst->GetName().c_str()));
 	
 	m_inst = inst;
 	
 	wxBoxSizer *mainBox = new wxBoxSizer(wxVERTICAL);
-	SetSizer(mainBox);
+	mainPanel->SetSizer(mainBox);
 	
-	wxNotebook *modEditNotebook = new wxNotebook(this, -1);
+	wxNotebook *modEditNotebook = new wxNotebook(mainPanel, -1);
 	mainBox->Add(modEditNotebook, wxSizerFlags(1).Expand().Border(wxALL, 8));
 	
 	wxPanel *jarModPanel = new wxPanel(modEditNotebook, -1);
@@ -82,7 +84,7 @@ ModEditWindow::ModEditWindow(wxWindow *parent, Instance *inst)
 	wxBoxSizer *btnBox = new wxBoxSizer(wxHORIZONTAL);
 	mainBox->Add(btnBox, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT | wxLEFT, 8);
 	
-	wxButton *btnClose = new wxButton(this, wxID_CLOSE, _("&Close"));
+	wxButton *btnClose = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
 	
 	btnBox->Add(btnClose, wxSizerFlags(0).Align(wxALIGN_RIGHT).Border(wxALL, 4));
 	
