@@ -121,7 +121,7 @@ void LoginTask::OnLoginComplete(LoginResult result)
 {
 	SetProgress(100);
 	OnTaskEnd();
-	LoginCompleteEvent event(this, new LoginResult(result));
+	LoginCompleteEvent event(this, new LoginResult(result), m_inst, m_forceUpdate);
 	m_evtHandler->AddPendingEvent(event);
 }
 

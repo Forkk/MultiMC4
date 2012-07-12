@@ -56,14 +56,20 @@ protected:
 
 struct LoginCompleteEvent : TaskEvent
 {
-	LoginCompleteEvent(Task* task, const LoginResult &loginResult) 
-		: TaskEvent(wxEVT_LOGIN_COMPLETE, task) { m_loginResult = LoginResult(loginResult); }
+	LoginCompleteEvent(Task* task, const LoginResult &loginResult, Instance *inst, bool forceUpdate = false) 
+		: TaskEvent(wxEVT_LOGIN_COMPLETE, task)
+	{
+		m_loginResult = LoginResult(loginResult);
+		m_inst = inst;
+	}
 	
 	LoginResult m_loginResult;
+	Instance *m_inst;
+	bool m_forceUpdate;
 	
 	virtual wxEvent *Clone() const
 	{
-		return new LoginCompleteEvent(m_task, m_loginResult);
+		return new LoginCompleteEvent(m_task, m_loginResult, m_inst, m_forceUpdate);
 	}
 };
 

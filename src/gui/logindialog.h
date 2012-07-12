@@ -46,6 +46,7 @@ public:
 	void SetForceUpdate(bool value);
 	
 	DECLARE_EVENT_TABLE()
+
 protected:
 	wxTextCtrl *usernameTextBox;
 	wxTextCtrl *passwordTextBox;
@@ -53,15 +54,17 @@ protected:
 	wxCheckBox *rememberUsernameCheck;
 	wxCheckBox *rememberPasswordCheck;
 	
-	wxButton *loginButton;
-	wxButton *cancelButton;
 	wxButton *playOfflineButton;
 	
 	wxToggleButton *forceUpdateToggle;
+
+	void OnPlayOffline(wxCommandEvent &event);
 };
 
 enum
 {
 	ID_USERNAME_TEXTCTRL = 1,
 	ID_PASSWORD_TEXTCTRL,
+
+	ID_PLAY_OFFLINE,
 };

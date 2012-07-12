@@ -17,11 +17,6 @@
 #include "logindialog.h"
 #include <wx/gbsizer.h>
 
-BEGIN_EVENT_TABLE(LoginDialog, wxDialog)
-	EVT_TEXT_ENTER(ID_USERNAME_TEXTCTRL, LoginDialog::OnUsernameEnter)
-	EVT_TEXT_ENTER(ID_PASSWORD_TEXTCTRL, LoginDialog::OnPasswordEnter)
-END_EVENT_TABLE()
-
 LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info)
 	: wxDialog(parent, -1, _T("Login"), wxDefaultPosition, wxSize(520, 140))
 {
@@ -68,14 +63,19 @@ LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info)
 	rememberUsernameCheck->SetValue(info.rememberUsername);
 	mainBox->Add(rememberUsernameCheck, wxGBPosition(2 + offset, 1), wxGBSpan(1, 1), wxALL, padding);
 	
-	rememberPasswordCheck = new wxCheckBox(this, -1, _T("&Remember password?"));
+	rememberPasswordCheck = new wxCheckBox(this, -1, _T("R&emember password?"));
 	rememberPasswordCheck->SetValue(info.rememberPassword);
 	mainBox->Add(rememberPasswordCheck, wxGBPosition(2 + offset, 2), wxGBSpan(1, 1), wxALL, padding);
 	
+	wxBoxSizer *playOfflineSizer = new wxBoxSizer(wxHORIZONTAL);
+	playOfflineButton = new wxButton(this, ID_PLAY_OFFLINE, _("Play &Offline"));
+	playOfflineSizer->Add(playOfflineButton, 1, wxTOP | wxBOTTOM | wxEXPAND, 8);
+	mainBox->Add(playOfflineSizer, wxGBPosition(3 + offset, 0), wxGBSpan(1, 1), 
+		wxLEFT | wxRIGHT | wxEXPAND, padding);
 	
 	wxSizer *btnBox = CreateButtonSizer(wxOK | wxCANCEL);
-	mainBox->Add(btnBox, wxGBPosition(3 + offset, 0), wxGBSpan(1, cols), 
-				 wxBOTTOM | wxRIGHT | wxALIGN_RIGHT, 8);
+	mainBox->Add(btnBox, wxGBPosition(3 + offset, 1), wxGBSpan(1, cols - 1), 
+		wxRIGHT | wxTOP | wxBOTTOM | wxEXPAND, 8);
 	
 	usernameTextBox->SetFocus();
 	
@@ -161,3 +161,15 @@ bool LoginDialog::ShouldForceUpdate() const
 {
 	return forceUpdateToggle->GetValue();
 }
+
+void LoginDialog::OnPlayOffline(wxCommandEvent &event)
+{
+	EndModal(ID_PLAY_OFFLINE);
+}
+
+BEGIN_EVENT_TABLE(LoginDialog, wxDialog)
+	EVT_TEXT_ENTER(ID_USERNAME_TEXTCTRL, LoginDialog::OnUsernameEnter)
+	EVT_TEXT_ENTER(ID_PASSWORD_TEXTCTRL, LoginDialog::OnPasswordEnter)
+
+	EVT_BUTTON(ID_PLAY_OFFLINE, LoginDialog::OnPlayOffline)
+END_EVENT_TABLE()

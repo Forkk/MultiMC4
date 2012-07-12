@@ -535,46 +535,56 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	LoginDialog loginDialog(this, errorMsg, lastLogin);
 	int response = loginDialog.ShowModal();
 	
-	if (response == wxID_OK)
+	bool playOffline = response == ID_PLAY_OFFLINE;
+	if (response == wxID_OK || playOffline)
 	{
 		UserInfo info(loginDialog);
 		
 		wxFFileOutputStream outStream(_("lastlogin"));
 		info.SaveToStream(outStream);
 		
-		LoginTask *task = new LoginTask(info, GetSelectedInst(), loginDialog.ShouldForceUpdate());
-		StartModalTask(*task, true);
+		if (!playOffline)
+		{
+			LoginTask *task = new LoginTask(info, GetSelectedInst(), loginDialog.ShouldForceUpdate());
+			StartModalTask(*task, true);
+		}
+		else
+		{
+			OnLoginComplete(LoginCompleteEvent(nullptr, 
+				LoginResult(wxString::Format(_(" : :%s:Offline"), info.username)), GetSelectedInst()));
+		}
 	}
 }
 
 void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 {
-	LoginTask *loginTask = (LoginTask*)event.m_task;
 	LoginResult result = event.m_loginResult;
+
 	if (!result.loginFailed)
 	{
 		// Login success
+		Instance *inst = event.m_inst;
+
 		// If the session ID is empty, the game updater will not be run.
-		if (!result.sessionID.empty())
+		if (result.sessionID != _("Offline") && !result.sessionID.IsEmpty() && !result.sessionID.Trim().IsEmpty())
 		{
-			Instance *inst = loginTask->m_inst;
-			GameUpdateTask task(inst, result.latestVersion, _("minecraft.jar"), loginTask->m_forceUpdate);
+			GameUpdateTask task(inst, result.latestVersion, _("minecraft.jar"), event.m_forceUpdate);
 			if (!StartModalTask(task))
 			{
 				return;
 			}
-			
-			if (inst->ShouldRebuild())
-			{
-				ModderTask modTask(inst);
-				StartModalTask(modTask);
-			}
-			
-			Show(false);
-			inst->Launch(result.username, result.sessionID, true);
-			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this);
-			cwin->Show();
 		}
+		
+		if (inst->ShouldRebuild())
+		{
+			ModderTask modTask(inst);
+			StartModalTask(modTask);
+		}
+		
+		Show(false);
+		inst->Launch(result.username, result.sessionID, true);
+		InstConsoleWindow *cwin = new InstConsoleWindow(inst, this);
+		cwin->Show();
 	}
 	else
 	{
