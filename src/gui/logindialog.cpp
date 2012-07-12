@@ -114,7 +114,8 @@ void LoginDialog::OnPasswordEnter(wxCommandEvent& event)
 
 wxString LoginDialog::GetUsername() const
 {
-	return usernameTextBox->GetValue();
+	wxString username = usernameTextBox->GetValue();
+	return username.Left(username.First(':'));
 }
 
 void LoginDialog::SetUsername(wxString& username)
