@@ -550,8 +550,9 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 		}
 		else
 		{
-			OnLoginComplete(LoginCompleteEvent(nullptr, 
-				LoginResult(wxString::Format(_(" : :%s:Offline"), info.username)), GetSelectedInst()));
+			LoginCompleteEvent event(nullptr, LoginResult(wxString::Format(_(" : :%s:Offline"), info.username)), 
+				GetSelectedInst());
+			OnLoginComplete(event);
 		}
 	}
 }
