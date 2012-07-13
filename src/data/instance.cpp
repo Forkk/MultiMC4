@@ -386,7 +386,7 @@ void Instance::LoadModList()
 			if (!Any(modList.begin(), modList.end(), [&modFile] (Mod mod) -> bool
 				{ return mod.GetFileName().SameAs(wxFileName(modFile)); }))
 			{
-				SetNeedsRebuild();
+				//SetNeedsRebuild();
 				modList.push_back(Mod(modFile));
 			}
 		}
@@ -437,7 +437,9 @@ void Instance::LoadModListFromDir(const wxFileName& dir, bool mlMod)
 						return mod.GetFileName().SameAs(wxFileName(currentFile)); 
 					}))
 				{
-					SetNeedsRebuild();
+					if (!mlMod)
+						SetNeedsRebuild();
+
 					list->push_back(mod);
 				}
 			}

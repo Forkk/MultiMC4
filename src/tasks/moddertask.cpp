@@ -109,10 +109,10 @@ void ModderTask::TaskStart()
 		wxFileOutputStream jarOutStream(mcJar.GetFullPath());
 		CompressZipArchive(jarOutStream, mctmpDir);
 	}
+
+	m_inst->SetNeedsRebuild(false);
 	
 	RecursiveDelete(mctmpDir);
-	
-	m_inst->SetNeedsRebuild(false);
 }
 
 
