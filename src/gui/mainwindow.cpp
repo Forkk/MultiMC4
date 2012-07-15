@@ -28,6 +28,7 @@
 #include "moddertask.h"
 #include <checkupdatetask.h>
 #include <filedownloadtask.h>
+#include "filecopytask.h"
 #include "version.h"
 
 #include <wx/filesys.h>
@@ -208,14 +209,18 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 		wxALIGN_RIGHT | wxLEFT | wxRIGHT, 8);
 	btnPanel->SetSizer(btnSz);
 	
+	const int spacerSize = 8;
+
 	btnPlay = new wxButton(btnPanel, ID_Play, _("&Play"));
 	btnSz->Add(btnPlay, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
-	btnSz->AddSpacer(16);
+	btnSz->AddSpacer(spacerSize);
 	btnRename = new wxButton(btnPanel, ID_Rename, _("&Rename"));
 	btnSz->Add(btnRename, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 	btnChangeIcon = new wxButton(btnPanel, ID_ChangeIcon, _("Change &Icon"));
 	btnSz->Add(btnChangeIcon, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
-	btnSz->AddSpacer(16);
+	btnCopyInst = new wxButton(btnPanel, ID_CopyInst, _("Copy Instance"));
+	btnSz->Add(btnCopyInst, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	btnSz->AddSpacer(spacerSize);
 	btnEditMods = new wxButton(btnPanel, ID_EditMods, _("Edit &Mods"));
 	btnSz->Add(btnEditMods, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 	btnRebuildJar = new wxButton(btnPanel, ID_RebuildJar, _("Re&build Jar"));
@@ -370,44 +375,57 @@ Instance* MainWindow::GetSelectedInst()
 	}
 }
 
-
-// Toolbar
-void MainWindow::OnAddInstClicked(wxCommandEvent& event)
+bool MainWindow::GetNewInstName(wxString *instName, wxString *instDirName, const wxString title)
 {
 	wxString newInstName = wxEmptyString;
 Retry:
 	newInstName = wxGetTextFromUser(_T("Instance name:"), 
-		_T("Create new instance"), newInstName, this);
-	
+		title, newInstName, this);
+
 	if (newInstName.empty())
 	{
-		return;
+		return false;
 	}
 	else if (newInstName.Len() > instNameLengthLimit)
 	{
 		wxMessageBox(_T("Sorry, that name is too long."), _T("Error"), wxOK | wxCENTER, this);
 		goto Retry;
 	}
-	
+
 	int num = 0;
 	wxString dirName = Utils::RemoveInvalidPathChars(newInstName);
 	while (wxDirExists(Path::Combine(settings.GetInstDir(), dirName)))
 	{
 		num++;
 		dirName = Utils::RemoveInvalidPathChars(newInstName) + wxString::Format(_("_%i"), num);
-		
+
 		// If it's over 9000
 		if (num > 9000)
 		{
 			wxLogError(_T("Couldn't create instance folder: %s"),
-					   Path::Combine(settings.GetInstDir(), dirName).c_str());
+				Path::Combine(settings.GetInstDir(), dirName).c_str());
 			goto Retry;
 		}
 	}
-	wxFileName instDir = wxFileName::DirName(Path::Combine(settings.GetInstDir(), dirName));
+
+	*instName = newInstName;
+	*instDirName = dirName;
+	return true;
+}
+
+
+// Toolbar
+void MainWindow::OnAddInstClicked(wxCommandEvent& event)
+{
+	wxString instName;
+	wxString instDirName;
+	if (!GetNewInstName(&instName, &instDirName))
+		return;
+
+	wxFileName instDir = wxFileName::DirName(Path::Combine(settings.GetInstDir(), instDirName));
 	
 	Instance *inst = new Instance(instDir);
-	inst->SetName(newInstName);
+	inst->SetName(instName);
 	AddInstance(inst);
 }
 
@@ -627,6 +645,26 @@ void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 		inst->SetIconKey(iconDlg.GetSelectedIconKey());
 		LoadInstanceList();
 	}
+}
+
+void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
+{
+	Instance *srcInst = GetSelectedInst();
+
+	wxString instName;
+	wxString instDirName;
+	if (!GetNewInstName(&instName, &instDirName, _("Copy existing instance")))
+		return;
+
+	instDirName = Path::Combine(settings.GetInstDir(), instDirName);
+
+	wxMkdir(instDirName);
+	FileCopyTask task(srcInst->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));
+	StartModalTask(task);
+
+	Instance *newInst = new Instance(instDirName);
+	newInst->SetName(instName);
+	AddInstance(newInst);
 }
 
 void MainWindow::OnNotesClicked(wxCommandEvent& event)
@@ -930,6 +968,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	
 	EVT_BUTTON(ID_Rename, MainWindow::OnRenameClicked)
 	EVT_BUTTON(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
+	EVT_BUTTON(ID_CopyInst, MainWindow::OnCopyInstClicked)
 	EVT_BUTTON(ID_EditNotes, MainWindow::OnNotesClicked)
 	EVT_BUTTON(ID_Cancel_EditNotes, MainWindow::OnCancelEditNotesClicked)
 	

@@ -70,6 +70,7 @@ tasks/moddertask.cpp
 tasks/gameupdatetask.cpp
 tasks/checkupdatetask.cpp
 tasks/filedownloadtask.cpp
+tasks/filecopytask.cpp
 
 apputils.cpp
 curlutils.cpp
@@ -103,6 +104,7 @@ tasks/moddertask.h
 tasks/gameupdatetask.h
 tasks/checkupdatetask.h
 tasks/filedownloadtask.h
+tasks/filecopytask.h
 
 apputils.h
 curlutils.h

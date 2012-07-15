@@ -55,6 +55,7 @@ public:
 	void OnInstActivated(wxListEvent& event);
 	
 	void OnRenameClicked(wxCommandEvent& event);
+	void OnCopyInstClicked(wxCommandEvent &event);
 	void OnChangeIconClicked(wxCommandEvent& event);
 	void OnNotesClicked(wxCommandEvent& event);
 	void OnCancelEditNotesClicked(wxCommandEvent& event);
@@ -113,6 +114,7 @@ protected:
 
 	std::map<int, Instance*> instItems;
 	
+	bool GetNewInstName(wxString *instName, wxString *instDirName, const wxString title = _("Create new instance"));
 	
 	GUIMode GetGUIMode() const;
 	
@@ -134,6 +136,7 @@ protected:
 	wxButton *btnPlay;
 	wxButton *btnRename;
 	wxButton *btnChangeIcon;
+	wxButton *btnCopyInst;
 	wxButton *btnEditMods;
 	wxButton *btnRebuildJar;
 	wxButton *btnViewFolder;
@@ -183,6 +186,7 @@ enum
 	ID_Play,
 
 	ID_Rename,
+	ID_CopyInst,
 	ID_ChangeIcon,
 	ID_EditNotes,
 	ID_Cancel_EditNotes,

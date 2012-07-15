@@ -124,3 +124,13 @@ bool CompressZipArchive(wxOutputStream &stream, const wxString &srcDir)
 	wxZipOutputStream zipStream(stream);
 	return CompressRecursively(srcDir, zipStream, srcDir);
 }
+
+bool CreateAllDirs(const wxFileName &dir)
+{
+	if (!wxDirExists(Path::GetParent(dir.GetFullPath())))
+	{
+		if (!CreateAllDirs(Path::GetParent(dir.GetFullPath())))
+			return false;
+	}
+	return wxMkdir(dir.GetFullPath());
+}

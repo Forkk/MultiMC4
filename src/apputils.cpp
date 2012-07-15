@@ -79,6 +79,14 @@ wxString Path::Combine(const wxString& path, const wxString& str)
 	return wxFileName(path, str).GetFullPath();
 }
 
+wxString Path::GetParent(const wxString &path)
+{
+	wxFileName pathName = wxFileName::DirName(path);
+	pathName.AppendDir(_(".."));
+	pathName.Normalize();
+	return pathName.GetFullPath();
+}
+
 wxString Utils::BytesToString(unsigned char *bytes)
 {
 	char asciihash[33];

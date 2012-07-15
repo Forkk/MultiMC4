@@ -83,4 +83,6 @@ namespace Path
 {
 	wxString Combine(const wxString& path, const wxString& str);
 	wxString Combine(const wxFileName& path, const wxString& str);
+
+	wxString GetParent(const wxString &path);
 }
