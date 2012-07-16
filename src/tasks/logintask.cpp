@@ -128,6 +128,7 @@ void LoginTask::OnLoginComplete(LoginResult result)
 LoginResult::LoginResult(wxString loginResponse)
 {
 	loginFailed = false;
+	playOffline = false;
 	errorMessage = wxEmptyString;
 	
 	latestVersion = wxEmptyString;
@@ -158,12 +159,33 @@ LoginResult::LoginResult(wxString loginResponse)
 	}
 }
 
+LoginResult::LoginResult(const wxString username, 
+						 const wxString sessionID, 
+						 const wxString downloadTicket, 
+						 const wxString latestVersion,
+						 bool loginFailed,
+						 bool playOffline)
+{
+	this->username = username;
+	this->sessionID = sessionID;
+	this->downloadTicket = downloadTicket;
+	this->latestVersion = latestVersion;
+	this->loginFailed = loginFailed;
+	this->playOffline = playOffline;
+}
+
 LoginResult::LoginResult(const LoginResult *result)
 {
 	this->downloadTicket = result->downloadTicket;
 	this->latestVersion = result->latestVersion;
 	this->errorMessage = result->errorMessage;
+	this->playOffline = result->playOffline;
 	this->loginFailed = result->loginFailed;
 	this->sessionID = result->sessionID;
 	this->username = result->username;
+}
+
+LoginResult LoginResult::PlayOffline(const wxString username)
+{
+	return LoginResult(username, wxEmptyString, wxEmptyString, wxEmptyString, false, true);
 }

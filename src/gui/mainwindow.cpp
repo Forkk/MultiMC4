@@ -568,8 +568,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 		}
 		else
 		{
-			LoginCompleteEvent event(nullptr, LoginResult(wxString::Format(_(" : :%s:Offline"), info.username.c_str())), 
-				GetSelectedInst());
+			LoginCompleteEvent event(nullptr, LoginResult::PlayOffline(info.username), GetSelectedInst());
 			OnLoginComplete(event);
 		}
 	}
@@ -585,7 +584,8 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 		Instance *inst = event.m_inst;
 
 		// If the session ID is empty, the game updater will not be run.
-		if (result.sessionID != _("Offline") && !result.sessionID.IsEmpty() && !result.sessionID.Trim().IsEmpty())
+		if (!result.playOffline && !result.sessionID.IsEmpty() && 
+			!result.sessionID.Trim().IsEmpty() && result.sessionID != _("Offline"))
 		{
 			GameUpdateTask task(inst, result.latestVersion, _("minecraft.jar"), event.m_forceUpdate);
 			if (!StartModalTask(task))

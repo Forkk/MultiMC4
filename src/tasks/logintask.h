@@ -27,9 +27,18 @@ DECLARE_EVENT_TYPE(wxEVT_LOGIN_COMPLETE, -1)
 struct LoginResult
 {
 	LoginResult(wxString loginResponse = wxEmptyString);
+	LoginResult(const wxString username, 
+				const wxString sessionID, 
+				const wxString downloadTicket, 
+				const wxString latestVersion,
+				bool loginFailed = false,
+				bool playOffline = false);
 	LoginResult(const LoginResult *result);
+
+	static LoginResult PlayOffline(const wxString username);
 	
 	bool loginFailed;
+	bool playOffline;
 	wxString errorMessage;
 	
 	wxString username;
@@ -61,6 +70,7 @@ struct LoginCompleteEvent : TaskEvent
 	{
 		m_loginResult = LoginResult(loginResult);
 		m_inst = inst;
+		m_forceUpdate = forceUpdate;
 	}
 	
 	LoginResult m_loginResult;
