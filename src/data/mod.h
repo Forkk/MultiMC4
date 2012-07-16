@@ -32,6 +32,8 @@ public:
 	
 	// True if this mod is a zip file.
 	bool IsZipMod() const;
+
+	bool operator ==(const Mod &other) const;
 	
 protected:
 	wxFileName modFile;

@@ -55,3 +55,8 @@ bool Mod::IsZipMod() const
 {
 	return GetFileName().GetExt() == _("zip") || GetFileName().GetExt() == _("jar");
 }
+
+bool Mod::operator ==(const Mod &other) const
+{
+	return GetFileName().SameAs(other.GetFileName());
+}

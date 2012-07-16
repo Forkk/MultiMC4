@@ -432,10 +432,8 @@ void Instance::LoadModListFromDir(const wxFileName& dir, bool mlMod)
 			{
 				Mod mod(currentFile);
 				
-				if (!Any(list->begin(), list->end(), [&currentFile] (Mod mod) -> bool
-					{
-						return mod.GetFileName().SameAs(wxFileName(currentFile)); 
-					}))
+				if (mlMod || !Any(list->begin(), list->end(), [&currentFile] (Mod mod) -> bool
+					{ return mod.GetFileName().SameAs(wxFileName(currentFile)); }))
 				{
 					if (!mlMod)
 						SetNeedsRebuild();
