@@ -288,15 +288,21 @@ void ModEditWindow::ModListCtrl::DrawInsertMark(int index)
 	wxWindow *listMainWin = (wxWindow*)this->m_mainWin;
 #endif
 	
+#ifdef WIN32
+	int offsetY = 3;
+#else
+	int offsetY = -listMainWin->GetPosition().y;
+#endif
+
 	int lineY = 0;
 	wxRect itemRect;
 	this->GetItemRect(index, itemRect);
-	lineY = itemRect.GetTop() - listMainWin->GetPosition().y;
+	lineY = itemRect.GetTop() + offsetY;
 	
 	if (index == GetItemCount() && GetItemCount() > 0)
 	{
 		this->GetItemRect(index - 1, itemRect);
-		lineY = itemRect.GetBottom() - listMainWin->GetPosition().y;
+		lineY = itemRect.GetBottom() + offsetY;
 	}
 	
 	wxWindowDC dc(listMainWin);
