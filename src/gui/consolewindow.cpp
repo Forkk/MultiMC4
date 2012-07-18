@@ -28,6 +28,7 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	  instListener(inst, this)
 {
 	m_closeAllowed = false;
+	instListenerStarted = false;
 	m_mainWin = mainWin;
 	m_inst = inst;
 	inst->SetEvtHandler(this);
@@ -112,8 +113,14 @@ void InstConsoleWindow::Close()
 bool InstConsoleWindow::Show(bool show)
 {
 	bool retval = wxFrame::Show(show);
-	instListener.Run();
+	if (!instListenerStarted)
+		instListener.Run();
 	return retval;
+}
+
+bool InstConsoleWindow::Start()
+{
+	return Show(settings.GetShowConsole());
 }
 
 

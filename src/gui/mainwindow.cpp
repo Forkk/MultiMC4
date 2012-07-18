@@ -603,7 +603,7 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 		Show(false);
 		inst->Launch(result.username, result.sessionID, true);
 		InstConsoleWindow *cwin = new InstConsoleWindow(inst, this);
-		cwin->Show();
+		cwin->Start();
 	}
 	else
 	{

@@ -27,6 +27,7 @@ public:
 	virtual ~InstConsoleWindow();
 	
 	virtual bool Show(bool show = true);
+	bool Start();
 	
 	Instance *GetInstance();
 	void StopListening();
@@ -84,6 +85,7 @@ protected:
 	void Close();
 	
 	bool m_closeAllowed;
+	bool instListenerStarted;
 	
 	DECLARE_EVENT_TABLE()
 };
