@@ -479,7 +479,11 @@ ModList *Instance::GetModList()
 void Instance::InsertMod(size_t index, const wxFileName &source)
 {
 	wxFileName dest(Path::Combine(GetInstModsDir().GetFullPath(), source.GetFullName()));
-	wxCopyFile(source.GetFullPath(), dest.GetFullPath());
+	if (!source.SameAs(dest))
+	{
+		wxCopyFile(source.GetFullPath(), dest.GetFullPath());
+	}
+
 	dest.MakeRelativeTo();
 	SetNeedsRebuild();
 	
