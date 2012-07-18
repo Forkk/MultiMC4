@@ -102,6 +102,8 @@ void ModEditWindow::LoadJarMods()
 void ModEditWindow::ModListCtrl::UpdateItems()
 {
 	SetItemCount(GetModList()->size());
+	Refresh();
+	Update();
 }
 
 void ModEditWindow::LoadMLMods()
