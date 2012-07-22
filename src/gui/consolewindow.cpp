@@ -163,11 +163,7 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 	int instPid = instProc->GetPid();
 	
 	wxInputStream *consoleStream = instProc->GetInputStream();
-	wxInputStream *errorStream = instProc->GetErrorStream();
 	wxString outputBuffer;
-	
-	bool readConsole = false;
-	bool readError = false;
 	
 	const size_t bufSize = 1024;
 	char *buffer = new char[bufSize];
@@ -175,34 +171,15 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 	size_t readSize = 0;
 	while (m_inst->IsRunning() && !TestDestroy() && wxProcess::Exists(instPid))
 	{
-		readConsole = consoleStream->CanRead();
-		readError = errorStream->CanRead();
-		
 		if (TestDestroy())
 			break;
 		
-		if (!readConsole && !readError)
-		{
-			wxMicroSleep(100);
-			continue;
-		}
-		
-		// Read from input / error
+		// Read from input
 		wxString temp;
 		wxStringOutputStream tempStream(&temp);
 		
-		if (readConsole)
-		{
-			consoleStream->Read(buffer, bufSize);
-			readSize = consoleStream->LastRead();
-		}
-		else if (readError)
-		{
-			errorStream->Read(buffer, bufSize);
-			readSize = errorStream->LastRead();
-		}
-		else
-			continue;
+		consoleStream->Read(buffer, bufSize);
+		readSize = consoleStream->LastRead();
 		
 		tempStream.Write(buffer, readSize);
 		outputBuffer.Append(temp);
