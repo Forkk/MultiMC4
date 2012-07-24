@@ -41,7 +41,7 @@ void LoginTask::TaskStart()
 {
 	SetStatus(_("Logging in..."));
 	// Get http://login.minecraft.net/?username=<username>&password=<password>&version=1337
-	wxURL loginURL = wxString::Format(_("http://login.minecraft.net/?user=%s&password=%s&version=1337"),
+	wxURL loginURL = wxString::Format(_("https://login.minecraft.net/?user=%s&password=%s&version=1337"),
 		m_userInfo.username.c_str(), m_userInfo.password.c_str());
 
 	//_("http://login.minecraft.net/?user=") + m_userInfo.username + 
@@ -51,6 +51,7 @@ void LoginTask::TaskStart()
 	
 	CURL *curl = curl_easy_init();
 	curl_easy_setopt(curl, CURLOPT_URL, loginURL.GetURL().ToAscii().data());
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L); // HACK: do not verify the cert
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, &errorBuffer);
 	
