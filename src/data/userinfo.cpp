@@ -78,8 +78,8 @@ void UserInfo::LoadFromStream(wxInputStream &input)
 	
 	for (size_t i = 0; i < inString.Length(); i++)
 	{
-		// the short here is a HACK to make it work with 64bit builds.
-		// wxString uses UTF-16 internally, but on 64bit, wchar_t is bigger, making the kind of nasty crap
+		// the short here is a HACK to make it work with linux builds.
+		// wxString uses UTF-16 internally, but on linux, wchar_t is bigger, making the kind of nasty crap
 		// this code does to strings not break the strings (unused, bad numbers are trimmed away)
 		inString[i] = short(-inString[i]);
 	}
