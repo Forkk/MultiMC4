@@ -188,7 +188,7 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		size_t newlinePos;
 		while ((newlinePos = outputBuffer.First('\n')) != wxString::npos)
 		{
-			wxString line = outputBuffer.Left(newlinePos - 1);
+			wxString line = outputBuffer.Left(newlinePos);
 			outputBuffer = outputBuffer.Mid(newlinePos + 1);
 			
 			InstOutputEvent event(m_inst, line);
