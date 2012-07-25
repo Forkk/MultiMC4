@@ -538,14 +538,15 @@ ModList *Instance::GetMLModList()
 
 void Instance::LoadMLModList()
 {
-	for (size_t i = 0; i < mlModList.size(); i++)
-	{
-		if (!mlModList[i].GetFileName().FileExists())
-		{
-			mlModList.erase(mlModList.begin() + i);
-			i--;
-		}
-	}
+	mlModList.clear();
+	//for (size_t i = 0; i < mlModList.size(); i++)
+	//{
+	//	if (!mlModList[i].GetFileName().FileExists())
+	//	{
+	//		mlModList.erase(mlModList.begin() + i);
+	//		i--;
+	//	}
+	//}
 	
 	LoadModListFromDir(GetMLModsDir(), true);
 }
