@@ -120,6 +120,15 @@ MainWindow::~MainWindow(void)
 	
 }
 
+void MainWindow::OnStartup()
+{
+	if (settings.GetAutoUpdate())
+	{
+		CheckUpdateTask *task = new CheckUpdateTask();
+		StartTask(*task);
+	}
+}
+
 GUIMode MainWindow::GetGUIMode() const
 {
 	if (instListCtrl == nullptr)

@@ -38,6 +38,8 @@ public:
 	MainWindow(void);
 	~MainWindow(void);
 
+	void OnStartup();
+
 	// Toolbar
 	void OnAddInstClicked(wxCommandEvent& event);
 	void OnViewFolderClicked(wxCommandEvent& event);
