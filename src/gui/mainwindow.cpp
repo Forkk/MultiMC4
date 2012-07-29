@@ -232,15 +232,25 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	CancelRename();
 }
 
+void MainWindow::UpdateInstPanel()
+{
+	bool showInstPanel = instListbook->GetPageCount() > 0;
+	instPanel->Show(showInstPanel);
+	if (showInstPanel)
+	{
+		Instance *inst = GetSelectedInst();
+
+		instNameLabel->SetLabel(inst->GetName());
+		CancelEditNotes();
+		CancelRename();
+
+		instPanel->Layout();
+	}
+}
+
 void MainWindow::OnPageChanged(wxListbookEvent &event)
 {
-	Instance *inst = instItems[event.GetSelection()];
-	
-	instNameLabel->SetLabel(inst->GetName());
-	CancelEditNotes();
-	CancelRename();
-	
-	instPanel->Layout();
+	UpdateInstPanel();
 }
 
 void MainWindow::LoadInstIconList(wxString customIconDirName)
@@ -309,7 +319,10 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 	Enable(true);
 	
 	if (GetGUIMode() == GUI_Default)
+	{
 		instListbook->SetSelection(0);
+		UpdateInstPanel();
+	}
 	
 	GetStatusBar()->PopStatusText(0);
 }

@@ -128,6 +128,8 @@ protected:
 	void InitAdvancedGUI(wxBoxSizer *mainSz);
 	
 	void OnPageChanged(wxListbookEvent &event);
+
+	void UpdateInstPanel();
 	
 	wxListbook *instListbook;
 	wxPanel *instPanel;
