@@ -20,6 +20,12 @@
 #include <wx/fs_mem.h>
 #include <apputils.h>
 
+#if MSVC
+#include <memory>
+#else
+#include <auto_ptr.h>
+#endif
+
 ModderTask::ModderTask(Instance* inst)
 	: Task()
 {
