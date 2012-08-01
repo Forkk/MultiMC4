@@ -958,6 +958,11 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 	return !cancelled;
 }
 
+void MainWindow::OnWindowClosed(wxCloseEvent& event)
+{
+	wxTheApp->Exit();
+}
+
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)
@@ -1017,4 +1022,6 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_CHECK_UPDATE(MainWindow::OnCheckUpdateComplete)
 	
 	EVT_TEXT_ENTER(ID_InstNameEditor, MainWindow::OnRenameEnterPressed)
+
+	EVT_CLOSE(MainWindow::OnWindowClosed)
 END_EVENT_TABLE()

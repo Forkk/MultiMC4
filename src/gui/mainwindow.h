@@ -83,6 +83,7 @@ public:
 	
 	// Other events
 	void OnInstMenuOpened(wxListEvent& event);
+	void OnWindowClosed(wxCloseEvent& event);
 	
 	
 	// Other methods
