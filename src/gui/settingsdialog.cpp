@@ -16,6 +16,7 @@
 
 #include "settingsdialog.h"
 #include <wx/gbsizer.h>
+#include <wx/dir.h>
 #include <apputils.h>
 
 const wxString guiModeDefault = _("Default");
@@ -153,20 +154,36 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 	{
 		wxFileName oldInstDir = s.GetInstDir();
 		
-		int response = wxMessageBox(_T("You've changed your instance \
-			directory, would you like to transfer all of your instances?"),
+		int response = wxMessageBox(
+			_T("You've changed your instance directory, would you like to transfer all of your instances?"),
 			_T("Instance directory changed."), 
 			wxYES | wxNO | wxCANCEL | wxCENTER, this);
 		
 	RetryTransfer:
-		if (response != wxID_CANCEL)
+		if (response != wxCANCEL)
 		{
 			s.SetInstDir(newInstDir);
 		}
 		
-		if (response == wxID_YES)
+		if (response == wxYES)
 		{
-			// TODO Move all instances to new instance directory
+			wxDir instDir(oldInstDir.GetFullPath());
+
+			wxString oldDirName;
+			if (instDir.GetFirst(&oldDirName))
+			{
+				do 
+				{
+					oldDirName = Path::Combine(oldInstDir, oldDirName);
+					wxFileName newDirName(oldDirName);
+					newDirName.MakeRelativeTo(oldInstDir.GetFullPath());
+					newDirName.Normalize(wxPATH_NORM_ALL, newInstDir.GetFullPath());
+					if (!wxRenameFile(oldDirName, newDirName.GetFullPath(), false))
+					{
+						wxLogError(_("Failed to move instance folder %s."), oldDirName.c_str());
+					}
+				} while (instDir.GetNext(&oldDirName));
+			}
 		}
 	}
 
