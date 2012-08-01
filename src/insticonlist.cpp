@@ -86,7 +86,16 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 
 int InstIconList::Add(const wxImage image, const wxString key)
 {
-	return indexMap[key] = imageList.Add(image);
+	if (image.GetWidth() != 32 || image.GetHeight() != 32)
+	{
+		wxImage newImg(image);
+		newImg.Rescale(32, 32);
+		return indexMap[key] = imageList.Add(newImg);
+	}
+	else
+	{
+		return indexMap[key] = imageList.Add(image);
+	}
 }
 
 int InstIconList::operator [](wxString key)
