@@ -89,6 +89,22 @@ void ExtractZipArchive(wxInputStream &stream, const wxString &dest)
 	}
 }
 
+void TransferZipArchive(wxInputStream &stream, wxZipOutputStream &out)
+{
+	wxZipInputStream zipStream(stream);
+	std::auto_ptr<wxZipEntry> entry;
+	while (entry.reset(zipStream.GetNextEntry()), entry.get() != NULL)
+	{
+		if (entry->IsDir())
+			continue;
+
+		wxString name = entry->GetName();
+
+		out.PutNextEntry(name);
+		out.Write(zipStream);
+	}
+}
+
 bool CompressRecursively(const wxString &path, wxZipOutputStream &zipStream, const wxString &topDir)
 {
 	wxFileName destPath(path);

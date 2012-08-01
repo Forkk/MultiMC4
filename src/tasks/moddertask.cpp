@@ -53,26 +53,20 @@ void ModderTask::TaskStart()
 	if (TestDestroy())
 		return;
 	TaskStep(); // STEP 1
-	SetStatus(_("Installing mods - Extracting minecraft.jar"));
-	
-	wxString mctmpDir = Path::Combine(mcBin, _("mctmp"));
-	
-	if (wxDirExists(mctmpDir) && !RecursiveDelete(mctmpDir))
+	SetStatus(_("Installing mods - Opening minecraft.jar"));
+
+	wxFFileOutputStream jarStream(mcJar.GetFullPath());
+	wxZipOutputStream zipOut(jarStream);
+
 	{
-		OnFail(_("Failed to delete old mctmp."));
-		return;
-	}
-	
-	if (!wxMkdir(mctmpDir))
-	{
-		OnFail(_("Failed to create mctmp!"));
-		return;
-	}
-	
-	// Extract the jar
-	{
-		wxFileInputStream jarStream(mcBackup.GetFullPath());
-		ExtractZipArchive(jarStream, mctmpDir);
+		wxFFileInputStream inStream(mcBackup.GetFullPath());
+		wxZipInputStream zipIn(inStream);
+		
+		std::auto_ptr<wxZipEntry> entry;
+		while (entry.reset(zipIn.GetNextEntry()), entry.get() != NULL)
+			if (!entry->GetName().Matches(_("META-INF*")))
+				if (!zipOut.CopyEntry(entry.release(), zipIn))
+					break;
 	}
 	
 	// Modify the jar
@@ -84,35 +78,25 @@ void ModderTask::TaskStart()
 		SetStatus(_("Installing mods - Adding ") + modFileName.GetFullName());
 		if (iter->IsZipMod())
 		{
-			wxFileInputStream modStream(modFileName.GetFullPath());
-			ExtractZipArchive(modStream, mctmpDir);
+			wxFFileInputStream modStream(modFileName.GetFullPath());
+			TransferZipArchive(modStream, zipOut);
 		}
 		else
 		{
 			wxFileName destFileName = modFileName;
 			destFileName.MakeRelativeTo(m_inst->GetInstModsDir().GetFullPath());
-			destFileName.Normalize(wxPATH_NORM_ALL, mctmpDir);
-			destFileName.MakeRelativeTo();
-			wxCopyFile(modFileName.GetFullPath(), destFileName.GetFullPath());
+
+			wxFFileInputStream input(modFileName.GetFullPath());
+			zipOut.PutNextEntry(destFileName.GetFullPath());
+			zipOut.Write(input);
 		}
-	}
-	
-	if (wxDirExists(Path::Combine(mctmpDir, _("META-INF"))))
-	{
-		RecursiveDelete(Path::Combine(mctmpDir, _("META-INF")));
 	}
 	
 	// Recompress the jar
 	TaskStep(); // STEP 3
 	SetStatus(_("Installing mods - Recompressing jar..."));
-	{
-		wxFileOutputStream jarOutStream(mcJar.GetFullPath());
-		CompressZipArchive(jarOutStream, mctmpDir);
-	}
 
 	m_inst->SetNeedsRebuild(false);
-	
-	RecursiveDelete(mctmpDir);
 }
 
 
