@@ -18,6 +18,11 @@
 
 #include "insticons.h"
 
+#include "apputils.h"
+
+#include <wx/filename.h>
+#include <wx/dir.h>
+
 struct InstIconDef
 {
 	InstIconDef(wxString key, wxImage image)
@@ -56,26 +61,27 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		Add(builtInIcons[i].image, builtInIcons[i].key);
 	}
 
-//	namespace fs = boost::filesystem;
-//
-//	fs::path iconDir(customIconDirName.c_str());
-//	fs::directory_iterator endIter;
-//	
-//	if (fs::exists(iconDir) && fs::is_directory(iconDir))
-//	{
-//		for (fs::directory_iterator iter(iconDir); iter != endIter; iter++)
-//		{
-//			if (fs::is_regular_file(iter->status()))
-//			{
-//				wxImage *image = new wxImage(iter->path().string());
-//
-//				wxString iconKey = iter->path().filename().replace_extension("").c_str();
-//				(*indexMap)[iconKey] = imageList->Add(*image);
-//
-//				delete image;
-//			}
-//		}
-//	}
+	if (wxDirExists(customIconDirName))
+	{
+		wxDir customIconDir(customIconDirName);
+
+		if (!customIconDir.IsOpened())
+			return;
+
+		wxString iconFile;
+		
+		if (customIconDir.GetFirst(&iconFile))
+		{
+			do 
+			{
+				wxFileName iconFileName(Path::Combine(customIconDirName, iconFile));
+				wxImage image(iconFileName.GetFullPath());
+
+				wxString iconKey = iconFileName.GetName();
+				Add(image, iconKey);
+			} while (customIconDir.GetNext(&iconFile));
+		}
+	}
 }
 
 int InstIconList::Add(const wxImage image, const wxString key)
