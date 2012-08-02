@@ -303,6 +303,7 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 	ExtractLauncher();
 	
 	wxString javaPath = settings.GetJavaPath();
+	wxString additionalArgs = settings.GetJvmArgs();
 	int xms = settings.GetMinMemAlloc();
 	int xmx = settings.GetMaxMemAlloc();
 	wxFileName mcDirFN = GetMCDir().GetFullPath();
@@ -316,8 +317,8 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 	wdArg.Replace(_("\\"), _("\\\\"));
 // 	}
 	
-	wxString launchCmd = wxString::Format(_("\"%s\" -Xmx%im -Xms%im -cp \"%s\" MultiMCLauncher \"%s\" \"%s\" \"%s\""),
-		javaPath.c_str(), xmx, xms, wdArg.c_str(), mcDir.c_str(), username.c_str(), sessionID.c_str());
+	wxString launchCmd = wxString::Format(_("\"%s\" %s -Xmx%im -Xms%im -cp \"%s\" MultiMCLauncher \"%s\" \"%s\" \"%s\""),
+		javaPath.c_str(), additionalArgs.c_str(), xmx, xms, wdArg.c_str(), mcDir.c_str(), username.c_str(), sessionID.c_str());
 	m_lastLaunchCommand = launchCmd;
 	
 	instProc = new wxProcess(this);

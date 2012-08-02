@@ -129,6 +129,13 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	javaPathBox->Add(javaPathTextBox, 1, wxALL | wxEXPAND, 4);
 	advancedBox->Add(javaPathBox, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
 	
+	// JVM Arguments
+	wxStaticBoxSizer *jvmArgsBox = new wxStaticBoxSizer(wxHORIZONTAL,
+		advancedPanel, _T("Additional JVM Arguments"));
+	jvmArgsTextBox = new wxTextCtrl(advancedPanel, -1);
+	jvmArgsBox->Add(jvmArgsTextBox, 1, wxALL | wxEXPAND, 4);
+	advancedBox->Add(jvmArgsBox, wxGBPosition(2, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+	
 	
 	// Buttons
 	wxSizer *btnBox = CreateButtonSizer(wxOK | wxCANCEL);
@@ -191,6 +198,7 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 	s.SetMaxMemAlloc(maxMemorySpin->GetValue());
 
 	s.SetJavaPath(javaPathTextBox->GetValue());
+	s.SetJvmArgs(jvmArgsTextBox->GetValue());
 	
 	GUIMode newGUIMode;
 	if (guiStyleDropDown->GetValue() == guiModeDefault)
@@ -219,6 +227,7 @@ void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
 	maxMemorySpin->SetValue(s.GetMaxMemAlloc());
 
 	javaPathTextBox->SetValue(s.GetJavaPath());
+	jvmArgsTextBox->SetValue(s.GetJvmArgs());
 	
 	switch (s.GetGUIMode())
 	{

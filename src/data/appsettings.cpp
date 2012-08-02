@@ -81,6 +81,17 @@ void AppSettings::SetJavaPath(wxString value)
 }
 
 
+void AppSettings::SetJvmArgs(wxString value)
+{
+	SetSetting<wxString>(_("JvmArgs"), value);
+}
+
+wxString AppSettings::GetJvmArgs() const
+{
+	return GetSetting<wxString>(_("JvmArgs"), wxEmptyString);
+}
+
+
 wxFileName AppSettings::GetModsDir() const
 {
 	return GetSetting(_("ModsDir"), wxFileName::DirName(_("mods")));

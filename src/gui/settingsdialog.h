@@ -49,6 +49,7 @@ protected:
 	wxSpinCtrl *maxMemorySpin;
 	
 	wxTextCtrl *javaPathTextBox;
+	wxTextCtrl *jvmArgsTextBox;
 	
 	wxComboBox *guiStyleDropDown;
 	
