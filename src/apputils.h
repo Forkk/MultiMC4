@@ -86,3 +86,5 @@ namespace Path
 
 	wxString GetParent(const wxString &path);
 }
+
+wxString FindJavaPath(const wxString& def = _("java"));

@@ -127,6 +127,8 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 		advancedPanel, _T("Java path"));
 	javaPathTextBox = new wxTextCtrl(advancedPanel, -1);
 	javaPathBox->Add(javaPathTextBox, 1, wxALL | wxEXPAND, 4);
+	wxButton *autoDetectButton = new wxButton(advancedPanel, ID_DetectJavaPath, _("Auto-detect"));
+	javaPathBox->Add(autoDetectButton, 0, wxALL | wxEXPAND, 4);
 	advancedBox->Add(javaPathBox, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
 	
 	// JVM Arguments
@@ -249,7 +251,14 @@ void SettingsDialog::OnBrowseInstDirClicked(wxCommandEvent& event)
 		instDirTextBox->ChangeValue(dirDlg->GetPath());
 }
 
+void SettingsDialog::OnDetectJavaPathClicked(wxCommandEvent& event)
+{
+	wxString newJPath = FindJavaPath(javaPathTextBox->GetValue());
+	javaPathTextBox->SetValue(newJPath);
+}
+
 
 BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_BUTTON(ID_BrowseInstDir, SettingsDialog::OnBrowseInstDirClicked)
+	EVT_BUTTON(ID_DetectJavaPath, SettingsDialog::OnDetectJavaPathClicked)
 END_EVENT_TABLE()

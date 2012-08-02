@@ -100,3 +100,66 @@ wxString Utils::BytesToString(unsigned char *bytes)
 	asciihash[32] = '\0';
 	return wxStr(std::string(asciihash));
 }
+
+#if defined __WXMSW__
+
+// We can use the registry to find Java on Windows.
+#include <WinReg.h>
+
+wxString FindJavaPath(const wxString& def)
+{
+	// Open the JRE registry key.
+	HKEY jreKey;
+	std::string jreKeyName = "SOFTWARE\\JavaSoft\\Java Runtime Environment";
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, jreKeyName.c_str(), 0, KEY_READ | KEY_WOW64_64KEY, &jreKey) == ERROR_SUCCESS)
+	{
+		// Read the current JRE version from the registry.
+		// This will be used to find the key that contains the JavaHome value.
+		char *value = new char[0];
+		DWORD valueSz = 0;
+		if (RegQueryValueEx(jreKey, "CurrentVersion", NULL, NULL, (BYTE*)value, &valueSz) == ERROR_MORE_DATA)
+		{
+			value = new char[valueSz];
+			RegQueryValueEx(jreKey, "CurrentVersion", NULL, NULL, (BYTE*)value, &valueSz);
+		}
+
+		RegCloseKey(jreKey);
+
+		// Now open the registry key for the JRE version that we just got.
+		jreKeyName.append("\\").append(value);
+		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, jreKeyName.c_str(), 0, KEY_READ | KEY_WOW64_64KEY, &jreKey) == ERROR_SUCCESS)
+		{
+			// Read the JavaHome value to find where Java is installed.
+			value = new char[0];
+			valueSz = 0;
+			if (RegQueryValueEx(jreKey, "JavaHome", NULL, NULL, (BYTE*)value, &valueSz) == ERROR_MORE_DATA)
+			{
+				value = new char[valueSz];
+				RegQueryValueEx(jreKey, "JavaHome", NULL, NULL, (BYTE*)value, &valueSz);
+			}
+
+			RegCloseKey(jreKey);
+
+			wxString javaHome = wxStr(value);
+			javaHome = Path::Combine(Path::Combine(javaHome, _("bin")), _("java.exe"));
+			return javaHome;
+		}
+	}
+	return def;
+}
+
+#elif defined __WXGTK__
+
+wxString FindJavaPath(const wxString& def)
+{
+	return def;
+}
+
+#else
+
+wxString FindJavaPath(const wxString& def)
+{
+	return def;
+}
+
+#endif
