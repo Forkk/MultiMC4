@@ -182,7 +182,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
 	
 	instNameSz = new wxBoxSizer(wxVERTICAL);
-	instSz->Add(instNameSz, wxGBPosition(0, 0), wxGBSpan(1, cols), 
+	instSz->Add(instNameSz, wxGBPosition(0, 0), wxGBSpan(1, cols - 1), 
 		wxEXPAND | wxALL, 4);
 	
 	instNameEditor = new wxTextCtrl(instPanel, ID_InstNameEditor, wxEmptyString,
