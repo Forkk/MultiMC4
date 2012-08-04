@@ -31,9 +31,11 @@
 #define ENUM_CONTAINS(val, check) (val & check) == check
 
 #ifdef MSVC
-#define TOASCII(str) str.ToAscii()->data()
+#define TOASCII(str) str.ToAscii()
+#define FNSTR(str) str.fn_str()
 #else
 #define TOASCII(str) str.ToAscii().data()
+#define FNSTR(str) str.fn_str().data()
 #endif
 
 inline const char* cStr(const std::string& str)
