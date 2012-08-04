@@ -201,6 +201,10 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		while ((newlinePos = outputBuffer.First('\n')) != wxString::npos)
 		{
 			wxString line = outputBuffer.Left(newlinePos);
+			if (line.EndsWith(_("\n")) || line.EndsWith(_("\r")))
+				line = line.Left(line.size() - 1);
+			if (line.EndsWith(_("\r\n")))
+				line = line.Left(line.size() - 2);
 			outputBuffer = outputBuffer.Mid(newlinePos + 1);
 			
 			InstOutputEvent event(m_inst, line);
