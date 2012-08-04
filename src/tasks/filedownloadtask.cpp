@@ -55,7 +55,7 @@ void FileDownloadTask::TaskStart()
 	
 	CURL *curl = curl_easy_init();
 	
-	curl_easy_setopt(curl, CURLOPT_URL, m_src.ToAscii().data());
+	curl_easy_setopt(curl, CURLOPT_URL, TOASCII(m_src));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
 	
 	size_t downloadedSize;
@@ -87,7 +87,7 @@ double FileDownloadTask::GetDownloadSize()
 {
 	CURL *curl = curl_easy_init();
 	
-	curl_easy_setopt(curl, CURLOPT_URL, m_src.ToAscii().data());
+	curl_easy_setopt(curl, CURLOPT_URL, TOASCII(m_src));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlBlankCallback);
 	curl_easy_setopt(curl, CURLOPT_NOBODY, true);
 	

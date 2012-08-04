@@ -50,7 +50,7 @@ void LoginTask::TaskStart()
 	char errorBuffer[CURL_ERROR_SIZE];
 	
 	CURL *curl = curl_easy_init();
-	curl_easy_setopt(curl, CURLOPT_URL, loginURL.GetURL().ToAscii().data());
+	curl_easy_setopt(curl, CURLOPT_URL, TOASCII(loginURL.GetURL()));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, &errorBuffer);
 	

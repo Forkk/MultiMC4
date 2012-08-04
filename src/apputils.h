@@ -30,17 +30,11 @@
 
 #define ENUM_CONTAINS(val, check) (val & check) == check
 
-// Converts str to wxString
-// wxString wxStr(const std::string& str);
-// 
-// Converts str to a standard string
-// std::string stdStr(const wxString& str);
-// 
-// Converts str to a char string
-// const char *cStr(const wxString& str);
-// 
-// Converts str to a char string
-// const char *cStr(const std::string& str);
+#ifdef MSVC
+#define TOASCII(str) str.ToAscii()->data()
+#else
+#define TOASCII(str) str.ToAscii().data()
+#endif
 
 inline const char* cStr(const std::string& str)
 {
@@ -59,7 +53,7 @@ inline wxString wxStr(const std::string &str)
 
 inline std::string stdStr(const wxString &str)
 {
-	return std::string(cStr(str));
+	return std::string(TOASCII(str));
 }
 
 namespace Utils
