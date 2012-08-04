@@ -80,7 +80,7 @@ protected:
 	void OnWindowClosed(wxCloseEvent &event);
 	void OnInstOutput(InstOutputEvent &event);
 	
-	void AllowClose();
+	void AllowClose(bool allow = true);
 	
 	void Close();
 	

@@ -166,11 +166,9 @@ void GameUpdateTask::DownloadJars()
 		struct curl_slist *headers = NULL;
 		headers = curl_slist_append(headers, stdStr(_("If-None-Match: ") + etagOnDisk).c_str());
 		
-		std::string urlStr = stdStr(jarURLs[i]).c_str();
-		
 		CURL *curl = curl_easy_init();
 		curl_easy_setopt(curl, CURLOPT_HEADER, true);
-		curl_easy_setopt(curl, CURLOPT_URL, urlStr.c_str());
+		curl_easy_setopt(curl, CURLOPT_URL, jarURLs[i].ToAscii().data());
 		curl_easy_setopt(curl, CURLOPT_NOBODY, true);
 		
 #ifdef HTTPDEBUG
@@ -241,7 +239,7 @@ void GameUpdateTask::DownloadJars()
 			int currentDownloadedSize = 0;
 			
 			CURL *curl = curl_easy_init();
-			curl_easy_setopt(curl, CURLOPT_URL, cStr(currentFile.GetURL()));
+			curl_easy_setopt(curl, CURLOPT_URL, currentFile.GetURL().ToAscii().data());
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
 			curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, CurlLambdaCallback);
 			
@@ -311,10 +309,13 @@ void GameUpdateTask::DownloadJars()
 			
 			if (md5matches)
 			{
-				md5s.put<std::string>(
-					stdStr(wxFileName(currentFile.GetPath()).GetName()),
-					stdStr(md5sum));
-				write_ini(stdStr(md5File.GetFullPath()), md5s);
+				wxString keystr = wxFileName(currentFile.GetPath()).GetName();
+				std::string key(keystr.fn_str().data());
+				// ASCII is fine. it's lower case letters and numbers
+				std::string value (md5sum.ToAscii().data());
+				md5s.put<std::string>(key, value);
+				std::string stlstring = std::string(md5File.GetFullPath().mb_str());
+				write_ini(stlstring, md5s);
 			}
 			else
 			{

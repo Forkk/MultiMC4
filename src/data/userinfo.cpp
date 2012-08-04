@@ -78,18 +78,24 @@ void UserInfo::LoadFromStream(wxInputStream &input)
 	
 	for (size_t i = 0; i < inString.Length(); i++)
 	{
-		inString[i] = -inString[i];
+		// the short here is a HACK to make it work with linux builds.
+		// wxString uses UTF-16 internally, but on linux, wchar_t is bigger, making the kind of nasty crap
+		// this code does to strings not break the strings (unused, bad numbers are trimmed away)
+		inString[i] = short(-inString[i]);
 	}
 	
 	if (inString.Length() == 0)
 		return;
-	
-	username = inString.SubString(0, inString.Last('=') - 1);
 	rememberUsername = true;
-	
-	if (inString.Last('=') != wxString::npos)
+	int split_pos = inString.Find(L'=',true);
+	if ( split_pos != wxString::npos)
 	{
-		password = inString.Mid(inString.Last('=') + 1);
+		username = inString.SubString(0, split_pos - 1);
+		password = inString.Mid(split_pos + 1);
 		rememberPassword = true;
+	}
+	else
+	{
+		username = inString;
 	}
 }

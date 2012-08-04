@@ -27,7 +27,6 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250)),
 	  instListener(inst, this)
 {
-	m_closeAllowed = false;
 	instListenerStarted = false;
 	m_mainWin = mainWin;
 	m_inst = inst;
@@ -50,7 +49,9 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 				   Border(wxBOTTOM | wxRIGHT, 8));
 	
 	closeButton = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
-	closeButton->Enable(m_closeAllowed);
+	
+	// disable close button and the X button provided by the window manager
+	AllowClose(false);
 	btnBox->Add(closeButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
 	
 	
@@ -96,10 +97,20 @@ void InstConsoleWindow::OnInstExit(wxProcessEvent& event)
 	}
 }
 
-void InstConsoleWindow::AllowClose()
+void InstConsoleWindow::AllowClose(bool allow)
 {
-	m_closeAllowed = true;
-	closeButton->Enable();
+	if(allow)
+	{
+		EnableCloseButton(true);
+		m_closeAllowed = true;
+		closeButton->Enable();
+	}
+	else
+	{
+		EnableCloseButton(false);
+		m_closeAllowed = false;
+		closeButton->Enable(false);
+	}
 }
 
 void InstConsoleWindow::Close()
@@ -140,6 +151,7 @@ void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
 		if (trayIcon->IsIconInstalled())
 			trayIcon->RemoveIcon();
 		m_mainWin->Show();
+		Destroy();
 	}
 }
 
@@ -188,7 +200,7 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		size_t newlinePos;
 		while ((newlinePos = outputBuffer.First('\n')) != wxString::npos)
 		{
-			wxString line = outputBuffer.Left(newlinePos - 1);
+			wxString line = outputBuffer.Left(newlinePos);
 			outputBuffer = outputBuffer.Mid(newlinePos + 1);
 			
 			InstOutputEvent event(m_inst, line);
@@ -289,7 +301,7 @@ void InstConsoleWindow::ConsoleIcon::OnKillMC(wxCommandEvent &event)
 BEGIN_EVENT_TABLE(InstConsoleWindow, wxFrame)
 	EVT_END_PROCESS(-1, InstConsoleWindow::OnInstExit)
 	EVT_BUTTON(wxID_CLOSE, InstConsoleWindow::OnCloseClicked)
-	
+	EVT_CLOSE( InstConsoleWindow::OnWindowClosed )
 	EVT_INST_OUTPUT(InstConsoleWindow::OnInstOutput)
 END_EVENT_TABLE()
 
