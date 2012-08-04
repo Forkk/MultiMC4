@@ -30,7 +30,7 @@
 
 #define ENUM_CONTAINS(val, check) (val & check) == check
 
-#ifdef MSVC
+#ifdef __WXMSW__
 #define TOASCII(str) str.ToAscii()
 #define FNSTR(str) str.fn_str()
 #else
