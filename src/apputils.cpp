@@ -104,7 +104,7 @@ wxString Utils::BytesToString(unsigned char *bytes)
 #if defined __WXMSW__
 
 // We can use the registry to find Java on Windows.
-#include <WinReg.h>
+#include <winreg.h>
 
 wxString FindJavaPath(const wxString& def)
 {
