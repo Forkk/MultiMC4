@@ -30,17 +30,13 @@
 
 #define ENUM_CONTAINS(val, check) (val & check) == check
 
-// Converts str to wxString
-// wxString wxStr(const std::string& str);
-// 
-// Converts str to a standard string
-// std::string stdStr(const wxString& str);
-// 
-// Converts str to a char string
-// const char *cStr(const wxString& str);
-// 
-// Converts str to a char string
-// const char *cStr(const std::string& str);
+#ifdef __WXMSW__
+#define TOASCII(str) str.ToAscii()
+#define FNSTR(str) str.fn_str()
+#else
+#define TOASCII(str) str.ToAscii().data()
+#define FNSTR(str) str.fn_str().data()
+#endif
 
 inline const char* cStr(const std::string& str)
 {
@@ -59,7 +55,7 @@ inline wxString wxStr(const std::string &str)
 
 inline std::string stdStr(const wxString &str)
 {
-	return std::string(cStr(str));
+	return std::string(TOASCII(str));
 }
 
 namespace Utils
@@ -86,3 +82,5 @@ namespace Path
 
 	wxString GetParent(const wxString &path);
 }
+
+wxString FindJavaPath(const wxString& def = _("java"));

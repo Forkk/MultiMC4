@@ -42,7 +42,7 @@ void CheckUpdateTask::TaskStart()
 	wxString mainPageJSON;
 	if (!DownloadString(ciURL + _("api/json"), &mainPageJSON))
 	{
-		OnErrorMessage(_("Failed to check for updates. Please check your internet connection."));
+		wxLogError(_("Failed to check for updates. Please check your internet connection."));
 		return;
 	}
 	
@@ -83,14 +83,24 @@ int CheckUpdateTask::GetBuildNumber(const wxString &mainPageJSON, bool stableOnl
 {
 	using namespace boost::property_tree;
 	
-	ptree pt;
-	std::stringstream inStream(stdStr(mainPageJSON), std::ios::in);
-	read_json(inStream, pt);
+	try
+	{
+		ptree pt;
+		std::stringstream inStream(stdStr(mainPageJSON), std::ios::in);
+		read_json(inStream, pt);
+		
+		if (stableOnly)
+			return pt.get<int>("lastStableBuild.number");
+		else
+			return pt.get<int>("lastSuccessfulBuild.number");
+	}
+	catch (json_parser_error e)
+	{
+		wxLogError(_("Failed to check for updates.\nJSON parser error at line %i: %s"), 
+			e.line(), wxStr(e.message()).c_str());
+		return 0;
+	}
 	
-	if (stableOnly)
-		return pt.get<int>("lastStableBuild.number");
-	else
-		return pt.get<int>("lastSuccessfulBuild.number");
 }
 
 void CheckUpdateTask::OnCheckComplete(int buildNumber, wxString downloadURL)

@@ -144,12 +144,22 @@ void GameUpdateTask::AskToUpdate()
 
 void GameUpdateTask::DownloadJars()
 {
-	using boost::property_tree::ptree;
+	using namespace boost::property_tree;
 	ptree md5s;
 	
 	wxFileName md5File(m_inst->GetBinDir().GetFullPath(), _("md5s"));
 	if (md5File.FileExists())
-		read_ini(stdStr(md5File.GetFullPath()), md5s);
+	{
+		try
+		{
+			read_ini(stdStr(md5File.GetFullPath()), md5s);
+		}
+		catch (ini_parser_error e)
+		{
+			wxLogError(_("Failed to parse md5s file.\nINI parser error at line %i: %s"), 
+				e.line(), wxStr(e.message()).c_str());
+		}
+	}
 	
 	SetState(STATE_DOWNLOADING);
 	
@@ -168,7 +178,7 @@ void GameUpdateTask::DownloadJars()
 		
 		CURL *curl = curl_easy_init();
 		curl_easy_setopt(curl, CURLOPT_HEADER, true);
-		curl_easy_setopt(curl, CURLOPT_URL, jarURLs[i].ToAscii().data());
+		curl_easy_setopt(curl, CURLOPT_URL, TOASCII(jarURLs[i]));
 		curl_easy_setopt(curl, CURLOPT_NOBODY, true);
 		
 #ifdef HTTPDEBUG
@@ -239,7 +249,7 @@ void GameUpdateTask::DownloadJars()
 			int currentDownloadedSize = 0;
 			
 			CURL *curl = curl_easy_init();
-			curl_easy_setopt(curl, CURLOPT_URL, currentFile.GetURL().ToAscii().data());
+			curl_easy_setopt(curl, CURLOPT_URL, TOASCII(currentFile.GetURL()));
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
 			curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, CurlLambdaCallback);
 			
@@ -310,9 +320,9 @@ void GameUpdateTask::DownloadJars()
 			if (md5matches)
 			{
 				wxString keystr = wxFileName(currentFile.GetPath()).GetName();
-				std::string key(keystr.fn_str().data());
+				std::string key(FNSTR(keystr));
 				// ASCII is fine. it's lower case letters and numbers
-				std::string value (md5sum.ToAscii().data());
+				std::string value (TOASCII(md5sum));
 				md5s.put<std::string>(key, value);
 				std::string stlstring = std::string(md5File.GetFullPath().mb_str());
 				write_ini(stlstring, md5s);

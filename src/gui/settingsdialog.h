@@ -33,7 +33,8 @@ public:
 	void LoadSettings(AppSettings &s = settings);
 	
 protected:
-	void OnBrowseInstDirClicked(wxCommandEvent &event);
+	void OnBrowseInstDirClicked(wxCommandEvent& event);
+	void OnDetectJavaPathClicked(wxCommandEvent& event);
 	
 	wxNotebook *tabCtrl;
 	
@@ -59,4 +60,5 @@ protected:
 enum
 {
 	ID_BrowseInstDir,
+	ID_DetectJavaPath
 };
