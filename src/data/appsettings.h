@@ -51,6 +51,9 @@ public:
 	
 	wxString GetJavaPath() const;
 	void SetJavaPath(wxString value);
+
+	wxString GetJvmArgs() const;
+	void SetJvmArgs(wxString value);
 	
 	wxFileName GetInstDir() const;
 	void SetInstDir(wxFileName value);

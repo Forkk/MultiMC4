@@ -16,6 +16,7 @@
 
 #include "modeditwindow.h"
 #include <wx/notebook.h>
+#include <wx/clipbrd.h>
 #include <apputils.h>
 
 ModEditWindow::ModEditWindow(wxWindow *parent, Instance *inst)
@@ -38,7 +39,7 @@ ModEditWindow::ModEditWindow(wxWindow *parent, Instance *inst)
 	jarModPanel->SetSizer(jarModSizer);
 	modEditNotebook->AddPage(jarModPanel, _("Jar Mods"), true);
 	
-	jarModList = new ModListCtrl(jarModPanel, ID_JAR_MOD_LIST, inst);
+	jarModList = new JarModListCtrl(jarModPanel, ID_JAR_MOD_LIST, inst);
 	jarModList->InsertColumn(0, _("Mod Name"));
 	jarModList->InsertColumn(1, _("Mod Version"), wxLIST_FORMAT_RIGHT);
 	jarModList->SetDropTarget(new JarModsDropTarget(jarModList, inst));
@@ -65,7 +66,7 @@ ModEditWindow::ModEditWindow(wxWindow *parent, Instance *inst)
 	mlModPanel->SetSizer(mlModSizer);
 	modEditNotebook->AddPage(mlModPanel, _("Mods Folder"));
 	
-	mlModList = new ModListCtrl(mlModPanel, ID_ML_MOD_LIST, inst);
+	mlModList = new MLModListCtrl(mlModPanel, ID_ML_MOD_LIST, inst);
 	mlModList->InsertColumn(0, _("Mod Name"));
 	mlModList->InsertColumn(1, _("Mod Version"), wxLIST_FORMAT_RIGHT);
 	mlModList->SetDropTarget(new MLModsDropTarget(mlModList, inst));
@@ -117,6 +118,14 @@ ModEditWindow::ModListCtrl::ModListCtrl(wxWindow *parent, int id, Instance *inst
 {
 	m_inst = inst;
 	m_insMarkIndex = -1;
+
+	const int accelCount = 3;
+	wxAcceleratorEntry entries[accelCount];
+	entries[0].Set(wxACCEL_NORMAL,	WXK_DELETE,	wxID_DELETE);
+	entries[1].Set(wxACCEL_CTRL,	(int) 'C',	wxID_COPY);
+	entries[2].Set(wxACCEL_CTRL,	(int) 'V',	wxID_PASTE);
+	wxAcceleratorTable accel(accelCount, entries);
+	SetAcceleratorTable(accel);
 }
 
 wxString ModEditWindow::ModListCtrl::OnGetItemText(long int item, long int column) const
@@ -217,29 +226,149 @@ bool ModEditWindow::JarModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const w
 	return true;
 }
 
-void ModEditWindow::OnDeleteJarMod()
+void ModEditWindow::ModListCtrl::OnCopyMod(wxCommandEvent &event)
 {
-	if (jarModList->GetItemCount() <= 0)
+	CopyMod();
+}
+
+void ModEditWindow::ModListCtrl::OnPasteMod(wxCommandEvent &event)
+{
+	PasteMod();
+}
+
+void ModEditWindow::ModListCtrl::OnDeleteMod(wxCommandEvent &event)
+{
+	DeleteMod();
+}
+
+
+void ModEditWindow::JarModListCtrl::PasteMod()
+{
+	wxFileDataObject data;
+
+	// Get data from the clipboard.
+	if (wxTheClipboard->Open())
+	{
+		if (wxTheClipboard->IsSupported(wxDF_FILENAME))
+		{
+			wxTheClipboard->GetData(data);
+		}
+		else
+		{
+			wxTheClipboard->Close();
+			return;
+		}
+		wxTheClipboard->Close();
+	}
+
+	// Determine where to insert the files.
+	int insertPoint = m_inst->GetModList()->size();
+	if (GetSelectedItems().Count() > 0)
+		insertPoint = GetSelectedItems()[0];
+
+	// Add the given mods.
+	wxArrayString filenames = data.GetFilenames();
+	for (wxArrayString::iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
+	{
+		m_inst->InsertMod(insertPoint, *iter);
+	}
+	UpdateItems();
+}
+
+void ModEditWindow::JarModListCtrl::CopyMod()
+{
+	ModList *mods = m_inst->GetModList();
+	wxFileDataObject *modFileObj = new wxFileDataObject;
+
+	wxArrayInt indices = GetSelectedItems();
+	for (wxArrayInt::const_iterator iter = indices.begin(); iter != indices.end(); ++iter)
+	{
+		wxFileName modFile = mods->at(*iter).GetFileName();
+		modFile.MakeAbsolute();
+		modFileObj->AddFile(modFile.GetFullPath());
+	}
+
+	if (wxTheClipboard->Open())
+	{
+		wxTheClipboard->SetData(modFileObj);
+		wxTheClipboard->Close();
+	}
+}
+
+void ModEditWindow::JarModListCtrl::DeleteMod()
+{
+	if (GetItemCount() <= 0)
 		return;
 	
-	wxArrayInt indices = jarModList->GetSelectedItems();
+	wxArrayInt indices = GetSelectedItems();
 	for (int i = indices.GetCount() -1; i >= 0; i--)
 	{
 		m_inst->DeleteMod(indices[i]);
 	}
-	jarModList->UpdateItems();
+	UpdateItems();
 }
 
-void ModEditWindow::OnDeleteMLMod()
+
+void ModEditWindow::MLModListCtrl::PasteMod()
 {
-	if (mlModList->GetItemCount() <= 0)
+	wxFileDataObject data;
+
+	// Get data from the clipboard.
+	if (wxTheClipboard->Open())
+	{
+		if (wxTheClipboard->IsSupported(wxDF_FILENAME))
+		{
+			wxTheClipboard->GetData(data);
+		}
+		else
+		{
+			wxTheClipboard->Close();
+			return;
+		}
+		wxTheClipboard->Close();
+	}
+
+	// Add the given mods.
+	wxArrayString filenames = data.GetFilenames();
+	for (wxArrayString::iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
+	{
+		wxFileName file(*iter);
+		wxCopyFile(file.GetFullPath(), Path::Combine(m_inst->GetMLModsDir(), file.GetFullName()));
+	}
+	m_inst->LoadMLModList();
+	UpdateItems();
+}
+
+void ModEditWindow::MLModListCtrl::CopyMod()
+{
+	ModList *mods = m_inst->GetMLModList();
+	wxFileDataObject *modFileObj = new wxFileDataObject;
+
+	wxArrayInt indices = GetSelectedItems();
+	for (wxArrayInt::const_iterator iter = indices.begin(); iter != indices.end(); ++iter)
+	{
+		wxFileName modFile = mods->at(*iter).GetFileName();
+		modFile.MakeAbsolute();
+		modFileObj->AddFile(modFile.GetFullPath());
+	}
+
+	if (wxTheClipboard->Open())
+	{
+		wxTheClipboard->SetData(modFileObj);
+		wxTheClipboard->Close();
+	}
+}
+
+void ModEditWindow::MLModListCtrl::DeleteMod()
+{
+	if (GetItemCount() <= 0)
 		return;
 	
 	wxArrayInt indices;
 	long item = -1;
 	while (true)
 	{
-		item = mlModList->GetNextItem(item, wxLIST_NEXT_ALL, 
+		item = GetNextItem(item, wxLIST_NEXT_ALL, 
 									  wxLIST_STATE_SELECTED);
 		
 		if (item == -1)
@@ -253,23 +382,7 @@ void ModEditWindow::OnDeleteMLMod()
 		m_inst->DeleteMLMod(indices[i]);
 	}
 	m_inst->LoadMLModList();
-	mlModList->UpdateItems();
-}
-
-void ModEditWindow::OnJarListKeyDown(wxListEvent &event)
-{
-	if (event.GetKeyCode() == WXK_DELETE)
-	{
-		OnDeleteJarMod();
-	}
-}
-
-void ModEditWindow::OnMLListKeyDown(wxListEvent &event)
-{
-	if (event.GetKeyCode() == WXK_DELETE)
-	{
-		OnDeleteMLMod();
-	}
+	UpdateItems();
 }
 
 void ModEditWindow::ModListCtrl::SetInsertMark(const int index)
@@ -355,7 +468,7 @@ void ModEditWindow::OnAddJarMod(wxCommandEvent &event)
 
 void ModEditWindow::OnDeleteJarMod(wxCommandEvent &event)
 {
-	OnDeleteJarMod();
+	jarModList->DeleteMod();
 }
 
 void ModEditWindow::OnMoveJarModUp(wxCommandEvent &event)
@@ -425,7 +538,7 @@ void ModEditWindow::OnAddMLMod(wxCommandEvent &event)
 
 void ModEditWindow::OnDeleteMLMod(wxCommandEvent &event)
 {
-	OnDeleteMLMod();
+	mlModList->DeleteMod();
 }
 
 wxArrayInt ModEditWindow::ModListCtrl::GetSelectedItems()
@@ -468,9 +581,6 @@ void ModEditWindow::OnCloseClicked(wxCommandEvent &event)
 
 
 BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
-	EVT_LIST_KEY_DOWN(ID_JAR_MOD_LIST, ModEditWindow::OnJarListKeyDown)
-	EVT_LIST_KEY_DOWN(ID_ML_MOD_LIST, ModEditWindow::OnMLListKeyDown)
-	
 	EVT_BUTTON(ID_ADD_JAR_MOD, ModEditWindow::OnAddJarMod)
 	EVT_BUTTON(ID_DEL_JAR_MOD, ModEditWindow::OnDeleteJarMod)
 	EVT_BUTTON(ID_MOVE_JAR_MOD_UP, ModEditWindow::OnMoveJarModUp)
@@ -485,4 +595,10 @@ BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
 	EVT_LIST_BEGIN_DRAG(ID_JAR_MOD_LIST, ModEditWindow::OnDragJarMod)
 	
 	EVT_BUTTON(wxID_CLOSE, ModEditWindow::OnCloseClicked)
+END_EVENT_TABLE()
+
+BEGIN_EVENT_TABLE(ModEditWindow::ModListCtrl, wxListCtrl)
+	EVT_MENU(wxID_COPY, ModEditWindow::ModListCtrl::OnCopyMod)
+	EVT_MENU(wxID_PASTE, ModEditWindow::ModListCtrl::OnPasteMod)
+	EVT_MENU(wxID_DELETE, ModEditWindow::ModListCtrl::OnDeleteMod)
 END_EVENT_TABLE()

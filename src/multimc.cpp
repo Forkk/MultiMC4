@@ -58,6 +58,7 @@ bool MultiMC::OnInit()
 	MainWindow *mainWin = new MainWindow();
 	mainWin->Show();
 	mainWin->LoadInstanceList();
+	mainWin->OnStartup();
 	
 	return true;
 }

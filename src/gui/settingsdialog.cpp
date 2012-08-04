@@ -16,6 +16,7 @@
 
 #include "settingsdialog.h"
 #include <wx/gbsizer.h>
+#include <wx/dir.h>
 #include <apputils.h>
 
 const wxString guiModeDefault = _("Default");
@@ -128,6 +129,13 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	javaPathBox->Add(javaPathTextBox, 1, wxALL | wxEXPAND, 4);
 	advancedBox->Add(javaPathBox, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
 	
+	// JVM Arguments
+	wxStaticBoxSizer *jvmArgsBox = new wxStaticBoxSizer(wxHORIZONTAL,
+		advancedPanel, _T("Additional JVM Arguments"));
+	jvmArgsTextBox = new wxTextCtrl(advancedPanel, -1);
+	jvmArgsBox->Add(jvmArgsTextBox, 1, wxALL | wxEXPAND, 4);
+	advancedBox->Add(jvmArgsBox, wxGBPosition(2, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+	
 	
 	// Buttons
 	wxSizer *btnBox = CreateButtonSizer(wxOK | wxCANCEL);
@@ -153,20 +161,36 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 	{
 		wxFileName oldInstDir = s.GetInstDir();
 		
-		int response = wxMessageBox(_T("You've changed your instance \
-			directory, would you like to transfer all of your instances?"),
+		int response = wxMessageBox(
+			_T("You've changed your instance directory, would you like to transfer all of your instances?"),
 			_T("Instance directory changed."), 
 			wxYES | wxNO | wxCANCEL | wxCENTER, this);
 		
 	RetryTransfer:
-		if (response != wxID_CANCEL)
+		if (response != wxCANCEL)
 		{
 			s.SetInstDir(newInstDir);
 		}
 		
-		if (response == wxID_YES)
+		if (response == wxYES)
 		{
-			// TODO Move all instances to new instance directory
+			wxDir instDir(oldInstDir.GetFullPath());
+
+			wxString oldDirName;
+			if (instDir.GetFirst(&oldDirName))
+			{
+				do 
+				{
+					oldDirName = Path::Combine(oldInstDir, oldDirName);
+					wxFileName newDirName(oldDirName);
+					newDirName.MakeRelativeTo(oldInstDir.GetFullPath());
+					newDirName.Normalize(wxPATH_NORM_ALL, newInstDir.GetFullPath());
+					if (!wxRenameFile(oldDirName, newDirName.GetFullPath(), false))
+					{
+						wxLogError(_("Failed to move instance folder %s."), oldDirName.c_str());
+					}
+				} while (instDir.GetNext(&oldDirName));
+			}
 		}
 	}
 
@@ -174,6 +198,7 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 	s.SetMaxMemAlloc(maxMemorySpin->GetValue());
 
 	s.SetJavaPath(javaPathTextBox->GetValue());
+	s.SetJvmArgs(jvmArgsTextBox->GetValue());
 	
 	GUIMode newGUIMode;
 	if (guiStyleDropDown->GetValue() == guiModeDefault)
@@ -202,6 +227,7 @@ void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
 	maxMemorySpin->SetValue(s.GetMaxMemAlloc());
 
 	javaPathTextBox->SetValue(s.GetJavaPath());
+	jvmArgsTextBox->SetValue(s.GetJvmArgs());
 	
 	switch (s.GetGUIMode())
 	{

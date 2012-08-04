@@ -120,6 +120,15 @@ MainWindow::~MainWindow(void)
 	
 }
 
+void MainWindow::OnStartup()
+{
+	if (settings.GetAutoUpdate())
+	{
+		CheckUpdateTask *task = new CheckUpdateTask();
+		StartTask(*task);
+	}
+}
+
 GUIMode MainWindow::GetGUIMode() const
 {
 	if (instListCtrl == nullptr)
@@ -173,7 +182,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
 	
 	instNameSz = new wxBoxSizer(wxVERTICAL);
-	instSz->Add(instNameSz, wxGBPosition(0, 0), wxGBSpan(1, cols), 
+	instSz->Add(instNameSz, wxGBPosition(0, 0), wxGBSpan(1, cols - 1), 
 		wxEXPAND | wxALL, 4);
 	
 	instNameEditor = new wxTextCtrl(instPanel, ID_InstNameEditor, wxEmptyString,
@@ -232,15 +241,25 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	CancelRename();
 }
 
+void MainWindow::UpdateInstPanel()
+{
+	bool showInstPanel = instListbook->GetPageCount() > 0;
+	instPanel->Show(showInstPanel);
+	if (showInstPanel)
+	{
+		Instance *inst = GetSelectedInst();
+
+		instNameLabel->SetLabel(inst->GetName());
+		CancelEditNotes();
+		CancelRename();
+
+		instPanel->Layout();
+	}
+}
+
 void MainWindow::OnPageChanged(wxListbookEvent &event)
 {
-	Instance *inst = instItems[event.GetSelection()];
-	
-	instNameLabel->SetLabel(inst->GetName());
-	CancelEditNotes();
-	CancelRename();
-	
-	instPanel->Layout();
+	UpdateInstPanel();
 }
 
 void MainWindow::LoadInstIconList(wxString customIconDirName)
@@ -309,7 +328,10 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 	Enable(true);
 	
 	if (GetGUIMode() == GUI_Default)
+	{
 		instListbook->SetSelection(0);
+		UpdateInstPanel();
+	}
 	
 	GetStatusBar()->PopStatusText(0);
 }
@@ -936,6 +958,11 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 	return !cancelled;
 }
 
+void MainWindow::OnWindowClosed(wxCloseEvent& event)
+{
+	wxTheApp->Exit();
+}
+
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)
@@ -995,4 +1022,6 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_CHECK_UPDATE(MainWindow::OnCheckUpdateComplete)
 	
 	EVT_TEXT_ENTER(ID_InstNameEditor, MainWindow::OnRenameEnterPressed)
+
+	EVT_CLOSE(MainWindow::OnWindowClosed)
 END_EVENT_TABLE()

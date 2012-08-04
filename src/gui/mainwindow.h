@@ -38,6 +38,8 @@ public:
 	MainWindow(void);
 	~MainWindow(void);
 
+	void OnStartup();
+
 	// Toolbar
 	void OnAddInstClicked(wxCommandEvent& event);
 	void OnViewFolderClicked(wxCommandEvent& event);
@@ -81,6 +83,7 @@ public:
 	
 	// Other events
 	void OnInstMenuOpened(wxListEvent& event);
+	void OnWindowClosed(wxCloseEvent& event);
 	
 	
 	// Other methods
@@ -128,6 +131,8 @@ protected:
 	void InitAdvancedGUI(wxBoxSizer *mainSz);
 	
 	void OnPageChanged(wxListbookEvent &event);
+
+	void UpdateInstPanel();
 	
 	wxListbook *instListbook;
 	wxPanel *instPanel;

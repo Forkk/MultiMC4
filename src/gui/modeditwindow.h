@@ -27,7 +27,6 @@ public:
 	
 	virtual bool Show(bool show = true);
 	
-protected:
 	class ModListCtrl : public wxListCtrl
 	{
 	public:
@@ -36,12 +35,18 @@ protected:
 		virtual wxString OnGetItemText(long int item, long int column) const;
 		
 		virtual void UpdateItems();
-		
-		virtual void SetInsertMark(const int index);
-		
 		wxArrayInt GetSelectedItems();
 		
 		void DrawInsertMark(int index);
+		virtual void SetInsertMark(const int index);
+
+		virtual void OnCopyMod(wxCommandEvent &event);
+		virtual void OnPasteMod(wxCommandEvent &event);
+		virtual void OnDeleteMod(wxCommandEvent &event);
+
+		virtual void CopyMod() = 0;
+		virtual void PasteMod() = 0;
+		virtual void DeleteMod() = 0;
 		
 	protected:
 		Instance *m_inst;
@@ -49,8 +54,33 @@ protected:
 		ModList *GetModList() const;
 		
 		int m_insMarkIndex;
+
+		DECLARE_EVENT_TABLE()
 	} *jarModList, *mlModList;
 	
+protected:
+	class JarModListCtrl : public ModListCtrl
+	{
+	public:
+		JarModListCtrl(wxWindow *parent, int id, Instance *inst)
+			: ModListCtrl(parent, id, inst) {}
+
+		virtual void CopyMod();
+		virtual void PasteMod();
+		virtual void DeleteMod();
+	};
+
+	class MLModListCtrl : public ModListCtrl
+	{
+	public:
+		MLModListCtrl(wxWindow *parent, int id, Instance *inst)
+			: ModListCtrl(parent, id, inst) {}
+
+		virtual void CopyMod();
+		virtual void PasteMod();
+		virtual void DeleteMod();
+	};
+
 	wxButton *delJarModBtn;
 	wxButton *jarModUpBtn;
 	wxButton *jarModDownBtn;

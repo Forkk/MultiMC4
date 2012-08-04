@@ -23,5 +23,6 @@ bool RecursiveDelete(const wxString &path);
 bool CreateAllDirs(const wxFileName &dir);
 
 void ExtractZipArchive(wxInputStream &stream, const wxString &dest);
+void TransferZipArchive(wxInputStream &stream, wxZipOutputStream &out);
 
 bool CompressZipArchive(wxOutputStream &stream, const wxString &srcDir);
