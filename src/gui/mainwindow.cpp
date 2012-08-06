@@ -41,7 +41,7 @@
 #include <wx/listbook.h>
 #include <wx/gbsizer.h>
 
-const int instNameLengthLimit = 20;
+const int instNameLengthLimit = 25;
 
 const wxSize minSize = wxSize(620, 400);
 
@@ -249,12 +249,24 @@ void MainWindow::UpdateInstPanel()
 	{
 		Instance *inst = GetSelectedInst();
 
-		instNameLabel->SetLabel(inst->GetName());
+		UpdateInstNameLabel(inst);
 		CancelEditNotes();
 		CancelRename();
 
 		instPanel->Layout();
 	}
+}
+
+void MainWindow::UpdateInstNameLabel(Instance *inst)
+{
+	wxString instName = inst->GetName();
+	if (instName.Len() > instNameLengthLimit)
+	{
+		instName.Truncate(instNameLengthLimit);
+		instName.Trim();
+		instName.Append(_("..."));
+	}
+	instNameLabel->SetLabel(instName);
 }
 
 void MainWindow::OnPageChanged(wxListbookEvent &event)
@@ -809,7 +821,7 @@ void MainWindow::CancelRename()
 	instNameSz->Layout();
 	
 	if (GetSelectedInst() != nullptr)
-		instNameLabel->SetLabel(GetSelectedInst()->GetName());
+		UpdateInstNameLabel(GetSelectedInst());
 }
 
 void MainWindow::OnRenameEnterPressed(wxCommandEvent &event)

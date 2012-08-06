@@ -133,6 +133,7 @@ protected:
 	void OnPageChanged(wxListbookEvent &event);
 
 	void UpdateInstPanel();
+	void UpdateInstNameLabel(Instance *inst);
 	
 	wxListbook *instListbook;
 	wxPanel *instPanel;
