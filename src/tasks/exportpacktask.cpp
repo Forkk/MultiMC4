@@ -16,12 +16,52 @@
 
 #include "exportpacktask.h"
 
-ExportPackTask::ExportPackTask(Instance *inst)
-{
+#include <boost/property_tree/json_parser.hpp>
 
+#include <wx/zipstrm.h>
+#include <wx/wfstream.h>
+#include <wx/sstream.h>
+
+#include <string>
+#include <sstream>
+
+#include "apputils.h"
+
+ExportPackTask::ExportPackTask(Instance *inst, const wxString &packName, 
+	const wxString &packNotes, const wxString &filename, wxArrayString &includedConfigs)
+	: m_packName(packName), m_packNotes(packNotes), m_filename(filename), m_includedConfigs(includedConfigs)
+{
+	m_inst = inst;
 }
 
 void ExportPackTask::TaskStart()
 {
+	wxFFileOutputStream fileOut(m_filename);
+	wxZipOutputStream zipOut(fileOut);
 
+	SetStatus(_("Adding config files..."));
+	for (wxArrayString::iterator iter = m_includedConfigs.begin(); iter != m_includedConfigs.end(); ++iter)
+	{
+		wxFileName destFile(*iter);
+		destFile.MakeRelativeTo(m_inst->GetRootDir().GetFullPath());
+		zipOut.PutNextEntry(destFile.GetFullPath());
+
+		wxFFileInputStream confIn(*iter);
+		zipOut.Write(confIn);
+	}
+
+	SetStatus(_("Writing metadata..."));
+	using namespace boost::property_tree;
+	ptree pt;
+
+	pt.put<std::string>("name", stdStr(m_packName));
+	pt.put<std::string>("notes", stdStr(m_packNotes));
+
+	std::stringstream jsonOut;
+	write_json(jsonOut, pt);
+	wxString json = wxStr(jsonOut.str());
+
+	zipOut.PutNextEntry(_("modpack.json"));
+	wxStringInputStream jsonIn(json);
+	zipOut.Write(jsonIn);
 }

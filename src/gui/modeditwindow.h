@@ -20,10 +20,12 @@
 #include <wx/dnd.h>
 #include <instance.h>
 
+class MainWindow;
+
 class ModEditWindow : public wxFrame
 {
 public:
-	ModEditWindow(wxWindow *parent, Instance *inst);
+	ModEditWindow(MainWindow *parent, Instance *inst);
 	
 	virtual bool Show(bool show = true);
 	
@@ -135,6 +137,8 @@ protected:
 		ModListCtrl *m_owner;
 		Instance *m_inst;
 	};
+
+	MainWindow *m_mainWin;
 	
 	DECLARE_EVENT_TABLE()
 };

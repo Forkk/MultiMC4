@@ -21,9 +21,12 @@
 
 #include "exportinstwizard.h"
 
-ModEditWindow::ModEditWindow(wxWindow *parent, Instance *inst)
+#include "mainwindow.h"
+
+ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 	: wxFrame(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))
 {
+	m_mainWin = parent;
 	wxPanel *mainPanel = new wxPanel(this);
 
 	SetTitle(wxString::Format(_("Edit Mods for %s"), inst->GetName().c_str()));
@@ -597,10 +600,15 @@ void ModEditWindow::OnExportClicked(wxCommandEvent& event)
 		return;
 	}
 
+	wxString packName = exportWizard->GetPackName();
+	wxString packNotes = exportWizard->GetPackNotes();
+
 	wxArrayString includedConfigs;
 	exportWizard->GetIncludedConfigs(&includedConfigs);
 
 	exportWizard->Destroy();
+
+	m_mainWin->BuildConfPack(m_inst, packName, packNotes, fileName, includedConfigs);
 }
 
 void ModEditWindow::OnCloseClicked(wxCommandEvent &event)

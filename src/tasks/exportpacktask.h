@@ -22,10 +22,16 @@
 class ExportPackTask : public Task
 {
 public:
-	ExportPackTask(Instance *inst);
+	ExportPackTask(Instance *inst, const wxString &packName, 
+		const wxString &packNotes, const wxString &filename, wxArrayString &includedConfigs);
 
 	virtual void TaskStart();
 
 protected:
-	Instance *inst;
+	Instance *m_inst;
+
+	wxString m_packName;
+	wxString m_packNotes;
+	wxString m_filename;
+	wxArrayString &m_includedConfigs;
 };

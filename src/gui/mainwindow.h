@@ -86,13 +86,16 @@ public:
 	void OnWindowClosed(wxCloseEvent& event);
 	
 	
-	// Other methods
+	// Other functions
 	void StartTask(Task &task);
 	bool StartModalTask(Task &task, bool forceModal = true);
 	
 	void ShowLoginDlg(wxString errorMsg);
 	
 	void LoadInstanceList(wxFileName instDir = settings.GetInstDir());
+
+	void BuildConfPack(Instance *inst, const wxString &packName, 
+		const wxString &packNotes, const wxString &filename, wxArrayString &includedConfigs);
 	
 	
 	DECLARE_EVENT_TABLE()

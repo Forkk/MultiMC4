@@ -29,6 +29,7 @@
 #include <checkupdatetask.h>
 #include <filedownloadtask.h>
 #include "filecopytask.h"
+#include "exportpacktask.h"
 #include "version.h"
 
 #include <wx/filesys.h>
@@ -973,6 +974,13 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 void MainWindow::OnWindowClosed(wxCloseEvent& event)
 {
 	wxTheApp->Exit();
+}
+
+void MainWindow::BuildConfPack(Instance *inst, const wxString &packName, 
+	const wxString &packNotes, const wxString &filename, wxArrayString &includedConfigs)
+{
+	ExportPackTask task(inst, packName, packNotes, filename, includedConfigs);
+	StartModalTask(task);
 }
 
 
