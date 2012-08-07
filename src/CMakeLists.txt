@@ -116,8 +116,8 @@ httputils.h
 version.h
 
 insticonlist.h
-insticons.h
-toolbaricons.h
+${CMAKE_BINARY_DIR}/resources/insticons.h
+${CMAKE_BINARY_DIR}/resources/toolbaricons.h
 )
 
 # Find wxWidgets.
@@ -177,7 +177,10 @@ include_directories(
 )
 
 # Add the executable.
+
 add_executable(MultiMC WIN32 ${SRCS} ${INCS})
+add_dependencies(MultiMC generate_headers)
+
 
 # Link the libraries.
 target_link_libraries(MultiMC

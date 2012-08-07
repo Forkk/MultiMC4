@@ -20,7 +20,7 @@
 #include "modeditwindow.h"
 #include "changeicondialog.h"
 
-#include "toolbaricons.h"
+#include "resources/toolbaricons.h"
 
 #include "multimc.h"
 #include "gameupdatetask.h"
@@ -75,7 +75,7 @@ MainWindow::MainWindow(void)
 	
 	// Build the toolbar
 	
-	#if defined __WXMSW__ || defined __WXGTK__
+	#if (defined __WXMSW__ || defined __WXGTK__) && wxCHECK_VERSION(2, 9, 4) 
 	{
 		auto tool = mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."),wxITEM_DROPDOWN);
 		wxMenu * newInstanceMenu = new wxMenu();
@@ -107,7 +107,7 @@ MainWindow::MainWindow(void)
 	mainToolBar->AddSeparator();
 	mainToolBar->AddTool(ID_Settings, _("Settings"), settingsIcon, _("Settings"));
 	mainToolBar->AddTool(ID_CheckUpdate, _("Check for updates"), checkUpdateIcon, _("Check for MultiMC updates."));
-	mainToolBar->AddStretchableSpace();
+	mainToolBar->AddSeparator();
 	mainToolBar->AddTool(ID_Help, _("Help"), helpIcon, _("Help"));
 	mainToolBar->AddTool(ID_About, _("About"), aboutIcon, _("About MultiMC"));
 	
@@ -296,7 +296,11 @@ void MainWindow::UpdateInstNameLabel(Instance *inst)
 	instNameLabel->SetLabel(instName);
 }
 
+#if wxCHECK_VERSION(2, 9, 0)
 void MainWindow::OnPageChanged(wxBookCtrlEvent &event)
+#else
+void MainWindow::OnPageChanged(wxListbookEvent &event)
+#endif
 {
 	UpdateInstPanel();
 }

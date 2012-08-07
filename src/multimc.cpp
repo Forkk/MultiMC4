@@ -16,7 +16,7 @@
 
 #include "windowicon.h"
 
-wxIMPLEMENT_APP(MultiMC);
+IMPLEMENT_APP(MultiMC)
 
 // App
 bool MultiMC::OnInit()

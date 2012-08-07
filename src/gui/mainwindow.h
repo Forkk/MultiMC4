@@ -131,7 +131,11 @@ protected:
 	// Advanced GUI
 	void InitAdvancedGUI(wxBoxSizer *mainSz);
 	
+	#if wxCHECK_VERSION(2, 9, 0)
 	void OnPageChanged(wxBookCtrlEvent &event);
+	#else
+	void OnPageChanged(wxListbookEvent &event);
+	#endif
 
 	void UpdateInstPanel();
 	void UpdateInstNameLabel(Instance *inst);

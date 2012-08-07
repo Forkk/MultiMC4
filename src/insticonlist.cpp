@@ -16,7 +16,7 @@
 
 #include "insticonlist.h"
 
-#include "insticons.h"
+#include "resources/insticons.h"
 
 #include "apputils.h"
 

@@ -191,7 +191,7 @@ int main ( int argc, const char* argv[] )
 
 		po::variables_map opt;
 		po::store ( po::command_line_parser ( argc, argv ).options ( desc ).positional ( posdesc ).run(), opt );
-		po::store ( po::parse_config_file <char> ( "default.cfg" , desc ), opt);
+		//po::store ( po::parse_config_file <char> ( "default.cfg" , desc ), opt);
 		po::notify ( opt );
 
 		std::cout << WXINCLUDE_INFO << std::endl;
