@@ -64,6 +64,8 @@ data/appsettings.cpp
 data/instance.cpp
 data/userinfo.cpp
 data/mod.cpp
+data/modlist.cpp
+data/centralmodlist.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
@@ -100,6 +102,8 @@ data/appsettings.h
 data/instance.h
 data/userinfo.h
 data/mod.h
+data/modlist.h
+data/centralmodlist.h
 
 tasks/task.h
 tasks/logintask.h

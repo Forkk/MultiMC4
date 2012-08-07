@@ -24,12 +24,13 @@
 
 #include "appsettings.h"
 #include "mod.h"
+#include "modlist.h"
 
 bool IsValidInstance(wxFileName rootDir);
 
-typedef std::vector<Mod> ModList;
-typedef ModList::iterator ModIterator;
-typedef ModList::const_iterator ConstModIterator;
+//typedef std::vector<Mod> ModList;
+wxDEPRECATED(typedef ModList::iterator ModIterator); // Use ModList::iterator instead
+wxDEPRECATED(typedef ModList::const_iterator ConstModIterator); // Use ModList::const_iterator instead
 
 class Instance : public wxEvtHandler
 {
@@ -94,10 +95,10 @@ public:
 	void LoadMLModList();
 	ModList *GetMLModList();
 	
-	void InsertMod(size_t index, const wxFileName &source);
-	void DeleteMod(size_t index);
+	wxDEPRECATED(void InsertMod(size_t index, const wxFileName &source)); // Use GetModList()->InsertMod instead
+	wxDEPRECATED(void DeleteMod(size_t index)); // Use GetModList()->DeleteMod instead
 	
-	void DeleteMLMod(size_t index);
+	wxDEPRECATED(void DeleteMLMod(size_t index)); // Use GetMLModList()->InsertMod instead
 	
 	template <typename T>
 	T GetSetting(const wxString &key, T defValue) const;
@@ -112,7 +113,21 @@ public:
 protected:
 	wxFileConfig *config;
 	
-	ModList modList;
+
+	class JarModList : public ModList
+	{
+	public:
+		JarModList(Instance *inst, const wxString& dir = wxEmptyString);
+
+		virtual bool UpdateModList();
+
+		virtual bool InsertMod(size_t index, const wxString &filename, const wxString& saveToFile = wxEmptyString);
+		virtual bool DeleteMod(size_t index, const wxString& saveToFile = wxEmptyString);
+
+	protected:
+		Instance *m_inst;
+	} modList;
+
 	ModList mlModList;
 	
 	wxFileName rootDir;
@@ -129,7 +144,7 @@ protected:
 	
 	void OnInstProcExited(wxProcessEvent &event);
 	
-	void LoadModListFromDir(const wxFileName &dir, bool mlMod = false);
+	wxDEPRECATED(void LoadModListFromDir(const wxFileName &dir, bool mlMod = false));
 	
 	DECLARE_EVENT_TABLE()
 };

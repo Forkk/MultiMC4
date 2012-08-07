@@ -226,7 +226,7 @@ bool ModEditWindow::JarModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const w
 	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); iter++)
 	{
 		wxFileName modFileName(*iter);
-		m_inst->InsertMod(index, modFileName);
+		m_inst->GetModList()->InsertMod(index, modFileName.GetFullPath());
 		m_owner->UpdateItems();
 	}
 
@@ -277,7 +277,7 @@ void ModEditWindow::JarModListCtrl::PasteMod()
 	wxArrayString filenames = data.GetFilenames();
 	for (wxArrayString::iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
 	{
-		m_inst->InsertMod(insertPoint, *iter);
+		m_inst->GetModList()->InsertMod(insertPoint, *iter);
 	}
 	UpdateItems();
 }
@@ -310,7 +310,7 @@ void ModEditWindow::JarModListCtrl::DeleteMod()
 	wxArrayInt indices = GetSelectedItems();
 	for (int i = indices.GetCount() -1; i >= 0; i--)
 	{
-		m_inst->DeleteMod(indices[i]);
+		m_inst->GetModList()->DeleteMod(indices[i]);
 	}
 	UpdateItems();
 }
@@ -386,7 +386,7 @@ void ModEditWindow::MLModListCtrl::DeleteMod()
 	
 	for (int i = indices.GetCount() -1; i >= 0; i--)
 	{
-		m_inst->DeleteMLMod(indices[i]);
+		m_inst->GetMLModList()->DeleteMod(indices[i]);
 	}
 	m_inst->LoadMLModList();
 	UpdateItems();
@@ -468,7 +468,7 @@ void ModEditWindow::OnAddJarMod(wxCommandEvent &event)
 	if (addModDialog->ShowModal() == wxID_OK)
 	{
 		wxFileName file(addModDialog->GetPath());
-		m_inst->InsertMod(m_inst->GetModList()->size(), file);
+		m_inst->GetModList()->InsertMod(m_inst->GetModList()->size(), file.GetFullPath());
 		jarModList->UpdateItems();
 	}
 }

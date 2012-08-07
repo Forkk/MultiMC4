@@ -59,7 +59,7 @@ void ExportPackTask::TaskStart()
 
 
 	ptree jarMods;
-	for (ConstModIterator iter = m_inst->GetModList()->begin(); iter < m_inst->GetModList()->end(); ++iter)
+	for (ModList::const_iterator iter = m_inst->GetModList()->begin(); iter < m_inst->GetModList()->end(); ++iter)
 	{
 		ptree currentMod;
 		currentMod.put<std::string>("id", stdStr(iter->GetModID()));
@@ -72,7 +72,7 @@ void ExportPackTask::TaskStart()
 
 
 	ptree mlMods;
-	for (ConstModIterator iter = m_inst->GetMLModList()->begin(); iter < m_inst->GetMLModList()->end(); ++iter)
+	for (ModList::const_iterator iter = m_inst->GetMLModList()->begin(); iter < m_inst->GetMLModList()->end(); ++iter)
 	{
 		ptree currentMod;
 		currentMod.put<std::string>("id", stdStr(iter->GetModID()));

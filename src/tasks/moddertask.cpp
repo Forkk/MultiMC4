@@ -36,7 +36,7 @@ ModderTask::ModderTask(Instance* inst)
 void ModderTask::TaskStart()
 {
 	// Get the mod list
-	const ModList *modList = m_inst->GetModList();
+	ModList *modList = m_inst->GetModList();
 	
 	wxFileName mcBin = m_inst->GetBinDir();
 	wxFileName mcJar = m_inst->GetMCJar();
@@ -78,7 +78,7 @@ void ModderTask::TaskStart()
 	// Modify the jar
 	TaskStep(); // STEP 2
 	SetStatus(_("Installing mods - Adding mod files..."));
-	for (ConstModIterator iter = modList->begin(); iter != modList->end(); iter++)
+	for (ModList::const_iterator iter = modList->begin(); iter != modList->end(); iter++)
 	{
 		wxFileName modFileName = iter->GetFileName();
 		SetStatus(_("Installing mods - Adding ") + modFileName.GetFullName());
