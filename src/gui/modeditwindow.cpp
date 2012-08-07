@@ -501,8 +501,9 @@ void ModEditWindow::OnMoveJarModDown(wxCommandEvent &event)
 	
 	wxArrayInt indices = jarModList->GetSelectedItems();
 	ModList *mods= m_inst->GetModList();
-	for (size_t i = indices.GetCount() - 1; i >= 0; --i)
+	for (size_t i = indices.GetCount(); i > 0;)
 	{
+		--i; // Fixes faulty comparison i>=0 on unsigned i above
 		if ((size_t)indices[i] + 1 >= mods->size())
 			continue;
 		
