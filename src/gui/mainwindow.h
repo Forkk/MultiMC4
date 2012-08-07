@@ -16,6 +16,7 @@
 
 #pragma once
 #include <wx/wx.h>
+#include <wx/gbsizer.h>
 
 #include <map>
 
@@ -130,7 +131,7 @@ protected:
 	// Advanced GUI
 	void InitAdvancedGUI(wxBoxSizer *mainSz);
 	
-	void OnPageChanged(wxListbookEvent &event);
+	void OnPageChanged(wxBookCtrlEvent &event);
 
 	void UpdateInstPanel();
 	void UpdateInstNameLabel(Instance *inst);

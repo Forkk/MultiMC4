@@ -60,12 +60,13 @@ void UserInfo::SaveToStream(wxOutputStream &output) const
 		if (rememberPassword)
 			outString.Append(_("=") + password);
 	}
-	
+	/*
 	for (size_t i = 0; i < outString.Length(); i++)
 	{
-		outString[i] = -outString[i];
+		short c = outString[i];
+		outString[i] = -c;
 	}
-	
+	*/
 	wxStringInputStream stringInput(outString);
 	output.Write(stringInput);
 }
@@ -75,15 +76,16 @@ void UserInfo::LoadFromStream(wxInputStream &input)
 	wxString inString;
 	wxStringOutputStream outStream(&inString);
 	outStream.Write(input);
-	
+	/*
 	for (size_t i = 0; i < inString.Length(); i++)
 	{
 		// the short here is a HACK to make it work with linux builds.
 		// wxString uses UTF-16 internally, but on linux, wchar_t is bigger, making the kind of nasty crap
 		// this code does to strings not break the strings (unused, bad numbers are trimmed away)
-		inString[i] = short(-inString[i]);
+		wxChar c = inString[i];
+		inString[i] = short(-c);
 	}
-	
+	*/
 	if (inString.Length() == 0)
 		return;
 	rememberUsername = true;

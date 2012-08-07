@@ -48,7 +48,7 @@ const wxSize minSize = wxSize(620, 400);
 // Main window
 MainWindow::MainWindow(void)
 	: wxFrame(NULL, -1, 
-		wxString::Format(_("MultiMC"), 
+		wxString::Format(_("MultiMC %d.%d.%d"), 
 			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision()),
 		wxPoint(0, 0), minSize),
 		instIcons(32, 32)
@@ -269,7 +269,7 @@ void MainWindow::UpdateInstNameLabel(Instance *inst)
 	instNameLabel->SetLabel(instName);
 }
 
-void MainWindow::OnPageChanged(wxListbookEvent &event)
+void MainWindow::OnPageChanged(wxBookCtrlEvent &event)
 {
 	UpdateInstPanel();
 }
