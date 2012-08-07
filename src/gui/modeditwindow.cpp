@@ -593,7 +593,7 @@ void ModEditWindow::OnExportClicked(wxCommandEvent& event)
 		wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 	if (chooseFileDlg->ShowModal() == wxID_OK)
 	{
-		fileName = chooseFileDlg->GetFilename();
+		fileName = chooseFileDlg->GetPath();
 	}
 	else
 	{
