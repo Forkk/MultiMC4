@@ -161,6 +161,12 @@ include_directories("${Boost_INCLUDE_DIRS}")
 # Make the static md5 lib build
 add_subdirectory(md5)
 
+# Build the wxinclude generator
+add_subdirectory(wxinclude)
+
+# Create header files out of resources
+add_subdirectory(resources)
+
 include_directories("${PROJECT_BINARY_DIR}")
 
 include_directories(
