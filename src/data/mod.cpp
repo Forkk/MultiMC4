@@ -45,48 +45,51 @@ Mod::Mod(const wxFileName& file)
 	modName = modFile.GetName();
 
 #ifdef READ_MODINFO
-	wxFFileInputStream fileIn(modFile.GetFullPath());
-	wxZipInputStream zipIn(fileIn);
-
-	std::auto_ptr<wxZipEntry> entry;
-
-	do 
+	if (IsZipMod())
 	{
-		entry.reset(zipIn.GetNextEntry());
-	} while (entry.get() != nullptr && !entry->GetInternalName().EndsWith(_(".info")));
+		wxFFileInputStream fileIn(modFile.GetFullPath());
+		wxZipInputStream zipIn(fileIn);
 
-	if (entry.get() != nullptr)
-	{
-		// Read the info file into text
-		wxString infoFileData;
-		wxStringOutputStream stringOut(&infoFileData);
-		zipIn.Read(stringOut);
+		std::auto_ptr<wxZipEntry> entry;
+
+		do 
+		{
+			entry.reset(zipIn.GetNextEntry());
+		} while (entry.get() != nullptr && !entry->GetInternalName().EndsWith(_(".info")));
+
+		if (entry.get() != nullptr)
+		{
+			// Read the info file into text
+			wxString infoFileData;
+			wxStringOutputStream stringOut(&infoFileData);
+			zipIn.Read(stringOut);
 		
-		using namespace boost::property_tree;
+			using namespace boost::property_tree;
 
-		// Read the data
-		ptree ptRoot;
+			// Read the data
+			ptree ptRoot;
 
-		wxString entryName = entry->GetInternalName();
+			wxString entryName = entry->GetInternalName();
 
-		std::stringstream stringIn(cStr(infoFileData));
-		try
-		{
-			read_json(stringIn, ptRoot);
+			std::stringstream stringIn(cStr(infoFileData));
+			try
+			{
+				read_json(stringIn, ptRoot);
 
-			ptree pt = ptRoot.get_child("").begin()->second;
+				ptree pt = ptRoot.get_child("").begin()->second;
 
-			modID = wxStr(pt.get<std::string>("modid"));
-			modName = wxStr(pt.get<std::string>("name"));
-			modVersion = wxStr(pt.get<std::string>("version"));
-		}
-		catch (json_parser_error e)
-		{
-			// Silently fail...
-		}
-		catch (ptree_error e)
-		{
-			// Silently fail...
+				modID = wxStr(pt.get<std::string>("modid"));
+				modName = wxStr(pt.get<std::string>("name"));
+				modVersion = wxStr(pt.get<std::string>("version"));
+			}
+			catch (json_parser_error e)
+			{
+				// Silently fail...
+			}
+			catch (ptree_error e)
+			{
+				// Silently fail...
+			}
 		}
 	}
 #endif
