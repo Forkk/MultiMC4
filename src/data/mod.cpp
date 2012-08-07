@@ -16,11 +16,80 @@
 
 #include "mod.h"
 
+#define READ_MODINFO
+
+#ifdef READ_MODINFO
+#include <boost/property_tree/json_parser.hpp>
+
+#include <wx/wfstream.h>
+#include <wx/zipstrm.h>
+#include <wx/sstream.h>
+
+#include <string>
+#include <sstream>
+
+#if MSVC
+#include <memory>
+#else
+#include <auto_ptr.h>
+#endif
+
+#include "apputils.h"
+
+#endif
+
 Mod::Mod(const wxFileName& file)
 {
 	modFile = file;
 	
 	modName = modFile.GetName();
+
+#ifdef READ_MODINFO
+	wxFFileInputStream fileIn(modFile.GetFullPath());
+	wxZipInputStream zipIn(fileIn);
+
+	std::auto_ptr<wxZipEntry> entry;
+
+	do 
+	{
+		entry.reset(zipIn.GetNextEntry());
+	} while (entry.get() != nullptr && !entry->GetInternalName().EndsWith(_(".info")));
+
+	if (entry.get() != nullptr)
+	{
+		// Read the info file into text
+		wxString infoFileData;
+		wxStringOutputStream stringOut(&infoFileData);
+		zipIn.Read(stringOut);
+		
+		using namespace boost::property_tree;
+
+		// Read the data
+		ptree ptRoot;
+
+		wxString entryName = entry->GetInternalName();
+
+		std::stringstream stringIn(cStr(infoFileData));
+		try
+		{
+			read_json(stringIn, ptRoot);
+
+			ptree pt = ptRoot.get_child("").begin()->second;
+
+			modID = wxStr(pt.get<std::string>("modid"));
+			modName = wxStr(pt.get<std::string>("name"));
+			modVersion = wxStr(pt.get<std::string>("version"));
+		}
+		catch (json_parser_error e)
+		{
+			// Silently fail...
+		}
+		catch (ptree_error e)
+		{
+			// Silently fail...
+		}
+	}
+#endif
 }
 
 Mod::Mod(const Mod& mod)

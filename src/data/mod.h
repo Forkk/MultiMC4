@@ -39,6 +39,7 @@ public:
 protected:
 	wxFileName modFile;
 	
+	wxString modID;
 	wxString modName;
 	wxString modVersion;
 	wxString mcVersion;
