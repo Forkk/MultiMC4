@@ -27,6 +27,7 @@ public:
 	wxFileName GetFileName() const;
 	
 	wxString GetName() const;
+	wxString GetModID() const;
 	wxString GetModVersion() const;
 	wxString GetMCVersion() const;
 	

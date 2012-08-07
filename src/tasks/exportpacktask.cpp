@@ -57,6 +57,33 @@ void ExportPackTask::TaskStart()
 	pt.put<std::string>("name", stdStr(m_packName));
 	pt.put<std::string>("notes", stdStr(m_packNotes));
 
+
+	ptree jarMods;
+	for (ConstModIterator iter = m_inst->GetModList()->begin(); iter < m_inst->GetModList()->end(); ++iter)
+	{
+		ptree currentMod;
+		currentMod.put<std::string>("id", stdStr(iter->GetModID()));
+		currentMod.put<std::string>("version", stdStr(iter->GetModVersion()));
+		currentMod.put<std::string>("mcversion", stdStr(iter->GetMCVersion()));
+
+		jarMods.push_back(std::make_pair("", currentMod));
+	}
+	pt.push_back(std::make_pair("jarmods", jarMods));
+
+
+	ptree mlMods;
+	for (ConstModIterator iter = m_inst->GetMLModList()->begin(); iter < m_inst->GetMLModList()->end(); ++iter)
+	{
+		ptree currentMod;
+		currentMod.put<std::string>("id", stdStr(iter->GetModID()));
+		currentMod.put<std::string>("version", stdStr(iter->GetModVersion()));
+		currentMod.put<std::string>("mcversion", stdStr(iter->GetMCVersion()));
+
+		mlMods.push_back(std::make_pair("", currentMod));
+	}
+	pt.push_back(std::make_pair("mlmods", mlMods));
+
+
 	std::stringstream jsonOut;
 	write_json(jsonOut, pt);
 	wxString json = wxStr(jsonOut.str());

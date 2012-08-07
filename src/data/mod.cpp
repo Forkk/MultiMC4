@@ -41,6 +41,11 @@ wxString Mod::GetName() const
 	return modName;
 }
 
+wxString Mod::GetModID() const
+{
+	return GetFileName().GetFullName();
+}
+
 wxString Mod::GetModVersion() const
 {
 	return modVersion;
