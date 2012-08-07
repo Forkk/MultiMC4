@@ -74,13 +74,40 @@ MainWindow::MainWindow(void)
 	wxBitmap aboutIcon = wxMEMORY_IMAGE(abouticon);
 	
 	// Build the toolbar
-	mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."));
+	
+	#if defined __WXMSW__ || defined __WXGTK__
+	{
+		auto tool = mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."),wxITEM_DROPDOWN);
+		wxMenu * newInstanceMenu = new wxMenu();
+		
+		wxMenuItem * create = new wxMenuItem(0,ID_AddInst, _("Add a new instance."));
+		create->SetBitmap(newInstIcon);
+		((wxMenuBase *)newInstanceMenu)->Append(create);
+		
+		wxMenuItem * copy = new wxMenuItem(0,ID_CopyInst, _("Copy selected instance."));
+		copy->SetBitmap(newInstIcon);
+		((wxMenuBase *)newInstanceMenu)->Append(copy);
+		
+		wxMenuItem * import = new wxMenuItem(0,ID_ImportInst, _("Import existing .minecraft folder"));
+		import->SetBitmap(newInstIcon);
+		((wxMenuBase *)newInstanceMenu)->Append(import);
+		
+		tool->SetDropdownMenu(newInstanceMenu);
+	}
+	#else
+	{
+		mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."));
+		mainToolBar->AddTool(ID_CopyInst, _("Copy instance"), newInstIcon, _("Copy selected instance."));
+		mainToolBar->AddTool(ID_ImportInst, _("Import .minecraft"), newInstIcon, _("Import existing .minecraft folder"));
+	}
+	#endif
+	
 	mainToolBar->AddTool(ID_Refresh, _("Refresh"), reloadIcon, _("Reload ALL the instances!"));
 	mainToolBar->AddTool(ID_ViewFolder, _("View folder"), viewFolderIcon, _("Open the instance folder."));
 	mainToolBar->AddSeparator();
 	mainToolBar->AddTool(ID_Settings, _("Settings"), settingsIcon, _("Settings"));
 	mainToolBar->AddTool(ID_CheckUpdate, _("Check for updates"), checkUpdateIcon, _("Check for MultiMC updates."));
-	mainToolBar->AddSeparator();
+	mainToolBar->AddStretchableSpace();
 	mainToolBar->AddTool(ID_Help, _("Help"), helpIcon, _("Help"));
 	mainToolBar->AddTool(ID_About, _("About"), aboutIcon, _("About MultiMC"));
 	
@@ -548,7 +575,7 @@ limitations under the License."));
 #endif
 	
 	info.AddDeveloper(_("Andrew Okin <forkk@forkk.net>"));
-	info.AddDeveloper(_("Petr Mrázek"));
+	info.AddDeveloper(_("Petr Mrázek <peterix@gmail.com>"));
 	
 	wxAboutBox(info);
 #else

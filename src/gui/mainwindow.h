@@ -179,6 +179,7 @@ enum
 {
 	// Toolbar
 	ID_AddInst = 1,
+	ID_ImportInst,
 	ID_ViewFolder,
 	ID_ModsFolder,
 	ID_Refresh,
