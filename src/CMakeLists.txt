@@ -58,6 +58,7 @@ gui/logindialog.cpp
 gui/consolewindow.cpp
 gui/modeditwindow.cpp
 gui/changeicondialog.cpp
+gui/exportinstwizard.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -71,6 +72,7 @@ tasks/gameupdatetask.cpp
 tasks/checkupdatetask.cpp
 tasks/filedownloadtask.cpp
 tasks/filecopytask.cpp
+tasks/exportpacktask.cpp
 
 apputils.cpp
 curlutils.cpp
@@ -92,6 +94,7 @@ gui/logindialog.h
 gui/consolewindow.h
 gui/modeditwindow.h
 gui/changeicondialog.h
+gui/exportinstwizard.h
 
 data/appsettings.h
 data/instance.h
@@ -105,6 +108,7 @@ tasks/gameupdatetask.h
 tasks/checkupdatetask.h
 tasks/filedownloadtask.h
 tasks/filecopytask.h
+tasks/exportpacktask.h
 
 apputils.h
 curlutils.h

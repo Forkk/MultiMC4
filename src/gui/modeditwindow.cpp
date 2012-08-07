@@ -19,6 +19,8 @@
 #include <wx/clipbrd.h>
 #include <apputils.h>
 
+#include "exportinstwizard.h"
+
 ModEditWindow::ModEditWindow(wxWindow *parent, Instance *inst)
 	: wxFrame(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))
 {
@@ -84,9 +86,11 @@ ModEditWindow::ModEditWindow(wxWindow *parent, Instance *inst)
 	
 	wxBoxSizer *btnBox = new wxBoxSizer(wxHORIZONTAL);
 	mainBox->Add(btnBox, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT | wxLEFT, 8);
-	
+
+	wxButton *btnExport = new wxButton(mainPanel, ID_EXPORT, _("&Export"));
+	btnBox->Add(btnExport, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxALL, 4));
+
 	wxButton *btnClose = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
-	
 	btnBox->Add(btnClose, wxSizerFlags(0).Align(wxALIGN_RIGHT).Border(wxALL, 4));
 	
 	CenterOnParent();
@@ -574,6 +578,31 @@ void ModEditWindow::OnDragJarMod(wxListEvent &event)
 	modsDropSource.DoDragDrop(wxDrag_CopyOnly);
 }
 
+void ModEditWindow::OnExportClicked(wxCommandEvent& event)
+{
+	ExportInstWizard *exportWizard = new ExportInstWizard(this, this->m_inst);
+	exportWizard->Start();
+
+	wxString fileName;
+
+	wxFileDialog *chooseFileDlg = new wxFileDialog(this, _("Save..."), 
+		wxGetCwd(), wxEmptyString, wxFileSelectorDefaultWildcardStr,
+		wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+	if (chooseFileDlg->ShowModal() == wxID_OK)
+	{
+		fileName = chooseFileDlg->GetFilename();
+	}
+	else
+	{
+		return;
+	}
+
+	wxArrayString includedConfigs;
+	exportWizard->GetIncludedConfigs(&includedConfigs);
+
+	exportWizard->Destroy();
+}
+
 void ModEditWindow::OnCloseClicked(wxCommandEvent &event)
 {
 	Close();
@@ -594,6 +623,7 @@ BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
 	
 	EVT_LIST_BEGIN_DRAG(ID_JAR_MOD_LIST, ModEditWindow::OnDragJarMod)
 	
+	EVT_BUTTON(ID_EXPORT, ModEditWindow::OnExportClicked)
 	EVT_BUTTON(wxID_CLOSE, ModEditWindow::OnCloseClicked)
 END_EVENT_TABLE()
 

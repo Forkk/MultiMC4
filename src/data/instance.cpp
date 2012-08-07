@@ -591,6 +591,41 @@ void Instance::SetSetting(const wxString &key, wxFileName value, bool suppressEr
 	config->Flush();
 }
 
+void Instance::GetPossibleConfigFiles(wxArrayString *array, wxString dir)
+{
+	if (dir.IsEmpty())
+		dir = GetMCDir().GetFullPath();
+	
+	wxDir mcDir(dir);
+
+	wxString currentFile;
+	if (mcDir.GetFirst(&currentFile))
+	{
+		do
+		{
+			wxFileName fileName(Path::Combine(dir, currentFile));
+			
+			if (wxDirExists(fileName.GetFullPath()))
+			{
+				if (currentFile != _("saves"))
+					GetPossibleConfigFiles(array, fileName.GetFullPath());
+			}
+			else if (fileName.GetExt() == _("cfg") || 
+				fileName.GetExt() == _("conf") || 
+				fileName.GetExt() == _("config") || 
+				fileName.GetExt() == _("props") || 
+				fileName.GetExt() == _("properties") ||
+				fileName.GetExt() == _("xml") ||
+				fileName.GetExt() == _("yml") ||
+				fileName.GetFullPath().Contains(_("options")))
+			{
+				fileName.MakeRelativeTo(GetRootDir().GetFullPath());
+				array->Add(fileName.GetFullPath());
+			}
+		} while (mcDir.GetNext(&currentFile));
+	}
+}
+
 
 BEGIN_EVENT_TABLE(Instance, wxEvtHandler)
 	EVT_END_PROCESS(wxID_ANY, Instance::OnInstProcExited)

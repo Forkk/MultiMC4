@@ -106,6 +106,8 @@ public:
 	
 	wxFileName GetSetting(const wxString &key, wxFileName defValue) const;
 	void SetSetting(const wxString &key, wxFileName value, bool suppressErrors = false);
+
+	void GetPossibleConfigFiles(wxArrayString *array, wxString dir = wxEmptyString);
 	
 protected:
 	wxFileConfig *config;

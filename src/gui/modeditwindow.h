@@ -107,6 +107,7 @@ protected:
 	void OnAddMLMod(wxCommandEvent &event);
 	void OnDeleteMLMod(wxCommandEvent &event);
 	
+	void OnExportClicked(wxCommandEvent& event);
 	void OnCloseClicked(wxCommandEvent &event);
 	
 	class JarModsDropTarget : public wxFileDropTarget
@@ -150,4 +151,6 @@ enum
 	
 	ID_ADD_ML_MOD,
 	ID_DEL_ML_MOD,
+
+	ID_EXPORT,
 };
