@@ -120,6 +120,8 @@ ${CMAKE_BINARY_DIR}/resources/insticons.h
 ${CMAKE_BINARY_DIR}/resources/toolbaricons.h
 )
 
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/resources/insticons.h ${CMAKE_BINARY_DIR}/resources/toolbaricons.h GENERATED)
+
 # Find wxWidgets.
 MESSAGE(STATUS "** Finding wxWidgets")
 find_package(wxWidgets REQUIRED core base net adv)
