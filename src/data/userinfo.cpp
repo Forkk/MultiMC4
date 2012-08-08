@@ -16,6 +16,7 @@
 
 #include "userinfo.h"
 #include "logindialog.h"
+#include <stdio.h>
 
 #include <wx/sstream.h>
 
@@ -51,7 +52,7 @@ UserInfo::UserInfo(wxString& username, wxString& password, bool rememberUsername
 	this->rememberPassword = rememberPassword;
 }
 
-void UserInfo::SaveToStream(wxOutputStream &output) const
+void UserInfo::SaveToFile(const char * filename) const
 {
 	wxString outString;
 	if (rememberUsername)
@@ -60,32 +61,41 @@ void UserInfo::SaveToStream(wxOutputStream &output) const
 		if (rememberPassword)
 			outString.Append(_("=") + password);
 	}
+	FILE* passfile = 0;
+	passfile = fopen(filename,"wb");
+	if(!passfile)
+		return;
 	
-	for (size_t i = 0; i < outString.Length(); i++)
+	auto utf8_data = outString.ToUTF8();
+	for(size_t i = 0; utf8_data[i] != 0; i++)
 	{
-		outString[i] = -outString[i];
+		short datapt = utf8_data[i];
+		datapt = -datapt;
+		fwrite(&datapt,sizeof(short),1,passfile);
 	}
-	
-	wxStringInputStream stringInput(outString);
-	output.Write(stringInput);
+	fflush(passfile);
+	fclose(passfile);
 }
 
-void UserInfo::LoadFromStream(wxInputStream &input)
+void UserInfo::LoadFromFile(const char * filename)
 {
-	wxString inString;
-	wxStringOutputStream outStream(&inString);
-	outStream.Write(input);
-	
-	for (size_t i = 0; i < inString.Length(); i++)
-	{
-		// the short here is a HACK to make it work with linux builds.
-		// wxString uses UTF-16 internally, but on linux, wchar_t is bigger, making the kind of nasty crap
-		// this code does to strings not break the strings (unused, bad numbers are trimmed away)
-		inString[i] = short(-inString[i]);
-	}
-	
-	if (inString.Length() == 0)
+	FILE* passfile = 0;
+	passfile = fopen(filename,"rb");
+	if(!passfile)
 		return;
+	std::string utf8_str;
+	while (!feof(passfile))
+	{
+		short datapt = 0;
+		if(fread(&datapt,sizeof(short),1,passfile) != 1)
+			break;
+		datapt = -datapt;
+		utf8_str.append(1, (char)datapt);
+	}
+	if (utf8_str.size() == 0)
+		return;
+	fclose(passfile);
+	wxString inString = wxString::FromUTF8(utf8_str.c_str(),utf8_str.size());
 	rememberUsername = true;
 	int split_pos = inString.Find(L'=',true);
 	if ( split_pos != wxString::npos)

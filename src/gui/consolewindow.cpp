@@ -125,7 +125,10 @@ bool InstConsoleWindow::Show(bool show)
 {
 	bool retval = wxFrame::Show(show);
 	if (!instListenerStarted)
+	{
+		instListenerStarted = true;
 		instListener.Run();
+	}
 	return retval;
 }
 

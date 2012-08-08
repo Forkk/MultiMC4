@@ -126,8 +126,8 @@ httputils.h
 version.h
 
 insticonlist.h
-insticons.h
-toolbaricons.h
+${CMAKE_BINARY_DIR}/resources/insticons.h
+${CMAKE_BINARY_DIR}/resources/toolbaricons.h
 )
 
 # Find wxWidgets.
@@ -171,6 +171,12 @@ include_directories("${Boost_INCLUDE_DIRS}")
 # Make the static md5 lib build
 add_subdirectory(md5)
 
+# Build the wxinclude generator
+add_subdirectory(wxinclude)
+
+# Create header files out of resources
+add_subdirectory(resources)
+
 include_directories("${PROJECT_BINARY_DIR}")
 
 include_directories(
@@ -181,7 +187,10 @@ include_directories(
 )
 
 # Add the executable.
+
 add_executable(MultiMC WIN32 ${SRCS} ${INCS})
+add_dependencies(MultiMC generate_headers)
+
 
 # Link the libraries.
 target_link_libraries(MultiMC

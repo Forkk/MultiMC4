@@ -20,7 +20,7 @@
 #include "modeditwindow.h"
 #include "changeicondialog.h"
 
-#include "toolbaricons.h"
+#include "resources/toolbaricons.h"
 
 #include "multimc.h"
 #include "gameupdatetask.h"
@@ -52,7 +52,7 @@ const wxSize minSize = wxSize(620, 400);
 // Main window
 MainWindow::MainWindow(void)
 	: wxFrame(NULL, -1, 
-		wxString::Format(_("MultiMC"), 
+		wxString::Format(_("MultiMC %d.%d.%d"), 
 			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision()),
 		wxPoint(0, 0), minSize),
 		instIcons(32, 32),
@@ -79,8 +79,37 @@ MainWindow::MainWindow(void)
 	wxBitmap aboutIcon = wxMEMORY_IMAGE(abouticon);
 	
 	// Build the toolbar
-	mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."));
-	mainToolBar->AddTool(ID_ImportCP, _("Import config pack"), newInstIcon, _("Import a config pack."));
+	#if (defined __WXMSW__ || defined __WXGTK__) && wxCHECK_VERSION(2, 9, 4) 
+	{
+		auto tool = mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."),wxITEM_DROPDOWN);
+		wxMenu* newInstanceMenu = new wxMenu();
+		
+		wxMenuItem* create = new wxMenuItem(0, ID_AddInst, _("Add a new instance."));
+		create->SetBitmap(newInstIcon);
+		((wxMenuBase*)newInstanceMenu)->Append(create);
+		
+		wxMenuItem* copy = new wxMenuItem(0, ID_CopyInst, _("Copy selected instance."));
+		copy->SetBitmap(newInstIcon);
+		((wxMenuBase*)newInstanceMenu)->Append(copy);
+		
+		wxMenuItem* import = new wxMenuItem(0, ID_ImportInst, _("Import existing .minecraft folder"));
+		import->SetBitmap(newInstIcon);
+		((wxMenuBase*)newInstanceMenu)->Append(import);
+
+		wxMenuItem* importPack = new wxMenuItem(0, ID_ImportInst, _("Import config pack"));
+		import->SetBitmap(newInstIcon);
+		((wxMenuBase*)newInstanceMenu)->Append(importPack);
+		
+		tool->SetDropdownMenu(newInstanceMenu);
+	}
+	#else
+	{
+		mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."));
+		mainToolBar->AddTool(ID_CopyInst, _("Copy instance"), newInstIcon, _("Copy selected instance."));
+		mainToolBar->AddTool(ID_ImportInst, _("Import .minecraft"), newInstIcon, _("Import existing .minecraft folder"));
+		mainToolBar->AddTool(ID_ImportCP, _("Import config pack"), newInstIcon, _("Import a config pack."));
+	}
+	#endif
 	mainToolBar->AddTool(ID_Refresh, _("Refresh"), reloadIcon, _("Reload ALL the instances!"));
 	mainToolBar->AddTool(ID_ViewFolder, _("View folder"), viewFolderIcon, _("Open the instance folder."));
 	mainToolBar->AddSeparator();
@@ -278,7 +307,11 @@ void MainWindow::UpdateInstNameLabel(Instance *inst)
 	instNameLabel->SetLabel(instName);
 }
 
+#if wxCHECK_VERSION(2, 9, 0)
+void MainWindow::OnPageChanged(wxBookCtrlEvent &event)
+#else
 void MainWindow::OnPageChanged(wxListbookEvent &event)
+#endif
 {
 	UpdateInstPanel();
 }
@@ -572,7 +605,7 @@ limitations under the License."));
 #endif
 	
 	info.AddDeveloper(_("Andrew Okin <forkk@forkk.net>"));
-	info.AddDeveloper(_("Petr Mrázek"));
+	info.AddDeveloper(_("Petr Mrázek <peterix@gmail.com>"));
 	
 	wxAboutBox(info);
 #else
@@ -604,8 +637,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	UserInfo lastLogin;
 	if (wxFileExists(_("lastlogin")))
 	{
-		wxFFileInputStream inStream(_("lastlogin"));
-		lastLogin.LoadFromStream(inStream);
+		lastLogin.LoadFromFile("lastlogin");
 	}
 	
 	LoginDialog loginDialog(this, errorMsg, lastLogin);
@@ -616,8 +648,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	{
 		UserInfo info(loginDialog);
 		
-		wxFFileOutputStream outStream(_("lastlogin"));
-		info.SaveToStream(outStream);
+		info.SaveToFile("lastlogin");
 		
 		if (!playOffline)
 		{

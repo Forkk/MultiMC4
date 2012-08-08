@@ -7,6 +7,7 @@
 #include <wx/stdpaths.h>
 #include <wx/fs_arc.h>
 #include <wx/socket.h>
+#include <wx/app.h>
 
 #include "mainwindow.h"
 
@@ -28,7 +29,7 @@ bool MultiMC::OnInit()
 	updateOnExit = false;
 	startNormally = true;
 	
-	wxApp::OnInit();
+	//wxApp::OnInit();
 	
 	if (!startNormally)
 		return false;

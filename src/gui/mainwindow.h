@@ -16,6 +16,7 @@
 
 #pragma once
 #include <wx/wx.h>
+#include <wx/gbsizer.h>
 
 #include <map>
 
@@ -137,7 +138,11 @@ protected:
 	// Advanced GUI
 	void InitAdvancedGUI(wxBoxSizer *mainSz);
 	
+	#if wxCHECK_VERSION(2, 9, 0)
+	void OnPageChanged(wxBookCtrlEvent &event);
+	#else
 	void OnPageChanged(wxListbookEvent &event);
+	#endif
 
 	void UpdateInstPanel();
 	void UpdateInstNameLabel(Instance *inst);
@@ -187,6 +192,7 @@ enum
 {
 	// Toolbar
 	ID_AddInst = 1,
+	ID_ImportInst,
 	ID_ImportCP,
 	ID_ViewFolder,
 	ID_ModsFolder,
