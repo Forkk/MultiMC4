@@ -541,6 +541,44 @@ bool Instance::JarModList::UpdateModList(bool quickLoad)
 	return false;
 }
 
+bool Instance::MLModList::LoadModListFromDir(const wxString& loadFrom, bool quickLoad)
+{
+	wxString dir(loadFrom.IsEmpty() ? modsFolder : loadFrom);
+
+	if (!wxDirExists(dir))
+		return false;
+
+	bool listChanged = false;
+	wxDir modDir(dir);
+
+	if (!modDir.IsOpened())
+	{
+		wxLogError(_("Failed to open directory: ") + dir);
+		return false;
+	}
+
+	wxString currentFile;
+	if (modDir.GetFirst(&currentFile))
+	{
+		do
+		{
+			wxFileName modFile(Path::Combine(dir, currentFile));
+
+			if (wxFileExists(modFile.GetFullPath()))
+			{
+				if (quickLoad || FindByFilename(modFile.GetFullPath()) == nullptr)
+				{
+					Mod mod(modFile.GetFullPath());
+					push_back(mod);
+					listChanged = true;
+				}
+			}
+		} while (modDir.GetNext(&currentFile));
+	}
+
+	return listChanged;
+}
+
 
 BEGIN_EVENT_TABLE(Instance, wxEvtHandler)
 	EVT_END_PROCESS(wxID_ANY, Instance::OnInstProcExited)

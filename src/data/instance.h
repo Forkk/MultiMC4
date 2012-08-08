@@ -138,6 +138,9 @@ protected:
 		{
 			return ModList::UpdateModList(quickLoad);
 		}
+		
+	protected:
+		virtual bool LoadModListFromDir(const wxString& loadFrom, bool quickLoad);
 	} mlModList;
 	
 	wxFileName rootDir;
