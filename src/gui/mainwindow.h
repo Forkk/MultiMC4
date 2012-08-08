@@ -25,6 +25,7 @@
 
 #include "insticonlist.h"
 
+#include "modlist.h"
 #include "settingsdialog.h"
 
 //const wxString tbarIconPrefix = _T("resources/toolbar/");
@@ -93,6 +94,9 @@ public:
 	void ShowLoginDlg(wxString errorMsg);
 	
 	void LoadInstanceList(wxFileName instDir = settings.GetInstDir());
+	void LoadCentralModList();
+
+	ModList *GetCentralModList();
 
 	void BuildConfPack(Instance *inst, const wxString &packName, 
 		const wxString &packNotes, const wxString &filename, wxArrayString &includedConfigs);
@@ -172,6 +176,8 @@ protected:
 	void EnableInstActions(bool enabled = true);
 	void DisableInstActions();
 	bool instActionsEnabled;
+
+	ModList centralModList;
 	
 private:
 	void NotImplemented();

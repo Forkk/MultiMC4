@@ -52,7 +52,8 @@ MainWindow::MainWindow(void)
 		wxString::Format(_("MultiMC"), 
 			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision()),
 		wxPoint(0, 0), minSize),
-		instIcons(32, 32)
+		instIcons(32, 32),
+		centralModList(settings.GetModsDir().GetFullPath())
 {
 	closeOnTaskEnd = false;
 	editingNotes = false;
@@ -123,6 +124,9 @@ MainWindow::~MainWindow(void)
 
 void MainWindow::OnStartup()
 {
+	LoadInstanceList();
+	LoadCentralModList();
+
 	if (settings.GetAutoUpdate())
 	{
 		CheckUpdateTask *task = new CheckUpdateTask();
@@ -981,6 +985,18 @@ void MainWindow::BuildConfPack(Instance *inst, const wxString &packName,
 {
 	ExportPackTask task(inst, packName, packNotes, filename, includedConfigs);
 	StartModalTask(task);
+}
+
+void MainWindow::LoadCentralModList()
+{
+	GetStatusBar()->PushStatusText(_("Loading central mods list..."), 0);
+	centralModList.UpdateModList(true);
+	GetStatusBar()->PopStatusText(0);
+}
+
+ModList* MainWindow::GetCentralModList()
+{
+	return &centralModList;
 }
 
 
