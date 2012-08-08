@@ -27,6 +27,7 @@ struct UserInfo
 	UserInfo(UserInfo &uInfo);
 	UserInfo(wxString &username, wxString &password, 
 		bool rememberUsername, bool rememberPassword);
+	UserInfo(const UserInfo &) = default;
 	
 	wxString username;
 	wxString password;
