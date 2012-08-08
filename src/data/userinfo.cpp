@@ -20,14 +20,6 @@
 
 #include <wx/sstream.h>
 
-UserInfo::UserInfo()
-{
-	this->username = wxEmptyString;
-	this->password = wxEmptyString;
-	this->rememberUsername = false;
-	this->rememberPassword = false;
-}
-
 UserInfo::UserInfo(LoginDialog& loginDlg)
 {
 	this->username = loginDlg.GetUsername();
