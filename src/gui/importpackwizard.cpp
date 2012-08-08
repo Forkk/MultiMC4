@@ -109,7 +109,7 @@ bool ImportPackWizard::Start()
 			Mod *mod = centralModList->FindByID(iter->m_id, iter->m_version);
 			if (mod == nullptr)
 			{
-				wxLogError(_("Missing jar mod %s."), iter->m_id);
+				wxLogError(_("Missing jar mod %s."), iter->m_id.c_str());
 			}
 			else
 			{
@@ -124,7 +124,7 @@ bool ImportPackWizard::Start()
 			Mod *mod = centralModList->FindByID(iter->m_id, iter->m_version);
 			if (mod == nullptr)
 			{
-				wxLogError(_("Missing modloader mod %s."), iter->m_id);
+				wxLogError(_("Missing modloader mod %s."), iter->m_id.c_str());
 			}
 			else
 			{
@@ -153,7 +153,7 @@ void ImportPackWizard::UpdateMissingModList()
 	{
 		if (centralModList->FindByID(iter->m_id, iter->m_version) == nullptr)
 		{
-			missingModsList->Append(wxString::Format(_("%s %s"), iter->m_id, iter->m_version));
+			missingModsList->Append(wxString::Format(_("%s %s"), iter->m_id.c_str(), iter->m_version.c_str()));
 		}
 	}
 
@@ -162,7 +162,7 @@ void ImportPackWizard::UpdateMissingModList()
 	{
 		if (centralModList->FindByID(iter->m_id, iter->m_version) == nullptr)
 		{
-			missingModsList->Append(wxString::Format(_("%s %s"), iter->m_id, iter->m_version));
+			missingModsList->Append(wxString::Format(_("%s %s"), iter->m_id.c_str(), iter->m_version.c_str()));
 		}
 	}
 }
