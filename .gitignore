@@ -1,8 +1,9 @@
-build
+﻿build
+build/*
+
 *.kdev4
 *~
 *.cpp‌~
 *‌.h~
 *‌.txt~
-
-
+*/Thumbs.db

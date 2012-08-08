@@ -19,9 +19,14 @@
 #include <wx/clipbrd.h>
 #include <apputils.h>
 
-ModEditWindow::ModEditWindow(wxWindow *parent, Instance *inst)
+#include "exportinstwizard.h"
+
+#include "mainwindow.h"
+
+ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 	: wxFrame(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))
 {
+	m_mainWin = parent;
 	wxPanel *mainPanel = new wxPanel(this);
 
 	SetTitle(wxString::Format(_("Edit Mods for %s"), inst->GetName().c_str()));
@@ -84,9 +89,11 @@ ModEditWindow::ModEditWindow(wxWindow *parent, Instance *inst)
 	
 	wxBoxSizer *btnBox = new wxBoxSizer(wxHORIZONTAL);
 	mainBox->Add(btnBox, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT | wxLEFT, 8);
-	
+
+	wxButton *btnExport = new wxButton(mainPanel, ID_EXPORT, _("&Export"));
+	btnBox->Add(btnExport, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxALL, 4));
+
 	wxButton *btnClose = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
-	
 	btnBox->Add(btnClose, wxSizerFlags(0).Align(wxALIGN_RIGHT).Border(wxALL, 4));
 	
 	CenterOnParent();
@@ -219,7 +226,7 @@ bool ModEditWindow::JarModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const w
 	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); iter++)
 	{
 		wxFileName modFileName(*iter);
-		m_inst->InsertMod(index, modFileName);
+		m_inst->GetModList()->InsertMod(index, modFileName.GetFullPath());
 		m_owner->UpdateItems();
 	}
 
@@ -270,7 +277,7 @@ void ModEditWindow::JarModListCtrl::PasteMod()
 	wxArrayString filenames = data.GetFilenames();
 	for (wxArrayString::iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
 	{
-		m_inst->InsertMod(insertPoint, *iter);
+		m_inst->GetModList()->InsertMod(insertPoint, *iter);
 	}
 	UpdateItems();
 }
@@ -303,7 +310,7 @@ void ModEditWindow::JarModListCtrl::DeleteMod()
 	wxArrayInt indices = GetSelectedItems();
 	for (int i = indices.GetCount() -1; i >= 0; i--)
 	{
-		m_inst->DeleteMod(indices[i]);
+		m_inst->GetModList()->DeleteMod(indices[i]);
 	}
 	UpdateItems();
 }
@@ -379,7 +386,7 @@ void ModEditWindow::MLModListCtrl::DeleteMod()
 	
 	for (int i = indices.GetCount() -1; i >= 0; i--)
 	{
-		m_inst->DeleteMLMod(indices[i]);
+		m_inst->GetMLModList()->DeleteMod(indices[i]);
 	}
 	m_inst->LoadMLModList();
 	UpdateItems();
@@ -461,7 +468,7 @@ void ModEditWindow::OnAddJarMod(wxCommandEvent &event)
 	if (addModDialog->ShowModal() == wxID_OK)
 	{
 		wxFileName file(addModDialog->GetPath());
-		m_inst->InsertMod(m_inst->GetModList()->size(), file);
+		m_inst->GetModList()->InsertMod(m_inst->GetModList()->size(), file.GetFullPath());
 		jarModList->UpdateItems();
 	}
 }
@@ -501,8 +508,9 @@ void ModEditWindow::OnMoveJarModDown(wxCommandEvent &event)
 	
 	wxArrayInt indices = jarModList->GetSelectedItems();
 	ModList *mods= m_inst->GetModList();
-	for (size_t i = indices.GetCount() - 1; i >= 0; --i)
+	for (size_t i = indices.GetCount(); i > 0;)
 	{
+		--i; // Fixes faulty comparison i>=0 on unsigned i above
 		if ((size_t)indices[i] + 1 >= mods->size())
 			continue;
 		
@@ -574,6 +582,36 @@ void ModEditWindow::OnDragJarMod(wxListEvent &event)
 	modsDropSource.DoDragDrop(wxDrag_CopyOnly);
 }
 
+void ModEditWindow::OnExportClicked(wxCommandEvent& event)
+{
+	ExportInstWizard *exportWizard = new ExportInstWizard(this, this->m_inst);
+	exportWizard->Start();
+
+	wxString fileName;
+
+	wxFileDialog *chooseFileDlg = new wxFileDialog(this, _("Save..."), 
+		wxGetCwd(), wxEmptyString, wxFileSelectorDefaultWildcardStr,
+		wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+	if (chooseFileDlg->ShowModal() == wxID_OK)
+	{
+		fileName = chooseFileDlg->GetPath();
+	}
+	else
+	{
+		return;
+	}
+
+	wxString packName = exportWizard->GetPackName();
+	wxString packNotes = exportWizard->GetPackNotes();
+
+	wxArrayString includedConfigs;
+	exportWizard->GetIncludedConfigs(&includedConfigs);
+
+	exportWizard->Destroy();
+
+	m_mainWin->BuildConfPack(m_inst, packName, packNotes, fileName, includedConfigs);
+}
+
 void ModEditWindow::OnCloseClicked(wxCommandEvent &event)
 {
 	Close();
@@ -594,6 +632,7 @@ BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
 	
 	EVT_LIST_BEGIN_DRAG(ID_JAR_MOD_LIST, ModEditWindow::OnDragJarMod)
 	
+	EVT_BUTTON(ID_EXPORT, ModEditWindow::OnExportClicked)
 	EVT_BUTTON(wxID_CLOSE, ModEditWindow::OnCloseClicked)
 END_EVENT_TABLE()
 

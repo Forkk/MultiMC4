@@ -29,7 +29,10 @@
 #include <checkupdatetask.h>
 #include <filedownloadtask.h>
 #include "filecopytask.h"
+#include "exportpacktask.h"
 #include "version.h"
+#include "configpack.h"
+#include "importpackwizard.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -40,6 +43,7 @@
 #include <wx/stdpaths.h>
 #include <wx/listbook.h>
 #include <wx/gbsizer.h>
+#include <wx/filedlg.h>
 
 const int instNameLengthLimit = 25;
 
@@ -51,7 +55,8 @@ MainWindow::MainWindow(void)
 		wxString::Format(_("MultiMC %d.%d.%d"), 
 			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision()),
 		wxPoint(0, 0), minSize),
-		instIcons(32, 32)
+		instIcons(32, 32),
+		centralModList(settings.GetModsDir().GetFullPath())
 {
 	closeOnTaskEnd = false;
 	editingNotes = false;
@@ -66,6 +71,7 @@ MainWindow::MainWindow(void)
 	
 	// Load toolbar icons
 	wxBitmap newInstIcon = wxMEMORY_IMAGE(newinsticon);
+	wxBitmap importCPIcon = wxMEMORY_IMAGE(importcpicon);
 	wxBitmap reloadIcon = wxMEMORY_IMAGE(refreshinsticon);
 	wxBitmap viewFolderIcon = wxMEMORY_IMAGE(viewfoldericon);
 	wxBitmap settingsIcon = wxMEMORY_IMAGE(settingsicon);
@@ -74,34 +80,37 @@ MainWindow::MainWindow(void)
 	wxBitmap aboutIcon = wxMEMORY_IMAGE(abouticon);
 	
 	// Build the toolbar
-	
 	#if (defined __WXMSW__ || defined __WXGTK__) && wxCHECK_VERSION(2, 9, 4) 
 	{
 		auto tool = mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."),wxITEM_DROPDOWN);
-		wxMenu * newInstanceMenu = new wxMenu();
+		wxMenu* newInstanceMenu = new wxMenu();
 		
-		wxMenuItem * create = new wxMenuItem(0,ID_AddInst, _("Add a new instance."));
+		wxMenuItem* create = new wxMenuItem(0, ID_AddInst, _("Add a new instance."));
 		create->SetBitmap(newInstIcon);
-		((wxMenuBase *)newInstanceMenu)->Append(create);
+		((wxMenuBase*)newInstanceMenu)->Append(create);
 		
-		wxMenuItem * copy = new wxMenuItem(0,ID_CopyInst, _("Copy selected instance."));
-		copy->SetBitmap(newInstIcon);
-		((wxMenuBase *)newInstanceMenu)->Append(copy);
-		
-		wxMenuItem * import = new wxMenuItem(0,ID_ImportInst, _("Import existing .minecraft folder"));
+		//wxMenuItem* copy = new wxMenuItem(0, ID_CopyInst, _("Copy selected instance."));
+		//copy->SetBitmap(newInstIcon);
+		//((wxMenuBase*)newInstanceMenu)->Append(copy);
+		//
+		//wxMenuItem* import = new wxMenuItem(0, ID_ImportInst, _("Import existing .minecraft folder"));
+		//import->SetBitmap(newInstIcon);
+		//((wxMenuBase*)newInstanceMenu)->Append(import);
+
+		wxMenuItem* importPack = new wxMenuItem(0, ID_ImportInst, _("Import config pack"));
 		import->SetBitmap(newInstIcon);
-		((wxMenuBase *)newInstanceMenu)->Append(import);
+		((wxMenuBase*)newInstanceMenu)->Append(importPack);
 		
 		tool->SetDropdownMenu(newInstanceMenu);
 	}
 	#else
 	{
 		mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."));
-		mainToolBar->AddTool(ID_CopyInst, _("Copy instance"), newInstIcon, _("Copy selected instance."));
-		mainToolBar->AddTool(ID_ImportInst, _("Import .minecraft"), newInstIcon, _("Import existing .minecraft folder"));
+		//mainToolBar->AddTool(ID_CopyInst, _("Copy instance"), newInstIcon, _("Copy selected instance."));
+		//mainToolBar->AddTool(ID_ImportInst, _("Import .minecraft"), newInstIcon, _("Import existing .minecraft folder"));
+		mainToolBar->AddTool(ID_ImportCP, _("Import config pack"), importCPIcon, _("Import a config pack."));
 	}
 	#endif
-	
 	mainToolBar->AddTool(ID_Refresh, _("Refresh"), reloadIcon, _("Reload ALL the instances!"));
 	mainToolBar->AddTool(ID_ViewFolder, _("View folder"), viewFolderIcon, _("Open the instance folder."));
 	mainToolBar->AddSeparator();
@@ -149,6 +158,9 @@ MainWindow::~MainWindow(void)
 
 void MainWindow::OnStartup()
 {
+	LoadInstanceList();
+	LoadCentralModList();
+
 	if (settings.GetAutoUpdate())
 	{
 		CheckUpdateTask *task = new CheckUpdateTask();
@@ -492,6 +504,21 @@ void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 	Instance *inst = new Instance(instDir);
 	inst->SetName(instName);
 	AddInstance(inst);
+}
+
+void MainWindow::OnImportCPClicked(wxCommandEvent& event)
+{
+	wxFileDialog *fileDlg = new wxFileDialog(this, _("Choose a pack to import."),
+		wxEmptyString, wxEmptyString, _("*.zip"), wxFD_OPEN);
+	if (fileDlg->ShowModal() == wxID_OK)
+	{
+		ConfigPack cp(fileDlg->GetPath());
+		if (cp.IsValid())
+		{
+			ImportPackWizard importWiz(this, &cp);
+			importWiz.Start();
+		}
+	}
 }
 
 void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
@@ -1004,9 +1031,29 @@ void MainWindow::OnWindowClosed(wxCloseEvent& event)
 	wxTheApp->Exit();
 }
 
+void MainWindow::BuildConfPack(Instance *inst, const wxString &packName, 
+	const wxString &packNotes, const wxString &filename, wxArrayString &includedConfigs)
+{
+	ExportPackTask task(inst, packName, packNotes, filename, includedConfigs);
+	StartModalTask(task);
+}
+
+void MainWindow::LoadCentralModList()
+{
+	GetStatusBar()->PushStatusText(_("Loading central mods list..."), 0);
+	centralModList.UpdateModList(true);
+	GetStatusBar()->PopStatusText(0);
+}
+
+ModList* MainWindow::GetCentralModList()
+{
+	return &centralModList;
+}
+
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)
+	EVT_TOOL(ID_ImportCP, MainWindow::OnImportCPClicked)
 	EVT_TOOL(ID_ViewFolder, MainWindow::OnViewFolderClicked)
 	EVT_TOOL(ID_Refresh, MainWindow::OnRefreshClicked)
 

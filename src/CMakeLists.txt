@@ -58,11 +58,15 @@ gui/logindialog.cpp
 gui/consolewindow.cpp
 gui/modeditwindow.cpp
 gui/changeicondialog.cpp
+gui/exportinstwizard.cpp
+gui/importpackwizard.cpp
 
 data/appsettings.cpp
 data/instance.cpp
 data/userinfo.cpp
 data/mod.cpp
+data/modlist.cpp
+data/configpack.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
@@ -71,6 +75,7 @@ tasks/gameupdatetask.cpp
 tasks/checkupdatetask.cpp
 tasks/filedownloadtask.cpp
 tasks/filecopytask.cpp
+tasks/exportpacktask.cpp
 
 apputils.cpp
 curlutils.cpp
@@ -92,11 +97,15 @@ gui/logindialog.h
 gui/consolewindow.h
 gui/modeditwindow.h
 gui/changeicondialog.h
+gui/exportinstwizard.h
+gui/importpackwizard.h
 
 data/appsettings.h
 data/instance.h
 data/userinfo.h
 data/mod.h
+data/modlist.h
+data/configpack.h
 
 tasks/task.h
 tasks/logintask.h
@@ -105,6 +114,7 @@ tasks/gameupdatetask.h
 tasks/checkupdatetask.h
 tasks/filedownloadtask.h
 tasks/filecopytask.h
+tasks/exportpacktask.h
 
 apputils.h
 curlutils.h

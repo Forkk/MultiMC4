@@ -1,5 +1,9 @@
+FILE(APPEND "${CMAKE_CURRENT_BINARY_DIR}/insticons.h" "")
+FILE(APPEND "${CMAKE_CURRENT_BINARY_DIR}/toolbaricons.h" "")
+
 SET(TOOLBAR_ICONS
 NewInstIcon.png
+ImportCPIcon.png
 AboutIcon.png
 CheckUpdateIcon.png
 HelpIcon.png

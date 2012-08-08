@@ -22,7 +22,14 @@ class LoginDialog;
 
 struct UserInfo
 {
-	UserInfo();
+	UserInfo()
+	{
+		this->username = wxEmptyString;
+		this->password = wxEmptyString;
+		this->rememberUsername = false;
+		this->rememberPassword = false;
+	}
+
 	UserInfo(LoginDialog &loginDlg);
 	UserInfo(UserInfo &uInfo);
 	UserInfo(wxString &username, wxString &password, 

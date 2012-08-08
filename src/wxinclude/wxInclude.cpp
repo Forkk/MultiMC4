@@ -131,16 +131,17 @@ void definefile ( std::ostringstream& data, fs::ifstream& input, std::string& na
 			Boost help says using const boost::format fmter(fstring);
 			But static is faster and using the object without copy constructor is even faster!
 		*/
-		//static boost::format fmt( "0x%02X" );
-		//data << fmt % c;
+		static boost::format fmt( "0x%02X" );
+		data << fmt % c;
 
 		/*
 			Fast option then... this code is executed allot!
 			Still faster then the optimized boost::format use, but not that much!
 		*/
-		static char temp[5];
-		snprintf ( temp, 5, "0x%02X", c );
-		data << temp;
+		// Does not work on Windows...
+		//static char temp[5];
+		//snprintf ( temp, 5, "0x%02X", c );
+		//data << temp;
 
 		if ( i >= size )
 		{

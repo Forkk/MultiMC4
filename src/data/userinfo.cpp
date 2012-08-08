@@ -20,14 +20,6 @@
 
 #include <wx/sstream.h>
 
-UserInfo::UserInfo()
-{
-	this->username = wxEmptyString;
-	this->password = wxEmptyString;
-	this->rememberUsername = false;
-	this->rememberPassword = false;
-}
-
 UserInfo::UserInfo(LoginDialog& loginDlg)
 {
 	this->username = loginDlg.GetUsername();
@@ -67,7 +59,7 @@ void UserInfo::SaveToFile(const char * filename) const
 		return;
 	
 	auto utf8_data = outString.ToUTF8();
-	for(int i = 0; utf8_data[i] != 0; i++)
+	for(size_t i = 0; utf8_data[i] != 0; i++)
 	{
 		short datapt = utf8_data[i];
 		datapt = -datapt;

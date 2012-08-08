@@ -26,6 +26,7 @@
 
 #include "insticonlist.h"
 
+#include "modlist.h"
 #include "settingsdialog.h"
 
 //const wxString tbarIconPrefix = _T("resources/toolbar/");
@@ -43,6 +44,7 @@ public:
 
 	// Toolbar
 	void OnAddInstClicked(wxCommandEvent& event);
+	void OnImportCPClicked(wxCommandEvent& event);
 	void OnViewFolderClicked(wxCommandEvent& event);
 	void OnRefreshClicked(wxCommandEvent& event);
 
@@ -87,13 +89,22 @@ public:
 	void OnWindowClosed(wxCloseEvent& event);
 	
 	
-	// Other methods
+	// Other functions
 	void StartTask(Task &task);
 	bool StartModalTask(Task &task, bool forceModal = true);
 	
 	void ShowLoginDlg(wxString errorMsg);
 	
 	void LoadInstanceList(wxFileName instDir = settings.GetInstDir());
+	void LoadCentralModList();
+
+	ModList *GetCentralModList();
+
+	void BuildConfPack(Instance *inst, const wxString &packName, 
+		const wxString &packNotes, const wxString &filename, wxArrayString &includedConfigs);
+
+	bool GetNewInstName(wxString *instName, wxString *instDirName, const wxString title = _("Create new instance"));
+	void AddInstance(Instance *inst);
 	
 	
 	DECLARE_EVENT_TABLE()
@@ -110,15 +121,11 @@ protected:
 	InstIconList instIcons;
 	void LoadInstIconList(wxString customIconDirName = _T("icons"));
 
-	void AddInstance(Instance *inst);
-
 	Instance* GetLinkedInst(int id);
 
 	Instance* GetSelectedInst();
 
 	std::map<int, Instance*> instItems;
-	
-	bool GetNewInstName(wxString *instName, wxString *instDirName, const wxString title = _("Create new instance"));
 	
 	GUIMode GetGUIMode() const;
 	
@@ -174,6 +181,8 @@ protected:
 	void EnableInstActions(bool enabled = true);
 	void DisableInstActions();
 	bool instActionsEnabled;
+
+	ModList centralModList;
 	
 private:
 	void NotImplemented();
@@ -184,6 +193,7 @@ enum
 	// Toolbar
 	ID_AddInst = 1,
 	ID_ImportInst,
+	ID_ImportCP,
 	ID_ViewFolder,
 	ID_ModsFolder,
 	ID_Refresh,

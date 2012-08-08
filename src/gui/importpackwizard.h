@@ -15,32 +15,42 @@
 //
 
 #pragma once
-#include <wx/wx.h>
-#include <wx/filename.h>
+#include <wx/wizard.h>
 
-class Mod
+#include "instance.h"
+#include "configpack.h"
+
+class MainWindow;
+
+class ImportPackWizard : public wxWizard
 {
 public:
-	Mod(const wxFileName &file);
-	Mod(const Mod &mod);
-	
-	wxFileName GetFileName() const;
-	
-	wxString GetName() const;
-	wxString GetModID() const;
-	wxString GetModVersion() const;
-	wxString GetMCVersion() const;
-	
-	// True if this mod is a zip file.
-	bool IsZipMod() const;
+	ImportPackWizard(MainWindow *parent, ConfigPack *pack);
 
-	bool operator ==(const Mod &other) const;
-	
+	bool Start();
+
 protected:
-	wxFileName modFile;
-	
-	wxString modID;
-	wxString modName;
-	wxString modVersion;
-	wxString mcVersion;
+	MainWindow *m_mainWin;
+
+	void UpdateMissingModList();
+	void UpdateMissingModList(wxCommandEvent& event);
+
+	void ViewFolderClicked(wxCommandEvent& event);
+
+	ConfigPack *m_pack;
+
+	wxWizardPageSimple *packInfoPage;
+	wxWizardPageSimple *findModFilesPage;
+
+	wxTextCtrl *packNotesTextbox;
+
+	wxListBox *missingModsList;
+
+	DECLARE_EVENT_TABLE()
+};
+
+enum
+{
+	ID_RefreshList,
+	ID_ViewCentralModsFolder
 };

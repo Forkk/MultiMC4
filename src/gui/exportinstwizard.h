@@ -15,32 +15,36 @@
 //
 
 #pragma once
-#include <wx/wx.h>
-#include <wx/filename.h>
+#include <wx/wizard.h>
 
-class Mod
+#include "instance.h"
+
+class ExportInstWizard : public wxWizard
 {
 public:
-	Mod(const wxFileName &file);
-	Mod(const Mod &mod);
-	
-	wxFileName GetFileName() const;
-	
-	wxString GetName() const;
-	wxString GetModID() const;
-	wxString GetModVersion() const;
-	wxString GetMCVersion() const;
-	
-	// True if this mod is a zip file.
-	bool IsZipMod() const;
+	ExportInstWizard(wxWindow *parent, Instance *inst);
 
-	bool operator ==(const Mod &other) const;
-	
+	bool Start();
+
+	wxString GetPackName();
+	wxString GetPackNotes();
+	void GetIncludedConfigs(wxArrayString *out);
+
 protected:
-	wxFileName modFile;
-	
-	wxString modID;
-	wxString modName;
-	wxString modVersion;
-	wxString mcVersion;
+	Instance *m_inst;
+
+	wxWizardPageSimple *enterInfoPage;
+	wxWizardPageSimple *chooseConfigFilesPage;
+
+	wxTextCtrl *packNameTextbox;
+	wxTextCtrl *packNotesTextbox;
+
+	wxTextCtrl *fileNameTextbox;
+
+	wxCheckListBox *cfgListCtrl;
+};
+
+enum
+{
+	ID_BrowseFile
 };

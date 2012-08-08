@@ -15,32 +15,41 @@
 //
 
 #pragma once
-#include <wx/wx.h>
-#include <wx/filename.h>
 
-class Mod
+#include <wx/string.h>
+
+#include <vector>
+
+class ConfigPack
 {
 public:
-	Mod(const wxFileName &file);
-	Mod(const Mod &mod);
-	
-	wxFileName GetFileName() const;
-	
-	wxString GetName() const;
-	wxString GetModID() const;
-	wxString GetModVersion() const;
-	wxString GetMCVersion() const;
-	
-	// True if this mod is a zip file.
-	bool IsZipMod() const;
+	ConfigPack(const wxString& fileName);
 
-	bool operator ==(const Mod &other) const;
-	
+	struct CPModInfo
+	{
+		CPModInfo(const wxString& id, const wxString& version);
+
+		wxString m_id;
+		wxString m_version;
+	};
+
+	bool IsValid() const;
+
+	wxString GetFileName() const;
+	wxString GetPackName() const;
+	wxString GetPackNotes() const;
+
+	const std::vector<CPModInfo>* GetJarModList() const;
+	const std::vector<CPModInfo>* GetMLModList() const;
+
 protected:
-	wxFileName modFile;
+	bool m_valid;
+
+	wxString m_fileName;
 	
-	wxString modID;
-	wxString modName;
-	wxString modVersion;
-	wxString mcVersion;
+	wxString m_packName;
+	wxString m_packNotes;
+
+	std::vector<CPModInfo> jarModInfoList;
+	std::vector<CPModInfo> mlModInfoList;
 };
