@@ -173,8 +173,13 @@ include_directories("${Boost_INCLUDE_DIRS}")
 # Make the static md5 lib build
 add_subdirectory(md5)
 
-# Build the wxinclude generator
-add_subdirectory(wxinclude)
+if (CMAKE_CROSSCOMPILING)
+	# Build the wxinclude generator
+	add_subdirectory(wxinclude)
+else ()
+	SET(IMPORT_EXECUTABLES "IMPORTFILE-NOTFOUND" CACHE FILEPATH "Point it to the export file from a native build of wxInclude")
+	INCLUDE(${IMPORT_EXECUTABLES})
+endif ()
 
 # Create header files out of resources
 add_subdirectory(resources)
@@ -202,3 +207,7 @@ target_link_libraries(MultiMC
 	tinymd5
 	${MULTIMC_ADDITIONAL_LINKS}
 )
+
+if (NOT CMAKE_CROSSCOMPILING)
+	EXPORT(TARGETS wxinclude FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake)
+endif ()
