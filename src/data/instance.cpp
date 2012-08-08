@@ -531,9 +531,9 @@ bool Instance::JarModList::DeleteMod(size_t index, const wxString& saveToFile)
 	return false;
 }
 
-bool Instance::JarModList::UpdateModList()
+bool Instance::JarModList::UpdateModList(bool quickLoad)
 {
-	if (ModList::UpdateModList())
+	if (ModList::UpdateModList(quickLoad))
 	{
 		m_inst->SetNeedsRebuild();
 		return true;

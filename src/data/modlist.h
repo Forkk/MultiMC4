@@ -28,7 +28,7 @@ public:
 	ModList(const wxString& dir = wxEmptyString);
 
 	// Reloads the mod list and returns true if the list changed.
-	virtual bool UpdateModList();
+	virtual bool UpdateModList(bool quickLoad = false);
 
 	// Returns a pointer to the mod in the list with the given filename.
 	// Returns nullptr if no mod with the given filename is in the list.
@@ -62,7 +62,7 @@ public:
 protected:
 	// Loads the mod list from the given directory.
 	// Returns true if the list changed.
-	virtual bool LoadModListFromDir(const wxString& loadFrom = wxEmptyString);
+	virtual bool LoadModListFromDir(const wxString& loadFrom = wxEmptyString, bool quickLoad = false);
 
 	wxString modsFolder;
 };

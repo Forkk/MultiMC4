@@ -20,6 +20,9 @@
 #include <wx/wfstream.h>
 #include <wx/file.h>
 
+#include <algorithm>
+#include <functional>
+
 #include "apputils.h"
 #include "datautils.h"
 
@@ -29,14 +32,15 @@ ModList::ModList(const wxString &dir)
 	
 }
 
-bool ModList::UpdateModList()
+bool ModList::UpdateModList(bool quickLoad)
 {
 	bool listChanged = false;
 
 	// Check for mods in the list whose files do not exist and remove them from the list.
+	// If doing a quickLoad, erase the whole list.
 	for (size_t i = 0; i < size(); i++)
 	{
-		if (!at(i).GetFileName().FileExists())
+		if (quickLoad || !at(i).GetFileName().FileExists())
 		{
 			erase(begin() + i);
 			i--;
@@ -45,13 +49,26 @@ bool ModList::UpdateModList()
 	}
 
 	// Add any mods in the mods folder that aren't already in the list.
-	if (LoadModListFromDir())
+	if (LoadModListFromDir(wxEmptyString, quickLoad))
 		listChanged = true;
+
+	if (!quickLoad)
+	{
+		// Remove duplicate items.
+		for (iterator check = begin(); check != end(); ++check)
+		{
+			erase(std::remove_if(check + 1, end(), 
+				[&] (Mod& mod) -> bool
+				{
+					return check->GetFileName().SameAs(mod.GetFileName());
+				}));
+		}
+	}
 
 	return listChanged;
 }
 
-bool ModList::LoadModListFromDir(const wxString& loadFrom)
+bool ModList::LoadModListFromDir(const wxString& loadFrom, bool quickLoad)
 {
 	wxString dir(loadFrom.IsEmpty() ? modsFolder : loadFrom);
 
@@ -73,12 +90,12 @@ bool ModList::LoadModListFromDir(const wxString& loadFrom)
 
 			if (wxFileExists(modFile.GetFullPath()))
 			{
-				if (FindByFilename(modFile.GetFullPath()) == nullptr)
-				{
+				//if (quickLoad || FindByFilename(modFile.GetFullPath()) == nullptr)
+				//{
 					Mod mod(modFile.GetFullPath());
 					push_back(mod);
 					listChanged = true;
-				}
+				//}
 			}
 			else if (wxDirExists(modFile.GetFullPath()))
 			{

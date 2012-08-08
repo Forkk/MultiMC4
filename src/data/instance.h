@@ -119,7 +119,7 @@ protected:
 	public:
 		JarModList(Instance *inst, const wxString& dir = wxEmptyString);
 
-		virtual bool UpdateModList();
+		virtual bool UpdateModList(bool quickLoad = false);
 
 		virtual bool InsertMod(size_t index, const wxString &filename, const wxString& saveToFile = wxEmptyString);
 		virtual bool DeleteMod(size_t index, const wxString& saveToFile = wxEmptyString);
@@ -128,7 +128,17 @@ protected:
 		Instance *m_inst;
 	} modList;
 
-	ModList mlModList;
+	class MLModList : public ModList
+	{
+	public:
+		MLModList(const wxString& dir = wxEmptyString)
+			: ModList(dir) {}
+
+		virtual bool UpdateModList(bool quickLoad = true)
+		{
+			return ModList::UpdateModList(quickLoad);
+		}
+	} mlModList;
 	
 	wxFileName rootDir;
 	
