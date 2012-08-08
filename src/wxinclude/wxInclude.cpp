@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include <string>
+#include <vector>
 #include <iostream>
 #include <sstream>
 #include <exception>
@@ -107,7 +108,13 @@ void definefile ( std::ostringstream& data, std::ifstream& input, std::string& n
 		c = input.get();
 		char temp[5];
 		temp[4] = 0;
+
+#ifdef WIN32
+		_snprintf ( temp, 5, "0x%02X", c );
+#else
 		snprintf ( temp, 5, "0x%02X", c );
+#endif
+		
 		data << temp;
 
 		if ( i >= size )
