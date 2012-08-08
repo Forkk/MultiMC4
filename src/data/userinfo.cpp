@@ -94,6 +94,7 @@ void UserInfo::LoadFromFile(const char * filename)
 	}
 	if (utf8_str.size() == 0)
 		return;
+	fclose(passfile);
 	wxString inString = wxString::FromUTF8(utf8_str.c_str(),utf8_str.size());
 	rememberUsername = true;
 	int split_pos = inString.Find(L'=',true);
