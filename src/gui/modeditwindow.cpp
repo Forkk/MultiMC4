@@ -590,8 +590,7 @@ void ModEditWindow::OnExportClicked(wxCommandEvent& event)
 	wxString fileName;
 
 	wxFileDialog *chooseFileDlg = new wxFileDialog(this, _("Save..."), 
-		wxGetCwd(), wxEmptyString, wxFileSelectorDefaultWildcardStr,
-		wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+		wxGetCwd(), wxEmptyString, _("*.zip"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 	if (chooseFileDlg->ShowModal() == wxID_OK)
 	{
 		fileName = chooseFileDlg->GetPath();
