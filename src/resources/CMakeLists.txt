@@ -1,5 +1,6 @@
 SET(TOOLBAR_ICONS
 NewInstIcon.png
+ImportCPIcon.png
 AboutIcon.png
 CheckUpdateIcon.png
 HelpIcon.png

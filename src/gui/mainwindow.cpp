@@ -71,6 +71,7 @@ MainWindow::MainWindow(void)
 	
 	// Load toolbar icons
 	wxBitmap newInstIcon = wxMEMORY_IMAGE(newinsticon);
+	wxBitmap importCPIcon = wxMEMORY_IMAGE(importcpicon);
 	wxBitmap reloadIcon = wxMEMORY_IMAGE(refreshinsticon);
 	wxBitmap viewFolderIcon = wxMEMORY_IMAGE(viewfoldericon);
 	wxBitmap settingsIcon = wxMEMORY_IMAGE(settingsicon);
@@ -88,13 +89,13 @@ MainWindow::MainWindow(void)
 		create->SetBitmap(newInstIcon);
 		((wxMenuBase*)newInstanceMenu)->Append(create);
 		
-		wxMenuItem* copy = new wxMenuItem(0, ID_CopyInst, _("Copy selected instance."));
-		copy->SetBitmap(newInstIcon);
-		((wxMenuBase*)newInstanceMenu)->Append(copy);
-		
-		wxMenuItem* import = new wxMenuItem(0, ID_ImportInst, _("Import existing .minecraft folder"));
-		import->SetBitmap(newInstIcon);
-		((wxMenuBase*)newInstanceMenu)->Append(import);
+		//wxMenuItem* copy = new wxMenuItem(0, ID_CopyInst, _("Copy selected instance."));
+		//copy->SetBitmap(newInstIcon);
+		//((wxMenuBase*)newInstanceMenu)->Append(copy);
+		//
+		//wxMenuItem* import = new wxMenuItem(0, ID_ImportInst, _("Import existing .minecraft folder"));
+		//import->SetBitmap(newInstIcon);
+		//((wxMenuBase*)newInstanceMenu)->Append(import);
 
 		wxMenuItem* importPack = new wxMenuItem(0, ID_ImportInst, _("Import config pack"));
 		import->SetBitmap(newInstIcon);
@@ -105,9 +106,9 @@ MainWindow::MainWindow(void)
 	#else
 	{
 		mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."));
-		mainToolBar->AddTool(ID_CopyInst, _("Copy instance"), newInstIcon, _("Copy selected instance."));
-		mainToolBar->AddTool(ID_ImportInst, _("Import .minecraft"), newInstIcon, _("Import existing .minecraft folder"));
-		mainToolBar->AddTool(ID_ImportCP, _("Import config pack"), newInstIcon, _("Import a config pack."));
+		//mainToolBar->AddTool(ID_CopyInst, _("Copy instance"), newInstIcon, _("Copy selected instance."));
+		//mainToolBar->AddTool(ID_ImportInst, _("Import .minecraft"), newInstIcon, _("Import existing .minecraft folder"));
+		mainToolBar->AddTool(ID_ImportCP, _("Import config pack"), importCPIcon, _("Import a config pack."));
 	}
 	#endif
 	mainToolBar->AddTool(ID_Refresh, _("Refresh"), reloadIcon, _("Reload ALL the instances!"));
