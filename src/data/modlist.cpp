@@ -59,6 +59,9 @@ bool ModList::LoadModListFromDir(const wxString& loadFrom, bool quickLoad)
 {
 	wxString dir(loadFrom.IsEmpty() ? modsFolder : loadFrom);
 
+	if (!wxDirExists(dir))
+		return;
+
 	bool listChanged = false;
 	wxDir modDir(dir);
 
