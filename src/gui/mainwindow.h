@@ -43,6 +43,7 @@ public:
 
 	// Toolbar
 	void OnAddInstClicked(wxCommandEvent& event);
+	void OnImportCPClicked(wxCommandEvent& event);
 	void OnViewFolderClicked(wxCommandEvent& event);
 	void OnRefreshClicked(wxCommandEvent& event);
 
@@ -100,6 +101,9 @@ public:
 
 	void BuildConfPack(Instance *inst, const wxString &packName, 
 		const wxString &packNotes, const wxString &filename, wxArrayString &includedConfigs);
+
+	bool GetNewInstName(wxString *instName, wxString *instDirName, const wxString title = _("Create new instance"));
+	void AddInstance(Instance *inst);
 	
 	
 	DECLARE_EVENT_TABLE()
@@ -116,15 +120,11 @@ protected:
 	InstIconList instIcons;
 	void LoadInstIconList(wxString customIconDirName = _T("icons"));
 
-	void AddInstance(Instance *inst);
-
 	Instance* GetLinkedInst(int id);
 
 	Instance* GetSelectedInst();
 
 	std::map<int, Instance*> instItems;
-	
-	bool GetNewInstName(wxString *instName, wxString *instDirName, const wxString title = _("Create new instance"));
 	
 	GUIMode GetGUIMode() const;
 	
@@ -187,6 +187,7 @@ enum
 {
 	// Toolbar
 	ID_AddInst = 1,
+	ID_ImportCP,
 	ID_ViewFolder,
 	ID_ModsFolder,
 	ID_Refresh,

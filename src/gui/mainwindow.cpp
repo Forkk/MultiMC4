@@ -31,6 +31,8 @@
 #include "filecopytask.h"
 #include "exportpacktask.h"
 #include "version.h"
+#include "configpack.h"
+#include "importpackwizard.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -41,6 +43,7 @@
 #include <wx/stdpaths.h>
 #include <wx/listbook.h>
 #include <wx/gbsizer.h>
+#include <wx/filedlg.h>
 
 const int instNameLengthLimit = 25;
 
@@ -77,6 +80,7 @@ MainWindow::MainWindow(void)
 	
 	// Build the toolbar
 	mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."));
+	mainToolBar->AddTool(ID_ImportCP, _("Import config pack"), newInstIcon, _("Import a config pack."));
 	mainToolBar->AddTool(ID_Refresh, _("Refresh"), reloadIcon, _("Reload ALL the instances!"));
 	mainToolBar->AddTool(ID_ViewFolder, _("View folder"), viewFolderIcon, _("Open the instance folder."));
 	mainToolBar->AddSeparator();
@@ -466,6 +470,21 @@ void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 	Instance *inst = new Instance(instDir);
 	inst->SetName(instName);
 	AddInstance(inst);
+}
+
+void MainWindow::OnImportCPClicked(wxCommandEvent& event)
+{
+	wxFileDialog *fileDlg = new wxFileDialog(this, _("Choose a pack to import."),
+		wxEmptyString, wxEmptyString, _("*.zip"), wxFD_OPEN);
+	if (fileDlg->ShowModal() == wxID_OK)
+	{
+		ConfigPack cp(fileDlg->GetPath());
+		if (cp.IsValid())
+		{
+			ImportPackWizard importWiz(this, &cp);
+			importWiz.Start();
+		}
+	}
 }
 
 void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
@@ -1002,6 +1021,7 @@ ModList* MainWindow::GetCentralModList()
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)
+	EVT_TOOL(ID_ImportCP, MainWindow::OnImportCPClicked)
 	EVT_TOOL(ID_ViewFolder, MainWindow::OnViewFolderClicked)
 	EVT_TOOL(ID_Refresh, MainWindow::OnRefreshClicked)
 

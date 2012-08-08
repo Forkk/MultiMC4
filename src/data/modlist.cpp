@@ -135,6 +135,19 @@ int ModList::FindIndexByFilename(const wxString& filename)
 	return -1;
 }
 
+Mod* ModList::FindByID(const wxString& modID, const wxString& modVersion)
+{
+	// Search the list for a mod that matches
+	for (iterator iter = begin(); iter != end(); ++iter)
+	{
+		if (iter->GetModID() == modID && iter->GetModVersion() == modVersion)
+			return &(*iter);
+	}
+
+	// If nothing is found, return nullptr.
+	return nullptr;
+}
+
 void ModList::LoadFromFile(const wxString& file)
 {
 	wxFFileInputStream inputStream(file);

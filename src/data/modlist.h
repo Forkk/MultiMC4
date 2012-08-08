@@ -38,6 +38,10 @@ public:
 	// Returns -1 if no mod with the given filename is in the list.
 	int FindIndexByFilename(const wxString& filename);
 
+	// Returns the mod with the given ID and version.
+	// Returns nullptr if no mod is found.
+	Mod *FindByID(const wxString& modID, const wxString& modVersion);
+
 	// Returns this mod list's directory.
 	wxString GetDir() const;
 
