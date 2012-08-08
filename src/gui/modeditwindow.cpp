@@ -539,8 +539,9 @@ void ModEditWindow::OnAddMLMod(wxCommandEvent &event)
 	if (addModDialog->ShowModal() == wxID_OK)
 	{
 		wxFileName file(addModDialog->GetPath());
-		wxCopyFile(file.GetFullPath(), Path::Combine(m_inst->GetMLModsDir(), file.GetFullName()));
-		jarModList->UpdateItems();
+		//wxCopyFile(file.GetFullPath(), Path::Combine(m_inst->GetMLModsDir(), file.GetFullName()));
+		m_inst->GetMLModList()->InsertMod(0, file.GetFullPath());
+		mlModList->UpdateItems();
 	}
 }
 
