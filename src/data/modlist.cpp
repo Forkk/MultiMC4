@@ -52,19 +52,6 @@ bool ModList::UpdateModList(bool quickLoad)
 	if (LoadModListFromDir(wxEmptyString, quickLoad))
 		listChanged = true;
 
-	if (!quickLoad)
-	{
-		// Remove duplicate items.
-		for (iterator check = begin(); check != end(); ++check)
-		{
-			erase(std::remove_if(check + 1, end(), 
-				[&] (Mod& mod) -> bool
-				{
-					return check->GetFileName().SameAs(mod.GetFileName());
-				}));
-		}
-	}
-
 	return listChanged;
 }
 
@@ -90,12 +77,12 @@ bool ModList::LoadModListFromDir(const wxString& loadFrom, bool quickLoad)
 
 			if (wxFileExists(modFile.GetFullPath()))
 			{
-				//if (quickLoad || FindByFilename(modFile.GetFullPath()) == nullptr)
-				//{
+				if (quickLoad || FindByFilename(modFile.GetFullPath()) == nullptr)
+				{
 					Mod mod(modFile.GetFullPath());
 					push_back(mod);
 					listChanged = true;
-				//}
+				}
 			}
 			else if (wxDirExists(modFile.GetFullPath()))
 			{
@@ -150,6 +137,9 @@ Mod* ModList::FindByID(const wxString& modID, const wxString& modVersion)
 
 void ModList::LoadFromFile(const wxString& file)
 {
+	if (!wxFileExists(file))
+		return;
+
 	wxFFileInputStream inputStream(file);
 	wxStringList modListFile = ReadAllLines(inputStream);
 
