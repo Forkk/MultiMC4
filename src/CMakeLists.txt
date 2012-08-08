@@ -173,7 +173,7 @@ include_directories("${Boost_INCLUDE_DIRS}")
 # Make the static md5 lib build
 add_subdirectory(md5)
 
-if (CMAKE_CROSSCOMPILING)
+if (NOT CMAKE_CROSSCOMPILING)
 	# Build the wxinclude generator
 	add_subdirectory(wxinclude)
 else ()
