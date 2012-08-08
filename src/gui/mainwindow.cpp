@@ -611,8 +611,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	UserInfo lastLogin;
 	if (wxFileExists(_("lastlogin")))
 	{
-		wxFFileInputStream inStream(_("lastlogin"));
-		lastLogin.LoadFromStream(inStream);
+		lastLogin.LoadFromFile("lastlogin");
 	}
 	
 	LoginDialog loginDialog(this, errorMsg, lastLogin);
@@ -623,8 +622,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	{
 		UserInfo info(loginDialog);
 		
-		wxFFileOutputStream outStream(_("lastlogin"));
-		info.SaveToStream(outStream);
+		info.SaveToFile("lastlogin");
 		
 		if (!playOffline)
 		{

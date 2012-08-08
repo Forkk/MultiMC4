@@ -33,8 +33,8 @@ struct UserInfo
 	bool rememberUsername;
 	bool rememberPassword;
 	
-	void SaveToStream(wxOutputStream &output) const;
-	void LoadFromStream(wxInputStream &input);
+	void SaveToFile(const char * filename) const;
+	void LoadFromFile(const char * filename);
 };
 
 class UserInfoList
