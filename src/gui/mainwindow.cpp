@@ -161,6 +161,12 @@ void MainWindow::OnStartup()
 	LoadInstanceList();
 	LoadCentralModList();
 
+	// Automatically auto-detect the Java path.
+	if (settings.GetJavaPath() == _("java"))
+	{
+		settings.SetJavaPath(FindJavaPath());
+	}
+
 	if (settings.GetAutoUpdate())
 	{
 		CheckUpdateTask *task = new CheckUpdateTask();
