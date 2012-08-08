@@ -12,29 +12,13 @@
 #include <iostream>
 #include <sstream>
 #include <exception>
+#include <fstream>
+#include <stdexcept>
 
-#include <boost/program_options.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include <boost/foreach.hpp>
-#include <boost/timer.hpp>
+//#include <boost/program_options.hpp>
+//namespace po = boost::program_options;
 
-namespace po = boost::program_options;
-namespace fs = boost::filesystem;
-
-#define WXINCLUDE_INFO	"wxInclude by Kim De Deyn, use --help for more information.\n"
-
-#define WXINCLUDE_HELP	"This tool can be used to convert binary files into a useful C/C++ header.\n" \
-						"The primary goal is to provide wxWidgets users an easy way of integrating images in their programs. " \
-						"The addition of extra helper macros for wxWidgets can be disabled.\n\n" \
-						"It is able to convert multiple files into one header. " \
-						"Input can be defined by passing files or the extension masks you want to convert.\n\n" \
-						"Example of use:\n\n" \
-						"	wxInclude.exe --const --input-file=mydata1.bin\n" \
-						"	--input-type=.png --input-type=.bmp\n" \
-						"	--output-file=myheader.h mydata2.bin myimage.png\n"
+#define WXINCLUDE_INFO	"wxInclude originally by Kim De Deyn, this is a gutted version.\n"
 
 #define WXINCLUDE_VERSION "Version 1.0, compiled at " __DATE__ " " __TIME__
 
@@ -44,9 +28,8 @@ void defineheader_start ( std::ostringstream& data, std::string& headername, boo
 {
 	/* Write info header */
 	data << "/*" << std::endl;
-	data << "	Automatic generated header by:" << std::endl << std::endl;
-	data << "		" << WXINCLUDE_INFO;
-	data << "		" << WXINCLUDE_VERSION << std::endl << std::endl;
+	data << "	Automatic generated header. Do not modify." << std::endl;
+	data << "	Generator: " WXINCLUDE_INFO << std::endl << std::endl;
 	data << "	Header: " << headername << std::endl;
 	data << "	Macros: " << ( usemacro ? "yes" : "no" ) << std::endl;
 	data << "	Const: " << ( useconst ? "yes" : "no" ) << std::endl;
@@ -54,7 +37,7 @@ void defineheader_start ( std::ostringstream& data, std::string& headername, boo
 
 	/* Prevent multiple defines */
 	std::string temp ( headername );
-	boost::to_upper ( temp );
+	std::transform(temp.begin(), temp.end(), temp.begin(), ::toupper);
 	data << "#ifndef _WXINCLUDE_" << temp << "_H_" << std::endl;
 	data << "#define _WXINCLUDE_" << temp << "_H_" << std::endl << std::endl;
 }
@@ -65,14 +48,11 @@ void defineheader_end ( std::ostringstream& data, std::string& name )
 	data << "#endif" << std::endl << std::endl;
 }
 
-void definemacros ( std::ostringstream& data, std::string& includename, bool definestream = true )
+void definemacros ( std::ostringstream& data )
 {
-	/* Include wxWidgets header */
-	data << "#include \"" << includename << "\"" << std::endl;
-
-	/* When using default header, include memory stream header!*/
-	if ( definestream )
-		data << "#include \"wx/mstream.h\"" << std::endl;
+	/* Include wxWidgets headers */
+	data << "#include \"wx/wx.h\"" << std::endl;
+	data << "#include \"wx/mstream.h\"" << std::endl;
 
 	data << std::endl;
 
@@ -97,7 +77,7 @@ void definemacros ( std::ostringstream& data, std::string& includename, bool def
 
 static std::vector<std::string> list;
 
-void definefile ( std::ostringstream& data, fs::ifstream& input, std::string& name, bool useconst = false )
+void definefile ( std::ostringstream& data, std::ifstream& input, std::string& name, bool useconst = false )
 {
 	/* Check if already defined */
 	std::vector<std::string>::iterator search = std::find ( list.begin(), list.end(), name );
@@ -125,23 +105,10 @@ void definefile ( std::ostringstream& data, fs::ifstream& input, std::string& na
 	{
 		/* Get character and add to array */
 		c = input.get();
-
-		/*
-			Using a static copy of the boost::format string gives a nice performance boost!
-			Boost help says using const boost::format fmter(fstring);
-			But static is faster and using the object without copy constructor is even faster!
-		*/
-		static boost::format fmt( "0x%02X" );
-		data << fmt % c;
-
-		/*
-			Fast option then... this code is executed allot!
-			Still faster then the optimized boost::format use, but not that much!
-		*/
-		// Does not work on Windows...
-		//static char temp[5];
-		//snprintf ( temp, 5, "0x%02X", c );
-		//data << temp;
+		char temp[5];
+		temp[4] = 0;
+		snprintf ( temp, 5, "0x%02X", c );
+		data << temp;
 
 		if ( i >= size )
 		{
@@ -166,242 +133,118 @@ void definefile ( std::ostringstream& data, fs::ifstream& input, std::string& na
 	data << "};" << std::endl << std::endl;
 }
 
+std::string GetFileExtension(const std::string& FileName)
+{
+	if(FileName.find_last_of(".") != std::string::npos)
+		return FileName.substr(FileName.find_last_of("."));
+	return "";
+}
+
+std::string removeExtension(const std::string & filename)
+{
+	std::size_t lastdot = filename.find_last_of(".");
+	if (lastdot == std::string::npos)
+		return filename;
+	return filename.substr(0, lastdot); 
+}
+
+std::string GetFileBasename(const std::string& path)
+{
+	std::size_t last_slash = path.find_last_of("/");
+	std::size_t last_backslash = path.find_last_of("/");
+	std::string cropped = path;
+	if(last_slash != std::string::npos)
+	{
+		cropped = cropped.substr(last_slash+1);
+	}
+	else if(last_backslash != std::string::npos)
+	{
+		cropped = cropped.substr(last_backslash+1);
+	}
+	if(cropped.find_last_of(".") != std::string::npos)
+	{
+		return cropped.substr(0,cropped.find_last_of("."));
+	}
+	else return cropped;
+}
+
 int main ( int argc, const char* argv[] )
 {
+	if(argc <= 2)
+	{
+		std::cerr << "You need to specify at least the output file and one input file." << std::endl
+		          << "Example: " << argv[0] << " output_file input_file" << std::endl;
+		return 1;
+	}
 	try
 	{
-		po::options_description desc ( "Options" );
-		desc.add_options()
-		( "help,h", "Show detailed help." )
-		( "options,p", "Show parameter information." )
-		( "version,p", "Show version information." )
-		( "input-file,i", po::value<std::vector<std::string>>(), "Define file(s) for the convertion input." )
-		( "input-type,I", po::value<std::vector<std::string>>(), "Define file type(s) for automatic conversion of files in the working directory." )
-		( "output-file,o", po::value<std::string>(), "Define file for the convertion output." )
-		( "noheader,h", "Disable adding of header support defines." )
-		( "const,C", "Define array as const." )
-		( "respectcase,r", "Disable converting file types into lower case." )
-		( "wxnone,w", "Disable adding of wxWidgets support macro's." )
-		( "wxheader,W", po::value<std::string>()->default_value ( "wx/wx.h" ), "Select the header that includes wxWidgets (precompiled header?)." )
-		( "appendtype,t", "Add the file type at the end of the identifier (myimage_png)." )
-		( "text,T", "Disable binary output and use text output, converts feed codes to systems defaults." )
-		;
-
-		po::positional_options_description posdesc;
-		posdesc.add ( "input-file", -1 );
-
-		po::variables_map opt;
-		po::store ( po::command_line_parser ( argc, argv ).options ( desc ).positional ( posdesc ).run(), opt );
-		//po::store ( po::parse_config_file <char> ( "default.cfg" , desc ), opt);
-		po::notify ( opt );
-
-		std::cout << WXINCLUDE_INFO << std::endl;
-
-		/* Show options when requested */
-		if ( opt.count ( "options" ) )
+		std::string headername (argv[1]);
+		std::vector<std::string> input_files;
+		for(int i = 2; i < argc; i++)
 		{
-			std::cout << desc << std::endl << std::endl;
-			exit ( 0 );
+			input_files.push_back(std::string(argv[i]));
 		}
-
-		/* Show help when requested */
-		if ( opt.count ( "help" ) )
-		{
-			std::cout << WXINCLUDE_HELP;
-			std::cout << std::endl << desc << std::endl << std::endl;
-			exit ( 0 );
-		}
-
-		/* Show version when requested */
-		if ( opt.count ( "version" ) )
-		{
-			std::cout << WXINCLUDE_VERSION << std::endl;
-			exit ( 0 );
-		}
-
 		/* Process */
-		if ( opt.count ( "input-file" ) || opt.count ( "input-type" ) )
+		std::ofstream output ( headername, std::ios::out | std::ios::trunc| std::ios::binary );
+
+		/* Use buffer */
+		char outbuffer[BUFFER_SIZE];
+		output.rdbuf()->pubsetbuf ( outbuffer, BUFFER_SIZE );
+
+		if ( !output )
+			throw std::runtime_error ( "Failed to create output file!" );
+
+		/* Show status */
+		std::cout << "Build  : file '" << headername << "'..." << std::endl;
+
+		/* Get base name of file */
+		headername = GetFileBasename ( headername );
+
+		/* Data string stream */
+		std::ostringstream data;
+
+		/* Write header start when wanted */
+		defineheader_start ( data, headername, /*use macro*/ true, /* const */ true );
+
+		/* Write macros */
+		definemacros ( data );
+
+		/* Common input buffer */
+		char inbuffer[BUFFER_SIZE];
+
+		for ( auto iter = input_files.begin(); iter != input_files.end(); iter++ )
 		{
-			if ( opt.count ( "output-file" ) )
+			std::string &file = *iter;
+			//std::string fileext = GetFileExtension ( file );
+
+			std::ifstream input ( file, std::ios::in | std::ios::binary | std::ios::ate );
+			input.rdbuf()->pubsetbuf ( inbuffer, BUFFER_SIZE );
+
+			if ( input.is_open() )
 			{
-				/* Create timer */
-				boost::timer timer;
-
-				/* Create output file */
-				std::string headername ( opt[ "output-file" ].as<std::string>() );
-
-				fs::path outputpath ( headername );
-				std::ios::openmode om = std::ios::out | std::ios::trunc;
-				if ( !opt.count ( "text" ) )
-				{
-					om |= std::ios::binary;
-				}
-				fs::ofstream output ( outputpath, om );
-
-				/* Use buffer */
-				char outbuffer[BUFFER_SIZE];
-				output.rdbuf()->pubsetbuf ( outbuffer, BUFFER_SIZE );
-
-				if ( !output )
-					throw std::runtime_error ( "Failed to create output file!" );
-
 				/* Show status */
-				std::cout << "Build  : file '" << outputpath.leaf() << "'..." << std::endl;
+				std::cout << "Process: file '" << file << "'..." << std::endl;
 
-				/* Get base name of file */
-				headername = fs::basename ( outputpath );
+				/* Remove extension */
+				file = removeExtension(file);
+				std::transform(file.begin(), file.end(), file.begin(), ::tolower);
 
-				/* Data string stream */
-				std::ostringstream data;
-
-				/* Write header start when wanted */
-				if ( !opt.count ( "noheader" ) )
-					defineheader_start ( data, headername, opt.count ( "wxnone" ) ? false : true, opt.count ( "const" ) ? true : false );
-
-				/* Get defined or else default wx header */
-				std::string includename ( opt[ "wxheader" ].as<std::string>() );
-
-				/* Write macros when wanted */
-				if ( !opt.count ( "wxnone" ) )
-					definemacros ( data, includename, opt[ "wxheader" ].defaulted() );
-
-				/* Common input buffer */
-				char inbuffer[BUFFER_SIZE];
-
-				/* Process input files based on provided list */
-				if ( opt.count ( "input-file" ) )
-				{
-					std::vector<std::string> files ( opt[ "input-file" ].as<std::vector<std::string>>() );
-
-					BOOST_FOREACH ( std::string& file, files )
-					{
-						fs::path inputpath ( file );
-						std::string fileext ( fs::extension ( inputpath ) );
-
-						fs::ifstream input ( inputpath, std::ios::in | std::ios::binary | std::ios::ate );
-						input.rdbuf()->pubsetbuf ( inbuffer, BUFFER_SIZE );
-
-						if ( input.is_open() )
-						{
-							/* Show status */
-							std::cout << "Process: file '" << file << "'..." << std::endl;
-
-							/* Remove extension */
-							boost::erase_last ( file, fileext );
-
-							if ( !opt.count ( "respectcase" ) )
-								boost::to_lower ( fileext );
-
-							/* Append type */
-							if ( opt.count ( "appendtype" ) )
-							{
-								boost::erase_first ( fileext, "." );
-
-								/* Static and NO copy constructor for speed */
-								static boost::format fmt ( "%1%_%2%" );
-								file = boost::str ( fmt % file % fileext );
-							}
-
-							/* Lower case names when wanted */
-							if ( !opt.count ( "respectcase" ) )
-								boost::to_lower ( file );
-
-							/* Process file */
-							definefile ( data, input, file, opt.count ( "const" ) ? true : false );
-						}
-						else
-						{
-							/* Only show warning, other files need to be processed */
-							std::cout << "Warning: input file '" << file << "' failed to open." << std::endl;
-						}
-					}
-				}
-
-				/* Process input files based on provided type */
-				if ( opt.count ( "input-type" ) )
-				{
-					std::vector<std::string> types ( opt[ "input-type" ].as<std::vector<std::string>>() );
-
-					for ( fs::directory_iterator dir_itr ( fs::initial_path() ); dir_itr != fs::directory_iterator(); ++dir_itr )
-					{
-						BOOST_FOREACH ( std::string& type, types )
-						{
-							/* Normal file? */
-							if ( fs::is_regular ( dir_itr->status() ) )
-							{
-								/* Wanted type? */
-								std::string fileext ( fs::extension ( dir_itr->path() ) );
-
-								bool equals = false;
-
-								if ( opt.count ( "respectcase" ) )
-									equals = boost::equals ( fileext, type );
-								else
-									equals = boost::iequals ( fileext, type );
-
-								if ( equals )
-								{
-									fs::ifstream input ( dir_itr->path(), std::ios::in | std::ios::binary | std::ios::ate );
-									input.rdbuf()->pubsetbuf ( inbuffer, BUFFER_SIZE );
-
-									std::string file ( dir_itr->path().leaf().string() );
-
-									if ( input.is_open() )
-									{
-										/* Show status */
-										std::cout << "Process: file '" << file << "'..." << std::endl;
-
-										/* Remove extension */
-										boost::erase_last ( file, fileext );
-
-										/* Append type */
-										if ( opt.count ( "appendtype" ) )
-										{
-											boost::erase_first ( fileext, "." );
-
-											/* Static and NO copy constructor for speed */
-											static boost::format fmt ( "%1%_%2%" );
-											file = boost::str ( fmt % file % fileext );
-										}
-
-										/* Lower case names when wanted */
-										if ( !opt.count ( "respectcase" ) )
-											boost::to_lower ( file );
-
-										/* Process file */
-										definefile ( data, input, file, opt.count ( "const" ) ? true : false );
-									}
-									else
-									{
-										/* Only show warning, other files need to be processed */
-										std::cout << "Warning: input file '" << file << "' failed to open." << std::endl;
-									}
-								}
-							}
-						}
-					}
-				}
-
-				/* Write header end when wanted */
-				if ( !opt.count ( "noheader" ) )
-					defineheader_end ( data, headername );
-
-				/* Write data to output file */
-				output.seekp ( 0, std::ios::beg );
-				output << data.str();
-
-				/* Show status */
-				std::cout << "Build  : " << timer.elapsed() << "s needed for conversion of " << list.size() << " files." << std::endl;
+				/* Process file */
+				definefile ( data, input, file, true );
 			}
 			else
 			{
-				throw std::invalid_argument ( "No output defined!" );
+				/* Only show warning, other files need to be processed */
+				std::cout << "Warning: input file '" << file << "' failed to open." << std::endl;
 			}
 		}
-		else
-		{
-			throw std::invalid_argument ( "No input defined!" );
-		}
+
+		/* Write header end when wanted */
+		defineheader_end ( data, headername );
+
+		/* Write data to output file */
+		output.seekp ( 0, std::ios::beg );
+		output << data.str();
 	}
 	catch ( std::exception& e )
 	{

@@ -10,7 +10,7 @@ ViewFolderIcon.png
 )
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/toolbaricons.h
-                   COMMAND wxinclude ARGS --const --output-file=${CMAKE_CURRENT_BINARY_DIR}/toolbaricons.h ${TOOLBAR_ICONS}
+                   COMMAND wxinclude ARGS ${CMAKE_CURRENT_BINARY_DIR}/toolbaricons.h ${TOOLBAR_ICONS}
                    DEPENDS wxinclude
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tbaricons
                    COMMENT "Generating toolbar icon resources."
@@ -31,7 +31,7 @@ tnt.png
 )
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/insticons.h
-                   COMMAND wxinclude ARGS --const --output-file=${CMAKE_CURRENT_BINARY_DIR}/insticons.h ${INSTANCE_ICONS}
+                   COMMAND wxinclude ARGS ${CMAKE_CURRENT_BINARY_DIR}/insticons.h ${INSTANCE_ICONS}
                    DEPENDS wxinclude
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/insticons
                    COMMENT "Generating instance icon resources."
