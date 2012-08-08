@@ -87,7 +87,7 @@ ConfigPack::ConfigPack(const wxString& fileName)
 	catch (json_parser_error e)
 	{
 		wxLogError(_("Invalid config pack. Failed to parse JSON. At line %i: %s"),
-			e.line(), wxStr(e.message()));
+			e.line(), wxStr(e.message()).c_str());
 		return;
 	}
 	catch (ptree_error)
