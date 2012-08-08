@@ -28,7 +28,7 @@ UserInfo::UserInfo(LoginDialog& loginDlg)
 	this->rememberPassword = loginDlg.GetRememberPassword();
 }
 
-UserInfo::UserInfo(UserInfo& uInfo)
+UserInfo::UserInfo(const UserInfo& uInfo)
 {
 	this->username = uInfo.username;
 	this->password = uInfo.password;

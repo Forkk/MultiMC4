@@ -31,7 +31,7 @@ struct UserInfo
 	}
 
 	UserInfo(LoginDialog &loginDlg);
-	UserInfo(UserInfo &uInfo);
+	UserInfo(const UserInfo &uInfo);
 	UserInfo(wxString &username, wxString &password, 
 		bool rememberUsername, bool rememberPassword);
 	
