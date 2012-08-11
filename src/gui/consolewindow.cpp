@@ -21,6 +21,10 @@
 #include <wx/sstream.h>
 #include <gui/mainwindow.h>
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include "multimc.h"
 
 InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
@@ -85,6 +89,11 @@ void InstConsoleWindow::OnInstExit(wxProcessEvent& event)
 	if (event.GetExitCode() != 0)
 	{
 		AppendMessage(_("Minecraft has crashed!"));
+		Show();
+	}
+	else if (killedInst)
+	{
+		AppendMessage(_("Instance was killed."));
 		Show();
 	}
 	else if (settings.GetAutoCloseConsole())
@@ -258,50 +267,152 @@ void InstConsoleWindow::ConsoleIcon::OnKillMC(wxCommandEvent &event)
 	if (wxMessageBox(_("Killing Minecraft may damage saves. You should only do this if the game is frozen."),
 		_("Are you sure?"), wxOK | wxCANCEL | wxCENTER) == wxOK)
 	{
-		wxProcess *instProc = m_console->GetInstance()->GetInstProcess();
-		
-		if (instProc->GetPid() == 0)
-			return;
-		
-		int pid = instProc->GetPid();
-		
-		m_console->StopListening();
-		wxKillError error = wxProcess::Kill(pid, wxSIGTERM);
-		if (error != wxKILL_OK)
+		m_console->KillMinecraft();
+	}
+}
+
+void InstConsoleWindow::KillMinecraft(int tries)
+{
+	wxProcess *instProc = GetInstance()->GetInstProcess();
+
+	int pid = instProc->GetPid();
+
+	if (pid == 0)
+		return;
+
+	// Stop listening for output from the process
+	StopListening();
+
+#ifdef WIN32
+	// On Windows, use Win32's TerminateProcess()
+
+	// Get a handle to the process.
+	HANDLE pHandle = OpenProcess(PROCESS_TERMINATE | SYNCHRONIZE, true, pid);
+
+	if (pHandle == NULL)
+	{
+		// An error occurred.
+		DWORD error = GetLastError();
+
+		switch (error)
 		{
-			wxString errorName;
-			switch (error)
-			{
-			case wxKILL_ACCESS_DENIED:
-				errorName = _("wxKILL_ACCESS_DENIED");
-				break;
-				
-			case wxKILL_BAD_SIGNAL:
-				errorName = _("wxKILL_BAD_SIGNAL");
-				break;
-				
-			case wxKILL_ERROR:
-				errorName = _("wxKILL_ERROR");
-				break;
-				
-			case wxKILL_NO_PROCESS:
-				errorName = _("wxKILL_NO_PROCESS");
-				break;
-				
-			default:
-				errorName = _("Unknown error.");
-			}
-			
-			wxLogError(_("Error %i (%s) when killing process %i!"), error, errorName.c_str(), 
-				m_console->GetInstance()->GetInstProcess()->GetPid());
+		case ERROR_ACCESS_DENIED:
+			AppendMessage(wxString::Format(_("Failed to get process handle. Error 0x%08X: access denied."), error));
+			break;
+
+		default:
+			AppendMessage(wxString::Format(_("Unknown error 0x%08X occurred when getting process handle."), error));
+			break;
 		}
-		else
+
+		return;
+	}
+
+	// Terminate the process.
+	if (!TerminateProcess(pHandle, 0))
+	{
+		// An error occurred.
+		DWORD error = GetLastError();
+
+		switch (error)
 		{
-			m_console->AppendMessage(wxString::Format(_("Killed Minecraft (pid: %i)"), pid));
-			wxProcessEvent fakeEvent(0, pid, -1);
-			m_console->OnInstExit(fakeEvent);
+		case ERROR_ACCESS_DENIED:
+			AppendMessage(wxString::Format(_("Failed terminate process. Error 0x%08X: access denied."), error));
+			break;
+
+		default:
+			AppendMessage(wxString::Format(_("Unknown error 0x%08X occurred when terminating the process."), error));
+			break;
+		}
+
+		return;
+	}
+
+	// Wait for the process to actually exit. If it hasn't exited after 3 seconds, display an error message.
+	for (int i = 0; i < 60; i++)
+	{
+		wxSafeYield(nullptr, true);
+
+		DWORD waitResult = WaitForSingleObject(pHandle, 50);
+
+		// The process exited successfully.
+		if (waitResult == WAIT_OBJECT_0)
+		{
+			break;
+		}
+		else if (waitResult == WAIT_FAILED)
+		{
+			DWORD error = GetLastError();
+			AppendMessage(wxString::Format(_("Unknown error 0x%08X occurred when waiting for process to exit."), error));
+			CloseHandle(pHandle);
+			return;
 		}
 	}
+
+	// Close the handle.
+	CloseHandle(pHandle);
+
+#else
+	// On other OSes, use wxProcess::Kill()
+	wxKillError error = wxProcess::Kill(pid, wxSIGTERM);
+	if (error != wxKILL_OK)
+	{
+		wxString errorName;
+		switch (error)
+		{
+		case wxKILL_ACCESS_DENIED:
+			errorName = _("wxKILL_ACCESS_DENIED");
+			break;
+
+		case wxKILL_BAD_SIGNAL:
+			errorName = _("wxKILL_BAD_SIGNAL");
+			break;
+
+		case wxKILL_ERROR:
+			errorName = _("wxKILL_ERROR");
+
+			// Wait to see if the process kills.
+			for (int i = 0; i < 20; i++)
+			{
+				wxSafeYield(nullptr, true);
+				wxMilliSleep(100);
+
+				if (!wxProcess::Exists(pid))
+				{
+					goto KillSuccess;
+					break;
+				}
+			}
+
+			if (tries == 0)
+			{
+				// Try again
+				AppendMessage(_("Failed to kill the process. Trying again..."));
+				KillMinecraft(1);
+				return;
+			}
+			break;
+
+		case wxKILL_NO_PROCESS:
+			errorName = _("wxKILL_NO_PROCESS");
+			break;
+
+		default:
+			errorName = _("Unknown error.");
+		}
+
+		AppendMessage(wxString::Format(
+			_("Error %i (%s) when killing process %i!"), error, errorName.c_str(), 
+			GetInstance()->GetInstProcess()->GetPid()));
+		return;
+	}
+
+KillSuccess:
+#endif
+	AppendMessage(wxString::Format(_("Killed Minecraft (pid: %i)"), pid));
+	killedInst = true;
+	//wxProcessEvent fakeEvent(0, pid, -1);
+	//OnInstExit(fakeEvent);
 }
 
 

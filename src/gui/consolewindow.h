@@ -83,9 +83,12 @@ protected:
 	void AllowClose(bool allow = true);
 	
 	void Close();
+
+	void KillMinecraft(int tries = 0);
 	
 	bool m_closeAllowed;
 	bool instListenerStarted;
+	bool killedInst;
 	
 	DECLARE_EVENT_TABLE()
 };
