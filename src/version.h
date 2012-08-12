@@ -20,7 +20,7 @@
 class Version
 {
 public:
-	Version(int major, int minor, int revision, int build);
+	Version(int major, int minor, int revision, int build, bool isDevBuild);
 	Version(const Version &version);
 	
 	int GetMajor() const;
@@ -34,6 +34,9 @@ public:
 	
 	int GetBuild() const;
 	void SetBuild(int value);
+
+	bool IsDevBuild() const;
+	void SetDevBuild(bool value);
 	
 	wxString ToString() const;
 	
@@ -50,6 +53,8 @@ protected:
 	int m_minor;
 	int m_revision;
 	int m_build;
+
+	bool m_isDevBuild;
 };
 
 const extern Version AppVersion;

@@ -52,8 +52,9 @@ const wxSize minSize = wxSize(620, 400);
 // Main window
 MainWindow::MainWindow(void)
 	: wxFrame(NULL, -1, 
-		wxString::Format(_("MultiMC %d.%d.%d"), 
-			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision()),
+		wxString::Format(_("MultiMC %d.%d.%d Build %d %s"), 
+			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision(), AppVersion.GetBuild(),
+			(AppVersion.IsDevBuild() ? _("Dev") : _("Stable"))),
 		wxPoint(0, 0), minSize),
 		instIcons(32, 32),
 		centralModList(settings.GetModsDir().GetFullPath())
@@ -560,10 +561,12 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 	wxString updaterFileName = _("MultiMCUpdate");
 #endif
 
-	if (event.m_latestBuildNumber > AppVersion.GetBuild())
+	if (event.m_latestBuildNumber > AppVersion.GetBuild() || 
+		settings.GetUseDevBuilds() != AppVersion.IsDevBuild())
 	{
-		if (wxMessageBox(wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
-				event.m_latestBuildNumber), _("Update Available"), wxYES_NO) == wxYES)
+		if (wxMessageBox(wxString::Format(_("%s build #%i is available. Would you like to download and install it?"), 
+				(settings.GetUseDevBuilds() ? _("Dev") : _("Stable")), event.m_latestBuildNumber), 
+				_("Update Available"), wxYES_NO) == wxYES)
 		{
 			FileDownloadTask dlTask(event.m_downloadURL, 
 				wxFileName(updaterFileName), _("Downloading updates..."));

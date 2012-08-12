@@ -147,6 +147,17 @@ void AppSettings::SetShowConsole(bool value)
 }
 
 
+bool AppSettings::GetUseDevBuilds() const
+{
+	return GetSetting<bool>(_("UseDevBuilds"), false);
+}
+
+void AppSettings::SetUseDevBuilds(bool value)
+{
+	SetSetting<bool>(_("UseDevBuilds"), value);
+}
+
+
 GUIMode AppSettings::GetGUIMode() const
 {
 	return (GUIMode)GetSetting<int>(_("GUIMode"), GUI_Default);

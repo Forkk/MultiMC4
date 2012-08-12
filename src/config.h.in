@@ -7,3 +7,5 @@
 #define x64 2
 
 #define ARCH @MultiMC_ARCH@
+
+#define IS_DEV_BUILD @MultiMC_IS_DEV_BUILD@

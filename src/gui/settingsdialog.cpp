@@ -73,6 +73,8 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	autoUpdateCheck = new wxCheckBox(generalPanel, -1,
 		_T("Check for updates when MultiMC starts?"));
 	updateBox->Add(autoUpdateCheck, 0, wxALL, 4);
+	devBuildCheck = new wxCheckBox(generalPanel, -1, _("Use development builds?"));
+	updateBox->Add(devBuildCheck, 0, wxALL | wxEXPAND, 4);
 	forceUpdateToggle = new wxToggleButton(generalPanel, -1,
 		_T("Force-update MultiMC"));
 	updateBox->Add(forceUpdateToggle, 0, wxALL, 4);
@@ -137,7 +139,7 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	jvmArgsTextBox = new wxTextCtrl(advancedPanel, -1);
 	jvmArgsBox->Add(jvmArgsTextBox, 1, wxALL | wxEXPAND, 4);
 	advancedBox->Add(jvmArgsBox, wxGBPosition(2, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
-	
+
 	
 	// Buttons
 	wxSizer *btnBox = CreateButtonSizer(wxOK | wxCANCEL);
@@ -214,6 +216,22 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 		wxMessageBox(_("Changing the GUI style requires a restart in order to take effect. Please restart MultiMC."),
 			_("Restart Required"));
 	}
+
+	if (devBuildCheck->GetValue() && !settings.GetUseDevBuilds())
+	{
+		// Display a warning.
+		if (wxMessageBox(_("Warning: Dev builds contain incomplete, experimental, and possibly unstable features. \
+Some may be extremely buggy, and others may not work at all. Use these at your own risk. \
+Are you sure you want to use dev builds?"), 
+			_("Are you sure?"), wxOK | wxCANCEL) == wxOK)
+		{
+			settings.SetUseDevBuilds(devBuildCheck->GetValue());
+		}
+	}
+	else
+	{
+		settings.SetUseDevBuilds(devBuildCheck->GetValue());
+	}
 }
 
 void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
@@ -222,6 +240,8 @@ void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
 	autoCloseConsoleCheck->SetValue(s.GetAutoCloseConsole());
 
 	autoUpdateCheck->SetValue(s.GetAutoUpdate());
+
+	devBuildCheck->SetValue(s.GetUseDevBuilds());
 
 	instDirTextBox->SetValue(s.GetInstDir().GetFullPath());
 

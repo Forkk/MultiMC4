@@ -19,6 +19,7 @@
 #include "apputils.h"
 #include "osutils.h"
 #include "config.h"
+#include "appsettings.h"
 
 #include <boost/property_tree/json_parser.hpp>
 
@@ -26,7 +27,8 @@
 
 DEFINE_EVENT_TYPE(wxEVT_CHECK_UPDATE)
 
-const wxString ciURL = _("http://forkk.net:8080/job/MultiMC4/");
+const wxString stableCIURL = _("http://forkk.net:8080/job/MultiMC4/");
+const wxString devCIURL = _("http://forkk.net:8080/job/MultiMC4Dev/");
 
 CheckUpdateTask::CheckUpdateTask()
 	: Task()
@@ -39,8 +41,14 @@ void CheckUpdateTask::TaskStart()
 	SetStatus(_("Getting version info..."));
 	
 	// Get the main page for the project
+	wxString jobURL;
+	if (settings.GetUseDevBuilds())
+		jobURL = devCIURL;
+	else
+		jobURL = stableCIURL;
+
 	wxString mainPageJSON;
-	if (!DownloadString(ciURL + _("api/json"), &mainPageJSON))
+	if (!DownloadString(jobURL + _("api/json"), &mainPageJSON))
 	{
 		wxLogError(_("Failed to check for updates. Please check your internet connection."));
 		return;
@@ -72,7 +80,7 @@ void CheckUpdateTask::TaskStart()
 #error Unknown architecture.
 #endif
 	
-	wxString dlURL = wxString::Format(_("%s%i/arch=%s,os=%s/artifact/%s"), ciURL.c_str(), 
+	wxString dlURL = wxString::Format(_("%s%i/arch=%s,os=%s/artifact/%s"), jobURL.c_str(), 
 		buildNumber, arch.c_str(), osName.c_str(), dlFileName.c_str());
 	
 	SetProgress(75);

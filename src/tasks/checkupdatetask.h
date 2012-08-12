@@ -20,7 +20,8 @@
 
 DECLARE_EVENT_TYPE(wxEVT_CHECK_UPDATE, -1)
 
-const extern wxString ciURL;
+const extern wxString stableCIURL;
+const extern wxString devCIURL;
 
 class CheckUpdateTask : public Task
 {

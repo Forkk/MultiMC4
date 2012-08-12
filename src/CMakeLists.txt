@@ -33,6 +33,13 @@ ELSE ()
 	message(STATUS "Build number not specified. Defaulted to 0.")
 ENDIF ()
 
+IF (DEFINED MultiMC_IS_DEV_BUILD)
+	message(STATUS "This is a dev build.")
+ELSE ()
+	set(MultiMC_IS_DEV_BUILD	FALSE)
+	message(STATUS "Dev build not specified. Defaulted to false.")
+ENDIF ()
+
 IF (DEFINED MultiMC_ARCH)
 	message (STATUS "Architecture is ${MultiMC_ARCH}")
 ELSE()

@@ -51,6 +51,8 @@ protected:
 	
 	wxTextCtrl *javaPathTextBox;
 	wxTextCtrl *jvmArgsTextBox;
+
+	wxCheckBox *devBuildCheck;
 	
 	wxComboBox *guiStyleDropDown;
 	

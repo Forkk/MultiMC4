@@ -17,14 +17,15 @@
 #include "version.h"
 #include "config.h"
 
-const Version AppVersion(VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD);
+const Version AppVersion(VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD, IS_DEV_BUILD);
 
-Version::Version(int major, int minor, int revision, int build)
+Version::Version(int major, int minor, int revision, int build, bool isDevBuild)
 {
 	m_major = major;
 	m_minor = minor;
 	m_revision = revision;
 	m_build = build;
+	m_isDevBuild = isDevBuild;
 }
 
 Version::Version(const Version &version)
@@ -33,6 +34,7 @@ Version::Version(const Version &version)
 	m_minor = version.GetMinor();
 	m_revision = version.GetRevision();
 	m_build = version.GetBuild();
+	m_isDevBuild = version.IsDevBuild();
 }
 
 int Version::GetMajor() const
@@ -75,6 +77,16 @@ int Version::GetBuild() const
 void Version::SetBuild(int value)
 {
 	m_build = value;
+} 
+
+bool Version::IsDevBuild() const
+{
+	return m_isDevBuild;
+}
+
+void Version::SetDevBuild(bool value)
+{
+	m_isDevBuild = value;
 }
 
 
