@@ -81,7 +81,7 @@ public:
 	
 protected:
 // 	boost::property_tree::ptree ptree;
-	wxConfig *config;
+	wxFileConfig *config;
 	
 	template <typename T>
 	T GetSetting(const wxString &key, T defValue) const;

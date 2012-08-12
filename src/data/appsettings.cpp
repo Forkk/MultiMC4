@@ -28,7 +28,7 @@ bool InitAppSettings(void)
 
 AppSettings::AppSettings()
 {
-	config = new wxConfig(_("MultiMC"));
+	config = new wxFileConfig(_("MultiMC"));
 }
 
 AppSettings::~AppSettings()
