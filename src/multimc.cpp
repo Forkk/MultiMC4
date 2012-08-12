@@ -29,7 +29,9 @@ bool MultiMC::OnInit()
 	updateOnExit = false;
 	startNormally = true;
 	
-	//wxApp::OnInit();
+	// This is necessary for the update system since it calls OnInitCmdLine
+	// to set up the command line arguments that the update system uses.
+	wxApp::OnInit();
 	
 	if (!startNormally)
 		return false;
