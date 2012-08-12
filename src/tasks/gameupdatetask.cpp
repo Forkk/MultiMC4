@@ -320,7 +320,7 @@ void GameUpdateTask::DownloadJars()
 			if (md5matches)
 			{
 				wxString keystr = wxFileName(currentFile.GetPath()).GetName();
-				std::string key(FNSTR(keystr));
+				std::string key(TOASCII(keystr));
 				// ASCII is fine. it's lower case letters and numbers
 				std::string value (TOASCII(md5sum));
 				md5s.put<std::string>(key, value);

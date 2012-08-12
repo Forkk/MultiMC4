@@ -99,7 +99,7 @@ MainWindow::MainWindow(void)
 		//((wxMenuBase*)newInstanceMenu)->Append(import);
 
 		wxMenuItem* importPack = new wxMenuItem(0, ID_ImportInst, _("Import config pack"));
-		import->SetBitmap(newInstIcon);
+		importPack->SetBitmap(newInstIcon);
 		((wxMenuBase*)newInstanceMenu)->Append(importPack);
 		
 		tool->SetDropdownMenu(newInstanceMenu);
