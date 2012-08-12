@@ -18,6 +18,8 @@
 #include <apputils.h>
 #include <boost/property_tree/ini_parser.hpp>
 
+#include "version.h"
+
 AppSettings settings;
 
 bool InitAppSettings(void)
@@ -28,7 +30,7 @@ bool InitAppSettings(void)
 
 AppSettings::AppSettings()
 {
-	config = new wxFileConfig(_("MultiMC"));
+	config = new wxFileConfig(_("MultiMC"), wxEmptyString, _("multimc.cfg"));
 }
 
 AppSettings::~AppSettings()
@@ -149,7 +151,7 @@ void AppSettings::SetShowConsole(bool value)
 
 bool AppSettings::GetUseDevBuilds() const
 {
-	return GetSetting<bool>(_("UseDevBuilds"), false);
+	return GetSetting<bool>(_("UseDevBuilds"), AppVersion.IsDevBuild());
 }
 
 void AppSettings::SetUseDevBuilds(bool value)
