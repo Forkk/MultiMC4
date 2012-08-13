@@ -38,6 +38,9 @@ DowngradeTask::DowngradeTask(Instance *inst, const wxString& targetVersion)
 
 void DowngradeTask::TaskStart()
 {
+	if (!wxDirExists(_("path")))
+		wxMkdir(_("path"));
+
 	if (!DownloadPatches())
 		return;
 
