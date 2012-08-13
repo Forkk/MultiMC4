@@ -256,8 +256,8 @@ void DowngradeWizard::DoApplyPatches()
 			if (!Utils::BytesToString(md5digest).IsSameAs(
 				wxStr(pt.get<std::string>("CurrentVersion." + stdStr(patchFiles[i]))), false))
 			{
-				installStatusLbl->SetLabel(wxString::Format(_("The file %s has been modified from its original state. \
-Unable to patch. Try force updating."), checkFile.c_str()));
+				installStatusLbl->SetLabel(wxString::Format(_("Can't patch because %s has been modified. Try force updating."), 
+					wxFileName(checkFile).GetFullName().c_str()));
 				return;
 			}
 		}
