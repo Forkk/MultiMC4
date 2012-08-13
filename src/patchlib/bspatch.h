@@ -5,10 +5,17 @@
 extern "C" {
 #endif
 
+enum BSPatchError
+{
+	ERR_CORRUPT_PATCH,
+	ERR_OTHER,
+	ERR_NONE,
+};
+
 /**
  * patch oldfile by using patchfile and write the output to newfile.
  *
- * Returns 1 in case of any error. 0 otherwise.
+ * Returns ERR_NONE if successful
  */
 int bspatch(const char * oldfile, const char * newfile, const char * patchfile);
 

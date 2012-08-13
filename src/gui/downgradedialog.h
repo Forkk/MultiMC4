@@ -46,6 +46,7 @@ protected:
 	void OnTaskStatus(TaskStatusEvent& event);
 
 	void DownloadNextPatch();
+	void DoApplyPatches();
 
 	bool RetrievePatchURL(const wxString& mcVersion, wxString *patchURL);
 

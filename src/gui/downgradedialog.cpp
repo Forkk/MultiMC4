@@ -18,6 +18,7 @@
 
 #include <wx/gbsizer.h>
 #include <wx/hyperlink.h>
+#include <wx/wfstream.h>
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
@@ -27,6 +28,10 @@
 
 #include "apputils.h"
 #include "httputils.h"
+
+#include "bspatch.h"
+
+#include "md5/md5.h"
 
 #include "filedownloadtask.h"
 
@@ -203,6 +208,104 @@ void DowngradeWizard::DownloadNextPatch()
 	downloadTask->Start();
 }
 
+void DowngradeWizard::DoApplyPatches()
+{
+	wxArrayString patchFiles;
+	patchFiles.Add(_("minecraft"));
+	patchFiles.Add(_("lwjgl"));
+	patchFiles.Add(_("lwjgl_util"));
+	patchFiles.Add(_("jinput"));
+
+	currentStep = CheckOriginalMD5s;
+
+	using namespace boost::property_tree;
+	try
+	{
+		ptree pt;
+		read_json("patches/checksum.json", pt);
+
+		for (int i = 0; i < patchFiles.Count(); i++)
+		{
+			wxString checkFile = Path::Combine(m_inst->GetBinDir(), patchFiles[i] + _(".jar"));
+
+			// Verify the file's MD5 sum.
+			MD5Context md5ctx;
+			MD5Init(&md5ctx);
+
+			char buf[1024];
+			wxFFileInputStream fileIn(checkFile);
+
+			while (!fileIn.Eof())
+			{
+				fileIn.Read(buf, 1024);
+				MD5Update(&md5ctx, (unsigned char*)buf, fileIn.LastRead());
+			}
+
+			unsigned char md5digest[16];
+			MD5Final(md5digest, &md5ctx);
+
+			if (!Utils::BytesToString(md5digest).IsSameAs(
+				wxStr(pt.get<std::string>("CurrentVersion." + stdStr(patchFiles[i]))), false))
+			{
+				wxLogError(_("The file %s has been modified from its original state. Unable to patch."), 
+					checkFile);
+				return;
+			}
+		}
+	}
+	catch (json_parser_error e)
+	{
+		wxLogError(_("Failed to check file MD5.\nJSON parser error at line %i: %s"), 
+			e.line(), wxStr(e.message()).c_str());
+		return;
+	}
+
+
+	currentStep = ApplyPatches;
+
+	installStatusLbl->SetLabel(_("Applying patches..."));
+
+	while (!patchFiles.IsEmpty())
+	{
+		wxYieldIfNeeded();
+
+		wxString file = patchFiles[0];
+		patchFiles.RemoveAt(0);
+
+		wxString binDir = m_inst->GetBinDir().GetFullPath();
+		wxString patchFile = Path::Combine(patchDir, file + _(".ptch"));
+
+		if (file == _("minecraft") && wxFileExists(m_inst->GetMCBackup().GetFullPath()))
+			file = _("mcbackup");
+		wxString patchSrc = Path::Combine(binDir, file + _(".jar"));
+		wxString patchDest = Path::Combine(binDir, file + _("_new.jar"));
+
+		if (wxFileExists(patchDest))
+			wxRemoveFile(patchDest);
+
+		int err = bspatch(cStr(patchSrc), cStr(patchDest), cStr(patchFile));
+
+		if (err == ERR_NONE)
+		{
+			wxRemoveFile(patchSrc);
+			wxRename(patchDest, patchSrc);
+		}
+		else
+		{
+			switch (err)
+			{
+			case ERR_CORRUPT_PATCH:
+				wxLogError(_("Failed to patch %s.jar. Patch is corrupt."), file.c_str());
+				break;
+
+			default:
+				wxLogError(_("Failed to patch %s.jar. Unknown error."), file.c_str());
+				break;
+			}
+		}
+	}
+}
+
 void DowngradeWizard::OnTaskStart(TaskEvent& event)
 {
 	installPBar->SetValue(event.m_task->GetProgress());
@@ -216,6 +319,10 @@ void DowngradeWizard::OnTaskEnd(TaskEvent& event)
 	if (!patchURLs.IsEmpty())
 	{
 		DownloadNextPatch();
+	}
+	else
+	{
+		DoApplyPatches();
 	}
 }
 

@@ -33,6 +33,7 @@
 #endif
 
 #include "bzlib.h"
+#include "bspatch.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -99,17 +100,17 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 		if (feof(f))
 		{
 			//errx(1, "Corrupt patch\n");
-			return 1;
+			return ERR_CORRUPT_PATCH;
 		}
 		//err(1, "fread(%s)", argv[3]);
-		return 1;
+		return ERR_OTHER;
 	}
 
 	/* Check for appropriate magic */
 	if (memcmp(header, "BSDIFF40", 8) != 0)
 	{
 		//errx(1, "Corrupt patch\n");
-		return 1;
+		return ERR_CORRUPT_PATCH;
 	}
 
 	/* Read lengths from header */
@@ -119,59 +120,59 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 	if((bzctrllen<0) || (bzdatalen<0) || (newsize<0))
 	{
 		//errx(1,"Corrupt patch\n");
-		return 1;
+		return ERR_CORRUPT_PATCH;
 	}
 
 	/* Close patch file and re-open it via libbzip2 at the right places */
 	if (fclose(f))
 	{
 		//err(1, "fclose(%s)", argv[3]);
-		return 1;
+		return ERR_OTHER;
 	}
 	if ((cpf = fopen(patchfile, "r")) == NULL)
 	{
 		//err(1, "fopen(%s)", argv[3]);
-		return 1;
+		return ERR_OTHER;
 	}
 	if (fseek(cpf, 32, SEEK_SET))
 	{
 		// err(1, "fseeko(%s, %lld)", argv[3], (long long)32);
-		return 1;
+		return ERR_OTHER;
 	}
 	if ((cpfbz2 = BZ2_bzReadOpen(&cbz2err, cpf, 0, 0, NULL, 0)) == NULL)
 	{
 		//errx(1, "BZ2_bzReadOpen, bz2err = %d", cbz2err);
-		return 1;
+		return ERR_OTHER;
 	}
 	if ((dpf = fopen(patchfile, "r")) == NULL)
 	{
 		//err(1, "fopen(%s)", argv[3]);
-		return 1;
+		return ERR_OTHER;
 	}
 	if (fseek(dpf, 32 + bzctrllen, SEEK_SET))
 	{
 		//err(1, "fseeko(%s, %lld)", argv[3], (long long)(32 + bzctrllen));
-		return 1;
+		return ERR_OTHER;
 	}
 	if ((dpfbz2 = BZ2_bzReadOpen(&dbz2err, dpf, 0, 0, NULL, 0)) == NULL)
 	{
 		//errx(1, "BZ2_bzReadOpen, bz2err = %d", dbz2err);
-		return 1;
+		return ERR_OTHER;
 	}
 	if ((epf = fopen(patchfile, "r")) == NULL)
 	{
 		//err(1, "fopen(%s)", argv[3]);
-		return 1;
+		return ERR_OTHER;
 	}
 	if (fseek(epf, 32 + bzctrllen + bzdatalen, SEEK_SET))
 	{
 		//err(1, "fseeko(%s, %lld)", argv[3], (long long)(32 + bzctrllen + bzdatalen));
-		return 1;
+		return ERR_OTHER;
 	}
 	if ((epfbz2 = BZ2_bzReadOpen(&ebz2err, epf, 0, 0, NULL, 0)) == NULL)
 	{
 		//errx(1, "BZ2_bzReadOpen, bz2err = %d", ebz2err);
-		return 1;
+		return ERR_OTHER;
 	}
 
 	if(
@@ -184,12 +185,12 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 	)
 	{
 		//err(1,"%s",argv[1]);
-		return 1;
+		return ERR_OTHER;
 	}
 	if((new_contents=malloc(newsize+1))==NULL)
 	{
 		//err(1,NULL);
-		return 1;
+		return ERR_OTHER;
 	}
 
 	oldpos=0;newpos=0;
@@ -201,7 +202,7 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 			if ((lenread < 8) || ((cbz2err != BZ_OK) && (cbz2err != BZ_STREAM_END)))
 			{
 				//errx(1, "Corrupt patch\n");
-				return 1;
+				return ERR_CORRUPT_PATCH;
 			}
 			ctrl[i]=offtin(buf);
 		};
@@ -210,7 +211,7 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 		if(newpos+ctrl[0]>newsize)
 		{
 			//errx(1,"Corrupt patch\n");
-			return 1;
+			return ERR_CORRUPT_PATCH;
 		}
 
 		/* Read diff string */
@@ -218,7 +219,7 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 		if ((lenread < ctrl[0]) || ((dbz2err != BZ_OK) && (dbz2err != BZ_STREAM_END)))
 		{
 			//errx(1, "Corrupt patch\n");
-			return 1;
+			return ERR_CORRUPT_PATCH;
 		}
 
 		/* Add old data to diff string */
@@ -238,7 +239,7 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 		if(newpos+ctrl[1]>newsize)
 		{
 			//errx(1,"Corrupt patch\n");
-			return 1;
+			return ERR_CORRUPT_PATCH;
 		}
 
 		/* Read extra string */
@@ -246,7 +247,7 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 		if ((lenread < ctrl[1]) || ((ebz2err != BZ_OK) && (ebz2err != BZ_STREAM_END)))
 		{
 			//errx(1, "Corrupt patch\n");
-			return 1;
+			return ERR_CORRUPT_PATCH;
 		}
 
 		/* Adjust pointers */
@@ -261,7 +262,7 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 	if (fclose(cpf) || fclose(dpf) || fclose(epf))
 	{
 		//err(1, "fclose(%s)", argv[3]);
-		return 1;
+		return ERR_OTHER;
 	}
 
 	/* Write the new file */
@@ -272,7 +273,7 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 	)
 	{
 		//err(1,"%s",argv[2]);
-		return 1;
+		return ERR_OTHER;
 	}
 
 	free(new_contents);
