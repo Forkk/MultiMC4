@@ -74,10 +74,10 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 	off_t i;
 
 	/* Open patch file */
-	if ((f = fopen(patchfile, "r")) == NULL)
+	if ((f = fopen(patchfile, "rb")) == NULL)
 	{
 		//err(1, "fopen(%s)", argv[3]);
-		return 1;
+		return ERR_OTHER;
 	}
 
 	/*
@@ -129,7 +129,7 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 		//err(1, "fclose(%s)", argv[3]);
 		return ERR_OTHER;
 	}
-	if ((cpf = fopen(patchfile, "r")) == NULL)
+	if ((cpf = fopen(patchfile, "rb")) == NULL)
 	{
 		//err(1, "fopen(%s)", argv[3]);
 		return ERR_OTHER;
@@ -144,7 +144,7 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 		//errx(1, "BZ2_bzReadOpen, bz2err = %d", cbz2err);
 		return ERR_OTHER;
 	}
-	if ((dpf = fopen(patchfile, "r")) == NULL)
+	if ((dpf = fopen(patchfile, "rb")) == NULL)
 	{
 		//err(1, "fopen(%s)", argv[3]);
 		return ERR_OTHER;
@@ -159,7 +159,7 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 		//errx(1, "BZ2_bzReadOpen, bz2err = %d", dbz2err);
 		return ERR_OTHER;
 	}
-	if ((epf = fopen(patchfile, "r")) == NULL)
+	if ((epf = fopen(patchfile, "rb")) == NULL)
 	{
 		//err(1, "fopen(%s)", argv[3]);
 		return ERR_OTHER;
