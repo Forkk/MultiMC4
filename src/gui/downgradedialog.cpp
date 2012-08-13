@@ -248,7 +248,7 @@ void DowngradeWizard::DoApplyPatches()
 				wxStr(pt.get<std::string>("CurrentVersion." + stdStr(patchFiles[i]))), false))
 			{
 				wxLogError(_("The file %s has been modified from its original state. Unable to patch."), 
-					checkFile);
+					checkFile.c_str());
 				return;
 			}
 		}
