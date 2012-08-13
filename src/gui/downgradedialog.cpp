@@ -283,7 +283,7 @@ void DowngradeWizard::DoApplyPatches()
 		if (wxFileExists(patchDest))
 			wxRemoveFile(patchDest);
 
-		int err = bspatch(cStr(patchSrc), cStr(patchDest), cStr(patchFile));
+		int err = bspatch(patchSrc.fn_str(), patchDest.fn_str(), patchFile.fn_str());
 
 		if (err == ERR_NONE)
 		{

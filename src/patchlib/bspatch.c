@@ -175,16 +175,26 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 		return ERR_OTHER;
 	}
 
-	if(
-		((temp=fopen(oldfile,"rb")) == NULL) ||
-		((oldsize=fseek(temp,0,SEEK_END))!=0) ||
-		((old_contents=malloc(oldsize+1))==NULL) ||
-		(fseek(temp,0,SEEK_SET)!=0) ||
-		(fread(old_contents,oldsize,1,temp)!=1) ||
-		(fclose(temp)==EOF)
-	)
+	if((temp=fopen(oldfile,"rb")) == NULL)
 	{
-		//err(1,"%s",argv[1]);
+		return ERR_OTHER;
+	}
+	if((fseek(temp,0,SEEK_END))!=0)
+	{
+		return ERR_OTHER;
+	}
+	oldsize = ftell(temp);
+	if((old_contents=malloc(oldsize+1))==NULL)
+	{
+		return ERR_OTHER;
+	}
+	rewind(temp);
+	if(fread(old_contents,oldsize,1,temp)!=1)
+	{
+		return ERR_OTHER;
+	}
+	if(fclose(temp)==EOF)
+	{
 		return ERR_OTHER;
 	}
 	if((new_contents=malloc(newsize+1))==NULL)
@@ -279,5 +289,5 @@ int bspatch(const char * oldfile, const char * newfile, const char * patchfile)
 	free(new_contents);
 	free(old_contents);
 
-	return 0;
+	return ERR_NONE;
 }
