@@ -111,31 +111,31 @@ wxString FindJavaPath(const wxString& def)
 	// Open the JRE registry key.
 	HKEY jreKey;
 	std::string jreKeyName = "SOFTWARE\\JavaSoft\\Java Runtime Environment";
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, jreKeyName.c_str(), 0, KEY_READ | KEY_WOW64_64KEY, &jreKey) == ERROR_SUCCESS)
+	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, jreKeyName.c_str(), 0, KEY_READ | KEY_WOW64_64KEY, &jreKey) == ERROR_SUCCESS)
 	{
 		// Read the current JRE version from the registry.
 		// This will be used to find the key that contains the JavaHome value.
 		char *value = new char[0];
 		DWORD valueSz = 0;
-		if (RegQueryValueEx(jreKey, "CurrentVersion", NULL, NULL, (BYTE*)value, &valueSz) == ERROR_MORE_DATA)
+		if (RegQueryValueExA(jreKey, "CurrentVersion", NULL, NULL, (BYTE*)value, &valueSz) == ERROR_MORE_DATA)
 		{
 			value = new char[valueSz];
-			RegQueryValueEx(jreKey, "CurrentVersion", NULL, NULL, (BYTE*)value, &valueSz);
+			RegQueryValueExA(jreKey, "CurrentVersion", NULL, NULL, (BYTE*)value, &valueSz);
 		}
 
 		RegCloseKey(jreKey);
 
 		// Now open the registry key for the JRE version that we just got.
 		jreKeyName.append("\\").append(value);
-		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, jreKeyName.c_str(), 0, KEY_READ | KEY_WOW64_64KEY, &jreKey) == ERROR_SUCCESS)
+		if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, jreKeyName.c_str(), 0, KEY_READ | KEY_WOW64_64KEY, &jreKey) == ERROR_SUCCESS)
 		{
 			// Read the JavaHome value to find where Java is installed.
 			value = new char[0];
 			valueSz = 0;
-			if (RegQueryValueEx(jreKey, "JavaHome", NULL, NULL, (BYTE*)value, &valueSz) == ERROR_MORE_DATA)
+			if (RegQueryValueExA(jreKey, "JavaHome", NULL, NULL, (BYTE*)value, &valueSz) == ERROR_MORE_DATA)
 			{
 				value = new char[valueSz];
-				RegQueryValueEx(jreKey, "JavaHome", NULL, NULL, (BYTE*)value, &valueSz);
+				RegQueryValueExA(jreKey, "JavaHome", NULL, NULL, (BYTE*)value, &valueSz);
 			}
 
 			RegCloseKey(jreKey);

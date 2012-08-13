@@ -182,6 +182,10 @@ include_directories("${Boost_INCLUDE_DIRS}")
 # Make the static md5 lib build
 add_subdirectory(md5)
 
+# same for the custom bsdiff/bzip2 lib
+add_subdirectory(patchlib)
+include_directories(patchlib)
+
 if (NOT CMAKE_CROSSCOMPILING)
 	# Build the wxinclude generator
 	add_subdirectory(wxinclude)
@@ -214,6 +218,7 @@ target_link_libraries(MultiMC
 	${Boost_LIBRARIES}
 	${CURL_LIBRARIES}
 	tinymd5
+	patchlib
 	${MULTIMC_ADDITIONAL_LINKS}
 )
 
