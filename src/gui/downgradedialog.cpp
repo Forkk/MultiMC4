@@ -200,6 +200,9 @@ bool DowngradeWizard::RetrievePatchURL(const wxString& mcVersion, wxString *patc
 
 void DowngradeWizard::DownloadNextPatch()
 {
+	if (!wxDirExists(patchDir))
+		wxMkdir(patchDir);
+
 	wxString patchURL = patchURLs[0];
 	patchURLs.RemoveAt(0);
 
