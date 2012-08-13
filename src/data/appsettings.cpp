@@ -29,13 +29,10 @@ bool InitAppSettings(void)
 }
 
 AppSettings::AppSettings()
+	: config(_("MultiMC"), wxEmptyString, _("multimc.cfg"), 
+		wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH)
 {
-	config = new wxFileConfig(_("MultiMC"), wxEmptyString, _("multimc.cfg"));
-}
-
-AppSettings::~AppSettings()
-{
-	delete config;
+	
 }
 
 
@@ -175,7 +172,7 @@ template <typename T>
 T AppSettings::GetSetting(const wxString &key, T defValue) const
 {
 	T val;
-	if (config->Read(key, &val))
+	if (config.Read(key, &val))
 		return val;
 	else
 		return defValue;
@@ -184,15 +181,15 @@ T AppSettings::GetSetting(const wxString &key, T defValue) const
 template <typename T>
 void AppSettings::SetSetting(const wxString &key, T value, bool suppressErrors)
 {
-	if (!config->Write(key, value) && !suppressErrors)
+	if (!config.Write(key, value) && !suppressErrors)
 		wxLogError(_("Failed to write config setting %s"), key.c_str());
-	config->Flush();
+	config.Flush();
 }
 
 wxFileName AppSettings::GetSetting(const wxString &key, wxFileName defValue) const
 {
 	wxString val;
-	if (config->Read(key, &val))
+	if (config.Read(key, &val))
 	{
 		if (defValue.IsDir())
 			return wxFileName::DirName(val);
@@ -205,7 +202,7 @@ wxFileName AppSettings::GetSetting(const wxString &key, wxFileName defValue) con
 
 void AppSettings::SetSetting(const wxString &key, wxFileName value, bool suppressErrors)
 {
-	if (!config->Write(key, value.GetFullPath()) && !suppressErrors)
+	if (!config.Write(key, value.GetFullPath()) && !suppressErrors)
 		wxLogError(_("Failed to write config setting %s"), key.c_str());
-	config->Flush();
+	config.Flush();
 }

@@ -41,7 +41,6 @@ class AppSettings
 {
 public:
 	AppSettings();
-	virtual ~AppSettings();
 	
 	int GetMinMemAlloc() const;
 	void SetMinMemAlloc(int value);
@@ -81,7 +80,7 @@ public:
 	
 protected:
 // 	boost::property_tree::ptree ptree;
-	wxFileConfig *config;
+	wxFileConfig config;
 	
 	template <typename T>
 	T GetSetting(const wxString &key, T defValue) const;
