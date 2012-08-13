@@ -115,7 +115,7 @@ void DowngradeWizard::LoadVersionList()
 			read_json(jsonStream, pt);
 
 			BOOST_FOREACH(const ptree::value_type& v, pt.get_child("order"))
-				vList.Add(wxStr(v.second.data()));
+				vList.Insert(wxStr(v.second.data()), 0);
 
 			versionList->Set(vList);
 		}
