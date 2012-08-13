@@ -78,7 +78,7 @@ bool DowngradeTask::DownloadPatches()
 	{
 		SetStatusDetail(_("Downloading ") + patchURLs[i]);
 		wxString downloadURL = baseURL + _("/") + patchURLs[i];
-		wxString dest = Path::Combine(patchDir, patchURLs[i]);
+		wxString dest = Path::Combine(_("patches"), patchURLs[i]);
 
 		CURL *curl = curl_easy_init();
 
@@ -215,7 +215,7 @@ bool DowngradeTask::ApplyPatches()
 		wxString file = patchFiles[i];
 
 		wxString binDir = m_inst->GetBinDir().GetFullPath();
-		wxString patchFile = Path::Combine(patchDir, file + _(".ptch"));
+		wxString patchFile = Path::Combine(_("patches"), file + _(".ptch"));
 
 		if (file == _("minecraft") && wxFileExists(m_inst->GetMCBackup().GetFullPath()))
 			file = _("mcbackup");

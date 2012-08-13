@@ -29,8 +29,6 @@ protected:
 	Instance *m_inst;
 	wxString m_targetVersion;
 
-	wxString patchDir;
-
 	wxString statusDetail;
 
 	enum TaskStep
