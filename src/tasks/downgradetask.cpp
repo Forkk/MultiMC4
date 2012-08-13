@@ -98,7 +98,7 @@ bool DowngradeTask::DownloadPatches()
 
 		if (curlErr != 0)
 		{
-			wxLogError(_("Failed to download patch %s."), patchURLs[i]);
+			wxLogError(_("Failed to download patch %s."), patchURLs[i].c_str());
 			return false;
 		}
 	}
