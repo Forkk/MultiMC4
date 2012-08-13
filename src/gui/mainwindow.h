@@ -67,6 +67,7 @@ public:
 
 	void OnManageSavesClicked(wxCommandEvent& event);
 	void OnEditModsClicked(wxCommandEvent& event);
+	void OnDowngradeInstClicked(wxCommandEvent& event);
 	void OnRebuildJarClicked(wxCommandEvent& event);
 	void OnViewInstFolderClicked(wxCommandEvent& event);
 	
@@ -156,6 +157,7 @@ protected:
 	wxButton *btnChangeIcon;
 	wxButton *btnCopyInst;
 	wxButton *btnEditMods;
+	wxButton *btnDowngrade;
 	wxButton *btnRebuildJar;
 	wxButton *btnViewFolder;
 	
@@ -215,6 +217,7 @@ enum
 
 	ID_ManageSaves,
 	ID_EditMods,
+	ID_DowngradeInst,
 	ID_RebuildJar,
 	ID_ViewInstFolder,
 

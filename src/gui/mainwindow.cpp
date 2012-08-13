@@ -33,6 +33,7 @@
 #include "version.h"
 #include "configpack.h"
 #include "importpackwizard.h"
+#include "downgradedialog.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -264,7 +265,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 		wxALIGN_RIGHT | wxLEFT | wxRIGHT, 8);
 	btnPanel->SetSizer(btnSz);
 	
-	const int spacerSize = 8;
+	const int spacerSize = 4;
 
 	btnPlay = new wxButton(btnPanel, ID_Play, _("&Play"));
 	btnSz->Add(btnPlay, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
@@ -278,6 +279,8 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnSz->AddSpacer(spacerSize);
 	btnEditMods = new wxButton(btnPanel, ID_EditMods, _("Edit &Mods"));
 	btnSz->Add(btnEditMods, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	btnDowngrade = new wxButton(btnPanel, ID_DowngradeInst, _("Downgrade"));
+	btnSz->Add(btnDowngrade, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 	btnRebuildJar = new wxButton(btnPanel, ID_RebuildJar, _("Re&build Jar"));
 	btnSz->Add(btnRebuildJar, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 	btnViewFolder = new wxButton(btnPanel, ID_ViewInstFolder, _("&View Folder"));
@@ -931,6 +934,12 @@ void MainWindow::OnEditModsClicked(wxCommandEvent& event)
 	editDlg->Show();
 }
 
+void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
+{
+	DowngradeWizard *downWizard = new DowngradeWizard(this, GetSelectedInst());
+	downWizard->Start();
+}
+
 void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
 {
 	ModderTask *modTask = new ModderTask(GetSelectedInst());
@@ -1082,6 +1091,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	
 	EVT_MENU(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_MENU(ID_EditMods, MainWindow::OnEditModsClicked)
+	EVT_MENU(ID_DowngradeInst, MainWindow::OnDowngradeInstClicked)
 	EVT_MENU(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_MENU(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
 	
@@ -1098,6 +1108,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	
 	EVT_BUTTON(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_BUTTON(ID_EditMods, MainWindow::OnEditModsClicked)
+	EVT_BUTTON(ID_DowngradeInst, MainWindow::OnDowngradeInstClicked)
 	EVT_BUTTON(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_BUTTON(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
 	

@@ -67,6 +67,7 @@ gui/modeditwindow.cpp
 gui/changeicondialog.cpp
 gui/exportinstwizard.cpp
 gui/importpackwizard.cpp
+gui/downgradedialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -106,6 +107,7 @@ gui/modeditwindow.h
 gui/changeicondialog.h
 gui/exportinstwizard.h
 gui/importpackwizard.h
+gui/downgradedialog.h
 
 data/appsettings.h
 data/instance.h
