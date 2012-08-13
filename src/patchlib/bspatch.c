@@ -26,7 +26,7 @@
 
 #ifdef _WIN32
 	#define _CRT_SECURE_NO_WARNINGS
-	#include <SYS\types.h>
+	#include <sys\types.h>
 	#define ssize_t size_t
 #else
 	#include <unistd.h>
