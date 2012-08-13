@@ -362,6 +362,8 @@ Unable to patch. Try force updating."), checkFile.c_str()));
 			e.line(), wxStr(e.message()).c_str());
 		return;
 	}
+
+	installStatusLbl->SetLabel(_("Downgrade complete!"));
 }
 
 void DowngradeWizard::OnTaskStart(TaskEvent& event)
