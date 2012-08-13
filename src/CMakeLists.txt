@@ -137,10 +137,11 @@ version.h
 insticonlist.h
 ${CMAKE_BINARY_DIR}/resources/insticons.h
 ${CMAKE_BINARY_DIR}/resources/toolbaricons.h
+${CMAKE_BINARY_DIR}/launcher/launcherdata.h
 )
 
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/resources/insticons.h ${CMAKE_BINARY_DIR}/resources/toolbaricons.h GENERATED)
-
+SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/launcher/launcherdata.h GENERATED)
 # Find wxWidgets.
 MESSAGE(STATUS "** Finding wxWidgets")
 find_package(wxWidgets REQUIRED core base net adv)
@@ -196,6 +197,7 @@ endif ()
 
 # Create header files out of resources
 add_subdirectory(resources)
+add_subdirectory(launcher)
 
 include_directories("${PROJECT_BINARY_DIR}")
 
@@ -209,7 +211,7 @@ include_directories(
 # Add the executable.
 
 add_executable(MultiMC WIN32 ${SRCS} ${INCS})
-add_dependencies(MultiMC generate_headers)
+add_dependencies(MultiMC generate_headers generate_launcher)
 
 
 # Link the libraries.

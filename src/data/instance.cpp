@@ -21,7 +21,7 @@
 #include <wx/mstream.h>
 #include <wx/dir.h>
 
-#include "launcherdata.h"
+#include "launcher/launcherdata.h"
 #include "osutils.h"
 #include <datautils.h>
 
@@ -339,11 +339,10 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 
 void Instance::ExtractLauncher()
 {
-	wxMemoryInputStream launcherInputStream(MultiMCLauncher_class, MultiMCLauncher_class_len);
+	wxMemoryInputStream launcherInputStream(multimclauncher, sizeof(multimclauncher));
 	wxFileOutputStream launcherOutStream(_("MultiMCLauncher.class"));
 	launcherOutStream.Write(launcherInputStream);
 }
-
 
 void Instance::OnInstProcExited(wxProcessEvent& event)
 {
