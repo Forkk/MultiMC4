@@ -961,8 +961,15 @@ void MainWindow::OnEditModsClicked(wxCommandEvent& event)
 
 void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
 {
-	DowngradeWizard *downWizard = new DowngradeWizard(this, GetSelectedInst());
-	downWizard->Start();
+	if (GetSelectedInst()->GetVersionFile().FileExists())
+	{
+		DowngradeWizard *downWizard = new DowngradeWizard(this, GetSelectedInst());
+		downWizard->Start();
+	}
+	else
+	{
+		wxLogError(_("You must run this instance at least once to download minecraft before you can downgrade it!"));
+	}
 }
 
 void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
