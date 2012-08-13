@@ -84,6 +84,7 @@ tasks/checkupdatetask.cpp
 tasks/filedownloadtask.cpp
 tasks/filecopytask.cpp
 tasks/exportpacktask.cpp
+tasks/downgradetask.cpp
 
 apputils.cpp
 curlutils.cpp
@@ -124,6 +125,7 @@ tasks/checkupdatetask.h
 tasks/filedownloadtask.h
 tasks/filecopytask.h
 tasks/exportpacktask.h
+tasks/downgradetask.h
 
 apputils.h
 curlutils.h

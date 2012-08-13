@@ -34,6 +34,7 @@
 #include "configpack.h"
 #include "importpackwizard.h"
 #include "downgradedialog.h"
+#include "downgradetask.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -963,8 +964,12 @@ void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
 {
 	if (GetSelectedInst()->GetVersionFile().FileExists())
 	{
-		DowngradeWizard *downWizard = new DowngradeWizard(this, GetSelectedInst());
-		downWizard->Start();
+		DowngradeDialog *downDlg = new DowngradeDialog(this);
+		if (downDlg->ShowModal() == wxID_OK && !downDlg->GetSelectedVersion().IsEmpty())
+		{
+			DowngradeTask dgTask(GetSelectedInst(), downDlg->GetSelectedVersion());
+			StartModalTask(dgTask);
+		}
 	}
 	else
 	{
@@ -1071,7 +1076,7 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 		
 		wxMilliSleep(100);
 	}
-	progDialog->Close(false);
+	//progDialog->Close(false);
 	progDialog->Destroy();
 	return !cancelled;
 }

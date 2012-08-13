@@ -15,56 +15,27 @@
 //
 
 #pragma once
-#include <wx/wizard.h>
+#include <wx/dialog.h>
 
 #include "instance.h"
 #include "task.h"
 
-class DowngradeWizard : public wxWizard
+class DowngradeDialog : public wxDialog
 {
 public:
-	DowngradeWizard(wxWindow *parent, Instance *inst);
+	DowngradeDialog(wxWindow *parent);
 
-	bool Start();
+	wxString GetSelectedVersion();
 
 protected:
-	Instance *m_inst;
-
-	wxArrayString patchURLs;
-	wxString patchDir;
-
 	void LoadVersionList();
 
 	void OnRefreshVListClicked(wxCommandEvent& event);
 	void OnListBoxSelChange(wxCommandEvent& event);
 
-	void OnPageChanged(wxWizardEvent& event);
-
-	void OnTaskStart(TaskEvent& event);
-	void OnTaskEnd(TaskEvent& event);
-	void OnTaskProgress(TaskProgressEvent& event);
-	void OnTaskStatus(TaskStatusEvent& event);
-
-	void DownloadNextPatch();
-	void DoApplyPatches();
-
-	bool RetrievePatchURL(const wxString& mcVersion, wxString *patchURL);
-
-	wxWizardPageSimple *chooseVersionPage;
-	wxWizardPageSimple *downloadPatchPage;
+	void UpdateOKBtn();
 
 	wxListBox *versionList;
-
-	wxStaticText *installStatusLbl;
-	wxGauge *installPBar;
-
-	enum DowngradeStep
-	{
-		DownloadPatches,
-		CheckOriginalMD5s,
-		ApplyPatches,
-		CheckFinalMD5s,
-	} currentStep;
 
 	DECLARE_EVENT_TABLE()
 };
