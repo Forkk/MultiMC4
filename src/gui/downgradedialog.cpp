@@ -253,8 +253,8 @@ void DowngradeWizard::DoApplyPatches()
 			if (!Utils::BytesToString(md5digest).IsSameAs(
 				wxStr(pt.get<std::string>("CurrentVersion." + stdStr(patchFiles[i]))), false))
 			{
-				wxLogError(_("The file %s has been modified from its original state. Unable to patch."), 
-					checkFile.c_str());
+				installStatusLbl->SetLabel(wxString::Format(_("The file %s has been modified from its original state. \
+Unable to patch. Try force updating."), checkFile.c_str()));
 				return;
 			}
 		}
@@ -300,13 +300,14 @@ void DowngradeWizard::DoApplyPatches()
 			switch (err)
 			{
 			case ERR_CORRUPT_PATCH:
-				wxLogError(_("Failed to patch %s.jar. Patch is corrupt."), file.c_str());
+				installStatusLbl->SetLabel(wxString::Format(_("Failed to patch %s.jar. Patch is corrupt."), file.c_str()));
 				break;
 
 			default:
-				wxLogError(_("Failed to patch %s.jar. Unknown error."), file.c_str());
+				installStatusLbl->SetLabel(wxString::Format(_("Failed to patch %s.jar. Unknown error."), file.c_str()));
 				break;
 			}
+			return;
 		}
 	}
 
@@ -343,10 +344,11 @@ void DowngradeWizard::DoApplyPatches()
 			MD5Final(md5digest, &md5ctx);
 
 			if (!Utils::BytesToString(md5digest).IsSameAs(
-				wxStr(pt.get<std::string>("CurrentVersion." + stdStr(patchFiles[i]))), false))
+				wxStr(pt.get<std::string>("OldVersion." + stdStr(patchFiles[i]))), false))
 			{
-				wxLogError(_("The file %s has been modified from its original state. Unable to patch."), 
-					checkFile.c_str());
+				installStatusLbl->SetLabel(
+					wxString::Format(_("The file %s's MD5 didn't match what it was supposed to be."), 
+					wxFileName(checkFile).GetFullName().c_str()));
 				return;
 			}
 		}
