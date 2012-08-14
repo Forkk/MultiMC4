@@ -35,6 +35,9 @@ public:
 protected:
 	void OnBrowseInstDirClicked(wxCommandEvent& event);
 	void OnDetectJavaPathClicked(wxCommandEvent& event);
+	void OnMaximizeCheckClicked(wxCommandEvent& event);
+
+	void UpdateMaximizeCheckStuff();
 	
 	wxNotebook *tabCtrl;
 	
@@ -48,6 +51,10 @@ protected:
 	
 	wxSpinCtrl *minMemorySpin;
 	wxSpinCtrl *maxMemorySpin;
+
+	wxCheckBox *winMaxCheckbox;
+	wxSpinCtrl *winWidthSpin;
+	wxSpinCtrl *winHeightSpin;
 	
 	wxTextCtrl *javaPathTextBox;
 	wxTextCtrl *jvmArgsTextBox;
@@ -62,5 +69,7 @@ protected:
 enum
 {
 	ID_BrowseInstDir,
-	ID_DetectJavaPath
+	ID_DetectJavaPath,
+
+	ID_MCMaximizeCheckbox,
 };

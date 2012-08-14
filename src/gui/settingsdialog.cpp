@@ -91,6 +91,48 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	generalBox->Add(instDirBox, wxGBPosition(row++, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
 	
 	generalBox->SetSizeHints(generalPanel);
+
+
+	// Minecraft tab
+	wxPanel *mcPanel = new wxPanel(tabCtrl, -1);
+	wxGridBagSizer *mcBox = new wxGridBagSizer();
+	mcBox->AddGrowableCol(0, 0);
+	mcPanel->SetSizer(mcBox);
+	tabCtrl->AddPage(mcPanel, _T("Minecraft"), false);
+
+	// Window size group box
+	wxStaticBoxSizer *windowSizeBox = new wxStaticBoxSizer(wxVERTICAL,
+		mcPanel, _("Minecraft Window Size"));
+	wxGridBagSizer *winSizeSz = new wxGridBagSizer();
+	windowSizeBox->Add(winSizeSz, wxSizerFlags(0).Expand());
+	mcBox->Add(windowSizeBox, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+
+	// Maximize
+	winMaxCheckbox = new wxCheckBox(mcPanel, ID_MCMaximizeCheckbox, 
+		_("Start Minecraft maximized?"));
+	winSizeSz->Add(winMaxCheckbox, wxGBPosition(0, 0), wxGBSpan(1, 2), 
+		wxALL | wxALIGN_CENTER_VERTICAL, 4);
+
+	// Window width
+	wxStaticText *winWidthLabel = new wxStaticText(mcPanel, -1, 
+		_("Window width: "));
+	winSizeSz->Add(winWidthLabel, wxGBPosition(1, 0), wxGBSpan(1, 1), 
+		wxALL | wxALIGN_CENTER_VERTICAL, 4);
+	winWidthSpin = new wxSpinCtrl(mcPanel, -1);
+	winWidthSpin->SetRange(854, wxSystemSettings::GetMetric (wxSYS_SCREEN_X));
+	winSizeSz->Add(winWidthSpin, wxGBPosition(1, 1), wxGBSpan(1, 1), 
+		wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 4);
+
+	// Window height
+	wxStaticText *winHeightLabel = new wxStaticText(mcPanel, -1, 
+		_("Window height: "));
+	winSizeSz->Add(winHeightLabel, wxGBPosition(2, 0), wxGBSpan(1, 1), 
+		wxALL | wxALIGN_CENTER_VERTICAL, 4);
+	winHeightSpin = new wxSpinCtrl(mcPanel, -1);
+	winHeightSpin->SetRange(480, wxSystemSettings::GetMetric (wxSYS_SCREEN_Y));
+	winSizeSz->Add(winHeightSpin, wxGBPosition(2, 1), wxGBSpan(1, 1), 
+		wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 4);
+
 	
 	// Advanced tab
 	wxPanel *advancedPanel = new wxPanel(tabCtrl, -1);
@@ -217,7 +259,7 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 			_("Restart Required"));
 	}
 
-	if (devBuildCheck->GetValue() && !settings.GetUseDevBuilds())
+	if (devBuildCheck->GetValue() && !s.GetUseDevBuilds())
 	{
 		// Display a warning.
 		if (wxMessageBox(_("Warning: Dev builds contain incomplete, experimental, and possibly unstable features. \
@@ -225,13 +267,17 @@ Some may be extremely buggy, and others may not work at all. Use these at your o
 Are you sure you want to use dev builds?"), 
 			_("Are you sure?"), wxOK | wxCANCEL) == wxOK)
 		{
-			settings.SetUseDevBuilds(devBuildCheck->GetValue());
+			s.SetUseDevBuilds(devBuildCheck->GetValue());
 		}
 	}
 	else
 	{
-		settings.SetUseDevBuilds(devBuildCheck->GetValue());
+		s.SetUseDevBuilds(devBuildCheck->GetValue());
 	}
+
+	s.SetMCWindowMaximize(winMaxCheckbox->IsChecked());
+	s.SetMCWindowWidth(winWidthSpin->GetValue());
+	s.SetMCWindowHeight(winHeightSpin->GetValue());
 }
 
 void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
@@ -250,6 +296,11 @@ void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
 
 	javaPathTextBox->SetValue(s.GetJavaPath());
 	jvmArgsTextBox->SetValue(s.GetJvmArgs());
+
+	winMaxCheckbox->SetValue(s.GetMCWindowMaximize());
+	winWidthSpin->SetValue(s.GetMCWindowWidth());
+	winHeightSpin->SetValue(s.GetMCWindowHeight());
+	UpdateMaximizeCheckStuff();
 	
 	switch (s.GetGUIMode())
 	{
@@ -278,7 +329,21 @@ void SettingsDialog::OnDetectJavaPathClicked(wxCommandEvent& event)
 }
 
 
+void SettingsDialog::OnMaximizeCheckClicked(wxCommandEvent& event)
+{
+	UpdateMaximizeCheckStuff();
+}
+
+void SettingsDialog::UpdateMaximizeCheckStuff()
+{
+	winWidthSpin->Enable(!winMaxCheckbox->IsChecked());
+	winHeightSpin->Enable(!winMaxCheckbox->IsChecked());
+}
+
+
 BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_BUTTON(ID_BrowseInstDir, SettingsDialog::OnBrowseInstDirClicked)
 	EVT_BUTTON(ID_DetectJavaPath, SettingsDialog::OnDetectJavaPathClicked)
+
+	EVT_CHECKBOX(ID_MCMaximizeCheckbox, SettingsDialog::OnMaximizeCheckClicked)
 END_EVENT_TABLE()

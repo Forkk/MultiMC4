@@ -127,7 +127,7 @@ public class MultiMCLauncher
 				Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
 				Applet mcappl = (Applet) MCAppletClass.newInstance();
 				MCFrame mcWindow = new MCFrame(args[3], "No icon yet! FIXME!");
-				mcWindow.start(mcappl,args[1],args[2], winSize);
+				mcWindow.start(mcappl, args[1], args[2], winSize, maximize);
 			} catch (InstantiationException e)
 			{
 				mc.getMethod("main", String[].class).invoke(null, (Object) mcArgs);

@@ -58,6 +58,39 @@ void AppSettings::SetMaxMemAlloc(int value)
 }
 
 
+int AppSettings::GetMCWindowWidth() const
+{
+	return GetSetting<int>(_("MCWindowWidth"), 854);
+}
+
+void AppSettings::SetMCWindowWidth(int value)
+{
+	SetSetting<int>(_("MCWindowWidth"), value);
+}
+
+
+int AppSettings::GetMCWindowHeight() const
+{
+	return GetSetting<int>(_("MCWindowHeight"), 480);
+}
+
+void AppSettings::SetMCWindowHeight(int value)
+{
+	SetSetting<int>(_("MCWindowHeight"), value);
+}
+
+
+bool AppSettings::GetMCWindowMaximize() const
+{
+	return GetSetting<bool>(_("MCWindowMaximize"), false);
+}
+
+void AppSettings::SetMCWindowMaximize(bool value)
+{
+	SetSetting<bool>(_("MCWindowMaximize"), value);
+}
+
+
 wxFileName AppSettings::GetInstDir() const
 {
 	return GetSetting(_("InstanceDir"), wxFileName::DirName(_("instances")));

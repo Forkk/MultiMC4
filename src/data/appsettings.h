@@ -47,6 +47,15 @@ public:
 	
 	int GetMaxMemAlloc() const;
 	void SetMaxMemAlloc(int value);
+
+	int GetMCWindowWidth() const;
+	void SetMCWindowWidth(int value);
+
+	int GetMCWindowHeight() const;
+	void SetMCWindowHeight(int value);
+
+	bool GetMCWindowMaximize() const;
+	void SetMCWindowMaximize(bool value);
 	
 	wxString GetJavaPath() const;
 	void SetJavaPath(wxString value);

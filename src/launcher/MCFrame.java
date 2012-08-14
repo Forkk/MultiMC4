@@ -28,7 +28,7 @@ public class MCFrame extends Frame implements WindowListener
 	}
 
 	public void start(Applet mcApplet, String user, String session, 
-			Dimension winSize)
+			Dimension winSize, boolean maximize)
 	{
 		try
 		{
@@ -45,6 +45,8 @@ public class MCFrame extends Frame implements WindowListener
 		appletWrap.setPreferredSize(winSize);
 		this.pack();
 		this.setLocationRelativeTo(null);
+		if (maximize)
+			this.setExtendedState(MAXIMIZED_BOTH);
 		
 		validate();
 		appletWrap.init();
