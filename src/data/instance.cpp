@@ -322,8 +322,10 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 	wdArg.Replace(_("\\"), _("\\\\"));
 // 	}
 	
-	wxString launchCmd = wxString::Format(_("\"%s\" %s -Xmx%im -Xms%im -cp \"%s\" -jar MultiMCLauncher.jar \"%s\" \"%s\" \"%s\""),
-		javaPath.c_str(), additionalArgs.c_str(), xmx, xms, wdArg.c_str(), mcDir.c_str(), username.c_str(), sessionID.c_str());
+	wxString title = _("MultiMC: ") + GetName();
+	// FIXME: implement instance icons here (pass a filename of raw bitmap)
+	wxString launchCmd = wxString::Format(_("\"%s\" %s -Xmx%im -Xms%im -cp \"%s\" -jar MultiMCLauncher.jar \"%s\" \"%s\" \"%s\" \"%s\""),
+		javaPath.c_str(), additionalArgs.c_str(), xmx, xms, wdArg.c_str(), mcDir.c_str(), username.c_str(), sessionID.c_str(), title.c_str());
 	m_lastLaunchCommand = launchCmd;
 	
 	instProc = new wxProcess(this);
