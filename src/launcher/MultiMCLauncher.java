@@ -1,4 +1,6 @@
 import java.applet.Applet;
+import java.awt.Dimension;
+
 import javax.swing.JFrame;
 import java.io.File;
 import java.lang.reflect.Field;
@@ -17,10 +19,41 @@ public class MultiMCLauncher
 	 */
 	public static void main(String[] args)
 	{
-		if (args.length != 4)
+		if (args.length < 4)
 		{
 			System.out.println("Not enough arguments.");
 			System.exit(-1);
+		}
+		
+		Dimension winSize = new Dimension(854, 480);
+		boolean maximize = false;
+		
+		if (args.length >= 5)
+		{
+			String[] dimStrings = args[4].split("x");
+			
+			if (args[4].equalsIgnoreCase("max"))
+			{
+				maximize = true;
+			}
+			else if (dimStrings.length == 2)
+			{
+				try
+				{
+					winSize = new Dimension(Integer.parseInt(dimStrings[0]),
+							Integer.parseInt(dimStrings[1]));
+				}
+				catch (NumberFormatException e)
+				{
+					System.out.println("Invalid Window size argument, " +
+							"using default.");
+				}
+			}
+			else
+			{
+				System.out.println("Invalid Window size argument, " +
+						"using default.");
+			}
 		}
 		
 		try
@@ -94,7 +127,7 @@ public class MultiMCLauncher
 				Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
 				Applet mcappl = (Applet) MCAppletClass.newInstance();
 				MCFrame mcWindow = new MCFrame(args[3], "No icon yet! FIXME!");
-				mcWindow.start(mcappl,args[1],args[2]);
+				mcWindow.start(mcappl,args[1],args[2], winSize);
 			} catch (InstantiationException e)
 			{
 				mc.getMethod("main", String[].class).invoke(null, (Object) mcArgs);

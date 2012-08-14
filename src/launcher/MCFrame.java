@@ -13,9 +13,6 @@ public class MCFrame extends Frame implements WindowListener
 {
 	private AppletWrap appletWrap = null;
 	
-	final static int defWidth = 854;
-	final static int defHeight = 480;
-
 	public MCFrame(String title, String icon_name)
 	{
 		super(title);
@@ -30,7 +27,8 @@ public class MCFrame extends Frame implements WindowListener
 		this.addWindowListener(this);
 	}
 
-	public void start(Applet mcApplet, String user, String session)
+	public void start(Applet mcApplet, String user, String session, 
+			Dimension winSize)
 	{
 		try
 		{
@@ -44,7 +42,7 @@ public class MCFrame extends Frame implements WindowListener
 		mcApplet.setStub(appletWrap);
 
 		this.add(appletWrap);
-		appletWrap.setPreferredSize(new Dimension(defWidth, defHeight));
+		appletWrap.setPreferredSize(winSize);
 		this.pack();
 		this.setLocationRelativeTo(null);
 		
