@@ -32,6 +32,7 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	  instListener(inst, this)
 {
 	instListenerStarted = false;
+	killedInst = false;
 	m_mainWin = mainWin;
 	m_inst = inst;
 	inst->SetEvtHandler(this);
