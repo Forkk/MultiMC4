@@ -17,7 +17,7 @@ add_jar(MultiMCLauncher ${SRC})
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/launcherdata.h
                    COMMAND wxinclude ARGS launcherdata.h MultiMCLauncher.jar
-                   DEPENDS wxinclude MultiMCLauncher.jar
+                   DEPENDS wxinclude ${CMAKE_CURRENT_BINARY_DIR}/MultiMCLauncher.jar
                    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                    COMMENT "Generating the launcher header."
                    VERBATIM)
