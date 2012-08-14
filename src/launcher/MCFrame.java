@@ -12,6 +12,9 @@ import javax.imageio.ImageIO;
 public class MCFrame extends Frame implements WindowListener
 {
 	private AppletWrap appletWrap = null;
+	
+	final static int defWidth = 854;
+	final static int defHeight = 480;
 
 	public MCFrame(String title, String icon_name)
 	{
@@ -20,10 +23,8 @@ public class MCFrame extends Frame implements WindowListener
 		
 		super.setVisible(true);
 		
-		//FIXME: this can fail in multiple monitor setups
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setSize(800,600);
-		this.setLocation((screenSize.width - 800) / 2, (screenSize.height - 600) / 2);
+		this.setSize(800, 600);
+		this.setLocationRelativeTo(null);
 		
 		this.setResizable(true);
 		this.addWindowListener(this);
@@ -39,12 +40,16 @@ public class MCFrame extends Frame implements WindowListener
 		
 		appletWrap.setParameter("username", user);
 		appletWrap.setParameter("sessionid", session);
+		appletWrap.setParameter("stand-alone", "true"); // Show the quit button.
 		mcApplet.setStub(appletWrap);
 
 		this.add(appletWrap);
+		appletWrap.setPreferredSize(new Dimension(defWidth, defHeight));
+		this.pack();
+		this.setLocationRelativeTo(null);
+		
 		validate();
 		appletWrap.init();
-		appletWrap.setSize(getWidth(), getHeight());
 		appletWrap.start();
 		setVisible(true);
 	}
