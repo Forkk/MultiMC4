@@ -6,6 +6,10 @@ include(UseJava)
 set(CMAKE_JAVA_JAR_ENTRY_POINT MultiMCLauncher)
 set(CMAKE_JAVA_COMPILE_FLAGS -target 1.6 -source 1.6)
 
+if (WIN32 AND CMAKE_CROSSCOMPILING)
+	string(REPLACE ";" ":" CMAKE_JAVA_COMPILE_FLAGS CMAKE_JAVA_COMPILE_FLAGS)
+endif ()
+
 
 set(SRC
     MultiMCLauncher.java
