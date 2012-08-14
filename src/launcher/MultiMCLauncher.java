@@ -1,3 +1,5 @@
+import java.applet.Applet;
+import javax.swing.JFrame;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -88,7 +90,23 @@ public class MultiMCLauncher
 
 			System.out.println("MCDIR: " + mcDir);
 			
-			mc.getMethod("main", String[].class).invoke(null, (Object) mcArgs);
+			try
+			{
+				Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
+				Applet mcappl = (Applet) MCAppletClass.newInstance();
+				// FIXME: implement applet stub that would provide the required info to the applet!
+				mcappl.init();
+				final JFrame frame = new JFrame("FakeCraft");
+				frame.add(mcappl);
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.pack();
+				frame.setVisible(true);
+				System.out.println("About to start!");
+				mcappl.start();
+			} catch (InstantiationException e)
+			{
+				mc.getMethod("main", String[].class).invoke(null, (Object) mcArgs);
+			}
 		} catch (ClassNotFoundException e)
 		{
 			e.printStackTrace();

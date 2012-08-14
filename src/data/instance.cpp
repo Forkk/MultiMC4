@@ -322,7 +322,7 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 	wdArg.Replace(_("\\"), _("\\\\"));
 // 	}
 	
-	wxString launchCmd = wxString::Format(_("\"%s\" %s -Xmx%im -Xms%im -cp \"%s\" MultiMCLauncher \"%s\" \"%s\" \"%s\""),
+	wxString launchCmd = wxString::Format(_("\"%s\" %s -Xmx%im -Xms%im -cp \"%s\" -jar MultiMCLauncher.jar \"%s\" \"%s\" \"%s\""),
 		javaPath.c_str(), additionalArgs.c_str(), xmx, xms, wdArg.c_str(), mcDir.c_str(), username.c_str(), sessionID.c_str());
 	m_lastLaunchCommand = launchCmd;
 	
@@ -340,7 +340,7 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 void Instance::ExtractLauncher()
 {
 	wxMemoryInputStream launcherInputStream(multimclauncher, sizeof(multimclauncher));
-	wxFileOutputStream launcherOutStream(_("MultiMCLauncher.class"));
+	wxFileOutputStream launcherOutStream(_("MultiMCLauncher.jar"));
 	launcherOutStream.Write(launcherInputStream);
 }
 
