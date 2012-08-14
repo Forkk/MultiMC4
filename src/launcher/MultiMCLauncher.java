@@ -17,7 +17,7 @@ public class MultiMCLauncher
 	 */
 	public static void main(String[] args)
 	{
-		if (args.length != 3)
+		if (args.length != 4)
 		{
 			System.out.println("Not enough arguments.");
 			System.exit(-1);
@@ -78,8 +78,7 @@ public class MultiMCLauncher
 				f.setAccessible(true);
 				f.set(null, new File(args[0]));
 				// And set it.
-				System.out.println("Fixed Minecraft Path: Field was "
-						+ f.toString());
+				System.out.println("Fixed Minecraft Path: Field was " + f.toString());
 			}
 			
 			String[] mcArgs = new String[2];
@@ -94,15 +93,8 @@ public class MultiMCLauncher
 			{
 				Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
 				Applet mcappl = (Applet) MCAppletClass.newInstance();
-				// FIXME: implement applet stub that would provide the required info to the applet!
-				mcappl.init();
-				final JFrame frame = new JFrame("FakeCraft");
-				frame.add(mcappl);
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				frame.pack();
-				frame.setVisible(true);
-				System.out.println("About to start!");
-				mcappl.start();
+				MCFrame mcWindow = new MCFrame(args[3], "No icon yet! FIXME!");
+				mcWindow.start(mcappl,args[1],args[2]);
 			} catch (InstantiationException e)
 			{
 				mc.getMethod("main", String[].class).invoke(null, (Object) mcArgs);
