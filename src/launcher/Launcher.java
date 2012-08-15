@@ -1,38 +1,49 @@
+package net.minecraft;
+
 import java.util.TreeMap;
 import java.util.Map;
 import java.net.URL;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
+import java.awt.BorderLayout;
 import java.applet.Applet;
 import java.applet.AppletStub;
 
-public class AppletWrap extends Applet implements AppletStub
+public class Launcher extends Applet implements AppletStub
 {
 	private Applet wrappedApplet;
 	private URL documentBase;
 	private boolean active = false;
 	private final Map<String, String> params;
 
-	public AppletWrap(Applet wrappedApplet, URL documentBase)
+	public Launcher(Applet applet, URL documentBase)
 	{
 		params = new TreeMap<String, String>();
-		setLayout(new GridBagLayout());
-		java.awt.GridBagConstraints layoutParams =
-			new java.awt.GridBagConstraints(0,0, // gridx,y
-											1,1, // grid size x,y
-											1.0,1.0, // weight
-											java.awt.GridBagConstraints.FIRST_LINE_START, // anchor
-											java.awt.GridBagConstraints.BOTH, // fill
-											new java.awt.Insets(0, 0, 0, 0), // insets
-											0,0); // pad
-		this.add(wrappedApplet, layoutParams);
-		this.wrappedApplet = wrappedApplet;
+
+		this.setLayout(new BorderLayout());
+	    this.add(applet, "Center");
+		this.wrappedApplet = applet;	
 		this.documentBase = documentBase;
 	}
 
 	public void setParameter(String name, String value)
 	{
 		params.put(name, value);
+	}
+	
+	public void replace(Applet applet)
+	{
+		this.wrappedApplet = applet;
+		
+		applet.setStub(this);
+		applet.setSize(getWidth(), getHeight());
+		
+		this.setLayout(new BorderLayout());
+		this.add(applet, "Center");
+	    
+	    applet.init();
+	    active = true;
+	    applet.start();
+	    validate();
 	}
 
 	@Override

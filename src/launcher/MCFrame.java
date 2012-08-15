@@ -1,3 +1,4 @@
+import net.minecraft.Launcher;
 import java.applet.Applet;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -11,7 +12,7 @@ import javax.imageio.ImageIO;
 
 public class MCFrame extends Frame implements WindowListener
 {
-	private AppletWrap appletWrap = null;
+	private Launcher appletWrap = null;
 	
 	public MCFrame(String title, String icon_name)
 	{
@@ -32,7 +33,7 @@ public class MCFrame extends Frame implements WindowListener
 	{
 		try
 		{
-			appletWrap = new AppletWrap(mcApplet, new URL("http://www.minecraft.net/game"));
+			appletWrap = new Launcher(mcApplet, new URL("http://www.minecraft.net/game"));
 		}
 		catch (MalformedURLException ignored){}
 		
@@ -40,7 +41,7 @@ public class MCFrame extends Frame implements WindowListener
 		appletWrap.setParameter("sessionid", session);
 		appletWrap.setParameter("stand-alone", "true"); // Show the quit button.
 		mcApplet.setStub(appletWrap);
-
+		
 		this.add(appletWrap);
 		appletWrap.setPreferredSize(winSize);
 		this.pack();

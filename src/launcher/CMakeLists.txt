@@ -8,7 +8,7 @@ set(CMAKE_JAVA_COMPILE_FLAGS -target 1.6 -source 1.6)
 
 set(SRC
     MultiMCLauncher.java
-    AppletWrap.java
+    Launcher.java
     MCFrame.java
 )
 
