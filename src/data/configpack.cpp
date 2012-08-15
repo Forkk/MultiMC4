@@ -28,11 +28,7 @@
 
 #include "apputils.h"
 
-#if MSVC
 #include <memory>
-#else
-#include <auto_ptr.h>
-#endif
 
 ConfigPack::ConfigPack(const wxString& fileName)
 	: m_fileName(fileName)
