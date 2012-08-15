@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
 public class MCFrame extends Frame implements WindowListener
 {
@@ -16,8 +17,16 @@ public class MCFrame extends Frame implements WindowListener
 	public MCFrame(String title, String icon_name)
 	{
 		super(title);
-		//TODO: use instance icon here
-		
+		BufferedImage image = null;
+		try
+		{
+			image = ImageIO.read(getClass().getResource("icon.png"));
+			setIconImage(image);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 		super.setVisible(true);
 		
 		this.setSize(800, 600);

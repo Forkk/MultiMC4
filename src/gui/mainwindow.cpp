@@ -58,7 +58,6 @@ MainWindow::MainWindow(void)
 			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision(), AppVersion.GetBuild(),
 			(AppVersion.IsDevBuild() ? _("Dev") : _("Stable"))),
 		wxPoint(0, 0), minSize),
-		instIcons(32, 32),
 		centralModList(settings.GetModsDir().GetFullPath())
 {
 	closeOnTaskEnd = false;
@@ -149,7 +148,17 @@ MainWindow::MainWindow(void)
 	}
 	
 	// Load instance icons
-	LoadInstIconList();
+	InstIconList * instIcons = InstIconList::Instance();
+	switch (GetGUIMode())
+	{
+	case GUI_Simple:
+		instListCtrl->AssignImageList(instIcons->CreateImageList(), wxIMAGE_LIST_NORMAL);
+		break;
+		
+	case GUI_Default:
+		instListbook->AssignImageList(instIcons->CreateImageList());
+		break;
+	}
 	
 	CenterOnScreen();
 }
@@ -328,20 +337,6 @@ void MainWindow::OnPageChanged(wxListbookEvent &event)
 	UpdateInstPanel();
 }
 
-void MainWindow::LoadInstIconList(wxString customIconDirName)
-{
-	switch (GetGUIMode())
-	{
-	case GUI_Simple:
-		instListCtrl->AssignImageList(instIcons.CreateImageList(), wxIMAGE_LIST_NORMAL);
-		break;
-		
-	case GUI_Default:
-		instListbook->AssignImageList(instIcons.CreateImageList());
-		break;
-	}
-}
-
 void MainWindow::LoadInstanceList(wxFileName instDir)
 {
 	GetStatusBar()->PushStatusText(_("Loading instances..."), 0);
@@ -412,18 +407,19 @@ void MainWindow::AddInstance(Instance *inst)
 	}
 	
 	int item;
+	InstIconList * instIcons = InstIconList::Instance();
 	switch (GetGUIMode())
 	{
 	case GUI_Simple:
 		item = instListCtrl->InsertItem(instListCtrl->GetItemCount(), 
-			instName, instIcons[inst->GetIconKey()]);
+			instName, instIcons->operator[](inst->GetIconKey()));
 		instItems[item] = inst;
 		break;
 		
 	case GUI_Default:
 		item = instListbook->GetPageCount();
 		instItems[item] = inst;
-		instListbook->InsertPage(item, instPanel, inst->GetName(), true, instIcons[inst->GetIconKey()]);
+		instListbook->InsertPage(item, instPanel, inst->GetName(), true, instIcons->operator[](inst->GetIconKey()));
 		break;
 	}
 }
@@ -766,7 +762,7 @@ void MainWindow::OnRenameClicked(wxCommandEvent& event)
 
 void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 {
-	ChangeIconDialog iconDlg(this, &instIcons);
+	ChangeIconDialog iconDlg(this);
 	if (iconDlg.ShowModal() == wxID_OK)
 	{
 		Instance *inst = GetSelectedInst();

@@ -23,24 +23,18 @@
 class ChangeIconDialog : public wxDialog
 {
 public:
-	ChangeIconDialog(wxWindow *parent, InstIconList *iconList);
+	ChangeIconDialog(wxWindow *parent);
 	
 	wxString GetSelectedIconKey() const;
 	
 protected:
-	InstIconList *m_iconList;
-	
 	void OnItemActivated(wxListEvent &event);
 	
 	class InstIconListCtrl : public wxListCtrl
 	{
 	public:
-		InstIconListCtrl(wxWindow *parent, InstIconList *iconList);
-		
+		InstIconListCtrl(wxWindow *parent);
 		void UpdateItems();
-		
-	protected:
-		InstIconList *m_iconList;
 	} *iconListCtrl;
 	
 	DECLARE_EVENT_TABLE()

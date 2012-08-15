@@ -19,31 +19,39 @@
 #include <map>
 #include <wx/imaglist.h>
 
-const wxString instIconPrefix = _T("icons/inst/");
-
 typedef std::map<wxString, int> IconListIndexMap;
 
 class InstIconList
 {
 public:
-	InstIconList(int width = 32, int height = 32, 
-		wxString customIconDir = _T("icons"));
-
 	int Add(const wxImage image, const wxString key);
 
 	int operator[](wxString key);
-
+	static InstIconList* Instance()
+	{
+		if (pInstance == 0)
+			pInstance = new InstIconList();
+		return pInstance;
+	};
+	static void Dispose()
+	{
+		delete pInstance;
+		pInstance = 0;
+	};
 	const wxImageList &GetImageList();
 	wxImageList *CreateImageList() const;
 	
 	const IconListIndexMap &GetIndexMap() const;
 	
 	int GetCount() const;
-
+	
 protected:
+	InstIconList(int width = 32, int height = 32, wxString customIconDir = _T("icons"));
+	
 	wxImageList imageList;
 	IconListIndexMap indexMap;
-	
 	int width, height;
+private:
+	static InstIconList* pInstance;
 };
 
