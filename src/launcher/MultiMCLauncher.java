@@ -118,6 +118,8 @@ public class MultiMCLauncher
 				System.out.println("Fixed Minecraft Path: Field was " + f.toString());
 			}
 			
+			System.setProperty("minecraft.applet.TargetDirectory", args[0]);
+			
 			String[] mcArgs = new String[2];
 			mcArgs[0] = args[1];
 			mcArgs[1] = args[2];
