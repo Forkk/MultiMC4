@@ -23,6 +23,8 @@
 #include <wx/filename.h>
 #include <wx/dir.h>
 
+InstIconList* InstIconList::pInstance = 0;
+
 struct InstIconDef
 {
 	InstIconDef(wxString key, wxImage image)

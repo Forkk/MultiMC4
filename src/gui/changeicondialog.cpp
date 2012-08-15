@@ -16,14 +16,12 @@
 
 #include "changeicondialog.h"
 
-ChangeIconDialog::ChangeIconDialog(wxWindow *parent, InstIconList *iconList)
+ChangeIconDialog::ChangeIconDialog(wxWindow *parent)
 	: wxDialog(parent, -1, _("Change Icon"), wxDefaultPosition, wxSize(500, 400))
 {
-	m_iconList = iconList;
-	
 	wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
 	
-	iconListCtrl = new InstIconListCtrl(this, m_iconList);
+	iconListCtrl = new InstIconListCtrl(this);
 	mainSizer->Add(iconListCtrl, wxSizerFlags(1).Border(wxALL, 8).Expand());
 	
 	wxSizer *btnSizer = CreateButtonSizer(wxOK | wxCANCEL);
@@ -49,20 +47,20 @@ wxString ChangeIconDialog::GetSelectedIconKey() const
 	return _("default");
 }
 
-ChangeIconDialog::InstIconListCtrl::InstIconListCtrl(wxWindow *parent, InstIconList *iconList)
+ChangeIconDialog::InstIconListCtrl::InstIconListCtrl(wxWindow *parent)
 	: wxListCtrl(parent, -1, wxDefaultPosition, wxDefaultSize, wxLC_LIST | wxLC_SINGLE_SEL)
 {
-	m_iconList = iconList;
 	UpdateItems();
 }
 
 void ChangeIconDialog::InstIconListCtrl::UpdateItems()
 {
-	wxImageList *imgList = m_iconList->CreateImageList();
+	auto iconList = InstIconList::Instance();
+	wxImageList *imgList = iconList->CreateImageList();
 	AssignImageList(imgList, wxIMAGE_LIST_NORMAL);
 	SetImageList(imgList, wxIMAGE_LIST_SMALL);
 	
-	const IconListIndexMap &indexMap = m_iconList->GetIndexMap();
+	const IconListIndexMap &indexMap = iconList->GetIndexMap();
 	for (IconListIndexMap::const_iterator iter = indexMap.begin(); iter != indexMap.end(); ++iter)
 	{
 		wxString key = iter->first;

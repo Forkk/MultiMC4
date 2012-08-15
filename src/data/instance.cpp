@@ -20,10 +20,13 @@
 #include <wx/wfstream.h>
 #include <wx/mstream.h>
 #include <wx/dir.h>
+#include <wx/zipstrm.h>
+#include <auto_ptr.h>
 
 #include "launcher/launcherdata.h"
 #include "osutils.h"
 #include <datautils.h>
+#include <insticonlist.h>
 
 DEFINE_EVENT_TYPE(wxEVT_INST_OUTPUT)
 
@@ -346,9 +349,25 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 
 void Instance::ExtractLauncher()
 {
+	
 	wxMemoryInputStream launcherInputStream(multimclauncher, sizeof(multimclauncher));
-	wxFileOutputStream launcherOutStream(_("MultiMCLauncher.jar"));
-	launcherOutStream.Write(launcherInputStream);
+	wxZipInputStream dezipper(launcherInputStream);
+	wxFFileOutputStream launcherOutStream(_("MultiMCLauncher.jar"));
+	wxZipOutputStream zipper(launcherOutStream);
+	std::auto_ptr<wxZipEntry> entry;
+	// copy all files from the old zip file
+	while (entry.reset(dezipper.GetNextEntry()), entry.get() != NULL)
+		if (!zipper.CopyEntry(entry.release(), dezipper))
+			break;
+	// add the icon file
+	zipper.PutNextEntry(_("icon.png"));
+	InstIconList * iconList = InstIconList::Instance();
+	auto list = iconList->CreateImageList();
+	int index = iconList->operator[](GetIconKey());
+	wxBitmap icon = list->GetBitmap(index);
+	wxImage img = icon.ConvertToImage();
+	img.SaveFile(zipper,wxBITMAP_TYPE_PNG);
+	delete list;
 }
 
 void Instance::OnInstProcExited(wxProcessEvent& event)

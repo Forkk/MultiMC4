@@ -119,9 +119,6 @@ protected:
 	
 	bool closeOnTaskEnd;
 
-	InstIconList instIcons;
-	void LoadInstIconList(wxString customIconDirName = _T("icons"));
-
 	Instance* GetLinkedInst(int id);
 
 	Instance* GetSelectedInst();
