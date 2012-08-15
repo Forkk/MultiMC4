@@ -29,7 +29,8 @@
 
 InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250)),
-	  instListener(inst, this)
+	  stdoutListener(inst, this, InstConsoleListener::LISTENER_STDOUT), 
+	  stderrListener(inst, this, InstConsoleListener::LISTENER_STDERR)
 {
 	instListenerStarted = false;
 	killedInst = false;
@@ -41,12 +42,9 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
 	mainPanel->SetSizer(mainSizer);
 	
-	wxString launchCmdMessage = wxString::Format(_("Instance started with command: %s\n"), 
-		inst->GetLastLaunchCommand().c_str());
-	
-	consoleTextCtrl = new wxTextCtrl(mainPanel, -1, launchCmdMessage, 
+	consoleTextCtrl = new wxTextCtrl(mainPanel, -1, wxEmptyString, 
 									 wxDefaultPosition, wxSize(200, 100), 
-									 wxTE_MULTILINE | wxTE_READONLY);
+									 wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH);
 	mainSizer->Add(consoleTextCtrl, wxSizerFlags(1).Expand().Border(wxALL, 8));
 	
 	wxBoxSizer *btnBox = new wxBoxSizer(wxHORIZONTAL);
@@ -65,20 +63,42 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	trayIcon->SetIcon(wxGetApp().GetAppIcon());
 	
 	inst->GetInstProcess()->SetNextHandler(this);
+
+	AppendMessage(wxString::Format(_("Instance started with command: %s\n"), 
+		inst->GetLastLaunchCommand().c_str()));
 	
-	instListener.Create();
+	stdoutListener.Create();
+	stderrListener.Create();
 	
 	CenterOnScreen();
 }
 
 InstConsoleWindow::~InstConsoleWindow()
 {
-	instListener.Delete();
+	stdoutListener.Delete();
+	stderrListener.Delete();
 }
 
-void InstConsoleWindow::AppendMessage(const wxString& msg)
+void InstConsoleWindow::AppendMessage(const wxString& msg, MessageType msgT)
 {
+	switch (msgT)
+	{
+	case MSGT_SYSTEM:
+		consoleTextCtrl->SetDefaultStyle(wxTextAttr(*wxBLUE));
+		break;
+
+	case MSGT_STDOUT:
+		consoleTextCtrl->SetDefaultStyle(wxTextAttr(*wxBLACK));
+		break;
+
+	case MSGT_STDERR:
+		consoleTextCtrl->SetDefaultStyle(wxTextAttr(*wxRED));
+		break;
+	}
+
 	(*consoleTextCtrl) << msg << _("\n");
+
+	consoleTextCtrl->SetDefaultStyle(wxTextAttr(*wxBLACK));
 }
 
 void InstConsoleWindow::OnInstExit(wxProcessEvent& event)
@@ -137,7 +157,8 @@ bool InstConsoleWindow::Show(bool show)
 	if (!instListenerStarted)
 	{
 		instListenerStarted = true;
-		instListener.Run();
+		stdoutListener.Run();
+		stderrListener.Run();
 	}
 	return retval;
 }
@@ -168,11 +189,12 @@ void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
 	}
 }
 
-InstConsoleWindow::InstConsoleListener::InstConsoleListener(Instance* inst, InstConsoleWindow *console)
+InstConsoleWindow::InstConsoleListener::InstConsoleListener(Instance* inst, InstConsoleWindow *console, Type lType)
 	: wxThread(wxTHREAD_JOINABLE)
 {
 	m_inst = inst;
 	m_console = console;
+	m_lType = lType;
 	instProc = inst->GetInstProcess();
 }
 
@@ -187,7 +209,12 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 	
 	int instPid = instProc->GetPid();
 	
-	wxInputStream *consoleStream = instProc->GetInputStream();
+	wxInputStream *consoleStream;
+	if (m_lType == LISTENER_STDERR)
+		consoleStream = instProc->GetErrorStream();
+	else
+		consoleStream = instProc->GetInputStream();
+
 	wxString outputBuffer;
 	
 	const size_t bufSize = 1024;
@@ -220,7 +247,7 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 				line = line.Left(line.size() - 2);
 			outputBuffer = outputBuffer.Mid(newlinePos + 1);
 			
-			InstOutputEvent event(m_inst, line);
+			InstOutputEvent event(m_inst, line, m_lType == LISTENER_STDERR);
 			m_console->AddPendingEvent(event);
 		}
 	}
@@ -230,7 +257,13 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 
 void InstConsoleWindow::OnInstOutput(InstOutputEvent& event)
 {
-	AppendMessage(event.m_output);
+	MessageType msgT = (event.m_stdErr ? MSGT_STDERR : MSGT_STDOUT);
+
+	if (msgT == MSGT_STDERR && (event.m_output.Contains(_("[STDOUT]")) || 
+		event.m_output.Contains(_("[ForgeModLoader]"))))
+		msgT = MSGT_STDOUT;
+
+	AppendMessage(event.m_output, msgT);
 }
 
 InstConsoleWindow::ConsoleIcon::ConsoleIcon(InstConsoleWindow *console)
@@ -245,7 +278,8 @@ Instance *InstConsoleWindow::GetInstance()
 
 void InstConsoleWindow::StopListening()
 {
-	instListener.Pause();
+	stdoutListener.Pause();
+	stderrListener.Pause();
 }
 
 wxMenu *InstConsoleWindow::ConsoleIcon::CreatePopupMenu()

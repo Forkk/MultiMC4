@@ -33,6 +33,13 @@ public:
 	void StopListening();
 	
 protected:
+	enum MessageType
+	{
+		MSGT_SYSTEM,
+		MSGT_STDOUT,
+		MSGT_STDERR,
+	};
+
 	class ConsoleIcon : public wxTaskBarIcon
 	{
 	public:
@@ -61,19 +68,27 @@ protected:
 	class InstConsoleListener : public wxThread
 	{
 	public:
-		InstConsoleListener(Instance* inst, InstConsoleWindow* console);
+		enum Type
+		{
+			LISTENER_STDOUT,
+			LISTENER_STDERR,
+		};
+
+		InstConsoleListener(Instance* inst, InstConsoleWindow* console, 
+			Type lType = LISTENER_STDOUT);
 		
 		virtual void* Entry();
 		
 	protected:
 		Instance *m_inst;
 		wxProcess *instProc;
+		Type m_lType;
 		
 		InstConsoleWindow *console;
 		InstConsoleWindow* m_console;
-	} instListener;
+	} stdoutListener, stderrListener;
 	
-	void AppendMessage(const wxString &msg);
+	void AppendMessage(const wxString &msg, MessageType msgT = MSGT_SYSTEM);
 	
 	void OnInstExit(wxProcessEvent &event);
 	void OnCloseClicked(wxCommandEvent &event);

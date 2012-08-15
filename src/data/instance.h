@@ -167,14 +167,16 @@ DECLARE_EVENT_TYPE(wxEVT_INST_OUTPUT, -1)
 
 struct InstOutputEvent : wxNotifyEvent
 {
-	InstOutputEvent(Instance *inst, wxString output) : wxNotifyEvent(wxEVT_INST_OUTPUT) 
-		{ m_inst = inst; m_output = output; }
+	InstOutputEvent(Instance *inst, wxString output, bool stdErr = false) 
+		: wxNotifyEvent(wxEVT_INST_OUTPUT) 
+		{ m_inst = inst; m_output = output; m_stdErr = stdErr; }
 	
 	Instance *m_inst;
 	wxString m_output;
+	bool m_stdErr;
 	virtual wxEvent *Clone() const
 	{
-		return new InstOutputEvent(m_inst, m_output);
+		return new InstOutputEvent(m_inst, m_output, m_stdErr);
 	}
 };
 
