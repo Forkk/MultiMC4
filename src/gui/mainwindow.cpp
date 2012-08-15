@@ -209,6 +209,7 @@ void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_ManageSaves, _T("&Manage Saves"), _T("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _T("&Edit Mods"), _T("Install or remove mods."));
+	instMenu->Append(ID_DowngradeInst, _T("Downgrade"), _T("Use MCNostalgia to downgrade this instance."));
 	instMenu->Append(ID_RebuildJar, _T("Re&build Jar"), _T("Reinstall all the instance's jar mods."));
 	instMenu->Append(ID_ViewInstFolder, _T("&View Folder"), _T("Open the instance's folder."));
 	instMenu->AppendSeparator();
