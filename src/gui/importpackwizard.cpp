@@ -24,11 +24,7 @@
 #include "apputils.h"
 #include "fsutils.h"
 
-#if MSVC
 #include <memory>
-#else
-#include <auto_ptr.h>
-#endif
 
 ImportPackWizard::ImportPackWizard(MainWindow *parent, ConfigPack *pack)
 	: wxWizard(parent, -1, _("Import Config Pack"))

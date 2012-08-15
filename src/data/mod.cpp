@@ -28,11 +28,7 @@
 #include <string>
 #include <sstream>
 
-#if MSVC
 #include <memory>
-#else
-#include <auto_ptr.h>
-#endif
 
 #include "apputils.h"
 

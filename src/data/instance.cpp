@@ -21,7 +21,7 @@
 #include <wx/mstream.h>
 #include <wx/dir.h>
 #include <wx/zipstrm.h>
-#include <auto_ptr.h>
+#include <memory>
 
 #include "launcher/launcherdata.h"
 #include "osutils.h"

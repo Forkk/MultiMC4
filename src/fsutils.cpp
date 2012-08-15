@@ -22,12 +22,7 @@
 #include <wx/zipstrm.h>
 #include <wx/wfstream.h>
 
-#if MSVC
 #include <memory>
-#else
-#include <auto_ptr.h>
-#endif
-
 
 bool RecursiveDelete(const wxString &path)
 {
