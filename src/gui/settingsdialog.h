@@ -35,9 +35,9 @@ public:
 protected:
 	void OnBrowseInstDirClicked(wxCommandEvent& event);
 	void OnDetectJavaPathClicked(wxCommandEvent& event);
-	void OnMaximizeCheckClicked(wxCommandEvent& event);
+	void OnUpdateMCTabCheckboxes(wxCommandEvent& event);
 
-	void UpdateMaximizeCheckStuff();
+	void UpdateCheckboxStuff();
 	
 	wxNotebook *tabCtrl;
 	
@@ -51,6 +51,8 @@ protected:
 	
 	wxSpinCtrl *minMemorySpin;
 	wxSpinCtrl *maxMemorySpin;
+
+	wxCheckBox *compatCheckbox;
 
 	wxCheckBox *winMaxCheckbox;
 	wxSpinCtrl *winWidthSpin;
@@ -72,4 +74,5 @@ enum
 	ID_DetectJavaPath,
 
 	ID_MCMaximizeCheckbox,
+	ID_CompatModeCheckbox,
 };

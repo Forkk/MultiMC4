@@ -15,7 +15,7 @@ public class MCFrame extends Frame implements WindowListener
 {
 	private Launcher appletWrap = null;
 	
-	public MCFrame(String title, String icon_name)
+	public MCFrame(String title)
 	{
 		super(title);
 		BufferedImage image = null;

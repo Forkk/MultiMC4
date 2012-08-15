@@ -100,12 +100,22 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	mcPanel->SetSizer(mcBox);
 	tabCtrl->AddPage(mcPanel, _T("Minecraft"), false);
 
+	// Compatibility mode check box.
+	compatCheckbox = new wxCheckBox(mcPanel, ID_CompatModeCheckbox, 
+		_("Compatibility mode?"));
+	compatCheckbox->SetHelpText(_("Compatibility mode launches Minecraft \
+using the old Minecraft.main() method, rather than using MultiMC's \
+AppletWrapper. This should help fix a few issues with certain mods, \
+but it will disable certain features such as setting Minecraft's window \
+size and icon."));
+	mcBox->Add(compatCheckbox, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+
 	// Window size group box
 	wxStaticBoxSizer *windowSizeBox = new wxStaticBoxSizer(wxVERTICAL,
 		mcPanel, _("Minecraft Window Size"));
 	wxGridBagSizer *winSizeSz = new wxGridBagSizer();
 	windowSizeBox->Add(winSizeSz, wxSizerFlags(0).Expand());
-	mcBox->Add(windowSizeBox, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+	mcBox->Add(windowSizeBox, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
 
 	// Maximize
 	winMaxCheckbox = new wxCheckBox(mcPanel, ID_MCMaximizeCheckbox, 
@@ -275,6 +285,8 @@ Are you sure you want to use dev builds?"),
 		s.SetUseDevBuilds(devBuildCheck->GetValue());
 	}
 
+	s.SetUseAppletWrapper(!compatCheckbox->IsChecked());
+
 	s.SetMCWindowMaximize(winMaxCheckbox->IsChecked());
 	s.SetMCWindowWidth(winWidthSpin->GetValue());
 	s.SetMCWindowHeight(winHeightSpin->GetValue());
@@ -297,10 +309,12 @@ void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
 	javaPathTextBox->SetValue(s.GetJavaPath());
 	jvmArgsTextBox->SetValue(s.GetJvmArgs());
 
+	compatCheckbox->SetValue(!s.GetUseAppletWrapper());
+
 	winMaxCheckbox->SetValue(s.GetMCWindowMaximize());
 	winWidthSpin->SetValue(s.GetMCWindowWidth());
 	winHeightSpin->SetValue(s.GetMCWindowHeight());
-	UpdateMaximizeCheckStuff();
+	UpdateCheckboxStuff();
 	
 	switch (s.GetGUIMode())
 	{
@@ -329,15 +343,17 @@ void SettingsDialog::OnDetectJavaPathClicked(wxCommandEvent& event)
 }
 
 
-void SettingsDialog::OnMaximizeCheckClicked(wxCommandEvent& event)
+void SettingsDialog::OnUpdateMCTabCheckboxes(wxCommandEvent& event)
 {
-	UpdateMaximizeCheckStuff();
+	UpdateCheckboxStuff();
 }
 
-void SettingsDialog::UpdateMaximizeCheckStuff()
+void SettingsDialog::UpdateCheckboxStuff()
 {
-	winWidthSpin->Enable(!winMaxCheckbox->IsChecked());
-	winHeightSpin->Enable(!winMaxCheckbox->IsChecked());
+	winMaxCheckbox->Enable(!compatCheckbox->IsChecked());
+
+	winWidthSpin->Enable(!(winMaxCheckbox->IsChecked() || compatCheckbox->IsChecked()));
+	winHeightSpin->Enable(!(winMaxCheckbox->IsChecked() || compatCheckbox->IsChecked()));
 }
 
 
@@ -345,5 +361,6 @@ BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_BUTTON(ID_BrowseInstDir, SettingsDialog::OnBrowseInstDirClicked)
 	EVT_BUTTON(ID_DetectJavaPath, SettingsDialog::OnDetectJavaPathClicked)
 
-	EVT_CHECKBOX(ID_MCMaximizeCheckbox, SettingsDialog::OnMaximizeCheckClicked)
+	EVT_CHECKBOX(ID_MCMaximizeCheckbox, SettingsDialog::OnUpdateMCTabCheckboxes)
+	EVT_CHECKBOX(ID_CompatModeCheckbox, SettingsDialog::OnUpdateMCTabCheckboxes)
 END_EVENT_TABLE()

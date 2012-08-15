@@ -1,7 +1,6 @@
 import java.applet.Applet;
 import java.awt.Dimension;
 
-import javax.swing.JFrame;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -27,12 +26,17 @@ public class MultiMCLauncher
 		
 		Dimension winSize = new Dimension(854, 480);
 		boolean maximize = false;
+		boolean compatMode = false;
 		
 		if (args.length >= 5)
 		{
 			String[] dimStrings = args[4].split("x");
 			
-			if (args[4].equalsIgnoreCase("max"))
+			if (args[4].equalsIgnoreCase("compatmode"))
+			{
+				compatMode = true;
+			}
+			else if (args[4].equalsIgnoreCase("max"))
 			{
 				maximize = true;
 			}
@@ -122,15 +126,27 @@ public class MultiMCLauncher
 
 			System.out.println("MCDIR: " + mcDir);
 			
-			try
+			if (compatMode)
 			{
-				Class<?> MCAppletClass = cl.loadClass("net.minecraft.client.MinecraftApplet");
-				Applet mcappl = (Applet) MCAppletClass.newInstance();
-				MCFrame mcWindow = new MCFrame(args[3], "No icon yet! FIXME!");
-				mcWindow.start(mcappl, args[1], args[2], winSize, maximize);
-			} catch (InstantiationException e)
-			{
+				System.out.println("Launching in compatibility mode...");
 				mc.getMethod("main", String[].class).invoke(null, (Object) mcArgs);
+			}
+			else
+			{
+				System.out.println("Launching with applet wrapper...");
+				try
+				{
+					Class<?> MCAppletClass = cl.loadClass(
+							"net.minecraft.client.MinecraftApplet");
+					Applet mcappl = (Applet) MCAppletClass.newInstance();
+					MCFrame mcWindow = new MCFrame(args[3]);
+					mcWindow.start(mcappl, args[1], args[2], winSize, maximize);
+				} catch (InstantiationException e)
+				{
+					System.out.println("Applet wrapper failed! Falling back " +
+							"to compatibility mode.");
+					mc.getMethod("main", String[].class).invoke(null, (Object) mcArgs);
+				}
 			}
 		} catch (ClassNotFoundException e)
 		{

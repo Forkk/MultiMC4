@@ -91,6 +91,17 @@ void AppSettings::SetMCWindowMaximize(bool value)
 }
 
 
+bool AppSettings::GetUseAppletWrapper() const
+{
+	return GetSetting<bool>(_("UseAppletWrapper"), true);
+}
+
+void AppSettings::SetUseAppletWrapper(bool value)
+{
+	SetSetting<bool>(_("UseAppletWrapper"), value);
+}
+
+
 wxFileName AppSettings::GetInstDir() const
 {
 	return GetSetting(_("InstanceDir"), wxFileName::DirName(_("instances")));

@@ -56,6 +56,11 @@ public:
 
 	bool GetMCWindowMaximize() const;
 	void SetMCWindowMaximize(bool value);
+
+	// Whether or not MultiMC uses its applet wrapper for launching 
+	// Minecraft. Disable this for compatibility mode.
+	bool GetUseAppletWrapper() const;
+	void SetUseAppletWrapper(bool value);
 	
 	wxString GetJavaPath() const;
 	void SetJavaPath(wxString value);
