@@ -56,4 +56,24 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/insticons.h
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/insticons
                    COMMENT "Generating instance icon resources."
                    VERBATIM)
-ADD_CUSTOM_TARGET(generate_headers DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/insticons.h ${CMAKE_CURRENT_BINARY_DIR}/toolbaricons.h)
+
+SET(MAIN_ICON
+MultiMC16.png
+MultiMC32.png
+MultiMC48.png
+MultiMC64.png
+MultiMC128.png
+)
+
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/windowicon.h
+                   COMMAND wxinclude ARGS ${CMAKE_CURRENT_BINARY_DIR}/windowicon.h ${MAIN_ICON}
+                   DEPENDS wxinclude ${MAIN_ICON}
+                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                   COMMENT "Generating application icon resources."
+                   VERBATIM)
+ADD_CUSTOM_TARGET(generate_headers
+DEPENDS
+${CMAKE_CURRENT_BINARY_DIR}/insticons.h
+${CMAKE_CURRENT_BINARY_DIR}/toolbaricons.h
+${CMAKE_CURRENT_BINARY_DIR}/windowicon.h
+)

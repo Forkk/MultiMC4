@@ -60,7 +60,7 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	
 	// Create the task bar icon.
 	trayIcon = new ConsoleIcon(this);
-	trayIcon->SetIcon(wxGetApp().GetAppIcon());
+	trayIcon->SetIcon(wxGetApp().GetAppIcons().GetIcon(wxSize(16,16)));
 	
 	inst->GetInstProcess()->SetNextHandler(this);
 

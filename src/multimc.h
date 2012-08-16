@@ -3,6 +3,7 @@
 #include <wx/app.h>
 #include <wx/icon.h>
 #include <wx/filename.h>
+#include <wx/iconbndl.h>
 
 class MultiMC : public wxApp
 {
@@ -13,11 +14,11 @@ public:
 	virtual void OnFatalException();
 	virtual void OnUnhandledException();
 	
-	const wxIcon &GetAppIcon() const;
+	const wxIconBundle &GetAppIcons() const;
 	
 	bool updateOnExit;
 protected:
-	wxIcon AppIcon;
+	wxIconBundle AppIcons;
 	
 	bool startNormally;
 	

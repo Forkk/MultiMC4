@@ -67,7 +67,7 @@ MainWindow::MainWindow(void)
 	
 	SetMinSize(minSize);
 	
-	SetIcon(wxGetApp().GetAppIcon());
+	SetIcons(wxGetApp().GetAppIcons());
 	
 	wxToolBar *mainToolBar = CreateToolBar();
 	
@@ -637,9 +637,9 @@ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n\
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING\n\
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n\
 POSSIBILITY OF SUCH DAMAGE."));
-	info.SetIcon(wxGetApp().GetAppIcon());
-#endif
 	
+	info.SetIcon(wxGetApp().GetAppIcons().GetIcon(wxSize(128,128)));
+#endif
 	info.AddDeveloper(_("Andrew Okin <forkk@forkk.net>"));
 	info.AddDeveloper(_("Petr Mrázek <peterix@gmail.com>"));
 	
