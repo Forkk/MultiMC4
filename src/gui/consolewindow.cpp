@@ -233,6 +233,9 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		consoleStream->Read(buffer, bufSize);
 		readSize = consoleStream->LastRead();
 		
+		if(readSize == 0)
+			continue;
+		
 		tempStream.Write(buffer, readSize);
 		outputBuffer.Append(temp);
 		
