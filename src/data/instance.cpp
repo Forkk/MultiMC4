@@ -240,7 +240,12 @@ wxString Instance::ReadVersionFile()
 	wxFSFile *vFile = wxFileSystem().OpenFile(GetVersionFile().GetFullPath(), wxFS_READ);
 	wxString retVal;
 	wxStringOutputStream outStream(&retVal);
-	outStream.Write(*vFile->GetStream());
+	if(!vFile)
+		return _("");
+	wxInputStream * versionFileStream = vFile->GetStream();
+	if(!versionFileStream)
+		return _("");
+	outStream.Write(*versionFileStream);
 	wxDELETE(vFile);
 	return retVal;
 }
