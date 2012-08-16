@@ -91,6 +91,17 @@ public:
 	
 	GUIMode GetGUIMode() const;
 	void SetGUIMode(GUIMode value);
+
+
+	// Console colors
+	wxColor GetConsoleSysMsgColor() const;
+	void SetConsoleSysMsgColor(wxColor &color);
+
+	wxColor GetConsoleStdoutColor() const;
+	void SetConsoleStdoutColor(wxColor &color);
+
+	wxColor GetConsoleStderrColor() const;
+	void SetConsoleStderrColor(wxColor &color);
 	
 protected:
 // 	boost::property_tree::ptree ptree;

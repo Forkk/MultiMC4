@@ -212,6 +212,39 @@ void AppSettings::SetGUIMode(GUIMode value)
 }
 
 
+wxColor AppSettings::GetConsoleSysMsgColor() const
+{
+	return wxColor(GetSetting<wxString>(_("ConsoleSysMsgColor"), _("#0000FF")));
+}
+
+void AppSettings::SetConsoleSysMsgColor(wxColor &color)
+{
+	SetSetting<wxString>(_("ConsoleSysMsgColor"), color.GetAsString());
+}
+
+
+wxColor AppSettings::GetConsoleStdoutColor() const
+{
+	return wxColor(GetSetting<wxString>(_("ConsoleStdoutColor"), _("#000000")));
+}
+
+void AppSettings::SetConsoleStdoutColor(wxColor &color)
+{
+	SetSetting<wxString>(_("ConsoleStdoutColor"), color.GetAsString());
+}
+
+
+wxColor AppSettings::GetConsoleStderrColor() const
+{
+	return wxColor(GetSetting<wxString>(_("ConsoleStderrColor"), _("#FF0000")));
+}
+
+void AppSettings::SetConsoleStderrColor(wxColor &color)
+{
+	SetSetting<wxString>(_("ConsoleStderrColor"), color.GetAsString());
+}
+
+
 template <typename T>
 T AppSettings::GetSetting(const wxString &key, T defValue) const
 {

@@ -143,6 +143,38 @@ size and icon."));
 	winSizeSz->Add(winHeightSpin, wxGBPosition(2, 1), wxGBSpan(1, 1), 
 		wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 4);
 
+
+	// Console colors box
+	wxStaticBoxSizer *consoleColorsBox = new wxStaticBoxSizer(wxVERTICAL,
+		mcPanel, _("Instance Console Colors"));
+	wxGridBagSizer *consoleColorSz = new wxGridBagSizer();
+	consoleColorsBox->Add(consoleColorSz, wxSizerFlags(0).Expand());
+	mcBox->Add(consoleColorsBox, wxGBPosition(2, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+
+	// System message color
+	wxStaticText *sysMsgColorLabel = new wxStaticText(mcPanel, -1, _("System message color: "));
+	consoleColorSz->Add(sysMsgColorLabel, wxGBPosition(0, 0), wxGBSpan(1, 1), 
+		wxALL | wxALIGN_CENTER_VERTICAL, 4);
+	sysMsgColorCtrl = new wxColourPickerCtrl(mcPanel, -1, *wxBLACK, 
+		wxDefaultPosition, wxDefaultSize, wxCLRP_SHOW_LABEL);
+	consoleColorSz->Add(sysMsgColorCtrl, wxGBPosition(0, 1), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+
+	// Stdout message color
+	wxStaticText *stdoutColorLabel = new wxStaticText(mcPanel, -1, _("Output message color: "));
+	consoleColorSz->Add(stdoutColorLabel, wxGBPosition(1, 0), wxGBSpan(1, 1), 
+		wxALL | wxALIGN_CENTER_VERTICAL, 4);
+	stdoutColorCtrl = new wxColourPickerCtrl(mcPanel, -1, *wxBLACK, 
+		wxDefaultPosition, wxDefaultSize, wxCLRP_SHOW_LABEL);
+	consoleColorSz->Add(stdoutColorCtrl, wxGBPosition(1, 1), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+
+	// Stderr message color
+	wxStaticText *stderrColorLabel = new wxStaticText(mcPanel, -1, _("Error message color: "));
+	consoleColorSz->Add(stderrColorLabel, wxGBPosition(2, 0), wxGBSpan(1, 1), 
+		wxALL | wxALIGN_CENTER_VERTICAL, 4);
+	stderrColorCtrl = new wxColourPickerCtrl(mcPanel, -1, *wxBLACK, 
+		wxDefaultPosition, wxDefaultSize, wxCLRP_SHOW_LABEL);
+	consoleColorSz->Add(stderrColorCtrl, wxGBPosition(2, 1), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+
 	
 	// Advanced tab
 	wxPanel *advancedPanel = new wxPanel(tabCtrl, -1);
@@ -290,6 +322,10 @@ Are you sure you want to use dev builds?"),
 	s.SetMCWindowMaximize(winMaxCheckbox->IsChecked());
 	s.SetMCWindowWidth(winWidthSpin->GetValue());
 	s.SetMCWindowHeight(winHeightSpin->GetValue());
+
+	s.SetConsoleSysMsgColor(sysMsgColorCtrl->GetColour());
+	s.SetConsoleStdoutColor(stdoutColorCtrl->GetColour());
+	s.SetConsoleStderrColor(stderrColorCtrl->GetColour());
 }
 
 void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
@@ -315,6 +351,10 @@ void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
 	winWidthSpin->SetValue(s.GetMCWindowWidth());
 	winHeightSpin->SetValue(s.GetMCWindowHeight());
 	UpdateCheckboxStuff();
+
+	sysMsgColorCtrl->SetColour(s.GetConsoleSysMsgColor());
+	stdoutColorCtrl->SetColour(s.GetConsoleStdoutColor());
+	stderrColorCtrl->SetColour(s.GetConsoleStderrColor());
 	
 	switch (s.GetGUIMode())
 	{

@@ -19,6 +19,7 @@
 #include <wx/spinctrl.h>
 #include <wx/tglbtn.h>
 #include <wx/notebook.h>
+#include <wx/clrpicker.h>
 
 #include "appsettings.h"
 
@@ -64,6 +65,10 @@ protected:
 	wxCheckBox *devBuildCheck;
 	
 	wxComboBox *guiStyleDropDown;
+
+	wxColourPickerCtrl *sysMsgColorCtrl;
+	wxColourPickerCtrl *stdoutColorCtrl;
+	wxColourPickerCtrl *stderrColorCtrl;
 	
 	DECLARE_EVENT_TABLE()
 };
