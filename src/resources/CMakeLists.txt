@@ -1,17 +1,15 @@
-  # prefix and suffix each element of list by ${prefix}elemnt${suffix} 
-  macro(PREFIXSUFFIX list_name prefix suffix) 
-    # create empty list - necessary? 
-    SET(${list_name}_TMP) 
-
-    # prefix and suffix elements 
-    foreach(l ${${list_name}}) 
-      list(APPEND ${list_name}_TMP ${prefix}${l}${suffix} ) 
-    endforeach() 
-
-    # replace list by tmp list 
-    SET(${list_name} "${${list_name}_TMP}") 
-    UNSET(${list_name}_TMP) 
-  endmacro(PREFIXSUFFIX) 
+# prefix and suffix each element of list by ${prefix}elemnt${suffix}
+macro(PREFIXSUFFIX list_name prefix suffix) 
+	# create empty list - necessary?
+	SET(${list_name}_TMP)
+	# prefix and suffix elements
+	foreach(l ${${list_name}})
+		list(APPEND ${list_name}_TMP ${prefix}${l}${suffix} )
+	endforeach()
+	# replace list by tmp list
+	SET(${list_name} "${${list_name}_TMP}")
+	UNSET(${list_name}_TMP)
+endmacro(PREFIXSUFFIX)
 
 SET(TOOLBAR_ICONS
 NewInstIcon.png
