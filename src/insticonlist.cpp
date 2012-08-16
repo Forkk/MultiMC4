@@ -43,7 +43,7 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 	this->width = width;
 	this->height = height;
 	
-	const int builtInIconCount = 10;
+	const int builtInIconCount = 11;
 	const InstIconDef builtInIcons[builtInIconCount] =
 	{
 		InstIconDef(_T("grass"), wxMEMORY_IMAGE(grass)),
@@ -56,6 +56,7 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		InstIconDef(_T("tnt"), wxMEMORY_IMAGE(tnt)),
 		InstIconDef(_T("enderman"), wxMEMORY_IMAGE(enderman)),
 		InstIconDef(_T("infinity"), wxMEMORY_IMAGE(infinity)),
+		InstIconDef(_T("creeper"), wxMEMORY_IMAGE(creeper)),
 	};
 
 	for (int i = 0; i < builtInIconCount; i++)

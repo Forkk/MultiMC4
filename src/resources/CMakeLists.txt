@@ -28,6 +28,7 @@ iron.png
 planks.png
 stone.png
 tnt.png
+creeper.png
 )
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/insticons.h
