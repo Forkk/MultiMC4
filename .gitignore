@@ -7,4 +7,4 @@ src/build/*
 *.cpp‌~
 *‌.h~
 *‌.txt~
-*/Thumbs.db
+Thumbs.db
