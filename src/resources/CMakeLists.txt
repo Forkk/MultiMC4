@@ -76,6 +76,8 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/windowicon.h
 SET(CONSOLE_ICON
 console.png
 console_error.png
+console24.png
+console_error24.png
 )
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/consoleicon.h
                    COMMAND wxinclude ARGS ${CMAKE_CURRENT_BINARY_DIR}/consoleicon.h ${CONSOLE_ICON}

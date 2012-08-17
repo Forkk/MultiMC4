@@ -63,11 +63,17 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	consoleIcons = new wxIconArray();
 	wxMemoryInputStream iconInput1(console, sizeof(console));
 	wxMemoryInputStream iconInput2(console_error, sizeof(console_error));
-	wxIcon icon_OK,icon_BAD;
+	wxMemoryInputStream iconInput3(console24, sizeof(console24));
+	wxMemoryInputStream iconInput4(console_error24, sizeof(console_error24));
+	wxIcon icon_OK,icon_BAD,icon_OK24,icon_BAD24;
 	icon_OK.CopyFromBitmap(wxBitmap(wxImage(iconInput1)));
 	icon_BAD.CopyFromBitmap(wxBitmap(wxImage(iconInput2)));
+	icon_OK24.CopyFromBitmap(wxBitmap(wxImage(iconInput3)));
+	icon_BAD24.CopyFromBitmap(wxBitmap(wxImage(iconInput4)));
 	consoleIcons->Add(icon_OK);
 	consoleIcons->Add(icon_BAD);
+	consoleIcons->Add(icon_OK24);
+	consoleIcons->Add(icon_BAD24);
 	
 	// Create the task bar icon.
 	trayIcon = new ConsoleIcon(this);
@@ -303,11 +309,11 @@ void InstConsoleWindow::SetState ( InstConsoleWindow::State newstate )
 	switch(newstate)
 	{
 		case STATE_OK:
-			trayIcon->SetIcon(consoleIcons->operator[](0));
+			trayIcon->SetIcon(consoleIcons->operator[](2));
 			SetIcon(consoleIcons->operator[](0));
 			break;
 		case STATE_BAD:
-			trayIcon->SetIcon(consoleIcons->operator[](1));
+			trayIcon->SetIcon(consoleIcons->operator[](3));
 			SetIcon(consoleIcons->operator[](1));
 			break;
 	}
