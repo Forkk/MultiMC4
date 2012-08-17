@@ -22,6 +22,7 @@
 
 #include <wx/filename.h>
 #include <wx/dir.h>
+#include <boost/concept_check.hpp>
 
 InstIconList* InstIconList::pInstance = 0;
 
@@ -81,7 +82,12 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 			{
 				wxFileName iconFileName(Path::Combine(customIconDirName, iconFile));
 				wxImage image(iconFileName.GetFullPath());
-
+				if(!image.IsOk())
+				{
+					if(customIconDir.GetNext(&iconFile))
+						continue;
+					break;
+				}
 				wxString iconKey = iconFileName.GetName();
 				Add(image, iconKey);
 			} while (customIconDir.GetNext(&iconFile));
