@@ -14,7 +14,7 @@
 #include "apputils.h"
 #include "osutils.h"
 
-#include "windowicon.h"
+#include "resources/windowicon.h"
 
 IMPLEMENT_APP(MultiMC)
 
@@ -38,8 +38,19 @@ bool MultiMC::OnInit()
 	wxInitAllImageHandlers();
 	wxSocketBase::Initialize();
 	
-	wxMemoryInputStream iconInput(MultiMC32_png, MultiMC32_png_len);
-	AppIcon.CopyFromBitmap(wxBitmap(wxImage(iconInput)));
+	wxMemoryInputStream iconInput16(multimc16, sizeof(multimc16));
+	wxMemoryInputStream iconInput32(multimc32, sizeof(multimc32));
+	wxMemoryInputStream iconInput64(multimc64, sizeof(multimc64));
+	wxMemoryInputStream iconInput128(multimc128, sizeof(multimc128));
+	wxIcon icon16,icon32,icon64,icon128;
+	icon16.CopyFromBitmap(wxBitmap(wxImage(iconInput16)));
+	icon32.CopyFromBitmap(wxBitmap(wxImage(iconInput32)));
+	icon64.CopyFromBitmap(wxBitmap(wxImage(iconInput64)));
+	icon128.CopyFromBitmap(wxBitmap(wxImage(iconInput128)));
+	AppIcons.AddIcon(icon16);
+	AppIcons.AddIcon(icon32);
+	AppIcons.AddIcon(icon64);
+	AppIcons.AddIcon(icon128);
 	
 	wxFileSystem::AddHandler(new wxArchiveFSHandler);
 	// 	wxFileSystem::AddHandler(new wxMemoryFSHandler);
@@ -137,7 +148,7 @@ void MultiMC::OnUnhandledException()
 	OnFatalException();
 }
 
-const wxIcon &MultiMC::GetAppIcon() const
+const wxIconBundle &MultiMC::GetAppIcons() const
 {
-	return AppIcon;
+	return AppIcons;
 }

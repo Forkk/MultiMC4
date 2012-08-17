@@ -56,6 +56,8 @@ protected:
 		DECLARE_EVENT_TABLE()
 	} *trayIcon;
 	
+	wxIconArray *consoleIcons;
+	
 	wxScrolledWindow *scrollWindow;
 	wxTextCtrl *consoleTextCtrl;
 	
@@ -100,6 +102,13 @@ protected:
 	void Close();
 
 	void KillMinecraft(int tries = 0);
+	
+	enum State
+	{
+		STATE_OK,
+		STATE_BAD,
+	};
+	void SetState(State newstate);
 	
 	bool m_closeAllowed;
 	bool instListenerStarted;

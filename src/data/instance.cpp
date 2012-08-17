@@ -54,11 +54,11 @@ Instance::Instance(const wxFileName &rootDir)
 	evtHandler = NULL;
 	MkDirs();
 
+	// initialize empty mod lists - they are filled later and only if requested (see apropriate Get* methods)
 	modList.SetDir(GetInstModsDir().GetFullPath());
 	mlModList.SetDir(GetMLModsDir().GetFullPath());
-
-	UpdateModList();
-	LoadMLModList();
+	modloader_list_inited = false;
+	jar_list_inited = false;
 }
 
 Instance::~Instance(void)
@@ -98,52 +98,11 @@ void Instance::MkDirs()
 
 bool Instance::Save() const
 {
-// 	if (!GetRootDir().DirExists())
-// 	{
-// 		GetRootDir().Mkdir();
-// 	}
-// 
-// 	wxFileName filename = GetConfigPath();
-// 	using boost::property_tree::ptree;
-// 	ptree pt;
-// 
-// 	pt.put<std::string>("name", stdStr(name));
-// 	pt.put<std::string>("iconKey", stdStr(iconKey));
-// 	pt.put<std::string>("notes", stdStr(notes));
-// 	pt.put<bool>("NeedsRebuild", needsRebuild);
-// 	pt.put<bool>("AskUpdate", askUpdate);
-// 
-// 	write_ini(stdStr(filename.GetFullPath()).c_str(), pt);
-// 	return true;
 	return false;
 }
 
 bool Instance::Load(bool loadDefaults)
 {
-// 	using boost::property_tree::ptree;
-// 	ptree pt;
-// 
-// 	wxFileName filename = GetConfigPath();
-// 	try
-// 	{
-// 		if (!loadDefaults)
-// 			read_ini(stdStr(filename.GetFullPath()).c_str(), pt);
-// 	}
-// 	catch (boost::property_tree::ini_parser_error e)
-// 	{
-// 		wxLogError(_("Failed to parse instance config file '%s'. %s"), 
-// 			stdStr(filename.GetFullPath()).c_str(),
-// 			e.message().c_str());
-// 		return false;
-// 	}
-// 
-// 	name = wxStr(pt.get<std::string>("name", "Unnamed Instance"));
-// 	iconKey = wxStr(pt.get<std::string>("iconKey", "default"));
-// 	notes = wxStr(pt.get<std::string>("notes", ""));
-// 	
-// 	needsRebuild = pt.get<bool>("NeedsRebuild", false);
-// 	askUpdate = pt.get<bool>("AskUpdate", true);
-// 	return true;
 	return false;
 }
 
@@ -240,7 +199,12 @@ wxString Instance::ReadVersionFile()
 	wxFSFile *vFile = wxFileSystem().OpenFile(GetVersionFile().GetFullPath(), wxFS_READ);
 	wxString retVal;
 	wxStringOutputStream outStream(&retVal);
-	outStream.Write(*vFile->GetStream());
+	if(!vFile)
+		return _("");
+	wxInputStream * versionFileStream = vFile->GetStream();
+	if(!versionFileStream)
+		return _("");
+	outStream.Write(*versionFileStream);
 	wxDELETE(vFile);
 	return retVal;
 }
@@ -404,52 +368,30 @@ wxString Instance::GetLastLaunchCommand() const
 	return m_lastLaunchCommand;
 }
 
-void Instance::LoadModList()
-{
-	modList.LoadFromFile(GetModListFile().GetFullPath());
-	modList.UpdateModList();
-}
-
-void Instance::SaveModList()
-{
-	// Save the mod list file
-	modList.SaveToFile(GetModListFile().GetFullPath());
-}
-
-void Instance::UpdateModList()
-{
-	LoadModList();
-	SaveModList();
-}
-
 ModList *Instance::GetModList()
 {
+	// if nothing requested the jar list yet, load it.
+	if(!jar_list_inited)
+	{
+		// load jar mod list from file, update it and save the list to file again
+		modList.LoadFromFile(GetModListFile().GetFullPath());
+		modList.UpdateModList();
+		modList.SaveToFile(GetModListFile().GetFullPath());
+		jar_list_inited = true;
+	}
 	return &modList;
-}
-
-void Instance::InsertMod(size_t index, const wxFileName &source)
-{
-	modList.InsertMod(index, source.GetFullPath());
-}
-
-void Instance::DeleteMod(size_t index)
-{
-	modList.DeleteMod(index, GetModListFile().GetFullPath());
-}
-
-void Instance::DeleteMLMod(size_t index)
-{
-	mlModList.DeleteMod(index);
 }
 
 ModList *Instance::GetMLModList()
 {
+	// if nothing requested the modloader list yet, load it.
+	if(!modloader_list_inited)
+	{
+		// check the modloader mods...
+		mlModList.UpdateModList();
+		modloader_list_inited = true;
+	}
 	return &mlModList;
-}
-
-void Instance::LoadMLModList()
-{
-	mlModList.UpdateModList();
 }
 
 template <typename T>

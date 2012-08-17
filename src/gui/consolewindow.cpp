@@ -19,6 +19,7 @@
 
 #include <wx/gbsizer.h>
 #include <wx/sstream.h>
+#include <wx/mstream.h>
 #include <gui/mainwindow.h>
 
 #ifdef WIN32
@@ -26,6 +27,7 @@
 #endif
 
 #include "multimc.h"
+#include "resources/consoleicon.h"
 
 InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250)),
@@ -46,6 +48,7 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 									 wxDefaultPosition, wxSize(200, 100), 
 									 wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH);
 	mainSizer->Add(consoleTextCtrl, wxSizerFlags(1).Expand().Border(wxALL, 8));
+	consoleTextCtrl->SetBackgroundColour(*wxWHITE);
 	
 	wxBoxSizer *btnBox = new wxBoxSizer(wxHORIZONTAL);
 	mainSizer->Add(btnBox, wxSizerFlags(0).Align(wxALIGN_BOTTOM | wxALIGN_RIGHT).
@@ -57,10 +60,24 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	AllowClose(false);
 	btnBox->Add(closeButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
 	
+	consoleIcons = new wxIconArray();
+	wxMemoryInputStream iconInput1(console, sizeof(console));
+	wxMemoryInputStream iconInput2(console_error, sizeof(console_error));
+	wxMemoryInputStream iconInput3(console24, sizeof(console24));
+	wxMemoryInputStream iconInput4(console_error24, sizeof(console_error24));
+	wxIcon icon_OK,icon_BAD,icon_OK24,icon_BAD24;
+	icon_OK.CopyFromBitmap(wxBitmap(wxImage(iconInput1)));
+	icon_BAD.CopyFromBitmap(wxBitmap(wxImage(iconInput2)));
+	icon_OK24.CopyFromBitmap(wxBitmap(wxImage(iconInput3)));
+	icon_BAD24.CopyFromBitmap(wxBitmap(wxImage(iconInput4)));
+	consoleIcons->Add(icon_OK);
+	consoleIcons->Add(icon_BAD);
+	consoleIcons->Add(icon_OK24);
+	consoleIcons->Add(icon_BAD24);
 	
 	// Create the task bar icon.
 	trayIcon = new ConsoleIcon(this);
-	trayIcon->SetIcon(wxGetApp().GetAppIcon());
+	SetState(STATE_OK);
 	
 	inst->GetInstProcess()->SetNextHandler(this);
 
@@ -114,11 +131,13 @@ void InstConsoleWindow::OnInstExit(wxProcessEvent& event)
 	if (event.GetExitCode() != 0)
 	{
 		AppendMessage(_("Minecraft has crashed!"));
+		SetState(STATE_BAD);
 		Show();
 	}
 	else if (killedInst)
 	{
 		AppendMessage(_("Instance was killed."));
+		SetState(STATE_BAD);
 		Show();
 	}
 	else if (settings.GetAutoCloseConsole())
@@ -237,6 +256,9 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		consoleStream->Read(buffer, bufSize);
 		readSize = consoleStream->LastRead();
 		
+		if(readSize == 0)
+			continue;
+		
 		tempStream.Write(buffer, readSize);
 		outputBuffer.Append(temp);
 		
@@ -285,6 +307,22 @@ void InstConsoleWindow::StopListening()
 	stdoutListener.Pause();
 	stderrListener.Pause();
 }
+
+void InstConsoleWindow::SetState ( InstConsoleWindow::State newstate )
+{
+	switch(newstate)
+	{
+		case STATE_OK:
+			trayIcon->SetIcon(consoleIcons->operator[](2));
+			SetIcon(consoleIcons->operator[](0));
+			break;
+		case STATE_BAD:
+			trayIcon->SetIcon(consoleIcons->operator[](3));
+			SetIcon(consoleIcons->operator[](1));
+			break;
+	}
+}
+
 
 wxMenu *InstConsoleWindow::ConsoleIcon::CreatePopupMenu()
 {
