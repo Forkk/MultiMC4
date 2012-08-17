@@ -342,7 +342,9 @@ void ModEditWindow::MLModListCtrl::PasteMod()
 		wxFileName file(*iter);
 		wxCopyFile(file.GetFullPath(), Path::Combine(m_inst->GetMLModsDir(), file.GetFullName()));
 	}
-	m_inst->LoadMLModList();
+	//FIXME: this looks like lazy code. it can be done better.
+	auto mllist = m_inst->GetMLModList();
+	mllist->UpdateModList();
 	UpdateItems();
 }
 
@@ -384,11 +386,13 @@ void ModEditWindow::MLModListCtrl::DeleteMod()
 		indices.Add(item);
 	}
 	
+	//FIXME: this looks like lazy code. it can be done better.
 	for (int i = indices.GetCount() -1; i >= 0; i--)
 	{
 		m_inst->GetMLModList()->DeleteMod(indices[i]);
 	}
-	m_inst->LoadMLModList();
+	auto mllist = m_inst->GetMLModList();
+	mllist->UpdateModList();
 	UpdateItems();
 }
 
@@ -455,7 +459,8 @@ bool ModEditWindow::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wx
 		wxCopyFile(*iter, dest.GetFullPath());
 	}
 	
-	m_inst->LoadMLModList();
+	auto mllist = m_inst->GetMLModList();
+	mllist->UpdateModList();
 	m_owner->UpdateItems();
 
 	return true;

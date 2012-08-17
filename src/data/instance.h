@@ -87,18 +87,8 @@ public:
 	
 	wxProcess* Launch(wxString username, wxString sessionID, bool redirectOutput = false);
 	
-	void LoadModList();
-	void SaveModList();
-	void UpdateModList();
 	ModList *GetModList();
-	
-	void LoadMLModList();
 	ModList *GetMLModList();
-	
-	wxDEPRECATED(void InsertMod(size_t index, const wxFileName &source)); // Use GetModList()->InsertMod instead
-	wxDEPRECATED(void DeleteMod(size_t index)); // Use GetModList()->DeleteMod instead
-	
-	wxDEPRECATED(void DeleteMLMod(size_t index)); // Use GetMLModList()->InsertMod instead
 	
 	template <typename T>
 	T GetSetting(const wxString &key, T defValue) const;

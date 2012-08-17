@@ -57,8 +57,12 @@ Instance::Instance(const wxFileName &rootDir)
 	modList.SetDir(GetInstModsDir().GetFullPath());
 	mlModList.SetDir(GetMLModsDir().GetFullPath());
 
-	UpdateModList();
-	LoadMLModList();
+	// load jar mod list from file, update it and save the list to file again
+	modList.LoadFromFile(GetModListFile().GetFullPath());
+	modList.UpdateModList();
+	modList.SaveToFile(GetModListFile().GetFullPath());
+	// check the modloader mods...
+	mlModList.UpdateModList();
 }
 
 Instance::~Instance(void)
@@ -98,52 +102,11 @@ void Instance::MkDirs()
 
 bool Instance::Save() const
 {
-// 	if (!GetRootDir().DirExists())
-// 	{
-// 		GetRootDir().Mkdir();
-// 	}
-// 
-// 	wxFileName filename = GetConfigPath();
-// 	using boost::property_tree::ptree;
-// 	ptree pt;
-// 
-// 	pt.put<std::string>("name", stdStr(name));
-// 	pt.put<std::string>("iconKey", stdStr(iconKey));
-// 	pt.put<std::string>("notes", stdStr(notes));
-// 	pt.put<bool>("NeedsRebuild", needsRebuild);
-// 	pt.put<bool>("AskUpdate", askUpdate);
-// 
-// 	write_ini(stdStr(filename.GetFullPath()).c_str(), pt);
-// 	return true;
 	return false;
 }
 
 bool Instance::Load(bool loadDefaults)
 {
-// 	using boost::property_tree::ptree;
-// 	ptree pt;
-// 
-// 	wxFileName filename = GetConfigPath();
-// 	try
-// 	{
-// 		if (!loadDefaults)
-// 			read_ini(stdStr(filename.GetFullPath()).c_str(), pt);
-// 	}
-// 	catch (boost::property_tree::ini_parser_error e)
-// 	{
-// 		wxLogError(_("Failed to parse instance config file '%s'. %s"), 
-// 			stdStr(filename.GetFullPath()).c_str(),
-// 			e.message().c_str());
-// 		return false;
-// 	}
-// 
-// 	name = wxStr(pt.get<std::string>("name", "Unnamed Instance"));
-// 	iconKey = wxStr(pt.get<std::string>("iconKey", "default"));
-// 	notes = wxStr(pt.get<std::string>("notes", ""));
-// 	
-// 	needsRebuild = pt.get<bool>("NeedsRebuild", false);
-// 	askUpdate = pt.get<bool>("AskUpdate", true);
-// 	return true;
 	return false;
 }
 
@@ -409,52 +372,14 @@ wxString Instance::GetLastLaunchCommand() const
 	return m_lastLaunchCommand;
 }
 
-void Instance::LoadModList()
-{
-	modList.LoadFromFile(GetModListFile().GetFullPath());
-	modList.UpdateModList();
-}
-
-void Instance::SaveModList()
-{
-	// Save the mod list file
-	modList.SaveToFile(GetModListFile().GetFullPath());
-}
-
-void Instance::UpdateModList()
-{
-	LoadModList();
-	SaveModList();
-}
-
 ModList *Instance::GetModList()
 {
 	return &modList;
 }
 
-void Instance::InsertMod(size_t index, const wxFileName &source)
-{
-	modList.InsertMod(index, source.GetFullPath());
-}
-
-void Instance::DeleteMod(size_t index)
-{
-	modList.DeleteMod(index, GetModListFile().GetFullPath());
-}
-
-void Instance::DeleteMLMod(size_t index)
-{
-	mlModList.DeleteMod(index);
-}
-
 ModList *Instance::GetMLModList()
 {
 	return &mlModList;
-}
-
-void Instance::LoadMLModList()
-{
-	mlModList.UpdateModList();
 }
 
 template <typename T>
