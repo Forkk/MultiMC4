@@ -19,6 +19,7 @@
 
 #include <wx/gbsizer.h>
 #include <wx/sstream.h>
+#include <wx/mstream.h>
 #include <gui/mainwindow.h>
 
 #ifdef WIN32
@@ -26,6 +27,7 @@
 #endif
 
 #include "multimc.h"
+#include "resources/consoleicon.h"
 
 InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250)),
@@ -46,6 +48,7 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 									 wxDefaultPosition, wxSize(200, 100), 
 									 wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH);
 	mainSizer->Add(consoleTextCtrl, wxSizerFlags(1).Expand().Border(wxALL, 8));
+	consoleTextCtrl->SetBackgroundColour(*wxWHITE);
 	
 	wxBoxSizer *btnBox = new wxBoxSizer(wxHORIZONTAL);
 	mainSizer->Add(btnBox, wxSizerFlags(0).Align(wxALIGN_BOTTOM | wxALIGN_RIGHT).
@@ -57,10 +60,18 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
 	AllowClose(false);
 	btnBox->Add(closeButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
 	
+	consoleIcons = new wxIconArray();
+	wxMemoryInputStream iconInput1(console, sizeof(console));
+	wxMemoryInputStream iconInput2(console_error, sizeof(console_error));
+	wxIcon icon_OK,icon_BAD;
+	icon_OK.CopyFromBitmap(wxBitmap(wxImage(iconInput1)));
+	icon_BAD.CopyFromBitmap(wxBitmap(wxImage(iconInput2)));
+	consoleIcons->Add(icon_OK);
+	consoleIcons->Add(icon_BAD);
 	
 	// Create the task bar icon.
 	trayIcon = new ConsoleIcon(this);
-	trayIcon->SetIcon(wxGetApp().GetAppIcons().GetIcon(wxSize(16,16)));
+	SetState(STATE_OK);
 	
 	inst->GetInstProcess()->SetNextHandler(this);
 
@@ -110,11 +121,13 @@ void InstConsoleWindow::OnInstExit(wxProcessEvent& event)
 	if (event.GetExitCode() != 0)
 	{
 		AppendMessage(_("Minecraft has crashed!"));
+		SetState(STATE_BAD);
 		Show();
 	}
 	else if (killedInst)
 	{
 		AppendMessage(_("Instance was killed."));
+		SetState(STATE_BAD);
 		Show();
 	}
 	else if (settings.GetAutoCloseConsole())
@@ -284,6 +297,22 @@ void InstConsoleWindow::StopListening()
 	stdoutListener.Pause();
 	stderrListener.Pause();
 }
+
+void InstConsoleWindow::SetState ( InstConsoleWindow::State newstate )
+{
+	switch(newstate)
+	{
+		case STATE_OK:
+			trayIcon->SetIcon(consoleIcons->operator[](0));
+			SetIcon(consoleIcons->operator[](0));
+			break;
+		case STATE_BAD:
+			trayIcon->SetIcon(consoleIcons->operator[](1));
+			SetIcon(consoleIcons->operator[](1));
+			break;
+	}
+}
+
 
 wxMenu *InstConsoleWindow::ConsoleIcon::CreatePopupMenu()
 {

@@ -46,6 +46,7 @@ stone.png
 tnt.png
 creeper.png
 skeleton.png
+enderpearl.png
 )
 SET(INSTANCE_ICONS_DEP ${INSTANCE_ICONS})
 PREFIXSUFFIX(INSTANCE_ICONS_DEP "insticons/" "")
@@ -71,9 +72,22 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/windowicon.h
                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                    COMMENT "Generating application icon resources."
                    VERBATIM)
+
+SET(CONSOLE_ICON
+console.png
+console_error.png
+)
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/consoleicon.h
+                   COMMAND wxinclude ARGS ${CMAKE_CURRENT_BINARY_DIR}/consoleicon.h ${CONSOLE_ICON}
+                   DEPENDS wxinclude ${CONSOLE_ICON}
+                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                   COMMENT "Generating console icon resources."
+                   VERBATIM)
+
 ADD_CUSTOM_TARGET(generate_headers
 DEPENDS
 ${CMAKE_CURRENT_BINARY_DIR}/insticons.h
 ${CMAKE_CURRENT_BINARY_DIR}/toolbaricons.h
 ${CMAKE_CURRENT_BINARY_DIR}/windowicon.h
+${CMAKE_CURRENT_BINARY_DIR}/consoleicon.h
 )
