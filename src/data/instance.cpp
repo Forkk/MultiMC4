@@ -54,15 +54,11 @@ Instance::Instance(const wxFileName &rootDir)
 	evtHandler = NULL;
 	MkDirs();
 
+	// initialize empty mod lists - they are filled later and only if requested (see apropriate Get* methods)
 	modList.SetDir(GetInstModsDir().GetFullPath());
 	mlModList.SetDir(GetMLModsDir().GetFullPath());
-
-	// load jar mod list from file, update it and save the list to file again
-	modList.LoadFromFile(GetModListFile().GetFullPath());
-	modList.UpdateModList();
-	modList.SaveToFile(GetModListFile().GetFullPath());
-	// check the modloader mods...
-	mlModList.UpdateModList();
+	modloader_list_inited = false;
+	jar_list_inited = false;
 }
 
 Instance::~Instance(void)
@@ -374,11 +370,26 @@ wxString Instance::GetLastLaunchCommand() const
 
 ModList *Instance::GetModList()
 {
+	// if nothing requested the jar list yet, load it.
+	if(!jar_list_inited)
+	{
+		// load jar mod list from file, update it and save the list to file again
+		modList.LoadFromFile(GetModListFile().GetFullPath());
+		modList.UpdateModList();
+		modList.SaveToFile(GetModListFile().GetFullPath());
+		jar_list_inited = true;
+	}
 	return &modList;
 }
 
 ModList *Instance::GetMLModList()
 {
+	// if nothing requested the modloader list yet, load it.
+	if(!modloader_list_inited)
+	{
+		// check the modloader mods...
+		mlModList.UpdateModList();
+	}
 	return &mlModList;
 }
 

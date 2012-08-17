@@ -137,6 +137,8 @@ protected:
 	
 	wxProcess *instProc;
 	bool m_running;
+	bool modloader_list_inited;
+	bool jar_list_inited;
 	wxString m_lastLaunchCommand;
 	
 	wxEvtHandler *evtHandler;
