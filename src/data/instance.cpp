@@ -389,6 +389,7 @@ ModList *Instance::GetMLModList()
 	{
 		// check the modloader mods...
 		mlModList.UpdateModList();
+		modloader_list_inited = true;
 	}
 	return &mlModList;
 }
