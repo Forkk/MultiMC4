@@ -256,8 +256,17 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		consoleStream->Read(buffer, bufSize);
 		readSize = consoleStream->LastRead();
 		
+		/*
+		 * readSize of 0 signifies that consoleStream reached EOF
+		 * This means it has been closed by minecraft.
+		 * Do not continue trying to read.
+		 */
 		if(readSize == 0)
-			continue;
+		{
+			InstOutputEvent event(m_inst, wxString::Format(_("Instance closed its output %d."), m_lType), true);
+			m_console->AddPendingEvent(event);
+			break;
+		}
 		
 		tempStream.Write(buffer, readSize);
 		outputBuffer.Append(temp);
