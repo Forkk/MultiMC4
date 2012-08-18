@@ -63,7 +63,6 @@ public:
 	void OnCopyInstClicked(wxCommandEvent &event);
 	void OnChangeIconClicked(wxCommandEvent& event);
 	void OnNotesClicked(wxCommandEvent& event);
-	void OnCancelEditNotesClicked(wxCommandEvent& event);
 
 	void OnManageSavesClicked(wxCommandEvent& event);
 	void OnEditModsClicked(wxCommandEvent& event);
@@ -166,9 +165,8 @@ protected:
 	wxStaticText *instNameLabel;
 	wxTextCtrl *instNameEditor;
 	
-	void StartEditNotes();
-	void FinishEditNotes();
-	void CancelEditNotes();
+	void UpdateNotesBox();
+	void SaveNotesBox(Instance *inst);
 	bool editingNotes;
 	
 	void StartRename();

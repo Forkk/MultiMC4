@@ -255,19 +255,10 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	instNameSz->Add(instNameLabel, wxSizerFlags(0).Align(wxALIGN_CENTER));
 	
 	
-	instNotesEditor = new wxTextCtrl(instPanel, -1, _("InstNotes"),
-		wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
+	instNotesEditor = new wxTextCtrl(instPanel, -1, wxEmptyString,
+		wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_RICH);
 	instSz->Add(instNotesEditor, wxGBPosition(1, 0), wxGBSpan(rows - 2, cols - 1), 
 		wxEXPAND | wxALL, 4);
-	
-	cancelEditNotesBtn = new wxButton(instPanel, ID_Cancel_EditNotes, _("&Cancel"));
-	cancelEditNotesBtn->Enable(false);
-	instSz->Add(cancelEditNotesBtn, wxGBPosition(rows - 1, 0), wxGBSpan(1, 1),
-		wxALL, 4);
-	
-	editNotesBtn = new wxButton(instPanel, ID_EditNotes, _("E&dit"));
-	instSz->Add(editNotesBtn, wxGBPosition(rows - 1, cols - 2), wxGBSpan(1, 1),
-		wxALL, 4);
 	
 	
 	wxPanel *btnPanel = new wxPanel(instPanel);
@@ -297,7 +288,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnViewFolder = new wxButton(btnPanel, ID_ViewInstFolder, _("&View Folder"));
 	btnSz->Add(btnViewFolder, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 	
-	CancelEditNotes();
+	UpdateNotesBox();
 	CancelRename();
 }
 
@@ -310,7 +301,7 @@ void MainWindow::UpdateInstPanel()
 		Instance *inst = GetSelectedInst();
 
 		UpdateInstNameLabel(inst);
-		CancelEditNotes();
+		UpdateNotesBox();
 		CancelRename();
 
 		instPanel->Layout();
@@ -335,6 +326,10 @@ void MainWindow::OnPageChanged(wxBookCtrlEvent &event)
 void MainWindow::OnPageChanged(wxListbookEvent &event)
 #endif
 {
+	if (GetLinkedInst(event.GetOldSelection()) != nullptr)
+	{
+		SaveNotesBox(GetLinkedInst(event.GetOldSelection()));
+	}
 	UpdateInstPanel();
 }
 
@@ -809,58 +804,22 @@ void MainWindow::OnNotesClicked(wxCommandEvent& event)
 		}
 		break;
 	}
-		
-	case GUI_Default:
-		if (instNotesEditor->IsEditable())
-			FinishEditNotes();
-		else
-			StartEditNotes();
-		break;
 	}
 }
 
-void MainWindow::OnCancelEditNotesClicked(wxCommandEvent &event)
+void MainWindow::SaveNotesBox(Instance *inst)
 {
-	CancelEditNotes();
-}
-
-void MainWindow::StartEditNotes()
-{
-	editNotesBtn->SetLabel(_("&Done"));
-	cancelEditNotesBtn->Enable(true);
-	instNotesEditor->SetEditable(true);
-	instNotesEditor->SetFocus();
-	instNotesEditor->SetInsertionPointEnd();
-	
-	GetStatusBar()->PushStatusText(wxString::Format(_("Editing notes for instance '%s'..."), 
-		GetSelectedInst()->GetName().c_str()), 0);
-	editingNotes = true;
-	
-	DisableInstActions();
-}
-
-void MainWindow::FinishEditNotes()
-{
-	GetSelectedInst()->SetNotes(instNotesEditor->GetValue());
-	CancelEditNotes();
-}
-
-void MainWindow::CancelEditNotes()
-{
-	editNotesBtn->SetLabel(_("E&dit"));
-	cancelEditNotesBtn->Enable(false);
-	instNotesEditor->SetEditable(false);
-	
-	if (editingNotes)
+	if (inst != nullptr)
 	{
-		editingNotes = false;
-		GetStatusBar()->PopStatusText(0);
+		inst->SetNotes(instNotesEditor->GetValue());
+		instNotesEditor->SetValue(inst->GetNotes());
 	}
-	
+}
+
+void MainWindow::UpdateNotesBox()
+{
 	if (GetSelectedInst() != nullptr)
 		instNotesEditor->SetValue(GetSelectedInst()->GetNotes());
-	
-	EnableInstActions();
 }
 
 
@@ -1080,6 +1039,9 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 
 void MainWindow::OnWindowClosed(wxCloseEvent& event)
 {
+	// Save instance notes on exit.
+	SaveNotesBox(GetSelectedInst());
+
 	wxTheApp->Exit();
 }
 
@@ -1121,7 +1083,6 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_Rename, MainWindow::OnRenameClicked)
 	EVT_MENU(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
 	EVT_MENU(ID_EditNotes, MainWindow::OnNotesClicked)
-	EVT_MENU(ID_Cancel_EditNotes, MainWindow::OnCancelEditNotesClicked)
 	
 	EVT_MENU(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_MENU(ID_EditMods, MainWindow::OnEditModsClicked)
@@ -1138,7 +1099,6 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_BUTTON(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
 	EVT_BUTTON(ID_CopyInst, MainWindow::OnCopyInstClicked)
 	EVT_BUTTON(ID_EditNotes, MainWindow::OnNotesClicked)
-	EVT_BUTTON(ID_Cancel_EditNotes, MainWindow::OnCancelEditNotesClicked)
 	
 	EVT_BUTTON(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_BUTTON(ID_EditMods, MainWindow::OnEditModsClicked)
