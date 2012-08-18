@@ -22,6 +22,11 @@ public class MCFrame extends Frame implements WindowListener
 		try
 		{
 			image = ImageIO.read(getClass().getResource("icon.png"));
+			if(image.getTransparency() != java.awt.Transparency.TRANSLUCENT
+			   || !image.getColorModel().hasAlpha())
+			{
+				System.err.println("Icon data is not translucent!");
+			}
 			setIconImage(image);
 		}
 		catch (IOException e)
