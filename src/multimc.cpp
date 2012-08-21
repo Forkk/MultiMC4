@@ -27,13 +27,10 @@ bool MultiMC::OnInit()
 	wxHandleFatalExceptions();
 #endif
 	updateOnExit = false;
-	startNormally = true;
 	
 	// This is necessary for the update system since it calls OnInitCmdLine
 	// to set up the command line arguments that the update system uses.
-	wxApp::OnInit();
-	
-	if (!startNormally)
+	if (!wxApp::OnInit())
 		return false;
 	
 	SetAppName(_("MultiMC"));
@@ -78,29 +75,20 @@ bool MultiMC::OnInit()
 
 void MultiMC::OnInitCmdLine(wxCmdLineParser &parser)
 {
-	parser.AddOption(_("u"), _("update"), 
-		_("Used by the update system. Causes the running executable to replace the given file with itself, run it, and exit."),
-		wxCMD_LINE_VAL_STRING);
+	parser.SetDesc(cmdLineDesc);
+	parser.SetSwitchChars(_("-"));
+}
 
-	int pRetVal = parser.Parse();
-	if (pRetVal == -1)
-	{
-		startNormally = false;
-		return;
-	}
-	else if (pRetVal > 0)
-	{
-		startNormally = false;
-		return;
-	}
-	
+bool MultiMC::OnCmdLineParsed(wxCmdLineParser& parser)
+{
 	wxString fileToUpdate;
 	if (parser.Found(_("u"), &fileToUpdate))
 	{
-		startNormally = false;
 		InstallUpdate(wxFileName(wxStandardPaths::Get().GetExecutablePath()), 
-					  wxFileName(fileToUpdate));
+			wxFileName(fileToUpdate));
+		return false;
 	}
+	return true;
 }
 
 void MultiMC::InstallUpdate(wxFileName thisFile, wxFileName targetFile)

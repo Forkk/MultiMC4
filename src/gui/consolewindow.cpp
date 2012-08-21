@@ -101,21 +101,25 @@ void InstConsoleWindow::AppendMessage(const wxString& msg, MessageType msgT)
 	switch (msgT)
 	{
 	case MSGT_SYSTEM:
-		consoleTextCtrl->SetDefaultStyle(wxTextAttr(*wxBLUE));
+		consoleTextCtrl->SetDefaultStyle(
+			wxTextAttr(settings.GetConsoleSysMsgColor()));
 		break;
 
 	case MSGT_STDOUT:
-		consoleTextCtrl->SetDefaultStyle(wxTextAttr(*wxBLACK));
+		consoleTextCtrl->SetDefaultStyle(
+			wxTextAttr(settings.GetConsoleStdoutColor()));
 		break;
 
 	case MSGT_STDERR:
-		consoleTextCtrl->SetDefaultStyle(wxTextAttr(*wxRED));
+		consoleTextCtrl->SetDefaultStyle(
+			wxTextAttr(settings.GetConsoleStderrColor()));
 		break;
 	}
 
 	(*consoleTextCtrl) << msg << _("\n");
 
-	consoleTextCtrl->SetDefaultStyle(wxTextAttr(*wxBLACK));
+	consoleTextCtrl->SetDefaultStyle(wxTextAttr(
+		wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT)));
 }
 
 void InstConsoleWindow::OnInstExit(wxProcessEvent& event)
