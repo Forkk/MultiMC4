@@ -60,10 +60,34 @@ MainWindow::MainWindow(void)
 		wxPoint(0, 0), minSize),
 		centralModList(settings.GetModsDir().GetFullPath())
 {
+	// initialize variables to sane values
 	closeOnTaskEnd = false;
 	editingNotes = false;
 	renamingInst = false;
 	instActionsEnabled = true;
+	instMenu = nullptr;
+	instListCtrl = nullptr;
+
+	instListbook = nullptr;
+	instPanel = nullptr;
+	instSz = nullptr;
+	
+	btnPlay = nullptr;
+	btnRename = nullptr;
+	btnChangeIcon = nullptr;
+	btnCopyInst = nullptr;
+	btnEditMods = nullptr;
+	btnDowngrade = nullptr;
+	btnRebuildJar = nullptr;
+	btnViewFolder = nullptr;
+	
+	instNotesEditor = nullptr;
+	editNotesBtn = nullptr;
+	cancelEditNotesBtn = nullptr;
+	
+	instNameSz = nullptr;
+	instNameLabel = nullptr;
+	instNameEditor = nullptr;
 	
 	SetMinSize(minSize);
 	
@@ -135,8 +159,6 @@ MainWindow::MainWindow(void)
 	SetSizer(box);
 	
 	// Initialize the GUI
-	instListbook = nullptr;
-	instListCtrl = nullptr;
 	switch (settings.GetGUIMode())
 	{
 	case GUI_Simple:
@@ -214,6 +236,8 @@ void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 	instMenu->Append(ID_ViewInstFolder, _T("&View Folder"), _T("Open the instance's folder."));
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_DeleteInst, _T("Delete"), _T("Delete this instance."));
+	instNotesEditor = nullptr;
+	
 	
 	mainSz->Add(instListCtrl, 1, wxEXPAND);
 }
@@ -665,6 +689,13 @@ void MainWindow::OnInstActivated(wxListEvent &event)
 
 void MainWindow::ShowLoginDlg(wxString errorMsg)
 {
+	Instance *selected = GetSelectedInst();
+	if(!selected)
+	{
+		// FIXME: what if the instance somehow becomes deselected while playing? is that possible?
+		//        what does it mean to the state of the GUI
+		return;
+	}
 	UserInfo lastLogin;
 	if (wxFileExists(_("lastlogin")))
 	{
@@ -683,12 +714,12 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 		
 		if (!playOffline)
 		{
-			LoginTask *task = new LoginTask(info, GetSelectedInst(), loginDialog.ShouldForceUpdate());
+			LoginTask *task = new LoginTask(info,selected , loginDialog.ShouldForceUpdate());
 			StartModalTask(*task, true);
 		}
 		else
 		{
-			LoginCompleteEvent event(nullptr, LoginResult::PlayOffline(info.username), GetSelectedInst());
+			LoginCompleteEvent event(nullptr, LoginResult::PlayOffline(info.username), selected);
 			OnLoginComplete(event);
 		}
 	}
@@ -750,6 +781,8 @@ void MainWindow::OnRenameClicked(wxCommandEvent& event)
 	case GUI_Simple:
 	{
 		Instance *inst = GetSelectedInst();
+		if(!inst)
+			break;
 		wxTextEntryDialog textDlg(this, _("Enter a new name for this instance."), 
 			_("Rename Instance"), inst->GetName());
 		if (textDlg.ShowModal() == wxID_OK)
@@ -768,6 +801,8 @@ void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 	if (iconDlg.ShowModal() == wxID_OK)
 	{
 		Instance *inst = GetSelectedInst();
+		if(!inst)
+			return;
 		inst->SetIconKey(iconDlg.GetSelectedIconKey());
 		LoadInstanceList();
 	}
@@ -776,6 +811,8 @@ void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 {
 	Instance *srcInst = GetSelectedInst();
+	if(!srcInst)
+		return;
 
 	wxString instName;
 	wxString instDirName;
@@ -800,6 +837,8 @@ void MainWindow::OnNotesClicked(wxCommandEvent& event)
 	case GUI_Simple:
 	{
 		Instance *inst = GetSelectedInst();
+		if(!inst)
+			return;
 		wxTextEntryDialog textDlg(this, _("Instance notes"), _("Notes"), inst->GetNotes(), 
 			wxOK | wxCANCEL | wxTE_MULTILINE);
 		textDlg.SetSize(600, 400);
@@ -817,7 +856,8 @@ void MainWindow::SaveNotesBox(Instance *inst)
 {
 	if (inst != nullptr)
 	{
-		inst->SetNotes(instNotesEditor->GetValue());
+		wxString notes = instNotesEditor->GetValue();
+		inst->SetNotes(notes);
 		instNotesEditor->SetValue(inst->GetNotes());
 	}
 }
@@ -831,14 +871,17 @@ void MainWindow::UpdateNotesBox()
 
 void MainWindow::StartRename()
 {
+	Instance * selected = GetSelectedInst();
+	if(!selected)
+		return;
 	DisableInstActions();
 	renamingInst = true;
 	
 	GetStatusBar()->PushStatusText(wxString::Format(
 		_("Renaming instance '%s'... (Press enter to finish)"), 
-		GetSelectedInst()->GetName().c_str()), 0);
+		selected->GetName().c_str()), 0);
 	
-	instNameEditor->SetValue(GetSelectedInst()->GetName());
+	instNameEditor->SetValue(selected->GetName());
 	
 	instNameLabel->Show(false);
 	instNameSz->Hide(instNameLabel);
@@ -852,8 +895,12 @@ void MainWindow::StartRename()
 
 void MainWindow::FinishRename()
 {
-	if (!instNameEditor->IsEmpty())
-		GetSelectedInst()->SetName(instNameEditor->GetValue());
+	Instance * selected = GetSelectedInst();
+	if(selected)
+	{
+		if (!instNameEditor->IsEmpty())
+			GetSelectedInst()->SetName(instNameEditor->GetValue());
+	}
 	CancelRename();
 	LoadInstanceList();
 }
@@ -918,18 +965,25 @@ void MainWindow::OnManageSavesClicked(wxCommandEvent& event)
 
 void MainWindow::OnEditModsClicked(wxCommandEvent& event)
 {
-	ModEditWindow *editDlg = new ModEditWindow(this, GetSelectedInst());
+	Instance *selected = GetSelectedInst();
+	if(selected == nullptr)
+		return;
+	ModEditWindow *editDlg = new ModEditWindow(this, selected);
 	editDlg->Show();
 }
 
 void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
 {
-	if (GetSelectedInst()->GetVersionFile().FileExists())
+	Instance *selected = GetSelectedInst();
+	if(selected == nullptr)
+		return;
+
+	if (selected->GetVersionFile().FileExists())
 	{
 		DowngradeDialog *downDlg = new DowngradeDialog(this);
 		if (downDlg->ShowModal() == wxID_OK && !downDlg->GetSelectedVersion().IsEmpty())
 		{
-			DowngradeTask dgTask(GetSelectedInst(), downDlg->GetSelectedVersion());
+			DowngradeTask dgTask(selected, downDlg->GetSelectedVersion());
 			StartModalTask(dgTask);
 		}
 	}
@@ -941,17 +995,19 @@ void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
 
 void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
 {
-	ModderTask *modTask = new ModderTask(GetSelectedInst());
+	Instance *selected = GetSelectedInst();
+	if(selected == nullptr)
+		return;
+	ModderTask *modTask = new ModderTask(selected);
 	StartModalTask(*modTask);
 }
 
 void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
 {
-	Instance *inst = GetSelectedInst();
-	if (inst)
-	{
-		Utils::OpenFile(inst->GetRootDir());
-	}
+	Instance *selected = GetSelectedInst();
+	if(selected == nullptr)
+		return;
+	Utils::OpenFile(selected->GetRootDir());
 }
 
 void MainWindow::OnDeleteClicked(wxCommandEvent& event)
@@ -1045,9 +1101,11 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 
 void MainWindow::OnWindowClosed(wxCloseEvent& event)
 {
-	// Save instance notes on exit.
-	SaveNotesBox(GetSelectedInst());
-
+	if(instNotesEditor)
+	{
+		// Save instance notes on exit.
+		SaveNotesBox(GetSelectedInst());
+	}
 	wxTheApp->Exit();
 }
 
