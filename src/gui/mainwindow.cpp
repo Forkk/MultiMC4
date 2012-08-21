@@ -408,14 +408,14 @@ void MainWindow::AddInstance(Instance *inst)
 	{
 	case GUI_Simple:
 		item = instListCtrl->InsertItem(instListCtrl->GetItemCount(), 
-			instName, instIcons->operator[](inst->GetIconKey()));
+			instName, instIcons->getIndexForKey(inst->GetIconKey()));
 		instItems[item] = inst;
 		break;
 		
 	case GUI_Default:
 		item = instListbook->GetPageCount();
 		instItems[item] = inst;
-		instListbook->InsertPage(item, instPanel, inst->GetName(), true, instIcons->operator[](inst->GetIconKey()));
+		instListbook->InsertPage(item, instPanel, inst->GetName(), true, instIcons->getIndexForKey(inst->GetIconKey()));
 		break;
 	}
 }
