@@ -725,10 +725,16 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 			StartModalTask(modTask);
 		}
 		
-		Show(false);
-		inst->Launch(result.username, result.sessionID, true);
-		InstConsoleWindow *cwin = new InstConsoleWindow(inst, this);
-		cwin->Start();
+		if(inst->Launch(result.username, result.sessionID, true))
+		{
+			Show(false);
+			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this);
+			cwin->Start();
+		}
+		else
+		{
+			ShowLoginDlg(_("Minecraft failed to launch. Check your Java path."));
+		}
 	}
 	else
 	{
