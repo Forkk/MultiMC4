@@ -107,16 +107,6 @@
        spreadMethod="reflect" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient6212"
-       id="linearGradient6218"
-       x1="19.373737"
-       y1="18.689655"
-       x2="30.317204"
-       y2="31.204504"
-       gradientUnits="userSpaceOnUse"
-       spreadMethod="repeat" />
-    <linearGradient
-       inkscape:collect="always"
        xlink:href="#linearGradient6244"
        id="linearGradient6250"
        x1="2"
@@ -150,10 +140,10 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.5"
-     inkscape:cx="-584.26043"
-     inkscape:cy="12.914903"
-     inkscape:current-layer="g6331"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="149.24645"
+     inkscape:cy="89.508966"
+     inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
@@ -187,30 +177,13 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer">
     <rect
-       style="fill:url(#linearGradient6218);fill-opacity:1;stroke:none"
+       style="fill:#000000;fill-opacity:1;stroke:none"
        id="rect2993"
        width="32"
        height="32"
        x="-1.9984014e-15"
        y="4.4408921e-16"
        ry="2.6666667" />
-    <rect
-       style="opacity:0.48373988;fill:url(#linearGradient6258);fill-opacity:1;stroke:none"
-       id="rect6256"
-       width="32"
-       height="32"
-       x="-32"
-       y="-32"
-       ry="2.666667"
-       transform="scale(-1,-1)" />
-    <rect
-       ry="2.5000002"
-       y="1"
-       x="1"
-       height="30"
-       width="30"
-       id="rect6238"
-       style="fill:url(#linearGradient6250);fill-opacity:1;stroke:none;opacity:0.48373983999999998" />
     <rect
        style="fill:url(#linearGradient3056);fill-opacity:1;stroke:none"
        id="rect2993-1"

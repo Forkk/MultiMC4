@@ -17,9 +17,9 @@
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="console.svg"
-   inkscape:export-filename="/home/peterix/projects/MultiMC4/src/resources/console24.png"
-   inkscape:export-xdpi="67.5"
-   inkscape:export-ydpi="67.5">
+   inkscape:export-filename="/home/peterix/projects/MultiMC4/src/resources/console.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs2987">
     <linearGradient
@@ -150,11 +150,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="120.01129"
-     inkscape:cy="-39.816359"
-     inkscape:current-layer="text3001"
-     showgrid="true"
+     inkscape:zoom="0.5"
+     inkscape:cx="-151.66767"
+     inkscape:cy="-123.35228"
+     inkscape:current-layer="layer1"
+     showgrid="false"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
      inkscape:window-width="1607"
@@ -187,30 +187,13 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer">
     <rect
-       style="fill:url(#linearGradient6218);fill-opacity:1;stroke:none"
+       style="fill:#000000;fill-opacity:1;stroke:none"
        id="rect2993"
        width="32"
        height="32"
        x="-1.9984014e-15"
        y="4.4408921e-16"
        ry="2.6666667" />
-    <rect
-       style="opacity:0.48373988;fill:url(#linearGradient6258);fill-opacity:1;stroke:none"
-       id="rect6256"
-       width="32"
-       height="32"
-       x="-32"
-       y="-32"
-       ry="2.666667"
-       transform="scale(-1,-1)" />
-    <rect
-       ry="2.5000002"
-       y="1"
-       x="1"
-       height="30"
-       width="30"
-       id="rect6238"
-       style="fill:url(#linearGradient6250);fill-opacity:1;stroke:none;opacity:0.48373983999999998" />
     <rect
        style="fill:url(#linearGradient3056);fill-opacity:1;stroke:none"
        id="rect2993-1"
