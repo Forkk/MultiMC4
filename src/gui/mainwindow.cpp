@@ -220,7 +220,16 @@ void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 {
 	instListCtrl = new wxListCtrl(this, ID_InstListCtrl, wxDefaultPosition, wxDefaultSize,
 		wxLC_SINGLE_SEL | wxLC_ICON | wxLC_ALIGN_LEFT);
+
+	InitInstMenu();
 	
+	instNotesEditor = nullptr;
+	
+	mainSz->Add(instListCtrl, 1, wxEXPAND);
+}
+
+void MainWindow::InitInstMenu()
+{
 	// Build the instance context menu
 	instMenu = new wxMenu();
 	instMenu->Append(ID_Play, _T("&Play"), _T("Launch the instance."));
@@ -236,17 +245,16 @@ void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 	instMenu->Append(ID_ViewInstFolder, _T("&View Folder"), _T("Open the instance's folder."));
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_DeleteInst, _T("Delete"), _T("Delete this instance."));
-	instNotesEditor = nullptr;
-	
-	
-	mainSz->Add(instListCtrl, 1, wxEXPAND);
 }
 
 void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 {
+	InitInstMenu();
+
 	instListbook = new wxListbook(this, ID_InstListCtrl, 
 		wxDefaultPosition, wxDefaultSize, wxLB_LEFT);
 	instListbook->GetListView()->SetMinSize(wxSize(80, -1));
+	instListbook->GetListView()->SetId(ID_InstListCtrl);
 	
 	mainSz->Add(instListbook, 1, wxEXPAND);
 	
