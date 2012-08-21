@@ -13,7 +13,6 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-
 #include "insticonlist.h"
 
 #include "resources/insticons.h"
@@ -23,6 +22,8 @@
 #include <wx/filename.h>
 #include <wx/dir.h>
 #include <boost/concept_check.hpp>
+#include <iostream>
+// #define DEBUG_ICONS
 
 InstIconList* InstIconList::pInstance = 0;
 
@@ -64,6 +65,12 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 
 	for (int i = 0; i < builtInIconCount; i++)
 	{
+#ifdef DEBUG_ICONS
+		if(!builtInIcons[i].image.HasAlpha())
+		{
+			wxLogMessage(_("Image %d %s has no alpha."), i, builtInIcons[i].key.c_str()  );
+		}
+#endif
 		Add(builtInIcons[i].image, builtInIcons[i].key);
 	}
 
@@ -101,6 +108,13 @@ int InstIconList::Add(const wxImage image, const wxString key)
 	{
 		wxImage newImg(image);
 		newImg.Rescale(32, 32);
+#ifdef DEBUG_ICONS
+		if(!newImg.HasAlpha())
+		{
+			wxLogMessage(_("Image %s has no alpha after rescaling."), key.c_str()  );
+		}
+#endif
+		
 		return indexMap[key] = imageList.Add(newImg);
 	}
 	else
@@ -130,7 +144,8 @@ wxImageList *InstIconList::CreateImageList() const
 	
 	for (int i = 0; i < imageList.GetImageCount(); i++)
 	{
-		newImgList->Add(imageList.GetBitmap(i));
+		wxIcon icon = imageList.GetIcon(i);
+		newImgList->Add(icon);
 	}
 	return newImgList;
 }

@@ -8,6 +8,7 @@
 #include <wx/fs_arc.h>
 #include <wx/socket.h>
 #include <wx/app.h>
+#include <wx/sysopt.h>
 
 #include "mainwindow.h"
 
@@ -25,7 +26,14 @@ bool MultiMC::OnInit()
 	// Only works with Linux GCC or MSVC
 	wxHandleFatalExceptions();
 #endif
-
+#ifdef __WXMSW__
+   {
+      if (wxTheApp->GetComCtl32Version() >= 600 && ::wxDisplayDepth() >= 32)
+         wxSystemOptions::SetOption(wxT("msw.remap"), 2);
+      else
+         wxSystemOptions::SetOption(wxT("msw.remap"), 0);
+   }
+#endif //__WXMSW__
 	updateOnExit = false;
 	
 	// This is necessary for the update system since it calls OnInitCmdLine
