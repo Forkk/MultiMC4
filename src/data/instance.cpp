@@ -330,12 +330,9 @@ void Instance::ExtractLauncher()
 	// add the icon file
 	zipper.PutNextEntry(_("icon.png"));
 	InstIconList * iconList = InstIconList::Instance();
-	auto list = iconList->CreateImageList();
-	int index = iconList->operator[](GetIconKey());
-	wxBitmap icon = list->GetBitmap(index);
-	wxImage img = icon.ConvertToImage();
+	//FIXME: what if there is no such image?
+	wxImage &img =  iconList->getImageForKey(GetIconKey());
 	img.SaveFile(zipper,wxBITMAP_TYPE_PNG);
-	delete list;
 }
 
 void Instance::OnInstProcExited(wxProcessEvent& event)

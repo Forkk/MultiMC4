@@ -17,6 +17,7 @@
 #pragma once
 #include <wx/wx.h>
 #include <map>
+#include <vector>
 #include <wx/imaglist.h>
 
 typedef std::map<wxString, int> IconListIndexMap;
@@ -26,7 +27,14 @@ class InstIconList
 public:
 	int Add(const wxImage image, const wxString key);
 
-	int operator[](wxString key);
+	int getIndexForKey(wxString key)
+	{
+		return indexMap[key];
+	}
+	wxImage &getImageForKey(wxString key)
+	{
+		return imageList[indexMap[key]];
+	}
 	static InstIconList* Instance()
 	{
 		if (pInstance == 0)
@@ -38,7 +46,6 @@ public:
 		delete pInstance;
 		pInstance = 0;
 	};
-	const wxImageList &GetImageList();
 	wxImageList *CreateImageList() const;
 	
 	const IconListIndexMap &GetIndexMap() const;
@@ -48,8 +55,8 @@ public:
 protected:
 	InstIconList(int width = 32, int height = 32, wxString customIconDir = _T("icons"));
 	
-	wxImageList imageList;
 	IconListIndexMap indexMap;
+	std::vector <wxImage> imageList;
 	int width, height;
 private:
 	static InstIconList* pInstance;

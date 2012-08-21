@@ -40,7 +40,6 @@ struct InstIconDef
 };
 
 InstIconList::InstIconList(int width, int height, wxString customIconDirName)
-	: imageList(width, height)
 {
 	this->width = width;
 	this->height = height;
@@ -115,22 +114,13 @@ int InstIconList::Add(const wxImage image, const wxString key)
 		}
 #endif
 		
-		return indexMap[key] = imageList.Add(newImg);
+		imageList.push_back(newImg);
 	}
 	else
 	{
-		return indexMap[key] = imageList.Add(image);
+		imageList.push_back(image);
 	}
-}
-
-int InstIconList::operator [](wxString key)
-{
-	return indexMap[key];
-}
-
-const wxImageList &InstIconList::GetImageList()
-{
-	return imageList;
+	return indexMap[key] = imageList.size() - 1;
 }
 
 const IconListIndexMap &InstIconList::GetIndexMap() const
@@ -142,10 +132,9 @@ wxImageList *InstIconList::CreateImageList() const
 {
 	wxImageList *newImgList = new wxImageList(width, height);
 	
-	for (int i = 0; i < imageList.GetImageCount(); i++)
+	for (int i = 0; i < imageList.size(); i++)
 	{
-		wxIcon icon = imageList.GetIcon(i);
-		newImgList->Add(icon);
+		newImgList->Add(imageList[i]);
 	}
 	return newImgList;
 }
