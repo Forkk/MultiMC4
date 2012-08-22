@@ -22,8 +22,21 @@ public:
 	bool updateOnExit;
 protected:
 	wxIconBundle AppIcons;
+
+	wxString thisFileName;
+	wxString updateTarget;
 	
-	void InstallUpdate(wxFileName thisFile, wxFileName targetFile);
+	void InstallUpdate();
+	void YieldSleep(int secs);
+
+	enum StartupMode
+	{
+		// Starts MultiMC normally.
+		START_NORMAL,
+
+		// Installs updates and exits.
+		START_INSTALL_UPDATE,
+	} startMode;
 };
 
 const wxCmdLineEntryDesc cmdLineDesc[] = 
