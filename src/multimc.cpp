@@ -144,7 +144,7 @@ Retry:
 This is probably because the file that is supposed to be updated is in use. \n\
 Please check to make sure there are no other running MultiMC processes \n\
 and that MultiMC's updater has sufficient permissions to replace the file \n\
-%s and then try again."), tryNum, targetFile.GetFullPath());
+%s and then try again."), tryNum, targetFile.GetFullPath().c_str());
 			progDlg->Destroy();
 			return;
 		}
