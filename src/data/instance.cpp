@@ -46,7 +46,7 @@ Instance *Instance::LoadInstance(wxFileName rootDir)
 }
 
 Instance::Instance(const wxFileName &rootDir)
-	: modList(this)
+	: modList(this), m_running(false)
 {
 	this->rootDir = rootDir;
 	config = new wxFileConfig(wxEmptyString, wxEmptyString, GetConfigPath().GetFullPath(), wxEmptyString,

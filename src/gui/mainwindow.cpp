@@ -35,6 +35,7 @@
 #include "importpackwizard.h"
 #include "downgradedialog.h"
 #include "downgradetask.h"
+#include "fsutils.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -1012,7 +1013,39 @@ void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
 
 void MainWindow::OnDeleteClicked(wxCommandEvent& event)
 {
-	NotImplemented();
+	Instance *selected = GetSelectedInst();
+	if(selected == nullptr)
+		return;
+	wxString question = _("Do you really want to delete ");
+	question.Append(selected->GetName());
+	question.Append(_("?"));
+	wxMessageDialog msg(this,question ,_("Confirm deletion."), wxYES_NO | wxICON_EXCLAMATION | wxCENTRE | wxSTAY_ON_TOP);
+	if(msg.ShowModal() == wxID_YES)
+	{
+		RecursiveDelete(selected->GetRootDir().GetFullPath());
+		long item;
+		switch (GetGUIMode())
+		{
+		case GUI_Simple:
+		{
+			item = instListCtrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+			instListCtrl->DeleteItem(item);
+			delete selected;
+			instItems.erase(item);
+			break;
+		}
+		
+		case GUI_Default:
+			item = instListbook->GetSelection();
+			instListbook->DeletePage(item);
+			delete selected;
+			instItems.erase(item);
+			break;
+
+		default:
+			break;
+		}
+	}
 }
 
 void MainWindow::OnInstMenuOpened(wxListEvent& event)
