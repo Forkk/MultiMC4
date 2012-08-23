@@ -327,12 +327,11 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 
 void MainWindow::UpdateInstPanel()
 {
-	bool showInstPanel = instListbook->GetPageCount() > 0;
+	bool showInstPanel = (instListbook->GetPageCount() > 0);
 	instPanel->Show(showInstPanel);
 	if (showInstPanel)
 	{
 		Instance *inst = GetSelectedInst();
-
 		UpdateInstNameLabel(inst);
 		UpdateNotesBox();
 		CancelRename();
@@ -442,12 +441,12 @@ void MainWindow::AddInstance(Instance *inst)
 	case GUI_Simple:
 		item = instListCtrl->InsertItem(instListCtrl->GetItemCount(), 
 			instName, instIcons->getIndexForKey(inst->GetIconKey()));
-		instItems[item] = inst;
+		instItems.push_back(inst);
 		break;
 		
 	case GUI_Default:
 		item = instListbook->GetPageCount();
-		instItems[item] = inst;
+		instItems.push_back(inst);
 		instListbook->InsertPage(item, instPanel, inst->GetName(), true, instIcons->getIndexForKey(inst->GetIconKey()));
 		break;
 	}
@@ -455,6 +454,8 @@ void MainWindow::AddInstance(Instance *inst)
 
 Instance* MainWindow::GetLinkedInst(int id)
 {
+	if(id == -1)
+		return nullptr;
 	return instItems[id];
 }
 
@@ -1032,7 +1033,35 @@ Deleted instances are lost FOREVER! (a really long time)"), _("Confirm deletion.
 	if (dlg->ShowModal() == wxID_YES)
 	{
 		RecursiveDelete(selected->GetRootDir().GetFullPath());
-		LoadInstanceList();
+		long item;
+		switch (GetGUIMode())
+		{
+		case GUI_Simple:
+		{
+			item = instListCtrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+			instListCtrl->DeleteItem(item);
+			delete selected;
+			instItems.erase(instItems.begin() + item);
+			break;
+		}
+		
+		case GUI_Default:
+			item = instListbook->GetSelection();
+			instListbook->RemovePage(item);
+			delete selected;
+			instItems.erase(instItems.begin() + item);
+			if(item > 0)
+				instListbook->SetSelection(item-1);
+			else
+			{
+				instListbook->SetSelection(0);
+				UpdateInstPanel();
+			}
+			break;
+
+		default:
+			break;
+		}
 	}
 }
 

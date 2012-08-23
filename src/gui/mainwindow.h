@@ -122,7 +122,8 @@ protected:
 
 	Instance* GetSelectedInst();
 
-	std::map<int, Instance*> instItems;
+	// maps index in the used list control to an instance.
+	std::vector<Instance*> instItems;
 	
 	GUIMode GetGUIMode() const;
 	
