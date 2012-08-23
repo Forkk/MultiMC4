@@ -153,14 +153,6 @@
        r="3.03125" />
     <filter
        inkscape:collect="always"
-       id="filter3976">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="0.16460905"
-         id="feGaussianBlur3978" />
-    </filter>
-    <filter
-       inkscape:collect="always"
        id="filter4012"
        x="-0.37037037"
        width="1.7407407"
@@ -173,15 +165,15 @@
     </filter>
     <filter
        inkscape:collect="always"
-       id="filter4038"
-       x="-0.16296296"
-       width="1.3259259"
-       y="-0.16296296"
-       height="1.3259259">
+       id="filter4206"
+       x="-0.44837625"
+       width="1.8967525"
+       y="-0.44837625"
+       height="1.8967525">
       <feGaussianBlur
          inkscape:collect="always"
-         stdDeviation="0.27160494"
-         id="feGaussianBlur4040" />
+         stdDeviation="0.37364687"
+         id="feGaussianBlur4208" />
     </filter>
   </defs>
   <sodipodi:namedview
@@ -191,11 +183,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.627417"
-     inkscape:cx="5.1504801"
-     inkscape:cy="33.382545"
+     inkscape:zoom="1"
+     inkscape:cx="218.7892"
+     inkscape:cy="-32.230167"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g4186"
      showgrid="false"
      inkscape:window-width="1607"
      inkscape:window-height="1030"
@@ -248,6 +240,18 @@
        style="fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter3867)"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccccccccccccccccccccccc" />
+    <g
+       id="g4186"
+       transform="matrix(7.8663398,0,0,5.253808,-157.10208,-4373.7892)">
+      <rect
+         y="9"
+         x="21"
+         height="2"
+         width="2"
+         id="rect4188"
+         style="opacity:0.25104603;fill:#ff0101;fill-opacity:1;stroke:#4d4d4d;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4206)"
+         transform="matrix(0.74984559,0,0,1.4646069,5.5088131,1015.3024)" />
+    </g>
     <path
        style="fill:url(#linearGradient5605);fill-opacity:1;stroke:none"
        d="m 7,1022.3622 c -2.77,0 -5,0 -5,0 l 0,30 28,0 c 0,-10 0,-20 0,-30 z m 0,5 6,0 0,6 6,0 0,-6 6,0 0,6 -6,0 0,3 3,0 0,9 -3,0 0,-3 -6,0 0,3 -3,0 0,-9 3,0 0,-3 -6,0 z"
@@ -788,24 +792,8 @@
        id="g4046"
        style="opacity:1;">
       <rect
-         transform="matrix(1.1738089,0,0,1.1738123,-2.6499873,-177.91584)"
-         style="fill:#830000;fill-opacity:1;stroke:#4d4d4d;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter3976)"
-         id="rect4016"
-         width="4"
-         height="4"
-         x="19"
-         y="1027.3622" />
-      <rect
-         y="8"
-         x="20"
-         height="4"
-         width="4"
-         id="rect3962"
-         style="fill:#ff0101;fill-opacity:1;stroke:#4d4d4d;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4038)"
-         transform="translate(0,1020.3622)" />
-      <rect
-         transform="matrix(1.3186503,0,0,1.3186503,-7.0103059,1017.1757)"
-         style="fill:#ff9601;fill-opacity:1;stroke:#4d4d4d;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4012)"
+         transform="matrix(1.5471436,0,0,1.5471436,-12.037158,1014.8908)"
+         style="fill:#ff0101;fill-opacity:1;stroke:#4d4d4d;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter4012)"
          id="rect4042"
          width="2"
          height="2"
