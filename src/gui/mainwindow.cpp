@@ -1024,35 +1024,15 @@ void MainWindow::OnDeleteClicked(wxCommandEvent& event)
 	Instance *selected = GetSelectedInst();
 	if(selected == nullptr)
 		return;
-	wxString question = _("Do you really want to delete ");
-	question.Append(selected->GetName());
-	question.Append(_("?"));
-	wxMessageDialog msg(this,question ,_("Confirm deletion."), wxYES_NO | wxICON_EXCLAMATION | wxCENTRE | wxSTAY_ON_TOP);
-	if(msg.ShowModal() == wxID_YES)
+
+	wxMessageDialog *dlg = new wxMessageDialog(this, 
+		_("Are you sure you want to delete this instance? \
+Deleted instances are lost FOREVER! (a really long time)"), _("Confirm deletion."), 
+		wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
+	if (dlg->ShowModal() == wxID_YES)
 	{
 		RecursiveDelete(selected->GetRootDir().GetFullPath());
-		long item;
-		switch (GetGUIMode())
-		{
-		case GUI_Simple:
-		{
-			item = instListCtrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
-			instListCtrl->DeleteItem(item);
-			delete selected;
-			instItems.erase(item);
-			break;
-		}
-		
-		case GUI_Default:
-			item = instListbook->GetSelection();
-			instListbook->RemovePage(item);
-			delete selected;
-			instItems.erase(item);
-			break;
-
-		default:
-			break;
-		}
+		LoadInstanceList();
 	}
 }
 
