@@ -128,6 +128,7 @@ protected:
 	
 	// Basic GUI (a simple list control with a context menu)
 	void InitBasicGUI(wxBoxSizer *mainSz);
+	void InitInstMenu();
 	
 	wxListCtrl *instListCtrl;
 	
