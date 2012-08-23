@@ -1045,7 +1045,7 @@ void MainWindow::OnDeleteClicked(wxCommandEvent& event)
 		
 		case GUI_Default:
 			item = instListbook->GetSelection();
-			instListbook->DeletePage(item);
+			instListbook->RemovePage(item);
 			delete selected;
 			instItems.erase(item);
 			break;
