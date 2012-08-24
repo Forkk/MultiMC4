@@ -237,17 +237,17 @@ void SettingsDialog::OnButtonClicked(wxCommandEvent& event)
 	this->Close();
 }
 
-void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
+void SettingsDialog::ApplySettings(AppSettings *s /* = settings */)
 {
-	s.SetShowConsole(showConsoleCheck->IsChecked());
-	s.SetAutoCloseConsole(autoCloseConsoleCheck->IsChecked());
+	s->SetShowConsole(showConsoleCheck->IsChecked());
+	s->SetAutoCloseConsole(autoCloseConsoleCheck->IsChecked());
 	
-	s.SetAutoUpdate(autoUpdateCheck->IsChecked());
+	s->SetAutoUpdate(autoUpdateCheck->IsChecked());
 	
 	wxFileName newInstDir = wxFileName::DirName(instDirTextBox->GetValue());
-	if (!s.GetInstDir().SameAs(newInstDir))
+	if (!s->GetInstDir().SameAs(newInstDir))
 	{
-		wxFileName oldInstDir = s.GetInstDir();
+		wxFileName oldInstDir = s->GetInstDir();
 		
 		int response = wxMessageBox(
 			_T("You've changed your instance directory, would you like to transfer all of your instances?"),
@@ -257,7 +257,7 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 	RetryTransfer:
 		if (response != wxCANCEL)
 		{
-			s.SetInstDir(newInstDir);
+			s->SetInstDir(newInstDir);
 		}
 		
 		if (response == wxYES)
@@ -275,18 +275,18 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 					newDirName.Normalize(wxPATH_NORM_ALL, newInstDir.GetFullPath());
 					if (!wxRenameFile(oldDirName, newDirName.GetFullPath(), false))
 					{
-						wxLogError(_("Failed to move instance folder %s."), oldDirName.c_str());
+						wxLogError(_("Failed to move instance folder %s->"), oldDirName.c_str());
 					}
 				} while (instDir.GetNext(&oldDirName));
 			}
 		}
 	}
 
-	s.SetMinMemAlloc(minMemorySpin->GetValue());
-	s.SetMaxMemAlloc(maxMemorySpin->GetValue());
+	s->SetMinMemAlloc(minMemorySpin->GetValue());
+	s->SetMaxMemAlloc(maxMemorySpin->GetValue());
 
-	s.SetJavaPath(javaPathTextBox->GetValue());
-	s.SetJvmArgs(jvmArgsTextBox->GetValue());
+	s->SetJavaPath(javaPathTextBox->GetValue());
+	s->SetJvmArgs(jvmArgsTextBox->GetValue());
 	
 	GUIMode newGUIMode;
 	if (guiStyleDropDown->GetValue() == guiModeDefault)
@@ -294,69 +294,69 @@ void SettingsDialog::ApplySettings(AppSettings &s /* = settings */)
 	else if (guiStyleDropDown->GetValue() == guiModeSimple)
 		newGUIMode = GUI_Simple;
 	
-	if (newGUIMode != s.GetGUIMode())
+	if (newGUIMode != s->GetGUIMode())
 	{
-		s.SetGUIMode(newGUIMode);
+		s->SetGUIMode(newGUIMode);
 		wxMessageBox(_("Changing the GUI style requires a restart in order to take effect. Please restart MultiMC."),
 			_("Restart Required"));
 	}
 
-	if (devBuildCheck->GetValue() && !s.GetUseDevBuilds())
+	if (devBuildCheck->GetValue() && !s->GetUseDevBuilds())
 	{
 		// Display a warning.
-		if (wxMessageBox(_("Warning: Dev builds contain incomplete, experimental, and possibly unstable features. \
+		if (wxMessageBox(_("Warning: Dev builds contain incomplete, experimental, and possibly unstable features-> \
 Some may be extremely buggy, and others may not work at all. Use these at your own risk. \
 Are you sure you want to use dev builds?"), 
 			_("Are you sure?"), wxOK | wxCANCEL) == wxOK)
 		{
-			s.SetUseDevBuilds(devBuildCheck->GetValue());
+			s->SetUseDevBuilds(devBuildCheck->GetValue());
 		}
 	}
 	else
 	{
-		s.SetUseDevBuilds(devBuildCheck->GetValue());
+		s->SetUseDevBuilds(devBuildCheck->GetValue());
 	}
 
-	s.SetUseAppletWrapper(!compatCheckbox->IsChecked());
+	s->SetUseAppletWrapper(!compatCheckbox->IsChecked());
 
-	s.SetMCWindowMaximize(winMaxCheckbox->IsChecked());
-	s.SetMCWindowWidth(winWidthSpin->GetValue());
-	s.SetMCWindowHeight(winHeightSpin->GetValue());
+	s->SetMCWindowMaximize(winMaxCheckbox->IsChecked());
+	s->SetMCWindowWidth(winWidthSpin->GetValue());
+	s->SetMCWindowHeight(winHeightSpin->GetValue());
 
-	s.SetConsoleSysMsgColor(sysMsgColorCtrl->GetColour());
-	s.SetConsoleStdoutColor(stdoutColorCtrl->GetColour());
-	s.SetConsoleStderrColor(stderrColorCtrl->GetColour());
+	s->SetConsoleSysMsgColor(sysMsgColorCtrl->GetColour());
+	s->SetConsoleStdoutColor(stdoutColorCtrl->GetColour());
+	s->SetConsoleStderrColor(stderrColorCtrl->GetColour());
 }
 
-void SettingsDialog::LoadSettings(AppSettings &s /* = settings */)
+void SettingsDialog::LoadSettings(AppSettings *s /* = settings */)
 {
-	showConsoleCheck->SetValue(s.GetShowConsole());
-	autoCloseConsoleCheck->SetValue(s.GetAutoCloseConsole());
+	showConsoleCheck->SetValue(s->GetShowConsole());
+	autoCloseConsoleCheck->SetValue(s->GetAutoCloseConsole());
 
-	autoUpdateCheck->SetValue(s.GetAutoUpdate());
+	autoUpdateCheck->SetValue(s->GetAutoUpdate());
 
-	devBuildCheck->SetValue(s.GetUseDevBuilds());
+	devBuildCheck->SetValue(s->GetUseDevBuilds());
 
-	instDirTextBox->SetValue(s.GetInstDir().GetFullPath());
+	instDirTextBox->SetValue(s->GetInstDir().GetFullPath());
 
-	minMemorySpin->SetValue(s.GetMinMemAlloc());
-	maxMemorySpin->SetValue(s.GetMaxMemAlloc());
+	minMemorySpin->SetValue(s->GetMinMemAlloc());
+	maxMemorySpin->SetValue(s->GetMaxMemAlloc());
 
-	javaPathTextBox->SetValue(s.GetJavaPath());
-	jvmArgsTextBox->SetValue(s.GetJvmArgs());
+	javaPathTextBox->SetValue(s->GetJavaPath());
+	jvmArgsTextBox->SetValue(s->GetJvmArgs());
 
-	compatCheckbox->SetValue(!s.GetUseAppletWrapper());
+	compatCheckbox->SetValue(!s->GetUseAppletWrapper());
 
-	winMaxCheckbox->SetValue(s.GetMCWindowMaximize());
-	winWidthSpin->SetValue(s.GetMCWindowWidth());
-	winHeightSpin->SetValue(s.GetMCWindowHeight());
+	winMaxCheckbox->SetValue(s->GetMCWindowMaximize());
+	winWidthSpin->SetValue(s->GetMCWindowWidth());
+	winHeightSpin->SetValue(s->GetMCWindowHeight());
 	UpdateCheckboxStuff();
 
-	sysMsgColorCtrl->SetColour(s.GetConsoleSysMsgColor());
-	stdoutColorCtrl->SetColour(s.GetConsoleStdoutColor());
-	stderrColorCtrl->SetColour(s.GetConsoleStderrColor());
+	sysMsgColorCtrl->SetColour(s->GetConsoleSysMsgColor());
+	stdoutColorCtrl->SetColour(s->GetConsoleStdoutColor());
+	stderrColorCtrl->SetColour(s->GetConsoleStderrColor());
 	
-	switch (s.GetGUIMode())
+	switch (s->GetGUIMode())
 	{
 	case GUI_Simple:
 		guiStyleDropDown->SetValue(guiModeSimple);

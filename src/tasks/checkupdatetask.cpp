@@ -42,7 +42,7 @@ void CheckUpdateTask::TaskStart()
 	
 	// Get the main page for the project
 	wxString jobURL;
-	if (settings.GetUseDevBuilds())
+	if (settings->GetUseDevBuilds())
 		jobURL = devCIURL;
 	else
 		jobURL = stableCIURL;

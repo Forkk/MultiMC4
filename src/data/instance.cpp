@@ -274,20 +274,20 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 	
 	ExtractLauncher();
 	
-	wxString javaPath = settings.GetJavaPath();
-	wxString additionalArgs = settings.GetJvmArgs();
-	int xms = settings.GetMinMemAlloc();
-	int xmx = settings.GetMaxMemAlloc();
+	wxString javaPath = settings->GetJavaPath();
+	wxString additionalArgs = settings->GetJvmArgs();
+	int xms = settings->GetMinMemAlloc();
+	int xmx = settings->GetMaxMemAlloc();
 	wxFileName mcDirFN = GetMCDir().GetFullPath();
 	mcDirFN.MakeAbsolute();
 	wxString mcDir = mcDirFN.GetFullPath();
 	wxString wdArg = wxGetCwd();
 	wxString winSizeArg = wxString::Format(_("%ix%i"), 
-		settings.GetMCWindowWidth(), settings.GetMCWindowHeight());
+		settings->GetMCWindowWidth(), settings->GetMCWindowHeight());
 
-	if (!settings.GetUseAppletWrapper())
+	if (!settings->GetUseAppletWrapper())
 		winSizeArg = _("compatmode");
-	else if (settings.GetMCWindowMaximize())
+	else if (settings->GetMCWindowMaximize())
 		winSizeArg = _("max");
 	
 // 	if (IS_WINDOWS())

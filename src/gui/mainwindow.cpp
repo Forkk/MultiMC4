@@ -59,7 +59,7 @@ MainWindow::MainWindow(void)
 			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision(), AppVersion.GetBuild(),
 			(AppVersion.IsDevBuild() ? _("Dev") : _("Stable"))),
 		wxPoint(0, 0), minSize),
-		centralModList(settings.GetModsDir().GetFullPath())
+		centralModList(settings->GetModsDir().GetFullPath())
 {
 	// initialize variables to sane values
 	closeOnTaskEnd = false;
@@ -160,7 +160,7 @@ MainWindow::MainWindow(void)
 	SetSizer(box);
 	
 	// Initialize the GUI
-	switch (settings.GetGUIMode())
+	switch (settings->GetGUIMode())
 	{
 	case GUI_Simple:
 		InitBasicGUI(box);
@@ -197,12 +197,12 @@ void MainWindow::OnStartup()
 	LoadCentralModList();
 
 	// Automatically auto-detect the Java path.
-	if (settings.GetJavaPath() == _("java"))
+	if (settings->GetJavaPath() == _("java"))
 	{
-		settings.SetJavaPath(FindJavaPath());
+		settings->SetJavaPath(FindJavaPath());
 	}
 
-	if (settings.GetAutoUpdate())
+	if (settings->GetAutoUpdate())
 	{
 		CheckUpdateTask *task = new CheckUpdateTask();
 		StartTask(*task);
@@ -507,7 +507,7 @@ Retry:
 
 	int num = 0;
 	wxString dirName = Utils::RemoveInvalidPathChars(newInstName);
-	while (wxDirExists(Path::Combine(settings.GetInstDir(), dirName)))
+	while (wxDirExists(Path::Combine(settings->GetInstDir(), dirName)))
 	{
 		num++;
 		dirName = Utils::RemoveInvalidPathChars(newInstName) + wxString::Format(_("_%i"), num);
@@ -516,7 +516,7 @@ Retry:
 		if (num > 9000)
 		{
 			wxLogError(_T("Couldn't create instance folder: %s"),
-				Path::Combine(settings.GetInstDir(), dirName).c_str());
+				Path::Combine(settings->GetInstDir(), dirName).c_str());
 			goto Retry;
 		}
 	}
@@ -535,7 +535,7 @@ void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 	if (!GetNewInstName(&instName, &instDirName))
 		return;
 
-	wxFileName instDir = wxFileName::DirName(Path::Combine(settings.GetInstDir(), instDirName));
+	wxFileName instDir = wxFileName::DirName(Path::Combine(settings->GetInstDir(), instDirName));
 	
 	Instance *inst = new Instance(instDir);
 	inst->SetName(instName);
@@ -559,7 +559,7 @@ void MainWindow::OnImportCPClicked(wxCommandEvent& event)
 
 void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
 {
-	Utils::OpenFile(settings.GetInstDir());
+	Utils::OpenFile(settings->GetInstDir());
 }
 
 void MainWindow::OnRefreshClicked(wxCommandEvent& event)
@@ -591,10 +591,10 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 #endif
 
 	if (event.m_latestBuildNumber > AppVersion.GetBuild() || 
-		settings.GetUseDevBuilds() != AppVersion.IsDevBuild())
+		settings->GetUseDevBuilds() != AppVersion.IsDevBuild())
 	{
 		if (wxMessageBox(wxString::Format(_("%s build #%i is available. Would you like to download and install it?"), 
-				(settings.GetUseDevBuilds() ? _("Dev") : _("Stable")), event.m_latestBuildNumber), 
+				(settings->GetUseDevBuilds() ? _("Dev") : _("Stable")), event.m_latestBuildNumber), 
 				_("Update Available"), wxYES_NO) == wxYES)
 		{
 			FileDownloadTask dlTask(event.m_downloadURL, 
@@ -828,7 +828,7 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	if (!GetNewInstName(&instName, &instDirName, _("Copy existing instance")))
 		return;
 
-	instDirName = Path::Combine(settings.GetInstDir(), instDirName);
+	instDirName = Path::Combine(settings->GetInstDir(), instDirName);
 
 	wxMkdir(instDirName);
 	FileCopyTask task(srcInst->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));

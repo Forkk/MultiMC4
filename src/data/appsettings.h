@@ -116,4 +116,4 @@ protected:
 	void SetSetting(const wxString &key, wxFileName value, bool suppressErrors = false);
 };
 
-extern AppSettings settings;
+extern AppSettings *settings;

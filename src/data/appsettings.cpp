@@ -20,11 +20,11 @@
 
 #include "version.h"
 
-AppSettings settings;
+AppSettings *settings;
 
 bool InitAppSettings(void)
 {
-// 	settings.Load();
+	settings = new AppSettings();
 	return true;
 }
 

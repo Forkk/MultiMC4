@@ -89,7 +89,7 @@ bool ImportPackWizard::Start()
 		if (!m_mainWin->GetNewInstName(&instName, &instDirName, _("Import config pack")))
 			return false;
 
-		wxFileName instDir = wxFileName::DirName(Path::Combine(settings.GetInstDir(), instDirName));
+		wxFileName instDir = wxFileName::DirName(Path::Combine(settings->GetInstDir(), instDirName));
 
 		Instance *inst = new Instance(instDir);
 		inst->SetName(instName);
@@ -170,7 +170,7 @@ void ImportPackWizard::UpdateMissingModList(wxCommandEvent& event)
 
 void ImportPackWizard::ViewFolderClicked(wxCommandEvent& event)
 {
-	Utils::OpenFile(settings.GetModsDir());
+	Utils::OpenFile(settings->GetModsDir());
 }
 
 BEGIN_EVENT_TABLE(ImportPackWizard, wxWizard)

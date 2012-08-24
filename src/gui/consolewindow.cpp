@@ -102,17 +102,17 @@ void InstConsoleWindow::AppendMessage(const wxString& msg, MessageType msgT)
 	{
 	case MSGT_SYSTEM:
 		consoleTextCtrl->SetDefaultStyle(
-			wxTextAttr(settings.GetConsoleSysMsgColor()));
+			wxTextAttr(settings->GetConsoleSysMsgColor()));
 		break;
 
 	case MSGT_STDOUT:
 		consoleTextCtrl->SetDefaultStyle(
-			wxTextAttr(settings.GetConsoleStdoutColor()));
+			wxTextAttr(settings->GetConsoleStdoutColor()));
 		break;
 
 	case MSGT_STDERR:
 		consoleTextCtrl->SetDefaultStyle(
-			wxTextAttr(settings.GetConsoleStderrColor()));
+			wxTextAttr(settings->GetConsoleStderrColor()));
 		break;
 	}
 
@@ -140,7 +140,7 @@ void InstConsoleWindow::OnInstExit(wxProcessEvent& event)
 		SetState(STATE_BAD);
 		Show();
 	}
-	else if (settings.GetAutoCloseConsole())
+	else if (settings->GetAutoCloseConsole())
 	{
 		Close();
 	}
@@ -188,7 +188,7 @@ bool InstConsoleWindow::Show(bool show)
 
 bool InstConsoleWindow::Start()
 {
-	return Show(settings.GetShowConsole());
+	return Show(settings->GetShowConsole());
 }
 
 

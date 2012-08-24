@@ -59,13 +59,13 @@ bool MultiMC::OnInit()
 	
 	if (!InitAppSettings())
 	{
-		wxLogError(_("Failed to initialize settings."));
+		wxLogError(_("Failed to initialize settings->"));
 		return false;
 	}
 	
-	if (!settings.GetInstDir().DirExists())
+	if (!settings->GetInstDir().DirExists())
 	{
-		settings.GetInstDir().Mkdir();
+		settings->GetInstDir().Mkdir();
 	}
 	
 	switch (startMode)
@@ -199,6 +199,8 @@ int MultiMC::OnExit()
 		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
 		proc.Detach();
 	}
+
+	delete settings;
 	
 	return wxApp::OnExit();
 }
