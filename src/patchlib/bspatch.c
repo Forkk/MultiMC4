@@ -32,6 +32,10 @@
 	#include <unistd.h>
 #endif
 
+#ifdef __APPLE__ && __MACH__
+	typedef unsigned char u_char;
+#endif
+
 #include "bzlib.h"
 #include "bspatch.h"
 #include <stdlib.h>

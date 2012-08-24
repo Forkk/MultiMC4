@@ -23,4 +23,8 @@
 
 #define IS_LINUX() ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_UNIX_LINUX)
 
+#ifdef __APPLE__
+#define IS_MAC() true
+#else
 #define IS_MAC() ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_MAC)
+#endif

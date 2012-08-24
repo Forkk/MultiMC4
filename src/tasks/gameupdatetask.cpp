@@ -49,7 +49,9 @@ GameUpdateTask::~GameUpdateTask()
 
 void GameUpdateTask::TaskStart()
 {
-	LoadJarURLs();
+	if (!LoadJarURLs())
+		return;
+	
 	SetProgress(5);
 	
 	if (!m_inst->GetBinDir().DirExists())
@@ -95,7 +97,7 @@ void GameUpdateTask::TaskStart()
 	}
 }
 
-void GameUpdateTask::LoadJarURLs()
+bool GameUpdateTask::LoadJarURLs()
 {
 	SetState(STATE_DETERMINING_PACKAGES);
 	wxString jarList[] =
@@ -129,9 +131,11 @@ void GameUpdateTask::LoadJarURLs()
 	{
 		OnErrorMessage(_("Your operating system does not support minecraft."));
 		Cancel();
+		return false;
 	}
 	
 	jarURLs[jarURLs.size() - 1] = mojangURL + nativeJar;
+	return true;
 }
 
 void GameUpdateTask::AskToUpdate()

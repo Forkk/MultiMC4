@@ -263,9 +263,6 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	wxGridBagSizer *instSz = new wxGridBagSizer();
 	instPanel->SetSizer(instSz);
 	
-	instSz->AddGrowableCol(1, 0);
-	instSz->AddGrowableRow(1, 0);
-	
 	const int cols = 4;
 	const int rows = 3;
 	
@@ -320,6 +317,9 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnSz->Add(btnRebuildJar, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 	btnViewFolder = new wxButton(btnPanel, ID_ViewInstFolder, _("&View Folder"));
 	btnSz->Add(btnViewFolder, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	
+	instSz->AddGrowableCol(1, 0);
+	instSz->AddGrowableRow(1, 0);
 	
 	UpdateNotesBox();
 	CancelRename();
@@ -419,7 +419,8 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 	
 	if (GetGUIMode() == GUI_Default)
 	{
-		instListbook->SetSelection(0);
+		if (instListbook->GetPageCount() > 0)
+			instListbook->SetSelection(0);
 		UpdateInstPanel();
 	}
 	
