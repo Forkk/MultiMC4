@@ -1,8 +1,8 @@
 SET(CMAKE_CROSSCOMPILING false)
 
 # which compilers to use for C and C++
-SET(CMAKE_C_COMPILER gcc-mp-46)
-SET(CMAKE_CXX_COMPILER g++-mp-46)
+SET(CMAKE_C_COMPILER gcc-mp-4.6)
+SET(CMAKE_CXX_COMPILER g++-mp-4.6)
 
 # here is the target environment located
 SET(CMAKE_FIND_ROOT_PATH /usr)
