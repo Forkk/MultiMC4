@@ -90,7 +90,7 @@ MainWindow::MainWindow(void)
 	instNameLabel = nullptr;
 	instNameEditor = nullptr;
 	
-	SetMinSize(minSize);
+	//SetMinSize(minSize);
 	
 	SetIcons(wxGetApp().GetAppIcons());
 	
@@ -175,7 +175,7 @@ MainWindow::MainWindow(void)
 	switch (GetGUIMode())
 	{
 	case GUI_Simple:
-		instListCtrl->AssignImageList(instIcons->CreateImageList(), wxIMAGE_LIST_NORMAL);
+		//instListCtrl->AssignImageList(instIcons->CreateImageList(), wxIMAGE_LIST_NORMAL);
 		break;
 		
 	case GUI_Default:
@@ -219,9 +219,8 @@ GUIMode MainWindow::GetGUIMode() const
 
 void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 {
-	instListCtrl = new wxListCtrl(this, ID_InstListCtrl, wxDefaultPosition, wxDefaultSize,
-		wxLC_SINGLE_SEL | wxLC_ICON | wxLC_ALIGN_LEFT);
-
+	instListCtrl = new wxInstanceCtrl(this, ID_InstListCtrl);
+	instListCtrl->SetImageSize(wxSize(32,32));
 	InitInstMenu();
 	
 	instNotesEditor = nullptr;
@@ -372,7 +371,7 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 	switch (GetGUIMode())
 	{
 	case GUI_Simple:
-		instListCtrl->ClearAll();
+		instListCtrl->Clear();
 		break;
 		
 	case GUI_Default:
@@ -435,12 +434,13 @@ void MainWindow::AddInstance(Instance *inst)
 	}
 	
 	int item;
+	wxInstanceItem * thumb;
 	InstIconList * instIcons = InstIconList::Instance();
 	switch (GetGUIMode())
 	{
 	case GUI_Simple:
-		item = instListCtrl->InsertItem(instListCtrl->GetItemCount(), 
-			instName, instIcons->getIndexForKey(inst->GetIconKey()));
+		thumb = new wxInstanceItem(inst);
+		item = instListCtrl->Append(thumb);
 		instItems.push_back(inst);
 		break;
 		
@@ -468,8 +468,7 @@ Instance* MainWindow::GetSelectedInst()
 		long item = -1;
 		while (true)
 		{
-			item = instListCtrl->GetNextItem(item, wxLIST_NEXT_ALL, 
-				wxLIST_STATE_SELECTED);
+			item = instListCtrl->GetSelection();
 			
 			if (item == -1)
 				break;
@@ -692,7 +691,7 @@ void MainWindow::OnPlayClicked(wxCommandEvent& event)
 	ShowLoginDlg(_(""));
 }
 
-void MainWindow::OnInstActivated(wxListEvent &event)
+void MainWindow::OnInstActivated(wxInstanceCtrlEvent &event)
 {
 	ShowLoginDlg(_(""));
 }
@@ -1020,15 +1019,16 @@ void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
 	Utils::OpenFile(selected->GetRootDir());
 }
 
-void MainWindow::OnDeleteClicked(wxCommandEvent& event)
+bool MainWindow::DeleteSelectedInstance()
 {
 	Instance *selected = GetSelectedInst();
 	if(selected == nullptr)
-		return;
+		return false;
 
 	wxMessageDialog *dlg = new wxMessageDialog(this, 
-		_("Are you sure you want to delete this instance? \
-Deleted instances are lost FOREVER! (a really long time)"), _("Confirm deletion."), 
+		_("Are you sure you want to delete this instance?"
+		  "Deleted instances are lost FOREVER! (a really long time)"),
+		_("Confirm deletion."),
 		wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
 	if (dlg->ShowModal() == wxID_YES)
 	{
@@ -1038,11 +1038,11 @@ Deleted instances are lost FOREVER! (a really long time)"), _("Confirm deletion.
 		{
 		case GUI_Simple:
 		{
-			item = instListCtrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
-			instListCtrl->DeleteItem(item);
+			item = instListCtrl->GetSelection();
+			instListCtrl->Delete(item);
 			delete selected;
 			instItems.erase(instItems.begin() + item);
-			break;
+			return true;
 		}
 		
 		case GUI_Default:
@@ -1057,18 +1057,37 @@ Deleted instances are lost FOREVER! (a really long time)"), _("Confirm deletion.
 				instListbook->SetSelection(0);
 				UpdateInstPanel();
 			}
-			break;
+			return true;
 
 		default:
-			break;
+			return false;
 		}
 	}
+	return false;
 }
 
-void MainWindow::OnInstMenuOpened(wxListEvent& event)
+
+void MainWindow::OnInstDeleteKey ( wxInstanceCtrlEvent& event )
 {
-	if (instActionsEnabled)
-		PopupMenu(instMenu, event.GetPoint());
+	DeleteSelectedInstance();
+}
+
+void MainWindow::OnDeleteClicked(wxCommandEvent& event)
+{
+	DeleteSelectedInstance();
+}
+
+void MainWindow::OnInstMenuOpened(wxInstanceCtrlEvent& event)
+{
+	if(event.GetIndex() != -1)
+	{
+		if (instActionsEnabled)
+			PopupMenu(instMenu, event.GetPosition());
+	}
+	else
+	{
+		//TODO: A menu for the instance control itself could be spawned there (with stuff like 'create instance', etc.)
+	}
 }
 
 
@@ -1223,8 +1242,10 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_BUTTON(ID_DeleteInst, MainWindow::OnDeleteClicked)
 	
 	
-	EVT_LIST_ITEM_ACTIVATED(ID_InstListCtrl, MainWindow::OnInstActivated)
-	EVT_LIST_ITEM_RIGHT_CLICK(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
+	EVT_INST_LEFT_DCLICK(ID_InstListCtrl, MainWindow::OnInstActivated)
+	EVT_INST_RETURN(ID_InstListCtrl, MainWindow::OnInstActivated)
+	EVT_INST_DELETE(ID_InstListCtrl, MainWindow::OnInstDeleteKey)
+	EVT_INST_RIGHT_CLICK(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
 	
 	EVT_LISTBOOK_PAGE_CHANGED(ID_InstListCtrl, MainWindow::OnPageChanged)
 	

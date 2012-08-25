@@ -28,6 +28,7 @@
 
 #include "modlist.h"
 #include "settingsdialog.h"
+#include "instancectrl.h"
 
 //const wxString tbarIconPrefix = _T("resources/toolbar/");
 
@@ -57,7 +58,8 @@ public:
 
 	// Instance menu
 	void OnPlayClicked(wxCommandEvent& event);
-	void OnInstActivated(wxListEvent& event);
+	void OnInstActivated(wxInstanceCtrlEvent& event);
+	void OnInstDeleteKey(wxInstanceCtrlEvent& event);
 	
 	void OnRenameClicked(wxCommandEvent& event);
 	void OnCopyInstClicked(wxCommandEvent &event);
@@ -85,7 +87,7 @@ public:
 	void OnCheckUpdateComplete(CheckUpdateEvent &event);
 	
 	// Other events
-	void OnInstMenuOpened(wxListEvent& event);
+	void OnInstMenuOpened(wxInstanceCtrlEvent& event);
 	void OnWindowClosed(wxCloseEvent& event);
 	
 	
@@ -121,6 +123,8 @@ protected:
 	Instance* GetLinkedInst(int id);
 
 	Instance* GetSelectedInst();
+	
+	bool DeleteSelectedInstance();
 
 	// maps index in the used list control to an instance.
 	std::vector<Instance*> instItems;
@@ -131,7 +135,7 @@ protected:
 	void InitBasicGUI(wxBoxSizer *mainSz);
 	void InitInstMenu();
 	
-	wxListCtrl *instListCtrl;
+	wxInstanceCtrl *instListCtrl;
 	
 	
 	// Advanced GUI
