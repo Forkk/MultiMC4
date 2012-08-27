@@ -47,12 +47,9 @@ BEGIN_EVENT_TABLE ( wxInstanceCtrl, wxScrolledWindow )
 	EVT_UPDATE_UI ( wxID_SELECTALL, wxInstanceCtrl::OnUpdateSelectAll )
 END_EVENT_TABLE()
 
-wxInstanceCtrl* wxInstanceCtrl::sm_currentInstanceCtrl = NULL;
-
 /*!
  * wxInstanceCtrl
  */
-
 wxInstanceCtrl::wxInstanceCtrl( )
 {
 	Init();
@@ -70,10 +67,7 @@ bool wxInstanceCtrl::Create ( wxWindow* parent, wxWindowID id, const wxPoint& po
 	if ( !wxScrolledWindow::Create ( parent, id, pos, size, style | wxFULL_REPAINT_ON_RESIZE ) )
 		return false;
 
-	if ( !GetFont().Ok() )
-	{
-		SetFont ( wxSystemSettings::GetFont ( wxSYS_DEFAULT_GUI_FONT ) );
-	}
+	SetFont ( wxSystemSettings::GetFont ( wxSYS_DEFAULT_GUI_FONT ) );
 	CalculateOverallItemSize();
 
 	SetBackgroundColour ( wxSystemSettings::GetColour ( wxSYS_COLOUR_WINDOW ) );
@@ -98,7 +92,6 @@ void wxInstanceCtrl::Init()
 	m_itemMargin = wxINST_DEFAULT_MARGIN;
 	m_firstSelection = -1;
 	m_lastSelection = -1;
-	m_sortMode = wxINST_SORT_NAME_UP;
 	m_focusItem = -1;
 }
 
@@ -204,144 +197,6 @@ static bool wxGetIntegerFromFilename ( const wxString& fname, int& n )
 	}
 }
 
-//TODO: move this away from here when models are implemented
-int wxInstanceCtrlCmpFunc ( wxInstanceItem** item1, wxInstanceItem** item2 )
-{
-	int sortMode = wxINST_SORT_NAME_UP;
-	if ( wxInstanceCtrl::GetInstanceCtrl() )
-		sortMode = wxInstanceCtrl::GetInstanceCtrl()->GetSortMode();
-
-	if ( sortMode == wxINST_SORT_NAME_UP || sortMode == wxINST_SORT_NAME_DOWN )
-	{
-		wxString filename1, filename2;
-		if ( sortMode == wxINST_SORT_NAME_UP )
-		{
-			filename1 = wxFileNameFromPath ( ( *item1 )->GetName() );
-			filename2 = wxFileNameFromPath ( ( *item2 )->GetName() );
-		}
-		else
-		{
-			filename2 = wxFileNameFromPath ( ( *item1 )->GetName() );
-			filename1 = wxFileNameFromPath ( ( *item2 )->GetName() );
-		}
-		return filename1.CmpNoCase ( filename2 );
-	}
-	else if ( sortMode == wxINST_SORT_TIMESTAMP_UP || sortMode == wxINST_SORT_TIMESTAMP_DOWN )
-	{
-		wxFileName fname1, fname2;
-		if ( sortMode == wxINST_SORT_TIMESTAMP_UP )
-		{
-			fname1 = ( ( *item1 )->GetName() );
-			fname2 = ( ( *item2 )->GetName() );
-		}
-		else
-		{
-			fname2 = ( ( *item1 )->GetName() );
-			fname1 = ( ( *item2 )->GetName() );
-		}
-
-		wxDateTime lastMod1, lastMod2;
-		if ( fname1.GetTimes ( NULL, & lastMod1, NULL ) &&
-		     fname2.GetTimes ( NULL, & lastMod2, NULL ) )
-		{
-			if ( lastMod1 < lastMod2 )
-				return -1;
-			else if ( lastMod1 > lastMod2 )
-				return 1;
-			else
-				return 0;
-		}
-		else
-			return 0;
-	}
-	else if ( sortMode == wxINST_SORT_NUMERICALLY_UP || sortMode == wxINST_SORT_NUMERICALLY_DOWN )
-	{
-		int n1, n2;
-		bool success1, success2;
-
-		if ( sortMode == wxINST_SORT_NUMERICALLY_UP )
-		{
-			success1 = wxGetIntegerFromFilename ( ( *item1 )->GetName(), n1 );
-			success2 = wxGetIntegerFromFilename ( ( *item2 )->GetName(), n2 );
-		}
-		else
-		{
-			success1 = wxGetIntegerFromFilename ( ( *item2 )->GetName(), n1 );
-			success2 = wxGetIntegerFromFilename ( ( *item1 )->GetName(), n2 );
-		}
-
-		if ( success1 && !success2 )
-			return -1;
-		else if ( !success1 && success2 )
-			return 1;
-		else if ( !success1 && !success2 )
-			return 0;
-
-		if ( n1 < n2 )
-			return -1;
-		else if ( n2 > n1 )
-			return 1;
-		else
-			return 0;
-	}
-	else if ( sortMode == wxINST_SORT_TYPE_UP || sortMode == wxINST_SORT_TYPE_DOWN )
-	{
-		wxString filename1, path1, ext1;
-		wxString filename2, path2, ext2;
-		if ( sortMode == wxINST_SORT_TYPE_UP )
-		{
-			wxSplitPath ( ( *item1 )->GetName(), & filename1, & path1, & ext1 );
-			wxSplitPath ( ( *item2 )->GetName(), & filename2, & path2, & ext2 );
-		}
-		else
-		{
-			wxSplitPath ( ( *item2 )->GetName(), & filename1, & path1, & ext1 );
-			wxSplitPath ( ( *item1 )->GetName(), & filename2, & path2, & ext2 );
-		}
-		return ext1.CmpNoCase ( ext2 );
-	}
-	return 0;
-}
-
-/// Sorts items in the specified way
-void wxInstanceCtrl::Sort ( int sortMode )
-{
-	m_sortMode = sortMode;
-
-	// preserve and restore selections & tags
-	size_t i;
-	size_t len = m_items.GetCount();
-	for ( i = 0; i < len; i++ )
-	{
-		wxInstanceItem& item = m_items[i];
-		int state = 0;
-		if ( IsSelected ( i ) )
-			state |= wxINST_SELECTED;
-		item.SetState ( state );
-	}
-	m_selections.Clear();
-	m_firstSelection = -1;
-	m_lastSelection = -1;
-	m_focusItem = -1;
-
-	sm_currentInstanceCtrl = this;
-
-	m_items.Sort ( wxInstanceCtrlCmpFunc );
-
-	sm_currentInstanceCtrl = NULL;
-
-	Freeze();
-
-	for ( i = 0; i < len; i++ )
-	{
-		wxInstanceItem& item = m_items[i];
-		if ( item.GetState() & wxINST_SELECTED )
-			Select ( i );
-	}
-
-	Thaw();
-}
-
 /// Delete this item
 void wxInstanceCtrl::Delete ( int n )
 {
@@ -387,7 +242,7 @@ wxInstanceItem* wxInstanceCtrl::GetItem ( int n )
 }
 
 /// Get the overall rect of the given item
-bool wxInstanceCtrl::GetItemRect ( int n, wxRect& rect, bool transform )
+bool wxInstanceCtrl::GetItemRect ( int n, wxRect& rect, bool view_relative )
 {
 	wxASSERT ( n < GetCount() );
 	if ( n < GetCount() )
@@ -399,7 +254,7 @@ bool wxInstanceCtrl::GetItemRect ( int n, wxRect& rect, bool transform )
 		int x = col * ( m_itemOverallSize.x + m_spacing ) + m_spacing;
 		int y = row * ( m_itemOverallSize.y + m_spacing ) + m_spacing;
 
-		if ( transform )
+		if ( view_relative )
 		{
 			int startX, startY;
 			int xppu, yppu;
@@ -421,19 +276,19 @@ bool wxInstanceCtrl::GetItemRect ( int n, wxRect& rect, bool transform )
 }
 
 /// Get the image rect of the given item
-bool wxInstanceCtrl::GetItemRectImage ( int n, wxRect& rect, bool transform )
+bool wxInstanceCtrl::GetItemRectImage ( int n, wxRect& rect, bool view_relative )
 {
 	wxASSERT ( n < GetCount() );
 
 	wxRect outerRect;
-	if ( !GetItemRect ( n, outerRect, transform ) )
+	if ( !GetItemRect ( n, outerRect, view_relative ) )
 		return false;
 
 	rect.width = m_ImageSize.x;
 	rect.height = m_ImageSize.y;
 	rect.x = outerRect.x + ( outerRect.width - rect.width ) /2;
-	rect.y = outerRect.y + ( outerRect.height - rect.height ) /2;
-	/*if ( ( GetWindowStyle() & wxTH_EXTENSION_LABEL ) == 0 )*/ rect.y -= m_itemTextHeight / 2;
+	rect.y = outerRect.y;// + ( outerRect.height - rect.height ) /2;
+	//rect.y -= 3*m_itemTextHeight / 2;
 
 	return true;
 }
@@ -460,11 +315,13 @@ void wxInstanceCtrl::CalculateOverallItemSize()
 	dc.SetFont ( GetFont() );
 	dc.GetTextExtent ( wxT ( "X" ), & w, & m_itemTextHeight );
 
-	// From left to right: margin, image, margin
-	m_itemOverallSize.x = m_itemMargin * 2 + m_ImageSize.x + m_itemMargin*20;
+	// FIXME: base padding on font metrics.
+	// From left to right: padding, image, padding...
+	m_itemOverallSize.x = m_ImageSize.x + m_itemMargin*22;
 
-	// From top to bottom: margin, text + margin (if wxTH_EXTENSION_LABEL set), image, margin, text, margin
-	m_itemOverallSize.y = m_itemMargin * 3 + m_itemTextHeight + m_ImageSize.y;
+	// From top to bottom: image, 2x margin, text, margin
+	// text has 2x margin because the highlight needs to be slightly bigger
+	m_itemOverallSize.y = m_itemMargin * 3 + m_itemTextHeight *3 + m_ImageSize.y;
 }
 
 /// Return the row and column given the client
@@ -1081,27 +938,6 @@ void wxInstanceCtrl::EnsureVisible ( int n )
 	}
 }
 
-/// Finds an item that matches a given filename
-int wxInstanceCtrl::FindItemForFilename ( const wxString& filename )
-{
-	wxString searchName = filename;
-#ifdef __WXMSW__
-	searchName.Replace ( wxT ( "\\" ), wxT ( "/" ) );
-#endif
-	size_t i;
-	for ( i = 0; i < m_items.GetCount(); i++ )
-	{
-		wxInstanceItem& item = m_items[i];
-		wxString itemName = item.GetName();
-#ifdef __WXMSW__
-		itemName.Replace ( wxT ( "\\" ), wxT ( "/" ) );
-#endif
-		if ( itemName == searchName )
-			return i;
-	}
-	return -1;
-}
-
 /// Sizing
 void wxInstanceCtrl::OnSize ( wxSizeEvent& event )
 {
@@ -1350,6 +1186,66 @@ bool wxInstanceCtrl::RecreateBuffer ( const wxSize& size )
 /*!
  * wxInstanceItem
  */
+void wxInstanceItem::updateName()
+{
+	wxDC *dc = new wxScreenDC();
+	wxString raw_name = m_inst->GetName();
+	dc->SetFont(wxSystemSettings::GetFont ( wxSYS_DEFAULT_GUI_FONT ));
+	wxArrayInt extents;
+	dc->GetPartialTextExtents(raw_name, extents);
+	int line = 0;
+	int limit = 60+32; // pass this in from somewhere?
+	int accum = 0;
+	int linestart = 0;
+	int lastspace = -1;
+	int lastprocessed = 0;
+	text_width = 0;
+	
+	for(int i = 0; i < extents.size();i++)
+	{
+		if(raw_name[i]==' ')
+		{
+			lastspace = i;
+		}
+		if((extents[i] - accum) > limit)
+		{
+			if(lastspace != -1)
+			{
+				int size = extents[lastspace-1]-accum;
+				name_parts.Add(raw_name.SubString(linestart,lastspace-1));
+				name_sizes.Add(size);
+				if(size > text_width)
+					text_width = size;
+				line++;
+				linestart = lastspace+1;
+				
+				accum = extents[lastspace];
+				lastprocessed = lastspace;
+				i = lastspace + 1;
+				lastspace = -1;
+			}
+			else
+			{
+				int size = extents[i-1]-accum;
+				name_parts.Add(raw_name.SubString(linestart,i-1));
+				name_sizes.Add(size);
+				if(size > text_width)
+					text_width = size;
+				line++;
+				lastspace = -1;
+				linestart = i;
+				accum = extents[i-1];
+				lastprocessed = i;
+			}
+		}
+	}
+	if(lastprocessed != extents.size())
+	{
+		name_parts.Add(raw_name.SubString(linestart,extents.size()-1));
+		name_sizes.Add(extents[extents.size()-1]-accum);
+	}
+	delete dc;
+}
 
 /// Draw the item
 bool wxInstanceItem::Draw ( wxDC& dc, wxInstanceCtrl* WXUNUSED ( ctrl ), const wxRect& rect, int style )
@@ -1373,13 +1269,8 @@ bool wxInstanceItem::DrawBackground ( wxDC& dc, wxInstanceCtrl* ctrl, const wxRe
 	wxColour backgroundColor = wxSystemSettings::GetColour ( wxSYS_COLOUR_WINDOW );
 	wxColour textColor = wxSystemSettings::GetColour ( wxSYS_COLOUR_WINDOWTEXT );
 	wxColour highlightTextColor = wxSystemSettings::GetColour ( wxSYS_COLOUR_HIGHLIGHTTEXT );
-	wxColour unfocussedSelection = wxSystemSettings::GetColour ( wxSYS_COLOUR_HIGHLIGHT );
+	wxColour focus_color = wxSystemSettings::GetColour ( wxSYS_COLOUR_HIGHLIGHT );
 	wxColour focussedSelection = wxSystemSettings::GetColour ( wxSYS_COLOUR_HIGHLIGHT );
-	wxColour focus_color ;
-	if ( style & wxINST_FOCUSSED )
-		focus_color = focussedSelection;
-	else
-		focus_color = unfocussedSelection;
 
 	if ( style & wxINST_SELECTED )
 	{
@@ -1415,18 +1306,27 @@ bool wxInstanceItem::DrawBackground ( wxDC& dc, wxInstanceCtrl* ctrl, const wxRe
 			dc.SetTextForeground ( textColor );
 		dc.SetBackgroundMode ( wxTRANSPARENT );
 		
-		wxCoord textW, textH;
-		dc.GetTextExtent ( name, & textW, & textH );
+		int yoffset = 0;
+		for(int i = 0; i < name_parts.size(); i++)
+		{
+			wxCoord textW, textH;
+			dc.GetTextExtent ( name_parts[i], & textW, & textH );
 
-		dc.SetClippingRegion ( fRect );
-		int x = fRect.x + wxMax ( 0, ( fRect.width - textW ) /2 );
-		int y = fRect.y ;
-		dc.DrawText ( name, x, y );
-		dc.DestroyClippingRegion();
+			//FIXME: For some reason, the text is always one pixel bigger than expected on windows.
+			/*
+			if(textW != name_sizes[i])
+				wxLogMessage(_("Extents no workey! %d %d"), textW, name_sizes[i]);
+			*/
+			int x = fRect.x + wxMax ( 0, ( fRect.width - textW ) /2 );
+			int y = fRect.y ;
+			dc.DrawText ( name_parts[i], x, y + yoffset );
+			yoffset += textH;
+		}
 	}
 
 	// If the item itself is the focus, draw a dotted
 	// rectangle around it
+	/*
 	if ( style & wxINST_IS_FOCUS )
 	{
 		wxPen dottedPen ( focussedSelection, 1, wxDOT );
@@ -1439,7 +1339,7 @@ bool wxInstanceItem::DrawBackground ( wxDC& dc, wxInstanceCtrl* ctrl, const wxRe
 		focusRect.height += 2;
 		dc.DrawRectangle ( focusRect );
 	}
-
+*/
 	return true;
 }
 

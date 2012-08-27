@@ -228,7 +228,7 @@ bool DowngradeTask::ApplyPatches()
 		if (wxFileExists(patchDest))
 			wxRemoveFile(patchDest);
 
-		int err = bspatch(patchSrc.fn_str(), patchDest.fn_str(), patchFile.fn_str());
+		int err = bspatch(patchSrc.char_str(), patchDest.char_str(), patchFile.char_str());
 
 		if (err == ERR_NONE)
 		{

@@ -17,15 +17,6 @@
 #define wxINST_CTRL_DOWN   0x02
 #define wxINST_ALT_DOWN    0x04
 
-#define wxINST_SORT_NAME_UP            1
-#define wxINST_SORT_NAME_DOWN          2
-#define wxINST_SORT_TIMESTAMP_UP       3
-#define wxINST_SORT_TIMESTAMP_DOWN     4
-#define wxINST_SORT_NUMERICALLY_UP     5
-#define wxINST_SORT_NUMERICALLY_DOWN   6
-#define wxINST_SORT_TYPE_UP            7
-#define wxINST_SORT_TYPE_DOWN          8
-
 /* Defaults
  */
 
@@ -64,28 +55,16 @@ public:
 
 	wxInstanceItem ( Instance * inst )
 	{
-		m_state = 0;
 		m_inst = inst;
+		updateName();
 	}
-
-// Accessors
 
 	const wxString GetName() const
 	{
 		return m_inst->GetName();
 	}
 
-	/// State storage while sorting
-	void SetState ( int state )
-	{
-		m_state = state;
-	}
-	int GetState() const
-	{
-		return m_state;
-	}
-
-// Overrideables
+	void updateName();
 
 	/// Draw the item
 	virtual bool Draw ( wxDC& dc, wxInstanceCtrl* ctrl, const wxRect& rect, int style ) ;
@@ -94,8 +73,10 @@ public:
 	virtual bool DrawBackground ( wxDC& dc, wxInstanceCtrl* ctrl, const wxRect& rect, const wxRect& imageRect, int style, int index ) ;
 	
 protected:
-	int         m_state; // state storage while sorting
 	Instance   *m_inst;
+	int         text_width;
+	wxArrayString name_parts;
+	wxArrayInt name_sizes;
 };
 
 WX_DECLARE_OBJARRAY ( wxInstanceItem, wxInstanceItemArray );
@@ -131,12 +112,6 @@ public:
 
 	/// Scrolls the item into view if necessary
 	void EnsureVisible ( int n );
-
-	/// Finds an item that matches a given filename
-	int FindItemForFilename ( const wxString& filename );
-
-	/// Sorts items in the specified way
-	void Sort ( int sortMode );
 
 	/// Draws the item. Normally you override function in wxInstanceItem.
 	virtual bool DrawItem ( int n, wxDC& dc, const wxRect& rect, int style ) ;
@@ -178,16 +153,16 @@ public:
 	wxInstanceItem* GetItem ( int n );
 
 	/// Get the overall rect of the given item
-	/// If transform is true, rect is relative to the scroll viewport
+	/// If view_relative is true, rect is relative to the scroll viewport
 	/// (i.e. may be negative)
-	bool GetItemRect ( int item, wxRect& rect, bool transform = true );
+	bool GetItemRect ( int item, wxRect& rect, bool view_relative = true );
 
 	/// Get the image rect of the given item
-	bool GetItemRectImage ( int item, wxRect& rect, bool transform = true );
+	/// If view_relative is true, rect is relative to the scroll viewport
+	/// (i.e. may be negative)
+	bool GetItemRectImage ( int item, wxRect& rect, bool view_relative = true );
 
-	/// Return the row and column given the client
-	/// size and a left-to-right, top-to-bottom layout
-	/// assumption
+	/// Return the row and column given the client size
 	bool GetRowCol ( int item, const wxSize& clientSize, int& row, int& col );
 
 	/// Get the focus item, or -1 if there is none
@@ -340,21 +315,6 @@ public:
 	/// Recreate buffer bitmap if necessary
 	bool RecreateBuffer ( const wxSize& size = wxDefaultSize );
 
-	/// Get/set sort mode
-	void SetSortMode ( int sortMode )
-	{
-		m_sortMode = sortMode;
-	}
-	int GetSortMode() const
-	{
-		return m_sortMode ;
-	}
-
-	static wxInstanceCtrl* GetInstanceCtrl()
-	{
-		return sm_currentInstanceCtrl;
-	}
-
 // Overrides
 	wxSize DoGetBestSize() const ;
 
@@ -393,12 +353,6 @@ private:
 
 	/// Focus item
 	int                     m_focusItem;
-
-	/// Sort mode
-	int                     m_sortMode;
-
-	/// Current control, used in sorting
-	static wxInstanceCtrl* sm_currentInstanceCtrl;
 
 	/// Buffer bitmap
 	wxBitmap                m_bufferBitmap;

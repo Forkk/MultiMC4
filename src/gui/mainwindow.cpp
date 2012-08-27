@@ -1026,8 +1026,8 @@ bool MainWindow::DeleteSelectedInstance()
 		return false;
 
 	wxMessageDialog *dlg = new wxMessageDialog(this, 
-		_("Are you sure you want to delete this instance?"
-		  "Deleted instances are lost FOREVER! (a really long time)"),
+		_("Are you sure you want to delete this instance?\n\
+Deleted instances are lost FOREVER! (a really long time)"),
 		_("Confirm deletion."),
 		wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
 	if (dlg->ShowModal() == wxID_YES)
