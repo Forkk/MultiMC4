@@ -23,7 +23,7 @@
 #include <string>
 #include <cstdlib>
 
-const BuildTag AppBuildTag(JENKINS_BUILD_TAG);
+const BuildTag AppBuildTag(_T(JENKINS_BUILD_TAG));
 
 BuildTag::BuildTag(const wxString &buildType, const wxString &jobName, int buildNumber)
 	: m_buildType(buildType), m_jobName(jobName)
