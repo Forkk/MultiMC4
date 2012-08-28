@@ -1099,7 +1099,6 @@ void wxInstanceCtrl::DoSelection ( int n, int flags )
 /// Find the item under the given point
 bool wxInstanceCtrl::HitTest ( const wxPoint& pt, int& n )
 {
-	/*
 	wxSize clientSize = GetClientSize();
 	int startX, startY;
 	int ppuX, ppuY;
@@ -1111,7 +1110,12 @@ bool wxInstanceCtrl::HitTest ( const wxPoint& pt, int& n )
 		perRow = 1;
 
 	int colPos = ( int ) ( pt.x / ( m_itemWidth + m_spacing ) );
-	int rowPos = ( int ) ( ( pt.y + startY * ppuY ) / ( m_itemOverallSize.y + m_spacing ) );
+	int rowPos = 0;
+	int actualY = pt.y + startY * ppuY;
+	//FIXME: use binary search
+	while (m_row_ys[rowPos] < actualY && rowPos < m_row_ys.size())
+		rowPos++;
+	rowPos--;
 
 	int itemN = ( rowPos * perRow + colPos );
 	if ( itemN >= GetCount() )
@@ -1124,7 +1128,6 @@ bool wxInstanceCtrl::HitTest ( const wxPoint& pt, int& n )
 		n = itemN;
 		return true;
 	}
-*/
 	return false;
 }
 
