@@ -21,8 +21,7 @@
 #include <wx/tokenzr.h>
 
 #include <string>
-
-#include <boost/lexical_cast.hpp>
+#include <cstdlib>
 
 const BuildTag AppBuildTag(JENKINS_BUILD_TAG);
 
@@ -45,14 +44,7 @@ BuildTag::BuildTag(const wxString &str)
 	{
 		m_buildType = strings[0];
 		m_jobName = strings[1];
-		try
-		{
-			m_buildNumber = boost::lexical_cast<int>(strings[2].mb_str());
-		}
-		catch (boost::bad_lexical_cast)
-		{
-			m_buildNumber = 0;
-		}
+		m_buildNumber = atoi(strings[2].mb_str());
 	}
 	else
 	{
