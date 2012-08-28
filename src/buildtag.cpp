@@ -22,6 +22,8 @@
 
 #include <string>
 
+#include <boost/lexical_cast.hpp>
+
 const BuildTag AppBuildTag(JENKINS_BUILD_TAG);
 
 BuildTag::BuildTag(const wxString &buildType, const wxString &jobName, int buildNumber)
@@ -45,13 +47,9 @@ BuildTag::BuildTag(const wxString &str)
 		m_jobName = strings[1];
 		try
 		{
-			m_buildNumber = std::stoi(strings[2].mb_str());
+			m_buildNumber = boost::lexical_cast<int>(strings[2].mb_str());
 		}
-		catch (std::invalid_argument)
-		{
-			m_buildNumber = 0;
-		}
-		catch (std::out_of_range)
+		catch (boost::bad_lexical_cast)
 		{
 			m_buildNumber = 0;
 		}
