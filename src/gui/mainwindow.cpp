@@ -59,7 +59,7 @@ MainWindow::MainWindow(void)
 	: wxFrame(NULL, -1, 
 		wxString::Format(_("MultiMC %d.%d.%d %s"), 
 			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision(),
-			AppBuildTag.ToString()),
+			AppBuildTag.ToString().c_str()),
 		wxPoint(0, 0), minSize),
 		centralModList(settings->GetModsDir().GetFullPath())
 {
