@@ -686,8 +686,6 @@ void wxInstanceCtrl::OnChar ( wxKeyEvent& event )
 	     event.GetKeyCode() == WXK_HOME ||
 	     event.GetKeyCode() == WXK_PAGEUP ||
 	     event.GetKeyCode() == WXK_PAGEDOWN ||
-	     event.GetKeyCode() == WXK_PRIOR ||
-	     event.GetKeyCode() == WXK_NEXT ||
 	     event.GetKeyCode() == WXK_END )
 	{
 		Navigate ( event.GetKeyCode(), flags );
@@ -788,7 +786,7 @@ bool wxInstanceCtrl::Navigate ( int keyCode, int flags )
 	}
 	// FIXME: this is crap. going one page up or down should be more predictable
 	// this solution kinda jumps around too much
-	else if ( keyCode == WXK_PAGEUP || keyCode == WXK_PRIOR )
+	else if ( keyCode == WXK_PAGEUP)
 	{
 		wxRect orig;
 		GetItemRect(focus,orig, false);
@@ -805,7 +803,7 @@ bool wxInstanceCtrl::Navigate ( int keyCode, int flags )
 		DoSelection ( next, flags );
 		ScrollIntoView ( next, keyCode );
 	}
-	else if ( keyCode == WXK_PAGEDOWN || keyCode == WXK_NEXT )
+	else if ( keyCode == WXK_PAGEDOWN)
 	{
 		wxRect orig;
 		GetItemRect(focus,orig, false);
@@ -858,7 +856,7 @@ void wxInstanceCtrl::ScrollIntoView ( int n, int keyCode )
 	wxSize clientSize = GetClientSize();
 
 	// Going down
-	if ( keyCode == WXK_DOWN || keyCode == WXK_RIGHT || keyCode == WXK_END || keyCode == WXK_NEXT || keyCode == WXK_PAGEDOWN )
+	if ( keyCode == WXK_DOWN || keyCode == WXK_RIGHT || keyCode == WXK_END || keyCode == WXK_PAGEDOWN )
 	{
 		if ( ( rect.y + rect.height ) > ( clientSize.y + startY ) )
 		{
@@ -876,7 +874,7 @@ void wxInstanceCtrl::ScrollIntoView ( int n, int keyCode )
 		}
 	}
 	// Going up
-	else if ( keyCode == WXK_UP || keyCode == WXK_LEFT || keyCode == WXK_HOME || keyCode == WXK_PRIOR || keyCode == WXK_PAGEUP )
+	else if ( keyCode == WXK_UP || keyCode == WXK_LEFT || keyCode == WXK_HOME || keyCode == WXK_PAGEUP )
 	{
 		if ( rect.y < startY )
 		{
