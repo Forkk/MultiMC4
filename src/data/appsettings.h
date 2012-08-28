@@ -86,8 +86,8 @@ public:
 	bool GetQuitIfProblem() const;
 	void SetQuitIfProblem(bool value);
 
-	bool GetUseDevBuilds() const;
-	void SetUseDevBuilds(bool value);
+	//bool GetUseDevBuilds() const;
+	//void SetUseDevBuilds(bool value);
 	
 	GUIMode GetGUIMode() const;
 	void SetGUIMode(GUIMode value);

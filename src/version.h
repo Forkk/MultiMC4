@@ -20,7 +20,7 @@
 class Version
 {
 public:
-	Version(int major, int minor, int revision, int build, bool isDevBuild);
+	Version(int major, int minor, int revision, int build, bool isDevBuild = false);
 	Version(const Version &version);
 	
 	int GetMajor() const;

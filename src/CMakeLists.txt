@@ -33,12 +33,18 @@ ELSE ()
 	message(STATUS "Build number not specified. Defaulted to 0.")
 ENDIF ()
 
-IF (DEFINED MultiMC_IS_DEV_BUILD)
-	message(STATUS "This is a dev build.")
+IF (DEFINED MultiMC_BUILD_TAG)
+	message(STATUS "Build tag: ${MultiMC_BUILD_TAG}")
 ELSE ()
-	set(MultiMC_IS_DEV_BUILD	FALSE)
-	message(STATUS "Dev build not specified. Defaulted to false.")
+	message(STATUS "No build tag specified.")
 ENDIF ()
+
+IF (DEFINED MultiMC_JOB_URL)
+	message(STATUS "Job URL: ${MultiMC_JOB_URL}")
+ELSE ()
+	message(STATUS "No job URL specified.")
+ENDIF ()
+
 
 IF (DEFINED MultiMC_ARCH)
 	message (STATUS "Architecture is ${MultiMC_ARCH}")
@@ -93,6 +99,7 @@ fsutils.cpp
 httputils.cpp
 
 version.cpp
+buildtag.cpp
 
 insticonlist.cpp
 )
@@ -135,6 +142,7 @@ fsutils.h
 httputils.h
 
 version.h
+buildtag.h
 
 insticonlist.h
 ${CMAKE_BINARY_DIR}/resources/insticons.h

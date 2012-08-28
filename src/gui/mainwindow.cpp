@@ -48,6 +48,8 @@
 #include <wx/gbsizer.h>
 #include <wx/filedlg.h>
 
+#include "buildtag.h"
+
 const int instNameLengthLimit = 25;
 
 const wxSize minSize = wxSize(620, 400);
@@ -55,9 +57,9 @@ const wxSize minSize = wxSize(620, 400);
 // Main window
 MainWindow::MainWindow(void)
 	: wxFrame(NULL, -1, 
-		wxString::Format(_("MultiMC %d.%d.%d Build %d %s"), 
-			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision(), AppVersion.GetBuild(),
-			(AppVersion.IsDevBuild() ? _("Dev") : _("Stable"))),
+		wxString::Format(_("MultiMC %d.%d.%d %s"), 
+			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision(),
+			AppBuildTag.ToString()),
 		wxPoint(0, 0), minSize),
 		centralModList(settings->GetModsDir().GetFullPath())
 {
@@ -591,11 +593,10 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 	wxString updaterFileName = _("MultiMCUpdate");
 #endif
 
-	if (event.m_latestBuildNumber > AppVersion.GetBuild() || 
-		settings->GetUseDevBuilds() != AppVersion.IsDevBuild())
+	if (event.m_latestBuildNumber > AppVersion.GetBuild())
 	{
-		if (wxMessageBox(wxString::Format(_("%s build #%i is available. Would you like to download and install it?"), 
-				(settings->GetUseDevBuilds() ? _("Dev") : _("Stable")), event.m_latestBuildNumber), 
+		if (wxMessageBox(wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
+				event.m_latestBuildNumber), 
 				_("Update Available"), wxYES_NO) == wxYES)
 		{
 			FileDownloadTask dlTask(event.m_downloadURL, 
@@ -624,7 +625,7 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 #ifndef __WXMSW__
 	wxAboutDialogInfo info;
 	info.SetName(_("MultiMC"));
-	info.SetVersion(AppVersion.ToString());
+	info.SetVersion(wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
 	info.SetDescription(_("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once."));
 	info.SetCopyright(_("(C) 2012 Andrew Okin"));
 	
@@ -674,7 +675,7 @@ POSSIBILITY OF SUCH DAMAGE."));
 	
 	wxAboutBox(info);
 #else
-	wxMessageBox(wxString::Format(_("The about dialog is currently not supported in Windows.\nYou are using MultiMC version %s."), AppVersion.ToString().c_str()));
+	wxMessageBox(wxString::Format(_("The about dialog is currently not supported in Windows.\nYou are using MultiMC version %s.\nThis build's tag is %s."), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
 #endif
 }
 

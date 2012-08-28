@@ -73,10 +73,10 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	autoUpdateCheck = new wxCheckBox(generalPanel, -1,
 		_T("Check for updates when MultiMC starts?"));
 	updateBox->Add(autoUpdateCheck, 0, wxALL, 4);
-	devBuildCheck = new wxCheckBox(generalPanel, -1, _("Use development builds?"));
-	updateBox->Add(devBuildCheck, 0, wxALL | wxEXPAND, 4);
-	forceUpdateToggle = new wxToggleButton(generalPanel, -1,
-		_T("Force-update MultiMC"));
+	//devBuildCheck = new wxCheckBox(generalPanel, -1, _("Use development builds?"));
+	//updateBox->Add(devBuildCheck, 0, wxALL | wxEXPAND, 4);
+	//forceUpdateToggle = new wxToggleButton(generalPanel, -1,
+	//	_T("Force-update MultiMC"));
 	updateBox->Add(forceUpdateToggle, 0, wxALL, 4);
 	generalBox->Add(updateBox, wxGBPosition(row++, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
 	
@@ -301,21 +301,21 @@ void SettingsDialog::ApplySettings(AppSettings *s /* = settings */)
 			_("Restart Required"));
 	}
 
-	if (devBuildCheck->GetValue() && !s->GetUseDevBuilds())
-	{
-		// Display a warning.
-		if (wxMessageBox(_("Warning: Dev builds contain incomplete, experimental, and possibly unstable features-> \
-Some may be extremely buggy, and others may not work at all. Use these at your own risk. \
-Are you sure you want to use dev builds?"), 
-			_("Are you sure?"), wxOK | wxCANCEL) == wxOK)
-		{
-			s->SetUseDevBuilds(devBuildCheck->GetValue());
-		}
-	}
-	else
-	{
-		s->SetUseDevBuilds(devBuildCheck->GetValue());
-	}
+//	if (devBuildCheck->GetValue() && !s->GetUseDevBuilds())
+//	{
+//		// Display a warning.
+//		if (wxMessageBox(_("Warning: Dev builds contain incomplete, experimental, and possibly unstable features-> \
+//Some may be extremely buggy, and others may not work at all. Use these at your own risk. \
+//Are you sure you want to use dev builds?"), 
+//			_("Are you sure?"), wxOK | wxCANCEL) == wxOK)
+//		{
+//			s->SetUseDevBuilds(devBuildCheck->GetValue());
+//		}
+//	}
+//	else
+//	{
+//		s->SetUseDevBuilds(devBuildCheck->GetValue());
+//	}
 
 	s->SetUseAppletWrapper(!compatCheckbox->IsChecked());
 
@@ -335,7 +335,7 @@ void SettingsDialog::LoadSettings(AppSettings *s /* = settings */)
 
 	autoUpdateCheck->SetValue(s->GetAutoUpdate());
 
-	devBuildCheck->SetValue(s->GetUseDevBuilds());
+	//devBuildCheck->SetValue(s->GetUseDevBuilds());
 
 	instDirTextBox->SetValue(s->GetInstDir().GetFullPath());
 

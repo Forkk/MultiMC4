@@ -190,15 +190,15 @@ void AppSettings::SetShowConsole(bool value)
 }
 
 
-bool AppSettings::GetUseDevBuilds() const
-{
-	return GetSetting<bool>(_("UseDevBuilds"), AppVersion.IsDevBuild());
-}
-
-void AppSettings::SetUseDevBuilds(bool value)
-{
-	SetSetting<bool>(_("UseDevBuilds"), value);
-}
+//bool AppSettings::GetUseDevBuilds() const
+//{
+//	return GetSetting<bool>(_("UseDevBuilds"), AppVersion.IsDevBuild());
+//}
+//
+//void AppSettings::SetUseDevBuilds(bool value)
+//{
+//	SetSetting<bool>(_("UseDevBuilds"), value);
+//}
 
 
 GUIMode AppSettings::GetGUIMode() const

@@ -8,4 +8,6 @@
 
 #define ARCH @MultiMC_ARCH@
 
-#define IS_DEV_BUILD @MultiMC_IS_DEV_BUILD@
+#define JENKINS_BUILD_TAG "@MultiMC_BUILD_TAG@"
+
+#define JENKINS_JOB_URL "@MultiMC_JOB_URL@"
