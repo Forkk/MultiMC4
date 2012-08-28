@@ -46,7 +46,7 @@ BuildTag::BuildTag(const wxString &str)
 	{
 		m_buildType = strings[0];
 		m_jobName = strings[1];
-		m_buildNumber = atoi(TOASCII(strings[2]));
+		m_buildNumber = atoi(TOASCII(strings[strings.GetCount() - 1]));
 	}
 	else
 	{
