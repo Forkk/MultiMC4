@@ -26,6 +26,7 @@ DEFINE_EVENT_TYPE ( wxEVT_COMMAND_INST_RIGHT_CLICK )
 DEFINE_EVENT_TYPE ( wxEVT_COMMAND_INST_LEFT_DCLICK )
 DEFINE_EVENT_TYPE ( wxEVT_COMMAND_INST_RETURN )
 DEFINE_EVENT_TYPE ( wxEVT_COMMAND_INST_DELETE )
+DEFINE_EVENT_TYPE ( wxEVT_COMMAND_INST_RENAME )
 
 IMPLEMENT_CLASS ( wxInstanceCtrl, wxScrolledWindow )
 IMPLEMENT_CLASS ( wxInstanceItem, wxObject )
@@ -85,7 +86,7 @@ bool wxInstanceCtrl::Create ( wxWindow* parent, wxWindowID id, const wxPoint& po
 /// Member initialisation
 void wxInstanceCtrl::Init()
 {
-	m_itemOverallSize = wxINST_DEFAULT_OVERALL_SIZE;
+	m_itemWidth = -1;
 	m_ImageSize = wxINST_DEFAULT_IMAGE_SIZE;
 	m_freezeCount = 0;
 	m_spacing = wxINST_DEFAULT_SPACING;
@@ -108,6 +109,7 @@ void wxInstanceCtrl::Thaw()
 
 	if ( m_freezeCount == 0 )
 	{
+		UpdateRows();
 		SetupScrollbars();
 		Refresh();
 	}
@@ -124,6 +126,7 @@ int wxInstanceCtrl::Append ( wxInstanceItem* item )
 
 	if ( m_freezeCount == 0 )
 	{
+		UpdateRows();
 		SetupScrollbars();
 		Refresh();
 	}
@@ -149,6 +152,7 @@ int wxInstanceCtrl::Insert ( wxInstanceItem* item, int pos )
 
 	if ( m_freezeCount == 0 )
 	{
+		UpdateRows();
 		SetupScrollbars();
 		Refresh();
 	}
@@ -166,34 +170,9 @@ void wxInstanceCtrl::Clear()
 
 	if ( m_freezeCount == 0 )
 	{
+		UpdateRows();
 		SetupScrollbars();
 		Refresh();
-	}
-}
-
-static bool wxGetIntegerFromFilename ( const wxString& fname, int& n )
-{
-	wxString filename = fname;
-	wxStripExtension ( filename );
-	wxString strNum;
-
-	size_t len = filename.Len();
-	size_t i;
-	for ( i = len; i == 0; i-- )
-	{
-		if ( wxIsdigit ( filename[i] ) != 0 )
-		{
-			strNum = filename[i] + strNum;
-		}
-		else
-			break;
-	}
-	if ( strNum.IsEmpty() )
-		return false;
-	else
-	{
-		n = wxAtoi ( strNum );
-		return true;
 	}
 }
 
@@ -223,6 +202,7 @@ void wxInstanceCtrl::Delete ( int n )
 
 	if ( m_freezeCount == 0 )
 	{
+		UpdateRows();
 		SetupScrollbars();
 		Refresh();
 	}
@@ -251,8 +231,8 @@ bool wxInstanceCtrl::GetItemRect ( int n, wxRect& rect, bool view_relative )
 		if ( !GetRowCol ( n, GetClientSize(), row, col ) )
 			return false;
 
-		int x = col * ( m_itemOverallSize.x + m_spacing ) + m_spacing;
-		int y = row * ( m_itemOverallSize.y + m_spacing ) + m_spacing;
+		int x = col * ( m_itemWidth + m_spacing ) + m_spacing;
+		int y = m_row_ys[row] + m_spacing;
 
 		if ( view_relative )
 		{
@@ -266,9 +246,8 @@ bool wxInstanceCtrl::GetItemRect ( int n, wxRect& rect, bool view_relative )
 
 		rect.x = x;
 		rect.y = y;
-		rect.width = m_itemOverallSize.x;
-		rect.height = m_itemOverallSize.y;
-
+		rect.width = m_itemWidth;
+		rect.height = GetItemHeight(n);
 		return true;
 	}
 
@@ -301,6 +280,7 @@ void wxInstanceCtrl::SetImageSize ( const wxSize& sz )
 
 	if ( GetCount() > 0 && m_freezeCount == 0 )
 	{
+		UpdateRows();
 		SetupScrollbars();
 		Refresh();
 	}
@@ -317,11 +297,7 @@ void wxInstanceCtrl::CalculateOverallItemSize()
 
 	// FIXME: base padding on font metrics.
 	// From left to right: padding, image, padding...
-	m_itemOverallSize.x = m_ImageSize.x + m_itemMargin*22;
-
-	// From top to bottom: image, 2x margin, text, margin
-	// text has 2x margin because the highlight needs to be slightly bigger
-	m_itemOverallSize.y = m_itemMargin * 3 + m_itemTextHeight *3 + m_ImageSize.y;
+	m_itemWidth = m_ImageSize.x + m_itemMargin*22;
 }
 
 /// Return the row and column given the client
@@ -335,7 +311,7 @@ bool wxInstanceCtrl::GetRowCol ( int item, const wxSize& clientSize, int& row, i
 
 	// How many can we fit in a row?
 
-	int perRow = clientSize.x/ ( m_itemOverallSize.x + m_spacing );
+	int perRow = clientSize.x/ ( m_itemWidth + m_spacing );
 	if ( perRow < 1 )
 		perRow = 1;
 
@@ -735,6 +711,15 @@ void wxInstanceCtrl::OnChar ( wxKeyEvent& event )
 		cmdEvent.SetFlags ( flags );
 		GetEventHandler()->ProcessEvent ( cmdEvent );
 	}
+	else if ( event.GetKeyCode() == WXK_F2 )
+	{
+		wxInstanceCtrlEvent cmdEvent (
+		 wxEVT_COMMAND_INST_RENAME,
+		 GetId() );
+		cmdEvent.SetEventObject ( this );
+		cmdEvent.SetFlags ( flags );
+		GetEventHandler()->ProcessEvent ( cmdEvent );
+	}
 	else
 		event.Skip();
 }
@@ -746,14 +731,14 @@ bool wxInstanceCtrl::Navigate ( int keyCode, int flags )
 		return false;
 
 	wxSize clientSize = GetClientSize();
-	int perRow = clientSize.x/ ( m_itemOverallSize.x + m_spacing );
+	int perRow = clientSize.x/ ( m_itemWidth + m_spacing );
 	if ( perRow < 1 )
 		perRow = 1;
-
+	/*
 	int rowsInView = clientSize.y/ ( m_itemOverallSize.y + m_spacing );
 	if ( rowsInView < 1 )
 		rowsInView = 1;
-
+*/
 	int focus = m_focusItem;
 	if ( focus == -1 )
 		focus = m_lastSelection;
@@ -802,6 +787,7 @@ bool wxInstanceCtrl::Navigate ( int keyCode, int flags )
 			ScrollIntoView ( next, keyCode );
 		}
 	}
+	/*
 	else if ( keyCode == WXK_PAGEUP || keyCode == WXK_PRIOR )
 	{
 		int next = focus - ( perRow * rowsInView );
@@ -824,6 +810,7 @@ bool wxInstanceCtrl::Navigate ( int keyCode, int flags )
 			ScrollIntoView ( next, keyCode );
 		}
 	}
+	*/
 	else if ( keyCode == WXK_HOME )
 	{
 		DoSelection ( 0, flags );
@@ -866,7 +853,7 @@ void wxInstanceCtrl::ScrollIntoView ( int n, int keyCode )
 		{
 			// Make it scroll so this item is at the bottom
 			// of the window
-			int y = rect.y - ( clientSize.y - m_itemOverallSize.y - m_spacing ) ;
+			int y = rect.y - ( clientSize.y - rect.height - m_spacing ) ;
 			SetScrollbars ( ppuX, ppuY, sx, sy, 0, ( int ) ( 0.5 + y/ppuY ) );
 		}
 		else if ( rect.y < startY )
@@ -891,7 +878,7 @@ void wxInstanceCtrl::ScrollIntoView ( int n, int keyCode )
 		{
 			// Make it scroll so this item is at the bottom
 			// of the window
-			int y = rect.y - ( clientSize.y - m_itemOverallSize.y - m_spacing ) ;
+			int y = rect.y - ( clientSize.y - rect.height - m_spacing ) ;
 			SetScrollbars ( ppuX, ppuY, sx, sy, 0, ( int ) ( 0.5 + y/ppuY ) );
 		}
 	}
@@ -926,7 +913,7 @@ void wxInstanceCtrl::EnsureVisible ( int n )
 	{
 		// Make it scroll so this item is at the bottom
 		// of the window
-		int y = rect.y - ( clientSize.y - m_itemOverallSize.y - m_spacing ) ;
+		int y = rect.y - ( clientSize.y - rect.height - m_spacing ) ;
 		SetScrollbars ( ppuX, ppuY, sx, sy, 0, ( int ) ( 0.5 + y/ppuY ) );
 	}
 	else if ( rect.y < startY )
@@ -941,6 +928,8 @@ void wxInstanceCtrl::EnsureVisible ( int n )
 /// Sizing
 void wxInstanceCtrl::OnSize ( wxSizeEvent& event )
 {
+	//FIXME: only do this if the number of items per row changes
+	UpdateRows();
 	SetupScrollbars();
 	RecreateBuffer();
 	event.Skip();
@@ -965,8 +954,10 @@ void wxInstanceCtrl::SetupScrollbars()
 	int row, col;
 	GetRowCol ( lastItem, clientSize, row, col );
 
-	int maxHeight = ( row+1 ) * ( m_itemOverallSize.y + m_spacing ) + m_spacing;
-
+	//int maxHeight = ( row+1 ) * ( m_itemOverallSize.y + m_spacing ) + m_spacing;
+	int lastrow = m_row_ys.size() - 1;
+	int maxHeight = m_row_ys[lastrow] + m_row_heights[lastrow] + m_spacing;
+	
 	int unitsY = maxHeight/pixelsPerUnit;
 
 	int startX, startY;
@@ -1108,17 +1099,18 @@ void wxInstanceCtrl::DoSelection ( int n, int flags )
 /// Find the item under the given point
 bool wxInstanceCtrl::HitTest ( const wxPoint& pt, int& n )
 {
+	/*
 	wxSize clientSize = GetClientSize();
 	int startX, startY;
 	int ppuX, ppuY;
 	GetViewStart ( & startX, & startY );
 	GetScrollPixelsPerUnit ( & ppuX, & ppuY );
 
-	int perRow = clientSize.x/ ( m_itemOverallSize.x + m_spacing );
+	int perRow = clientSize.x/ ( m_itemWidth + m_spacing );
 	if ( perRow < 1 )
 		perRow = 1;
 
-	int colPos = ( int ) ( pt.x / ( m_itemOverallSize.x + m_spacing ) );
+	int colPos = ( int ) ( pt.x / ( m_itemWidth + m_spacing ) );
 	int rowPos = ( int ) ( ( pt.y + startY * ppuY ) / ( m_itemOverallSize.y + m_spacing ) );
 
 	int itemN = ( rowPos * perRow + colPos );
@@ -1132,7 +1124,7 @@ bool wxInstanceCtrl::HitTest ( const wxPoint& pt, int& n )
 		n = itemN;
 		return true;
 	}
-
+*/
 	return false;
 }
 
@@ -1183,6 +1175,47 @@ bool wxInstanceCtrl::RecreateBuffer ( const wxSize& size )
 	return m_bufferBitmap.Ok();
 }
 
+void wxInstanceCtrl::UpdateRows ( )
+{
+	wxSize clientSize = GetClientSize();
+	int perRow = clientSize.x/ ( m_itemWidth + m_spacing );
+	if ( perRow < 1 )
+		perRow = 1;
+	int numitems = m_items.size();
+	int numrows = (numitems / perRow) + (numitems % perRow != 0);
+	m_row_ys.clear();
+	m_row_ys.resize(numrows);
+	m_row_heights.clear();
+	m_row_heights.resize(numrows);
+	
+	int oldrow = 0;
+	int row = 0;
+	int row_y = m_spacing;
+	int rheight = 0;
+	for(int n = 0;n < m_items.size();n++)
+	{
+		row = n/perRow;
+		if(row != oldrow)
+		{
+			m_row_ys[oldrow] = row_y;
+			row_y += rheight + m_spacing;
+			m_row_heights[oldrow] = rheight;
+			rheight = 0;
+			oldrow = row;
+		}
+		wxInstanceItem & item = m_items[n];
+		// icon, margin, margin (highlight), text, margin (end highlight)
+		int iheight = m_itemMargin * 3 + m_itemTextHeight * item.GetNumLines() + m_ImageSize.y;
+		if(iheight > rheight)
+			rheight = iheight;
+	}
+	if(rheight)
+	{
+		m_row_heights[row] = rheight;
+		m_row_ys[row] = row_y;
+	}
+}
+
 /*!
  * wxInstanceItem
  */
@@ -1194,12 +1227,13 @@ void wxInstanceItem::updateName()
 	wxArrayInt extents;
 	dc->GetPartialTextExtents(raw_name, extents);
 	int line = 0;
-	int limit = 60+32; // pass this in from somewhere?
+	int limit = 60+32; //FIXME: pass this in from somewhere...
 	int accum = 0;
 	int linestart = 0;
 	int lastspace = -1;
 	int lastprocessed = 0;
 	text_width = 0;
+	text_lines = 0;
 	
 	for(int i = 0; i < extents.size();i++)
 	{
@@ -1212,8 +1246,12 @@ void wxInstanceItem::updateName()
 			if(lastspace != -1)
 			{
 				int size = extents[lastspace-1]-accum;
-				name_parts.Add(raw_name.SubString(linestart,lastspace-1));
-				name_sizes.Add(size);
+				
+				name_wrapped.Append(raw_name.SubString(linestart,lastspace-1));
+				text_lines++;
+				if(i+1 != extents.size())
+					name_wrapped.Append(_("\n"));
+				
 				if(size > text_width)
 					text_width = size;
 				line++;
@@ -1227,8 +1265,12 @@ void wxInstanceItem::updateName()
 			else
 			{
 				int size = extents[i-1]-accum;
-				name_parts.Add(raw_name.SubString(linestart,i-1));
-				name_sizes.Add(size);
+				
+				name_wrapped.Append(raw_name.SubString(linestart,i-1));
+				text_lines++;
+				if(i+1 != extents.size())
+					name_wrapped.Append(_("\n"));
+				
 				if(size > text_width)
 					text_width = size;
 				line++;
@@ -1241,8 +1283,8 @@ void wxInstanceItem::updateName()
 	}
 	if(lastprocessed != extents.size())
 	{
-		name_parts.Add(raw_name.SubString(linestart,extents.size()-1));
-		name_sizes.Add(extents[extents.size()-1]-accum);
+		name_wrapped.Append(raw_name.SubString(linestart,extents.size()-1));
+		text_lines++;
 	}
 	delete dc;
 }
@@ -1292,13 +1334,12 @@ bool wxInstanceItem::DrawBackground ( wxDC& dc, wxInstanceCtrl* ctrl, const wxRe
 	{
 		int margin = ctrl->GetItemMargin();
 
-		wxRect fRect;
-		fRect.x = rect.x + margin;
+		wxRect textRect;
+		textRect.x = rect.x + margin;
 		//fRect.y = rect.y + rect.height - ( rect.height - imageRect.height ) /2 + margin;
-		fRect.y = rect.y + imageRect.height + 2*margin;
-		fRect.width = rect.width - 2*margin;
-		fRect.height = rect.height - imageRect.height- 3*margin;
-		dc.DrawRectangle ( fRect );
+		textRect.y = rect.y + imageRect.height + 2*margin;
+		textRect.width = rect.width - 2*margin;
+		
 		dc.SetFont ( ctrl->GetFont() );
 		if ( style & wxINST_SELECTED )
 			dc.SetTextForeground ( highlightTextColor );
@@ -1307,21 +1348,17 @@ bool wxInstanceItem::DrawBackground ( wxDC& dc, wxInstanceCtrl* ctrl, const wxRe
 		dc.SetBackgroundMode ( wxTRANSPARENT );
 		
 		int yoffset = 0;
-		for(int i = 0; i < name_parts.size(); i++)
+		wxSize textsize = dc.GetMultiLineTextExtent(name_wrapped);
+		textRect.height = textsize.GetHeight();
+		if(style & wxINST_SELECTED)
 		{
-			wxCoord textW, textH;
-			dc.GetTextExtent ( name_parts[i], & textW, & textH );
-
-			//FIXME: For some reason, the text is always one pixel bigger than expected on windows.
-			/*
-			if(textW != name_sizes[i])
-				wxLogMessage(_("Extents no workey! %d %d"), textW, name_sizes[i]);
-			*/
-			int x = fRect.x + wxMax ( 0, ( fRect.width - textW ) /2 );
-			int y = fRect.y ;
-			dc.DrawText ( name_parts[i], x, y + yoffset );
-			yoffset += textH;
+			wxRect hiRect;
+			hiRect.x = rect.x + ( rect.width - textsize.x) / 2 - margin;
+			hiRect.y = textRect.y - margin;
+			hiRect.SetSize(textsize + wxSize(2*margin,2*margin));
+			dc.DrawRectangle ( hiRect );
 		}
+		dc.DrawLabel(name_wrapped,textRect,wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL);
 	}
 
 	// If the item itself is the focus, draw a dotted
@@ -1339,7 +1376,7 @@ bool wxInstanceItem::DrawBackground ( wxDC& dc, wxInstanceCtrl* ctrl, const wxRe
 		focusRect.height += 2;
 		dc.DrawRectangle ( focusRect );
 	}
-*/
+	*/
 	return true;
 }
 

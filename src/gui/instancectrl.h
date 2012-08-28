@@ -66,6 +66,11 @@ public:
 
 	void updateName();
 
+	int GetNumLines()
+	{
+		return text_lines;
+	};
+	
 	/// Draw the item
 	virtual bool Draw ( wxDC& dc, wxInstanceCtrl* ctrl, const wxRect& rect, int style ) ;
 
@@ -74,9 +79,9 @@ public:
 	
 protected:
 	Instance   *m_inst;
-	int         text_width;
-	wxArrayString name_parts;
-	wxArrayInt name_sizes;
+	int        text_width;
+	wxString name_wrapped;
+	int        text_lines;
 };
 
 WX_DECLARE_OBJARRAY ( wxInstanceItem, wxInstanceItemArray );
@@ -206,18 +211,6 @@ public:
 
 // Visual properties
 
-	/// The overall size of the item, including decorations.
-	/// DON'T USE THIS from the application, since it will
-	/// normally be calculated by SetImageSize.
-	void SetItemOverallSize ( const wxSize& sz )
-	{
-		m_itemOverallSize = sz;
-	}
-	const wxSize& GetItemOverallSize() const
-	{
-		return m_itemOverallSize;
-	}
-
 	/// The size of the image part
 	void SetImageSize ( const wxSize& sz );
 	const wxSize& GetImageSize() const
@@ -243,6 +236,13 @@ public:
 	int GetItemMargin() const
 	{
 		return m_itemMargin;
+	}
+	
+	// get height of item n
+	int GetItemHeight(int n) const
+	{
+		wxInstanceItem & item = m_items[n];
+		return m_itemMargin * 3 + m_ImageSize.y + item.GetNumLines() * m_itemTextHeight;
 	}
 
 	/// The height required for text in the item
@@ -290,6 +290,9 @@ public:
 
 // Implementation
 
+	/// Update the row heights for layouting.
+	void UpdateRows();
+
 	/// Set up scrollbars, e.g. after a resize
 	void SetupScrollbars();
 
@@ -306,7 +309,7 @@ public:
 	/// Keyboard navigation
 	virtual bool Navigate ( int keyCode, int flags );
 
-	/// Scroll to see the image
+	/// Scroll to see the image (used from Navigate)
 	void ScrollIntoView ( int n, int keyCode );
 
 	/// Paint the background
@@ -327,8 +330,14 @@ private:
 	/// The selections
 	wxArrayInt              m_selections;
 
+	/// y positions where each row starts
+	wxArrayInt              m_row_ys;
+
+	/// height of each row (spacing not included)
+	wxArrayInt              m_row_heights;
+
 	/// Outer size of the item
-	wxSize                  m_itemOverallSize;
+	int                     m_itemWidth;
 
 	/// Image size of the item
 	wxSize                  m_ImageSize;
@@ -428,6 +437,7 @@ DECLARE_EVENT_TYPE ( wxEVT_COMMAND_INST_MIDDLE_CLICK, 2604 )
 DECLARE_EVENT_TYPE ( wxEVT_COMMAND_INST_LEFT_DCLICK, 2605 )
 DECLARE_EVENT_TYPE ( wxEVT_COMMAND_INST_RETURN, 2606 )
 DECLARE_EVENT_TYPE ( wxEVT_COMMAND_INST_DELETE, 2607 )
+DECLARE_EVENT_TYPE ( wxEVT_COMMAND_INST_RENAME, 2608 )
 END_DECLARE_EVENT_TYPES()
 
 typedef void ( wxEvtHandler::*wxInstanceCtrlEventFunction ) ( wxInstanceCtrlEvent& );
@@ -440,4 +450,5 @@ typedef void ( wxEvtHandler::*wxInstanceCtrlEventFunction ) ( wxInstanceCtrlEven
 #define EVT_INST_LEFT_DCLICK(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_LEFT_DCLICK, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
 #define EVT_INST_RETURN(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_RETURN, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
 #define EVT_INST_DELETE(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_DELETE, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
+#define EVT_INST_RENAME(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_RENAME, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
 

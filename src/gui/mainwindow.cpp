@@ -778,8 +778,7 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 	}
 }
 
-
-void MainWindow::OnRenameClicked(wxCommandEvent& event)
+void MainWindow::RenameEvent()
 {
 	switch (GetGUIMode())
 	{
@@ -802,6 +801,16 @@ void MainWindow::OnRenameClicked(wxCommandEvent& event)
 		break;
 	}
 	}
+}
+
+void MainWindow::OnInstRenameKey ( wxInstanceCtrlEvent& event )
+{
+	RenameEvent();
+}
+
+void MainWindow::OnRenameClicked(wxCommandEvent& event)
+{
+	RenameEvent();
 }
 
 void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
@@ -1066,7 +1075,6 @@ Deleted instances are lost FOREVER! (a really long time)"),
 	return false;
 }
 
-
 void MainWindow::OnInstDeleteKey ( wxInstanceCtrlEvent& event )
 {
 	DeleteSelectedInstance();
@@ -1245,6 +1253,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_INST_LEFT_DCLICK(ID_InstListCtrl, MainWindow::OnInstActivated)
 	EVT_INST_RETURN(ID_InstListCtrl, MainWindow::OnInstActivated)
 	EVT_INST_DELETE(ID_InstListCtrl, MainWindow::OnInstDeleteKey)
+	EVT_INST_RENAME(ID_InstListCtrl, MainWindow::OnInstRenameKey)
 	EVT_INST_RIGHT_CLICK(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
 	
 	EVT_LISTBOOK_PAGE_CHANGED(ID_InstListCtrl, MainWindow::OnPageChanged)

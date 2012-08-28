@@ -60,6 +60,7 @@ public:
 	void OnPlayClicked(wxCommandEvent& event);
 	void OnInstActivated(wxInstanceCtrlEvent& event);
 	void OnInstDeleteKey(wxInstanceCtrlEvent& event);
+	void OnInstRenameKey(wxInstanceCtrlEvent& event);
 	
 	void OnRenameClicked(wxCommandEvent& event);
 	void OnCopyInstClicked(wxCommandEvent &event);
@@ -107,6 +108,7 @@ public:
 
 	bool GetNewInstName(wxString *instName, wxString *instDirName, const wxString title = _("Create new instance"));
 	void AddInstance(Instance *inst);
+	void RenameEvent();
 	
 	
 	DECLARE_EVENT_TABLE()
