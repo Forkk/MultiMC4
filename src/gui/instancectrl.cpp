@@ -266,8 +266,7 @@ bool wxInstanceCtrl::GetItemRectImage ( int n, wxRect& rect, bool view_relative 
 	rect.width = m_ImageSize.x;
 	rect.height = m_ImageSize.y;
 	rect.x = outerRect.x + ( outerRect.width - rect.width ) /2;
-	rect.y = outerRect.y;// + ( outerRect.height - rect.height ) /2;
-	//rect.y -= 3*m_itemTextHeight / 2;
+	rect.y = outerRect.y;
 
 	return true;
 }
@@ -787,30 +786,42 @@ bool wxInstanceCtrl::Navigate ( int keyCode, int flags )
 			ScrollIntoView ( next, keyCode );
 		}
 	}
-	/*
+	// FIXME: this is crap. going one page up or down should be more predictable
+	// this solution kinda jumps around too much
 	else if ( keyCode == WXK_PAGEUP || keyCode == WXK_PRIOR )
 	{
-		int next = focus - ( perRow * rowsInView );
-		if ( next < 0 )
-			next = 0;
-		if ( next >= 0 )
+		wxRect orig;
+		GetItemRect(focus,orig, false);
+		int Ynew = orig.y - clientSize.y;
+		int row = focus / perRow;
+		int next = focus;
+		while(next > 0 && (Ynew + m_row_heights[row]) < m_row_ys[row])
 		{
-			DoSelection ( next, flags );
-			ScrollIntoView ( next, keyCode );
+			next -= perRow;
+			row--;
 		}
+		if(next < 0)
+			next+=perRow;
+		DoSelection ( next, flags );
+		ScrollIntoView ( next, keyCode );
 	}
 	else if ( keyCode == WXK_PAGEDOWN || keyCode == WXK_NEXT )
 	{
-		int next = focus + ( perRow * rowsInView );
-		if ( next >= GetCount() )
-			next = GetCount() - 1;
-		if ( next < GetCount() )
+		wxRect orig;
+		GetItemRect(focus,orig, false);
+		int Ynew = orig.y + clientSize.y;
+		int row = focus / perRow;
+		int next = focus;
+		while(next < m_items.size() && Ynew > m_row_ys[row])
 		{
-			DoSelection ( next, flags );
-			ScrollIntoView ( next, keyCode );
+			next += perRow;
+			row++;
 		}
+		if(next >= m_items.size())
+			next-=perRow;
+		DoSelection ( next, flags );
+		ScrollIntoView ( next, keyCode );
 	}
-	*/
 	else if ( keyCode == WXK_HOME )
 	{
 		DoSelection ( 0, flags );
