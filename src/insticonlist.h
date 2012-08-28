@@ -25,7 +25,7 @@ typedef std::map<wxString, int> IconListIndexMap;
 class InstIconList
 {
 public:
-	int Add(const wxImage image, const wxString key);
+	int Add(const wxImage image, const wxImage hlimage, const wxString key);
 
 	int getIndexForKey(wxString key)
 	{
@@ -34,6 +34,10 @@ public:
 	wxImage &getImageForKey(wxString key)
 	{
 		return imageList[indexMap[key]];
+	}
+	wxImage &getHLImageForKey(wxString key)
+	{
+		return hlimageList[indexMap[key]];
 	}
 	static InstIconList* Instance()
 	{
@@ -57,6 +61,7 @@ protected:
 	
 	IconListIndexMap indexMap;
 	std::vector <wxImage> imageList;
+	std::vector <wxImage> hlimageList;
 	int width, height;
 private:
 	static InstIconList* pInstance;

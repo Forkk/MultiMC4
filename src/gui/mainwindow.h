@@ -28,6 +28,7 @@
 
 #include "modlist.h"
 #include "settingsdialog.h"
+#include "instancectrl.h"
 
 //const wxString tbarIconPrefix = _T("resources/toolbar/");
 
@@ -57,7 +58,9 @@ public:
 
 	// Instance menu
 	void OnPlayClicked(wxCommandEvent& event);
-	void OnInstActivated(wxListEvent& event);
+	void OnInstActivated(wxInstanceCtrlEvent& event);
+	void OnInstDeleteKey(wxInstanceCtrlEvent& event);
+	void OnInstRenameKey(wxInstanceCtrlEvent& event);
 	
 	void OnRenameClicked(wxCommandEvent& event);
 	void OnCopyInstClicked(wxCommandEvent &event);
@@ -85,7 +88,7 @@ public:
 	void OnCheckUpdateComplete(CheckUpdateEvent &event);
 	
 	// Other events
-	void OnInstMenuOpened(wxListEvent& event);
+	void OnInstMenuOpened(wxInstanceCtrlEvent& event);
 	void OnWindowClosed(wxCloseEvent& event);
 	
 	
@@ -105,6 +108,7 @@ public:
 
 	bool GetNewInstName(wxString *instName, wxString *instDirName, const wxString title = _("Create new instance"));
 	void AddInstance(Instance *inst);
+	void RenameEvent();
 	
 	
 	DECLARE_EVENT_TABLE()
@@ -121,8 +125,11 @@ protected:
 	Instance* GetLinkedInst(int id);
 
 	Instance* GetSelectedInst();
+	
+	bool DeleteSelectedInstance();
 
-	std::map<int, Instance*> instItems;
+	// maps index in the used list control to an instance.
+	std::vector<Instance*> instItems;
 	
 	GUIMode GetGUIMode() const;
 	
@@ -130,7 +137,7 @@ protected:
 	void InitBasicGUI(wxBoxSizer *mainSz);
 	void InitInstMenu();
 	
-	wxListCtrl *instListCtrl;
+	wxInstanceCtrl *instListCtrl;
 	
 	
 	// Advanced GUI

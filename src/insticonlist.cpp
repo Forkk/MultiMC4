@@ -39,6 +39,35 @@ struct InstIconDef
 	wxImage image;
 };
 
+wxImage tintImage( wxImage to_colorize, wxColour col)
+{
+	wxImage highlightIcon(to_colorize.GetWidth(),to_colorize.GetHeight());
+	bool do_alpha = false;
+	if(to_colorize.HasAlpha())
+	{
+		highlightIcon.InitAlpha();
+		do_alpha = true;
+	}
+	else if(to_colorize.HasMask())
+	{
+		highlightIcon.SetMaskFromImage(to_colorize,to_colorize.GetMaskRed(),to_colorize.GetMaskGreen(),to_colorize.GetMaskBlue());
+	}
+	for(int x = 0; x < highlightIcon.GetWidth(); x++)
+	{
+		for(int y = 0; y < highlightIcon.GetHeight(); y++)
+		{
+			to_colorize.GetData();
+			unsigned char srcR = to_colorize.GetRed(x,y);
+			unsigned char srcG = to_colorize.GetGreen(x,y);
+			unsigned char srcB = to_colorize.GetBlue(x,y);
+			highlightIcon.SetRGB(x,y,(srcR + col.Red())/2,(srcG + col.Green())/2, (srcB + col.Blue())/2);
+			if(do_alpha)
+				highlightIcon.SetAlpha(x,y,to_colorize.GetAlpha(x,y));
+		}
+	}
+	return highlightIcon;
+}
+
 InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 {
 	this->width = width;
@@ -70,7 +99,8 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 			wxLogMessage(_("Image %d %s has no alpha."), i, builtInIcons[i].key.c_str()  );
 		}
 #endif
-		Add(builtInIcons[i].image, builtInIcons[i].key);
+		wxImage highlightIcon = tintImage(builtInIcons[i].image,wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+		Add(builtInIcons[i].image, highlightIcon, builtInIcons[i].key);
 	}
 
 	if (wxDirExists(customIconDirName))
@@ -95,18 +125,21 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 					break;
 				}
 				wxString iconKey = iconFileName.GetName();
-				Add(image, iconKey);
+				wxImage highlightIcon = tintImage(image,wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+				Add(image,highlightIcon, iconKey);
 			} while (customIconDir.GetNext(&iconFile));
 		}
 	}
 }
 
-int InstIconList::Add(const wxImage image, const wxString key)
+int InstIconList::Add(const wxImage image, const wxImage hlimage, const wxString key)
 {
 	if (image.GetWidth() != 32 || image.GetHeight() != 32)
 	{
 		wxImage newImg(image);
+		wxImage newHLImg(hlimage);
 		newImg.Rescale(32, 32);
+		newHLImg.Rescale(32, 32);
 #ifdef DEBUG_ICONS
 		if(!newImg.HasAlpha())
 		{
@@ -115,10 +148,12 @@ int InstIconList::Add(const wxImage image, const wxString key)
 #endif
 		
 		imageList.push_back(newImg);
+		hlimageList.push_back(newHLImg);
 	}
 	else
 	{
 		imageList.push_back(image);
+		hlimageList.push_back(hlimage);
 	}
 	return indexMap[key] = imageList.size() - 1;
 }
