@@ -23,6 +23,8 @@
 #include <string>
 #include <cstdlib>
 
+#include "apputils.h"
+
 const BuildTag AppBuildTag(_T(JENKINS_BUILD_TAG));
 
 BuildTag::BuildTag(const wxString &buildType, const wxString &jobName, int buildNumber)
@@ -40,11 +42,11 @@ BuildTag::BuildTag(const BuildTag &tag)
 BuildTag::BuildTag(const wxString &str)
 {
 	wxArrayString strings = wxStringTokenize(str, _T("-"));
-	if (strings.GetCount() >= 3 && strings[0] == _T("jenkins"))
+	if (strings.GetCount() >= 3)
 	{
 		m_buildType = strings[0];
 		m_jobName = strings[1];
-		m_buildNumber = atoi(strings[2].mb_str());
+		m_buildNumber = atoi(TOASCII(strings[2]));
 	}
 	else
 	{
