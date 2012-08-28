@@ -58,7 +58,7 @@ BuildTag::BuildTag(const wxString &str)
 wxString BuildTag::ToString() const
 {
 	wxString str = wxString::Format(_T("%s-%s-%i"), 
-		GetBuildType(), GetJobName(), GetBuildNum());
+		GetBuildType().c_str(), GetJobName().c_str(), GetBuildNum());
 
 	return str;
 }
