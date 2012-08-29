@@ -23,6 +23,18 @@ IMPLEMENT_APP(MultiMC)
 // App
 bool MultiMC::OnInit()
 {
+	// On OS X set the working directory to $HOME/MultiMC
+	if (IS_MAC())
+	{
+		wxFileName mmcDir = wxFileName::DirName(_("$HOME/MultiMC"));
+		mmcDir.Normalize();
+		
+		if (!mmcDir.DirExists())
+			mmcDir.Mkdir(0777, wxPATH_MKDIR_FULL);
+		
+		wxSetWorkingDirectory(mmcDir.GetFullPath());
+	}
+	
 #if __WXGTK__ || defined MSVC
 	// Only works with Linux GCC or MSVC
 	wxHandleFatalExceptions();
@@ -59,13 +71,13 @@ bool MultiMC::OnInit()
 	
 	if (!InitAppSettings())
 	{
-		wxLogError(_("Failed to initialize settings."));
+		wxLogError(_("Failed to initialize settings->"));
 		return false;
 	}
 	
-	if (!settings.GetInstDir().DirExists())
+	if (!settings->GetInstDir().DirExists())
 	{
-		settings.GetInstDir().Mkdir();
+		settings->GetInstDir().Mkdir();
 	}
 	
 	switch (startMode)
@@ -199,6 +211,8 @@ int MultiMC::OnExit()
 		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
 		proc.Detach();
 	}
+
+	delete settings;
 	
 	return wxApp::OnExit();
 }

@@ -48,6 +48,8 @@
 #include <wx/gbsizer.h>
 #include <wx/filedlg.h>
 
+#include "buildtag.h"
+
 const int instNameLengthLimit = 25;
 
 const wxSize minSize = wxSize(620, 400);
@@ -55,11 +57,11 @@ const wxSize minSize = wxSize(620, 400);
 // Main window
 MainWindow::MainWindow(void)
 	: wxFrame(NULL, -1, 
-		wxString::Format(_("MultiMC %d.%d.%d Build %d %s"), 
-			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision(), AppVersion.GetBuild(),
-			(AppVersion.IsDevBuild() ? _("Dev") : _("Stable"))),
+		wxString::Format(_("MultiMC %d.%d.%d %s"), 
+			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision(),
+			AppBuildTag.ToString().c_str()),
 		wxPoint(0, 0), minSize),
-		centralModList(settings.GetModsDir().GetFullPath())
+		centralModList(settings->GetModsDir().GetFullPath())
 {
 	// initialize variables to sane values
 	closeOnTaskEnd = false;
@@ -160,7 +162,7 @@ MainWindow::MainWindow(void)
 	SetSizer(box);
 	
 	// Initialize the GUI
-	switch (settings.GetGUIMode())
+	switch (settings->GetGUIMode())
 	{
 	case GUI_Simple:
 		InitBasicGUI(box);
@@ -197,12 +199,12 @@ void MainWindow::OnStartup()
 	LoadCentralModList();
 
 	// Automatically auto-detect the Java path.
-	if (settings.GetJavaPath() == _("java"))
+	if (settings->GetJavaPath() == _("java"))
 	{
-		settings.SetJavaPath(FindJavaPath());
+		settings->SetJavaPath(FindJavaPath());
 	}
 
-	if (settings.GetAutoUpdate())
+	if (settings->GetAutoUpdate())
 	{
 		CheckUpdateTask *task = new CheckUpdateTask();
 		StartTask(*task);
@@ -262,9 +264,6 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	wxGridBagSizer *instSz = new wxGridBagSizer();
 	instPanel->SetSizer(instSz);
 	
-	instSz->AddGrowableCol(1, 0);
-	instSz->AddGrowableRow(1, 0);
-	
 	const int cols = 4;
 	const int rows = 3;
 	
@@ -319,6 +318,9 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnSz->Add(btnRebuildJar, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 	btnViewFolder = new wxButton(btnPanel, ID_ViewInstFolder, _("&View Folder"));
 	btnSz->Add(btnViewFolder, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	
+	instSz->AddGrowableCol(1, 0);
+	instSz->AddGrowableRow(1, 0);
 	
 	UpdateNotesBox();
 	CancelRename();
@@ -417,7 +419,8 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 	
 	if (GetGUIMode() == GUI_Default)
 	{
-		instListbook->SetSelection(0);
+		if (instListbook->GetPageCount() > 0)
+			instListbook->SetSelection(0);
 		UpdateInstPanel();
 	}
 	
@@ -507,7 +510,7 @@ Retry:
 
 	int num = 0;
 	wxString dirName = Utils::RemoveInvalidPathChars(newInstName);
-	while (wxDirExists(Path::Combine(settings.GetInstDir(), dirName)))
+	while (wxDirExists(Path::Combine(settings->GetInstDir(), dirName)))
 	{
 		num++;
 		dirName = Utils::RemoveInvalidPathChars(newInstName) + wxString::Format(_("_%i"), num);
@@ -516,7 +519,7 @@ Retry:
 		if (num > 9000)
 		{
 			wxLogError(_T("Couldn't create instance folder: %s"),
-				Path::Combine(settings.GetInstDir(), dirName).c_str());
+				Path::Combine(settings->GetInstDir(), dirName).c_str());
 			goto Retry;
 		}
 	}
@@ -535,7 +538,7 @@ void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 	if (!GetNewInstName(&instName, &instDirName))
 		return;
 
-	wxFileName instDir = wxFileName::DirName(Path::Combine(settings.GetInstDir(), instDirName));
+	wxFileName instDir = wxFileName::DirName(Path::Combine(settings->GetInstDir(), instDirName));
 	
 	Instance *inst = new Instance(instDir);
 	inst->SetName(instName);
@@ -559,7 +562,7 @@ void MainWindow::OnImportCPClicked(wxCommandEvent& event)
 
 void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
 {
-	Utils::OpenFile(settings.GetInstDir());
+	Utils::OpenFile(settings->GetInstDir());
 }
 
 void MainWindow::OnRefreshClicked(wxCommandEvent& event)
@@ -590,11 +593,10 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 	wxString updaterFileName = _("MultiMCUpdate");
 #endif
 
-	if (event.m_latestBuildNumber > AppVersion.GetBuild() || 
-		settings.GetUseDevBuilds() != AppVersion.IsDevBuild())
+	if (event.m_latestBuildNumber > AppVersion.GetBuild())
 	{
-		if (wxMessageBox(wxString::Format(_("%s build #%i is available. Would you like to download and install it?"), 
-				(settings.GetUseDevBuilds() ? _("Dev") : _("Stable")), event.m_latestBuildNumber), 
+		if (wxMessageBox(wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
+				event.m_latestBuildNumber), 
 				_("Update Available"), wxYES_NO) == wxYES)
 		{
 			FileDownloadTask dlTask(event.m_downloadURL, 
@@ -623,7 +625,7 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 #ifndef __WXMSW__
 	wxAboutDialogInfo info;
 	info.SetName(_("MultiMC"));
-	info.SetVersion(AppVersion.ToString());
+	info.SetVersion(wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
 	info.SetDescription(_("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once."));
 	info.SetCopyright(_("(C) 2012 Andrew Okin"));
 	
@@ -673,7 +675,7 @@ POSSIBILITY OF SUCH DAMAGE."));
 	
 	wxAboutBox(info);
 #else
-	wxMessageBox(wxString::Format(_("The about dialog is currently not supported in Windows.\nYou are using MultiMC version %s."), AppVersion.ToString().c_str()));
+	wxMessageBox(wxString::Format(_("The about dialog is currently not supported in Windows.\nYou are using MultiMC version %s.\nThis build's tag is %s."), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
 #endif
 }
 
@@ -837,7 +839,7 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	if (!GetNewInstName(&instName, &instDirName, _("Copy existing instance")))
 		return;
 
-	instDirName = Path::Combine(settings.GetInstDir(), instDirName);
+	instDirName = Path::Combine(settings->GetInstDir(), instDirName);
 
 	wxMkdir(instDirName);
 	FileCopyTask task(srcInst->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));

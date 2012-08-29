@@ -98,7 +98,7 @@ public:
 	
 	void ShowLoginDlg(wxString errorMsg);
 	
-	void LoadInstanceList(wxFileName instDir = settings.GetInstDir());
+	void LoadInstanceList(wxFileName instDir = settings->GetInstDir());
 	void LoadCentralModList();
 
 	ModList *GetCentralModList();

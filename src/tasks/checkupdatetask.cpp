@@ -27,8 +27,7 @@
 
 DEFINE_EVENT_TYPE(wxEVT_CHECK_UPDATE)
 
-const wxString stableCIURL = _("http://forkk.net:8080/job/MultiMC4/");
-const wxString devCIURL = _("http://forkk.net:8080/job/MultiMC4Dev/");
+const wxString ciURL = _(JENKINS_JOB_URL);
 
 CheckUpdateTask::CheckUpdateTask()
 	: Task()
@@ -41,11 +40,7 @@ void CheckUpdateTask::TaskStart()
 	SetStatus(_("Getting version info..."));
 	
 	// Get the main page for the project
-	wxString jobURL;
-	if (settings.GetUseDevBuilds())
-		jobURL = devCIURL;
-	else
-		jobURL = stableCIURL;
+	wxString jobURL = ciURL;
 
 	wxString mainPageJSON;
 	if (!DownloadString(jobURL + _("api/json"), &mainPageJSON))
@@ -56,32 +51,16 @@ void CheckUpdateTask::TaskStart()
 	
 	// Determine the latest stable build.
 	int buildNumber = GetBuildNumber(mainPageJSON);
-	
+
 	// Figure out where to download the latest update.
 	wxString dlFileName;
 	if (IS_WINDOWS())
 		dlFileName = _("MultiMC.exe");
 	else if (IS_LINUX() || IS_MAC())
 		dlFileName = _("MultiMC");
-	
-	wxString osName;
-	if (IS_WINDOWS())
-		osName = _("Windows");
-	else if (IS_LINUX())
-		osName = _("Linux");
-	else if (IS_MAC())
-		osName = _("OSX");
-	
-#if ARCH == x86
-		wxString arch = _("x86");
-#elif ARCH == x64
-		wxString arch = _("x64");
-#else
-#error Unknown architecture.
-#endif
-	
-	wxString dlURL = wxString::Format(_("%s%i/arch=%s,os=%s/artifact/%s"), jobURL.c_str(), 
-		buildNumber, arch.c_str(), osName.c_str(), dlFileName.c_str());
+
+	wxString dlURL = wxString::Format(_("%s/%i/artifact/%s"), jobURL.c_str(), 
+		buildNumber, dlFileName.c_str());
 	
 	SetProgress(75);
 	OnCheckComplete(buildNumber, dlURL);

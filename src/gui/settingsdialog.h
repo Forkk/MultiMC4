@@ -30,8 +30,8 @@ public:
 	
 	void OnButtonClicked(wxCommandEvent& event);
 	
-	void ApplySettings(AppSettings &s = settings);
-	void LoadSettings(AppSettings &s = settings);
+	void ApplySettings(AppSettings *s = settings);
+	void LoadSettings(AppSettings *s = settings);
 	
 protected:
 	void OnBrowseInstDirClicked(wxCommandEvent& event);
@@ -62,7 +62,7 @@ protected:
 	wxTextCtrl *javaPathTextBox;
 	wxTextCtrl *jvmArgsTextBox;
 
-	wxCheckBox *devBuildCheck;
+	//wxCheckBox *devBuildCheck;
 	
 	wxComboBox *guiStyleDropDown;
 

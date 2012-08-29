@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIdentifier</key>
+	<string>MultiMC</string>
+	<key>CFBundleExecutable</key>
+	<string>MultiMC</string>
+	<key>CFBundleIconFile</key>
+	<string>MultiMC.icns</string>
+	<key>CFBundleIconFiles</key>
+	<array>
+		<string>MultiMC16.icns</string>
+		<string>MultiMC32.icns</string>
+		<string>MultiMC48.icns</string>
+		<string>MultiMC64.icns</string>
+		<string>MultiMC128.icns</string>
+	</array>
+</dict>
+</plist>

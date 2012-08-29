@@ -55,7 +55,7 @@ protected:
 	std::array<wxString, 5> jarURLs;
 	
 	virtual void TaskStart();
-	virtual void LoadJarURLs();
+	virtual bool LoadJarURLs();
 	virtual void AskToUpdate();
 	virtual void DownloadJars();
 	virtual void ExtractNatives();

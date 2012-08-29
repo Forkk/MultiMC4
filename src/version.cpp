@@ -17,7 +17,7 @@
 #include "version.h"
 #include "config.h"
 
-const Version AppVersion(VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD, IS_DEV_BUILD);
+const Version AppVersion(VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD);
 
 Version::Version(int major, int minor, int revision, int build, bool isDevBuild)
 {
