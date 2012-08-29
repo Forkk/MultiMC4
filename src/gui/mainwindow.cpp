@@ -848,7 +848,7 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	if (!GetNewInstName(&instName, &instDirName, _("Copy existing instance")))
 		return;
 
-	instDirName = Path::Combine(settings->GetInstDir(), instDirName);
+	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName));
 
 	wxMkdir(instDirName);
 	FileCopyTask task(srcInst->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));
