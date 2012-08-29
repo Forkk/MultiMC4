@@ -324,8 +324,12 @@ void GameUpdateTask::DownloadJars()
 				// ASCII is fine. it's lower case letters and numbers
 				std::string value (TOASCII(md5sum));
 				md5s.put<std::string>(key, value);
-				std::string stlstring = std::string(md5File.GetFullPath().mb_str());
-				write_ini(stlstring, md5s);
+				wxFileOutputStream str();
+				std::ofstream out;
+				out.open(md5File.GetFullPath().mb_str());
+				write_ini(out, md5s);
+				out.flush();
+				out.close();
 			}
 			else
 			{
