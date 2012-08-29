@@ -9,6 +9,7 @@
 
 #define wxINST_MULTIPLE_SELECT    0x0010
 #define wxINST_SINGLE_COLUMN      0x0020
+#define wxINST_CENTER             0x0040
 
 /* Flags
  */
@@ -289,6 +290,7 @@ public:
 	void OnKillFocus ( wxFocusEvent& event );
 
 // Implementation
+private:
 
 	/// Update the row heights for layouting.
 	void UpdateRows();
@@ -299,6 +301,21 @@ public:
 	/// Calculate the outer item size based
 	/// on font used for text and inner size
 	void CalculateOverallItemSize();
+	
+	/// Calculate items per row based on current size
+	int CalculateItemsPerRow();
+	
+	/// Get the current items per row value
+	int GetItemsPerRow()
+	{
+		return m_itemsPerRow;
+	}
+	
+	/// Get the current items per row value
+	void SetItemsPerRow(int itpw)
+	{
+		m_itemsPerRow = itpw;
+	}
 
 	/// Do (de)selection
 	void DoSelection ( int n, int flags );
@@ -365,6 +382,9 @@ private:
 
 	/// Buffer bitmap
 	wxBitmap                m_bufferBitmap;
+	
+	/// items per row - cached
+	int                     m_itemsPerRow;
 };
 
 /*!
