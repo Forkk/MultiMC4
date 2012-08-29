@@ -708,9 +708,9 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 		return;
 	}
 	UserInfo lastLogin;
-	if (wxFileExists(_("lastlogin")))
+	if (wxFileExists(_("lastlogin4")))
 	{
-		lastLogin.LoadFromFile("lastlogin");
+		lastLogin.LoadFromFile("lastlogin4");
 	}
 	
 	LoginDialog loginDialog(this, errorMsg, lastLogin);
@@ -721,7 +721,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	{
 		UserInfo info(loginDialog);
 		
-		info.SaveToFile("lastlogin");
+		info.SaveToFile("lastlogin4");
 		
 		if (!playOffline)
 		{
