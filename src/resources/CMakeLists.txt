@@ -45,6 +45,7 @@ planks.png
 stone.png
 tnt.png
 creeper.png
+squarecreeper.png
 skeleton.png
 enderpearl.png
 )
