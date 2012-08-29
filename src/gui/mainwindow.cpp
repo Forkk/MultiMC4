@@ -795,12 +795,21 @@ void MainWindow::RenameEvent()
 			break;
 		wxTextEntryDialog textDlg(this, _("Enter a new name for this instance."), 
 			_("Rename Instance"), inst->GetName());
-		if (textDlg.ShowModal() == wxID_OK)
+		while(1)
 		{
-			inst->SetName(textDlg.GetValue());
+			int response = textDlg.ShowModal();
+			if(response == wxID_CANCEL)
+				break;
+			wxString str = textDlg.GetValue();
+			if(str.length() > 25)
+			{
+				wxMessageBox(_T("Sorry, that name is too long. 25 characters is the limit."), _T("Error"), wxOK | wxCENTER, this);
+				continue;
+			}
+			inst->SetName(str);
 			LoadInstanceList();
+			break;
 		}
-		break;
 	}
 	}
 }
