@@ -254,7 +254,6 @@ void SettingsDialog::ApplySettings(AppSettings *s /* = settings */)
 			_T("Instance directory changed."), 
 			wxYES | wxNO | wxCANCEL | wxCENTER, this);
 		
-	RetryTransfer:
 		if (response != wxCANCEL)
 		{
 			s->SetInstDir(newInstDir);
