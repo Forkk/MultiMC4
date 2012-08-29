@@ -308,6 +308,8 @@ private:
 	/// Get the current items per row value
 	int GetItemsPerRow()
 	{
+		if(( GetWindowStyle() & wxINST_SINGLE_COLUMN ) != 0)
+			return 1;
 		return m_itemsPerRow;
 	}
 	

@@ -221,7 +221,7 @@ GUIMode MainWindow::GetGUIMode() const
 
 void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 {
-	instListCtrl = new wxInstanceCtrl(this, ID_InstListCtrl);
+	instListCtrl = new wxInstanceCtrl(this, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize,wxINST_SINGLE_COLUMN);
 	instListCtrl->SetImageSize(wxSize(32,32));
 	InitInstMenu();
 	
