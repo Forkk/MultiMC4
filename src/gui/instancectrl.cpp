@@ -67,7 +67,8 @@ bool wxInstanceCtrl::Create ( wxWindow* parent, wxWindowID id, const wxPoint& po
 {
 	if ( !wxScrolledWindow::Create ( parent, id, pos, size, style | wxFULL_REPAINT_ON_RESIZE ) )
 		return false;
-
+	
+	m_needsScrolling = false;
 	SetFont ( wxSystemSettings::GetFont ( wxSYS_DEFAULT_GUI_FONT ) );
 	CalculateOverallItemSize();
 	m_itemsPerRow = CalculateItemsPerRow();
@@ -121,9 +122,11 @@ int wxInstanceCtrl::Append ( wxInstanceItem* item )
 {
 	int sz = ( int ) GetCount();
 	m_items.Add ( item );
+	/*
 	m_firstSelection = -1;
 	m_lastSelection = -1;
 	m_focusItem = -1;
+	*/
 
 	if ( m_freezeCount == 0 )
 	{
@@ -979,7 +982,7 @@ void wxInstanceCtrl::SetupScrollbars()
 	int startX, startY;
 	GetViewStart ( & startX, & startY );
 
-	int maxPositionX = 0; // wxMax(sz.x - clientSize.x, 0);
+	int maxPositionX = 0;
 	int maxPositionY = ( wxMax ( maxHeight - clientSize.y, 0 ) ) /pixelsPerUnit;
 
 	// Move to previous scroll position if
@@ -987,6 +990,8 @@ void wxInstanceCtrl::SetupScrollbars()
 	SetScrollbars ( 0, pixelsPerUnit,
 	                0, unitsY,
 	                wxMin ( maxPositionX, startX ), wxMin ( maxPositionY, startY ) );
+
+	m_needsScrolling = (maxHeight - clientSize.y) > 0;
 }
 
 /// Draws the item. Normally you override function in wxInstanceItem.
@@ -1126,6 +1131,8 @@ bool wxInstanceCtrl::HitTest ( const wxPoint& pt, int& n )
 	int colPos = ( int ) ( pt.x / ( m_itemWidth + m_spacing ) );
 	int rowPos = 0;
 	int actualY = pt.y + startY * ppuY;
+	if(rowPos >= m_row_ys.size())
+		return false;
 	//FIXME: use binary search
 	while (m_row_ys[rowPos] < actualY && rowPos < m_row_ys.size())
 		rowPos++;
@@ -1133,6 +1140,8 @@ bool wxInstanceCtrl::HitTest ( const wxPoint& pt, int& n )
 
 	int itemN = ( rowPos * perRow + colPos );
 	if ( itemN >= GetCount() )
+		return false;
+	if(itemN < 0)
 		return false;
 
 	wxRect rect;
@@ -1231,6 +1240,18 @@ void wxInstanceCtrl::UpdateRows ( )
 	}
 }
 
+void wxInstanceCtrl::UpdateItem ( int n )
+{
+	if (n < 0 || n >= GetCount())
+		return;
+	auto & item = m_items[n];
+	item.updateName();
+	Refresh();
+	UpdateRows();
+	SetupScrollbars();
+}
+
+
 /*!
  * wxInstanceItem
  */
@@ -1249,6 +1270,7 @@ void wxInstanceItem::updateName()
 	int lastprocessed = 0;
 	text_width = 0;
 	text_lines = 0;
+	name_wrapped = wxString();
 	
 	for(int i = 0; i < extents.size();i++)
 	{
@@ -1397,7 +1419,12 @@ bool wxInstanceItem::DrawBackground ( wxDC& dc, wxInstanceCtrl* ctrl, const wxRe
 
 wxSize wxInstanceCtrl::DoGetBestSize() const
 {
-	wxSize sz = wxWindow::DoGetBestSize();
+	int best_width = m_spacing + (m_itemWidth + m_spacing) * GetItemsPerRow();
+	if(( GetWindowStyle() & wxINST_SINGLE_COLUMN ) != 0 && m_needsScrolling)
+	{
+		best_width += wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
+	}
+	wxSize sz(best_width,0);
 	return sz;
 }
 
