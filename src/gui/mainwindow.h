@@ -121,6 +121,8 @@ protected:
 	bool canLaunch;
 	
 	bool closeOnTaskEnd;
+	
+	GUIMode m_guiMode;
 
 	Instance* GetLinkedInst(int id);
 
@@ -131,28 +133,28 @@ protected:
 	// maps index in the used list control to an instance.
 	std::vector<Instance*> instItems;
 	
-	GUIMode GetGUIMode() const;
+	GUIMode GetGUIMode() const
+	{
+		return m_guiMode;
+	};
 	
 	// Basic GUI (a simple list control with a context menu)
 	void InitBasicGUI(wxBoxSizer *mainSz);
 	void InitInstMenu();
 	
 	wxInstanceCtrl *instListCtrl;
+	Instance       *m_currentInstance;
+	int             m_currentInstanceIdx;
 	
 	
 	// Advanced GUI
 	void InitAdvancedGUI(wxBoxSizer *mainSz);
 	
-	#if wxCHECK_VERSION(2, 9, 0)
-	void OnPageChanged(wxBookCtrlEvent &event);
-	#else
-	void OnPageChanged(wxListbookEvent &event);
-	#endif
+	void OnInstSelected(wxInstanceCtrlEvent &event);
 
 	void UpdateInstPanel();
 	void UpdateInstNameLabel(Instance *inst);
 	
-	wxListbook *instListbook;
 	wxPanel *instPanel;
 	wxGridBagSizer *instSz;
 	
@@ -174,7 +176,7 @@ protected:
 	wxTextCtrl *instNameEditor;
 	
 	void UpdateNotesBox();
-	void SaveNotesBox(Instance *inst);
+	void SaveNotesBox();
 	bool editingNotes;
 	
 	void StartRename();

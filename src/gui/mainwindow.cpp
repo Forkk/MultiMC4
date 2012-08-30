@@ -71,7 +71,6 @@ MainWindow::MainWindow(void)
 	instMenu = nullptr;
 	instListCtrl = nullptr;
 
-	instListbook = nullptr;
 	instPanel = nullptr;
 	instSz = nullptr;
 	
@@ -91,6 +90,8 @@ MainWindow::MainWindow(void)
 	instNameSz = nullptr;
 	instNameLabel = nullptr;
 	instNameEditor = nullptr;
+	m_currentInstance = nullptr;
+	m_currentInstanceIdx = -1;
 	
 	//SetMinSize(minSize);
 	
@@ -157,12 +158,12 @@ MainWindow::MainWindow(void)
 	SetStatusBarPane(0);
 	
 	// Set up the main panel and sizers
-// 	wxPanel *panel = new wxPanel(this, -1);
 	wxBoxSizer *box = new wxBoxSizer(wxVERTICAL);
 	SetSizer(box);
 	
+	m_guiMode = settings->GetGUIMode();
 	// Initialize the GUI
-	switch (settings->GetGUIMode())
+	switch (GetGUIMode())
 	{
 	case GUI_Simple:
 		InitBasicGUI(box);
@@ -171,20 +172,6 @@ MainWindow::MainWindow(void)
 		InitAdvancedGUI(box);
 		break;
 	}
-	
-	// Load instance icons
-	InstIconList * instIcons = InstIconList::Instance();
-	switch (GetGUIMode())
-	{
-	case GUI_Simple:
-		//instListCtrl->AssignImageList(instIcons->CreateImageList(), wxIMAGE_LIST_NORMAL);
-		break;
-		
-	case GUI_Default:
-		instListbook->AssignImageList(instIcons->CreateImageList());
-		break;
-	}
-	
 	CenterOnScreen();
 }
 
@@ -211,17 +198,9 @@ void MainWindow::OnStartup()
 	}
 }
 
-GUIMode MainWindow::GetGUIMode() const
-{
-	if (instListCtrl == nullptr)
-		return GUI_Default;
-	else
-		return GUI_Simple;
-}
-
 void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 {
-	instListCtrl = new wxInstanceCtrl(this, ID_InstListCtrl);
+	instListCtrl = new wxInstanceCtrl(this, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize);
 	instListCtrl->SetImageSize(wxSize(32,32));
 	InitInstMenu();
 	
@@ -253,25 +232,23 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 {
 	InitInstMenu();
 
-	instListbook = new wxListbook(this, ID_InstListCtrl, 
-		wxDefaultPosition, wxDefaultSize, wxLB_LEFT);
-	instListbook->GetListView()->SetMinSize(wxSize(80, -1));
-	instListbook->GetListView()->SetId(ID_InstListCtrl);
-	
-	mainSz->Add(instListbook, 1, wxEXPAND);
-	
-	instPanel = new wxPanel(instListbook);
+	instPanel = new wxPanel(this);
+	mainSz->Add(instPanel, 1, wxEXPAND);
 	wxGridBagSizer *instSz = new wxGridBagSizer();
 	instPanel->SetSizer(instSz);
 	
-	const int cols = 4;
+	const int cols = 5;
 	const int rows = 3;
 	
 	wxFont titleFont(18, wxSWISS, wxNORMAL, wxNORMAL);
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
 	
+	instListCtrl = new wxInstanceCtrl(instPanel, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize,wxINST_SINGLE_COLUMN);
+	instListCtrl->SetImageSize(wxSize(32,32));
+	instSz->Add(instListCtrl,wxGBPosition(0, 0), wxGBSpan(rows, 1),wxEXPAND);
+	
 	instNameSz = new wxBoxSizer(wxVERTICAL);
-	instSz->Add(instNameSz, wxGBPosition(0, 0), wxGBSpan(1, cols - 1), 
+	instSz->Add(instNameSz, wxGBPosition(0, 1), wxGBSpan(1, cols - 2), 
 		wxEXPAND | wxALL, 4);
 	
 	instNameEditor = new wxTextCtrl(instPanel, ID_InstNameEditor, wxEmptyString,
@@ -288,7 +265,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	
 	instNotesEditor = new wxTextCtrl(instPanel, -1, wxEmptyString,
 		wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_RICH);
-	instSz->Add(instNotesEditor, wxGBPosition(1, 0), wxGBSpan(rows - 2, cols - 1), 
+	instSz->Add(instNotesEditor, wxGBPosition(1, 1), wxGBSpan(rows - 2, cols - 2), 
 		wxEXPAND | wxALL, 4);
 	
 	
@@ -301,89 +278,81 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	const int spacerSize = 4;
 
 	btnPlay = new wxButton(btnPanel, ID_Play, _("&Play"));
-	btnSz->Add(btnPlay, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	wxSizerFlags szflags(0);
+	szflags.Border(wxTOP | wxBOTTOM, 4).Expand();
+	
+	btnSz->Add(btnPlay, szflags);
 	btnSz->AddSpacer(spacerSize);
 	btnRename = new wxButton(btnPanel, ID_Rename, _("&Rename"));
-	btnSz->Add(btnRename, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	btnSz->Add(btnRename, szflags);
 	btnChangeIcon = new wxButton(btnPanel, ID_ChangeIcon, _("Change &Icon"));
-	btnSz->Add(btnChangeIcon, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	btnSz->Add(btnChangeIcon, szflags);
 	btnCopyInst = new wxButton(btnPanel, ID_CopyInst, _("Copy Instance"));
-	btnSz->Add(btnCopyInst, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	btnSz->Add(btnCopyInst, szflags);
 	btnSz->AddSpacer(spacerSize);
 	btnEditMods = new wxButton(btnPanel, ID_EditMods, _("Edit &Mods"));
-	btnSz->Add(btnEditMods, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	btnSz->Add(btnEditMods, szflags);
 	btnDowngrade = new wxButton(btnPanel, ID_DowngradeInst, _("Downgrade"));
-	btnSz->Add(btnDowngrade, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	btnSz->Add(btnDowngrade, szflags);
 	btnRebuildJar = new wxButton(btnPanel, ID_RebuildJar, _("Re&build Jar"));
-	btnSz->Add(btnRebuildJar, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	btnSz->Add(btnRebuildJar, szflags);
 	btnViewFolder = new wxButton(btnPanel, ID_ViewInstFolder, _("&View Folder"));
-	btnSz->Add(btnViewFolder, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+	btnSz->Add(btnViewFolder, szflags);
 	
 	instSz->AddGrowableCol(1, 0);
 	instSz->AddGrowableRow(1, 0);
-	
-	UpdateNotesBox();
-	CancelRename();
+	SetMinSize(instSz->ComputeFittingWindowSize(this));
+	UpdateInstPanel();
 }
 
 void MainWindow::UpdateInstPanel()
 {
-	bool showInstPanel = (instListbook->GetPageCount() > 0);
-	instPanel->Show(showInstPanel);
-	if (showInstPanel)
-	{
-		Instance *inst = GetSelectedInst();
-		UpdateInstNameLabel(inst);
-		UpdateNotesBox();
-		CancelRename();
+	instPanel->Show();
+	if(m_currentInstance && !renamingInst)
+		EnableInstActions();
+	else
+		DisableInstActions();
+	//UpdateInstNameLabel(inst);
+	UpdateNotesBox();
+	CancelRename();
 
-		instPanel->Layout();
-	}
+	instPanel->Layout();
 }
 
 void MainWindow::UpdateInstNameLabel(Instance *inst)
 {
-	wxString instName = inst->GetName();
-	if (instName.Len() > instNameLengthLimit)
+	if(inst)
 	{
-		instName.Truncate(instNameLengthLimit);
-		instName.Trim();
-		instName.Append(_("..."));
+		wxString instName = inst->GetName();
+		if (instName.Len() > instNameLengthLimit)
+		{
+			instName.Truncate(instNameLengthLimit);
+			instName.Trim();
+			instName.Append(_("..."));
+		}
+		instNameLabel->SetLabel(instName);
 	}
-	instNameLabel->SetLabel(instName);
+	else
+	{
+		instNameLabel->SetLabel(_("Select an instance"));
+	}
 }
 
-#if wxCHECK_VERSION(2, 9, 0)
-void MainWindow::OnPageChanged(wxBookCtrlEvent &event)
-#else
-void MainWindow::OnPageChanged(wxListbookEvent &event)
-#endif
+void MainWindow::OnInstSelected(wxInstanceCtrlEvent &event)
 {
-	if (GetLinkedInst(event.GetOldSelection()) != nullptr)
-	{
-		SaveNotesBox(GetLinkedInst(event.GetOldSelection()));
-	}
-	UpdateInstPanel();
+	if(GetGUIMode() == GUI_Default)
+		SaveNotesBox();
+	m_currentInstanceIdx = event.GetIndex();
+	m_currentInstance = GetLinkedInst(m_currentInstanceIdx);
+	if(GetGUIMode() == GUI_Default)
+		UpdateInstPanel();
 }
 
 void MainWindow::LoadInstanceList(wxFileName instDir)
 {
 	GetStatusBar()->PushStatusText(_("Loading instances..."), 0);
 	
-	switch (GetGUIMode())
-	{
-	case GUI_Simple:
-		instListCtrl->Clear();
-		break;
-		
-	case GUI_Default:
-		for (int i = instListbook->GetPageCount() - 1; i >= 0; i--)
-		{
-			instListbook->RemovePage(i);
-		}
-		break;
-	}
-	
+	instListCtrl->Clear();
 	instItems.clear();
 	
 	wxDir dir(instDir.GetFullPath());
@@ -396,6 +365,7 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 	wxString subFolder;
 	int ctr = 0;
 	bool cont = dir.GetFirst(&subFolder, wxEmptyString, wxDIR_DIRS);
+	instListCtrl->Freeze();
 	while (cont)
 	{
 		wxFileName dirName(instDir.GetFullPath(), subFolder);
@@ -409,18 +379,16 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 			
 			ctr++;
 		}
-		
-		GetStatusBar()->SetStatusText(
-			wxString::Format(_("Loaded %i instances..."), ctr), 0);
-		wxGetApp().Yield();
 		cont = dir.GetNext(&subFolder);
 	}
+	instListCtrl->Thaw();
+	GetStatusBar()->SetStatusText(wxString::Format(_("Loaded %i instances..."), ctr), 0);
+	wxGetApp().Yield();
 	Enable(true);
+	
 	
 	if (GetGUIMode() == GUI_Default)
 	{
-		if (instListbook->GetPageCount() > 0)
-			instListbook->SetSelection(0);
 		UpdateInstPanel();
 	}
 	
@@ -435,24 +403,11 @@ void MainWindow::AddInstance(Instance *inst)
 		instName.Truncate(instNameLengthLimit - 3);
 		instName.Append(_("..."));
 	}
-	
-	int item;
-	wxInstanceItem * thumb;
-	InstIconList * instIcons = InstIconList::Instance();
-	switch (GetGUIMode())
-	{
-	case GUI_Simple:
-		thumb = new wxInstanceItem(inst);
-		item = instListCtrl->Append(thumb);
-		instItems.push_back(inst);
-		break;
-		
-	case GUI_Default:
-		item = instListbook->GetPageCount();
-		instItems.push_back(inst);
-		instListbook->InsertPage(item, instPanel, inst->GetName(), true, instIcons->getIndexForKey(inst->GetIconKey()));
-		break;
-	}
+	instListCtrl->Append(new wxInstanceItem(inst));
+	instItems.push_back(inst);
+	wxSizer * sz = GetSizer();
+	if(sz)
+		sz->Layout();
 }
 
 Instance* MainWindow::GetLinkedInst(int id)
@@ -464,31 +419,11 @@ Instance* MainWindow::GetLinkedInst(int id)
 
 Instance* MainWindow::GetSelectedInst()
 {
-	switch (GetGUIMode())
-	{
-	case GUI_Simple:
-	{
-		long item = -1;
-		while (true)
-		{
-			item = instListCtrl->GetSelection();
-			
-			if (item == -1)
-				break;
-			
-			return GetLinkedInst(item);
-		}
+	long item = instListCtrl->GetSelection();
+		
+	if (item == -1)
 		return nullptr;
-	}
-	
-	case GUI_Default:
-		if (instListbook->GetPageCount() <= 0)
-			return nullptr;
-		return GetLinkedInst(instListbook->GetSelection());
-
-	default:
-		return nullptr;
-	}
+	return GetLinkedInst(item);
 }
 
 bool MainWindow::GetNewInstName(wxString *instName, wxString *instDirName, const wxString title)
@@ -700,17 +635,16 @@ void MainWindow::OnInstActivated(wxInstanceCtrlEvent &event)
 
 void MainWindow::ShowLoginDlg(wxString errorMsg)
 {
-	Instance *selected = GetSelectedInst();
-	if(!selected)
+	if(!m_currentInstance)
 	{
 		// FIXME: what if the instance somehow becomes deselected while playing? is that possible?
 		//        what does it mean to the state of the GUI
 		return;
 	}
 	UserInfo lastLogin;
-	if (wxFileExists(_("lastlogin")))
+	if (wxFileExists(_("lastlogin4")))
 	{
-		lastLogin.LoadFromFile("lastlogin");
+		lastLogin.LoadFromFile("lastlogin4");
 	}
 	
 	LoginDialog loginDialog(this, errorMsg, lastLogin);
@@ -721,16 +655,16 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	{
 		UserInfo info(loginDialog);
 		
-		info.SaveToFile("lastlogin");
+		info.SaveToFile("lastlogin4");
 		
 		if (!playOffline)
 		{
-			LoginTask *task = new LoginTask(info,selected , loginDialog.ShouldForceUpdate());
+			LoginTask *task = new LoginTask(info,m_currentInstance , loginDialog.ShouldForceUpdate());
 			StartModalTask(*task, true);
 		}
 		else
 		{
-			LoginCompleteEvent event(nullptr, LoginResult::PlayOffline(info.username), selected);
+			LoginCompleteEvent event(nullptr, LoginResult::PlayOffline(info.username), m_currentInstance);
 			OnLoginComplete(event);
 		}
 	}
@@ -790,11 +724,10 @@ void MainWindow::RenameEvent()
 		
 	case GUI_Simple:
 	{
-		Instance *inst = GetSelectedInst();
-		if(!inst)
+		if(!m_currentInstance)
 			break;
 		wxTextEntryDialog textDlg(this, _("Enter a new name for this instance."), 
-			_("Rename Instance"), inst->GetName());
+			_("Rename Instance"), m_currentInstance->GetName());
 		while(1)
 		{
 			int response = textDlg.ShowModal();
@@ -806,8 +739,8 @@ void MainWindow::RenameEvent()
 				wxMessageBox(_T("Sorry, that name is too long. 25 characters is the limit."), _T("Error"), wxOK | wxCENTER, this);
 				continue;
 			}
-			inst->SetName(str);
-			LoadInstanceList();
+			m_currentInstance->SetName(str);
+			instListCtrl->UpdateItem(m_currentInstanceIdx);
 			break;
 		}
 	}
@@ -829,18 +762,16 @@ void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 	ChangeIconDialog iconDlg(this);
 	if (iconDlg.ShowModal() == wxID_OK)
 	{
-		Instance *inst = GetSelectedInst();
-		if(!inst)
+		if(!m_currentInstance)
 			return;
-		inst->SetIconKey(iconDlg.GetSelectedIconKey());
-		LoadInstanceList();
+		m_currentInstance->SetIconKey(iconDlg.GetSelectedIconKey());
+		instListCtrl->Refresh();
 	}
 }
 
 void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 {
-	Instance *srcInst = GetSelectedInst();
-	if(!srcInst)
+	if(!m_currentInstance)
 		return;
 
 	wxString instName;
@@ -851,7 +782,7 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName));
 
 	wxMkdir(instDirName);
-	FileCopyTask task(srcInst->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));
+	FileCopyTask task(m_currentInstance->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));
 	StartModalTask(task);
 
 	Instance *newInst = new Instance(instDirName);
@@ -865,52 +796,52 @@ void MainWindow::OnNotesClicked(wxCommandEvent& event)
 	{
 	case GUI_Simple:
 	{
-		Instance *inst = GetSelectedInst();
-		if(!inst)
+		if(!m_currentInstance)
 			return;
-		wxTextEntryDialog textDlg(this, _("Instance notes"), _("Notes"), inst->GetNotes(), 
+		wxTextEntryDialog textDlg(this, _("Instance notes"), _("Notes"), m_currentInstance->GetNotes(), 
 			wxOK | wxCANCEL | wxTE_MULTILINE);
 		textDlg.SetSize(600, 400);
 		if (textDlg.ShowModal() == wxID_OK)
 		{
-			inst->SetNotes(textDlg.GetValue());
-			LoadInstanceList();
+			m_currentInstance->SetNotes(textDlg.GetValue());
 		}
 		break;
 	}
 	}
 }
 
-void MainWindow::SaveNotesBox(Instance *inst)
+void MainWindow::SaveNotesBox()
 {
-	if (inst != nullptr)
+	if (m_currentInstance != nullptr)
 	{
 		wxString notes = instNotesEditor->GetValue();
-		inst->SetNotes(notes);
-		instNotesEditor->SetValue(inst->GetNotes());
+		m_currentInstance->SetNotes(notes);
+		//FIXME: is this some some sort of magic?
+		instNotesEditor->SetValue(m_currentInstance->GetNotes());
 	}
 }
 
 void MainWindow::UpdateNotesBox()
 {
-	if (GetSelectedInst() != nullptr)
-		instNotesEditor->SetValue(GetSelectedInst()->GetNotes());
+	if (m_currentInstance)
+		instNotesEditor->SetValue(m_currentInstance->GetNotes());
+	else
+		instNotesEditor->SetValue(wxString());
 }
 
 
 void MainWindow::StartRename()
 {
-	Instance * selected = GetSelectedInst();
-	if(!selected)
+	if(!m_currentInstance)
 		return;
 	DisableInstActions();
 	renamingInst = true;
 	
 	GetStatusBar()->PushStatusText(wxString::Format(
 		_("Renaming instance '%s'... (Press enter to finish)"), 
-		selected->GetName().c_str()), 0);
+		m_currentInstance->GetName().c_str()), 0);
 	
-	instNameEditor->SetValue(selected->GetName());
+	instNameEditor->SetValue(m_currentInstance->GetName());
 	
 	instNameLabel->Show(false);
 	instNameSz->Hide(instNameLabel);
@@ -924,26 +855,27 @@ void MainWindow::StartRename()
 
 void MainWindow::FinishRename()
 {
-	Instance * selected = GetSelectedInst();
-	if(selected)
+	if(m_currentInstance)
 	{
 		if (!instNameEditor->IsEmpty())
-			GetSelectedInst()->SetName(instNameEditor->GetValue());
+		{
+			m_currentInstance->SetName(instNameEditor->GetValue());
+			instListCtrl->UpdateItem(m_currentInstanceIdx);
+		}
 	}
 	CancelRename();
-	LoadInstanceList();
 }
 
 void MainWindow::CancelRename()
 {
-	EnableInstActions();
-	
 	if (renamingInst)
 	{
+		EnableInstActions();
 		renamingInst = false;
 		GetStatusBar()->PopStatusText(0);
 	}
 	
+	UpdateInstNameLabel(m_currentInstance);
 	instNameEditor->Show(false);
 	instNameSz->Hide(instNameEditor);
 	
@@ -951,9 +883,6 @@ void MainWindow::CancelRename()
 	instNameSz->Show(instNameLabel);
 	
 	instNameSz->Layout();
-	
-	if (GetSelectedInst() != nullptr)
-		UpdateInstNameLabel(GetSelectedInst());
 }
 
 void MainWindow::OnRenameEnterPressed(wxCommandEvent &event)
@@ -974,6 +903,8 @@ void MainWindow::EnableInstActions(bool enabled)
 		btnEditMods->Enable(enabled);
 		btnRebuildJar->Enable(enabled);
 		btnViewFolder->Enable(enabled);
+		btnCopyInst->Enable(enabled);
+		btnDowngrade->Enable(enabled);
 		break;
 		
 	case GUI_Simple:
@@ -994,25 +925,23 @@ void MainWindow::OnManageSavesClicked(wxCommandEvent& event)
 
 void MainWindow::OnEditModsClicked(wxCommandEvent& event)
 {
-	Instance *selected = GetSelectedInst();
-	if(selected == nullptr)
+	if(m_currentInstance == nullptr)
 		return;
-	ModEditWindow *editDlg = new ModEditWindow(this, selected);
+	ModEditWindow *editDlg = new ModEditWindow(this, m_currentInstance);
 	editDlg->Show();
 }
 
 void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
 {
-	Instance *selected = GetSelectedInst();
-	if(selected == nullptr)
+	if(m_currentInstance == nullptr)
 		return;
 
-	if (selected->GetVersionFile().FileExists())
+	if (m_currentInstance->GetVersionFile().FileExists())
 	{
 		DowngradeDialog *downDlg = new DowngradeDialog(this);
 		if (downDlg->ShowModal() == wxID_OK && !downDlg->GetSelectedVersion().IsEmpty())
 		{
-			DowngradeTask dgTask(selected, downDlg->GetSelectedVersion());
+			DowngradeTask dgTask(m_currentInstance, downDlg->GetSelectedVersion());
 			StartModalTask(dgTask);
 		}
 	}
@@ -1024,25 +953,22 @@ void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
 
 void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
 {
-	Instance *selected = GetSelectedInst();
-	if(selected == nullptr)
+	if(m_currentInstance == nullptr)
 		return;
-	ModderTask *modTask = new ModderTask(selected);
+	ModderTask *modTask = new ModderTask(m_currentInstance);
 	StartModalTask(*modTask);
 }
 
 void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
 {
-	Instance *selected = GetSelectedInst();
-	if(selected == nullptr)
+	if(m_currentInstance == nullptr)
 		return;
-	Utils::OpenFile(selected->GetRootDir());
+	Utils::OpenFile(m_currentInstance->GetRootDir());
 }
 
 bool MainWindow::DeleteSelectedInstance()
 {
-	Instance *selected = GetSelectedInst();
-	if(selected == nullptr)
+	if(m_currentInstance == nullptr)
 		return false;
 
 	wxMessageDialog *dlg = new wxMessageDialog(this, 
@@ -1052,36 +978,26 @@ Deleted instances are lost FOREVER! (a really long time)"),
 		wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
 	if (dlg->ShowModal() == wxID_YES)
 	{
-		RecursiveDelete(selected->GetRootDir().GetFullPath());
-		long item;
-		switch (GetGUIMode())
-		{
-		case GUI_Simple:
-		{
-			item = instListCtrl->GetSelection();
-			instListCtrl->Delete(item);
-			delete selected;
-			instItems.erase(instItems.begin() + item);
-			return true;
-		}
+		RecursiveDelete(m_currentInstance->GetRootDir().GetFullPath());
+		instListCtrl->Delete(m_currentInstanceIdx);
+		delete m_currentInstance;
 		
-		case GUI_Default:
-			item = instListbook->GetSelection();
-			instListbook->RemovePage(item);
-			delete selected;
-			instItems.erase(instItems.begin() + item);
-			if(item > 0)
-				instListbook->SetSelection(item-1);
-			else
-			{
-				instListbook->SetSelection(0);
-				UpdateInstPanel();
-			}
-			return true;
-
-		default:
-			return false;
+		m_currentInstance = nullptr;
+		instItems.erase(instItems.begin() + m_currentInstanceIdx);
+		
+		if(m_currentInstanceIdx > 0)
+			instListCtrl->Select(m_currentInstanceIdx - 1);
+		else if(instListCtrl->GetCount())
+			instListCtrl->Select(0);
+		
+		m_currentInstanceIdx = instListCtrl->GetSelection();
+		m_currentInstance = GetLinkedInst(m_currentInstanceIdx);
+		
+		if(GetGUIMode() == GUI_Default)
+		{
+			UpdateInstPanel();
 		}
+		return true;
 	}
 	return false;
 }
@@ -1192,7 +1108,7 @@ void MainWindow::OnWindowClosed(wxCloseEvent& event)
 	if(instNotesEditor)
 	{
 		// Save instance notes on exit.
-		SaveNotesBox(GetSelectedInst());
+		SaveNotesBox();
 	}
 	wxTheApp->Exit();
 }
@@ -1266,8 +1182,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_INST_DELETE(ID_InstListCtrl, MainWindow::OnInstDeleteKey)
 	EVT_INST_RENAME(ID_InstListCtrl, MainWindow::OnInstRenameKey)
 	EVT_INST_RIGHT_CLICK(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
-	
-	EVT_LISTBOOK_PAGE_CHANGED(ID_InstListCtrl, MainWindow::OnPageChanged)
+	EVT_INST_ITEM_SELECTED(ID_InstListCtrl, MainWindow::OnInstSelected)
 	
 	EVT_TASK_START(MainWindow::OnTaskStart)
 	EVT_TASK_END(MainWindow::OnTaskEnd)
