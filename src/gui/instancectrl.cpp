@@ -1134,7 +1134,7 @@ bool wxInstanceCtrl::HitTest ( const wxPoint& pt, int& n )
 	if(rowPos >= m_row_ys.size())
 		return false;
 	//FIXME: use binary search
-	while (m_row_ys[rowPos] < actualY && rowPos < m_row_ys.size())
+	while ( rowPos < m_row_ys.size() && m_row_ys[rowPos] < actualY )
 		rowPos++;
 	rowPos--;
 
