@@ -195,7 +195,7 @@ int MultiMC::OnExit()
 	if (updateOnExit && wxFileExists(updaterFileName))
 	{
 		wxFileName updateFile(Path::Combine(wxGetCwd(), updaterFileName));
-		if (IS_LINUX())
+		if (IS_LINUX() || IS_MAC())
 		{
 			wxExecute(_("chmod +x ") + updateFile.GetFullPath());
 		}
