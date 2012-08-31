@@ -351,6 +351,15 @@ void MainWindow::OnInstSelected(wxInstanceCtrlEvent &event)
 void MainWindow::LoadInstanceList(wxFileName instDir)
 {
 	GetStatusBar()->PushStatusText(_("Loading instances..."), 0);
+
+	if (!instDir.DirExists())
+	{
+		if (!instDir.Mkdir())
+		{
+			wxLogError(_T("Failed to create instance directory."));
+			return;
+		}
+	}
 	
 	instListCtrl->Clear();
 	instItems.clear();
