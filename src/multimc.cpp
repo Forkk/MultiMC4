@@ -23,18 +23,6 @@ IMPLEMENT_APP(MultiMC)
 // App
 bool MultiMC::OnInit()
 {
-	// On OS X set the working directory to $HOME/MultiMC
-	if (IS_MAC())
-	{
-		wxFileName mmcDir = wxFileName::DirName(wxStandardPaths::Get().GetResourcesDir());
-		mmcDir.Normalize();
-
-		if (!mmcDir.DirExists())
-			mmcDir.Mkdir(0777, wxPATH_MKDIR_FULL);
-
-		wxSetWorkingDirectory(mmcDir.GetFullPath());
-	}
-	
 #if __WXGTK__ || defined MSVC
 	// Only works with Linux GCC or MSVC
 	wxHandleFatalExceptions();
@@ -46,7 +34,19 @@ bool MultiMC::OnInit()
 	// to set up the command line arguments that the update system uses.
 	if (!wxApp::OnInit())
 		return false;
-	
+
+	// On OS X set the working directory to $HOME/MultiMC
+	if (IS_MAC())
+	{
+		wxFileName mmcDir = wxFileName::DirName(wxStandardPaths::Get().GetResourcesDir());
+		mmcDir.Normalize();
+
+		if (!mmcDir.DirExists())
+			mmcDir.Mkdir(0777, wxPATH_MKDIR_FULL);
+
+		wxSetWorkingDirectory(mmcDir.GetFullPath());
+	}
+
 	SetAppName(_("MultiMC"));
 	
 	wxInitAllImageHandlers();
