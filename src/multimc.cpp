@@ -26,12 +26,12 @@ bool MultiMC::OnInit()
 	// On OS X set the working directory to $HOME/MultiMC
 	if (IS_MAC())
 	{
-		wxFileName mmcDir = wxFileName::DirName(_("$HOME/MultiMC"));
+		wxFileName mmcDir = wxFileName::DirName(wxStandardPaths::Get().GetResourcesDir());
 		mmcDir.Normalize();
-		
+
 		if (!mmcDir.DirExists())
 			mmcDir.Mkdir(0777, wxPATH_MKDIR_FULL);
-		
+
 		wxSetWorkingDirectory(mmcDir.GetFullPath());
 	}
 	
