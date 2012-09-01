@@ -21,6 +21,7 @@
 #include <wx/tokenzr.h>
 #include <wx/url.h>
 #include <wx/sstream.h>
+#include <sstream>
 
 #ifdef CURL_LOGIN
 	#include "curlutils.h"
@@ -40,17 +41,20 @@ LoginTask::LoginTask(UserInfo& uInfo, Instance* inst, bool forceUpdate)
 void LoginTask::TaskStart()
 {
 	SetStatus(_("Logging in..."));
+	
+	#ifdef CURL_LOGIN
+	CURL *curl = curl_easy_init();
 	// Get http://login.minecraft.net/?username=<username>&password=<password>&version=1337
-	wxURL loginURL = wxString::Format(_("http://login.minecraft.net/?user=%s&password=%s&version=1337"),
-		m_userInfo.username.c_str(), m_userInfo.password.c_str());
-
-	//_("http://login.minecraft.net/?user=") + m_userInfo.username + 
-	//	_("&password=") + m_userInfo.password + _("&version=1337");
-#ifdef CURL_LOGIN
+	wxCharBuffer login = m_userInfo.username.ToUTF8();
+	wxCharBuffer passwd = m_userInfo.password.ToUTF8();
+	std::ostringstream sst;
+	char * encodedLogin = curl_easy_escape(curl,login.data(), strlen(login));
+	char * encodedPasswd = curl_easy_escape(curl,passwd.data(), strlen(passwd));
+	sst << "http://login.minecraft.net/?user=" << encodedLogin << "&password=" << encodedPasswd << "&version=1337";
 	char errorBuffer[CURL_ERROR_SIZE];
 	
-	CURL *curl = curl_easy_init();
-	curl_easy_setopt(curl, CURLOPT_URL, TOASCII(loginURL.GetURL()));
+	
+	curl_easy_setopt(curl, CURLOPT_URL, sst.str().c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
 	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, &errorBuffer);
 	
