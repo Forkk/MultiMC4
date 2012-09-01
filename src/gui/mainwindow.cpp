@@ -602,7 +602,7 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 			FileDownloadTask dlTask(event.m_downloadURL, 
 				wxFileName(updaterFileName), _("Downloading updates..."));
 			wxGetApp().updateOnExit = true;
-			StartModalTask(dlTask);
+			StartModalTask(dlTask, true, false, wxSize(400, 120));
 			
 			// Give the task dialogs some time to close.
 			for (int i = 0; i < 100; i++)
@@ -1142,18 +1142,26 @@ void MainWindow::StartTask(Task& task)
 	task.Start();
 }
 
-bool MainWindow::StartModalTask(Task& task, bool forceModal)
+bool MainWindow::StartModalTask(Task& task, bool forceModal, bool shouldFit, wxSize size)
 {
 	wxYield();
-	
+
 	int style = wxPD_APP_MODAL;
 	if (task.CanUserCancel())
 		style = style | wxPD_CAN_ABORT;
 	
 	wxProgressDialog *progDialog = new wxProgressDialog(_("Please wait..."), task.GetStatus(), 100, this, style);
-	progDialog->SetMinSize(wxSize(400, 80));
+	if(shouldFit)
+	{
+		progDialog->SetMinSize(size);
+		progDialog->Fit();
+	}
+	else
+	{
+		progDialog->SetSize(size);
+	}
+
 	progDialog->Update(0);
-	progDialog->Fit();
 	progDialog->CenterOnParent();
 	task.SetProgressDialog(progDialog);
 	task.SetEvtHandler(this);
@@ -1177,7 +1185,7 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal)
 			else
 				progDialog->Resume();
 		}
-		progDialog->Fit();
+		if(shouldFit) progDialog->Fit();
 		wxYield();
 		
 		wxMilliSleep(100);

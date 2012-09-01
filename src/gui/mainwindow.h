@@ -94,7 +94,7 @@ public:
 	
 	// Other functions
 	void StartTask(Task &task);
-	bool StartModalTask(Task &task, bool forceModal = true);
+	bool StartModalTask(Task &task, bool forceModal = true, bool shouldFit = true, wxSize size = wxSize(400, 150));
 	
 	void ShowLoginDlg(wxString errorMsg);
 	
