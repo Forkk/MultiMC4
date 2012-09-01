@@ -200,12 +200,18 @@ int MultiMC::OnExit()
 			wxExecute(_("chmod +x ") + updateFile.GetFullPath());
 		}
 		
+		wxString updateFilePath = updateFile.GetFullPath();
+		updateFilePath.Replace(_(" "), _("^ "));
+
+		wxString thisFilePath = wxStandardPaths::Get().GetExecutablePath();
+
 		wxProcess proc;
-		wxString launchCmd = updateFile.GetFullPath() + _(" -u:") + wxStandardPaths::Get().GetExecutablePath();
+		wxString launchCmd = wxString::Format(_("%s -u:^\"%s^\""),
+			updateFilePath.c_str(), thisFilePath.c_str());
 
 		if (IS_WINDOWS())
 		{
-			launchCmd = wxString::Format(_("cmd /C \"%s\""), launchCmd.c_str());
+			launchCmd = wxString::Format(_("cmd /K \"%s\""), launchCmd.c_str());
 		}
 
 		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
