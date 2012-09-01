@@ -247,3 +247,41 @@ const wxIconBundle &MultiMC::GetAppIcons() const
 {
 	return AppIcons;
 }
+
+const wxString licenseText = _(
+"Licensed under the Apache License, Version 2.0 (the \"License\");\n\
+you may not use this file except in compliance with the License.\n\
+You may obtain a copy of the License at\n\
+\n\
+\thttp://www.apache.org/licenses/LICENSE-2.0\n\
+\n\
+Unless required by applicable law or agreed to in writing, software\n\
+distributed under the License is distributed on an \"AS IS\" BASIS,\n\
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n\
+See the License for the specific language governing permissions and\n\
+limitations under the License.\n\
+\n\
+MultiMC uses bspatch, \n\
+Copyright 2003-2005 Colin Percival\n\
+All rights reserved\n\
+\n\
+Redistribution and use in source and binary forms, with or without\n\
+modification, are permitted providing that the following conditions\n\
+are met: \n\
+1. Redistributions of source code must retain the above copyright\n\
+   notice, this list of conditions and the following disclaimer.\n\
+2. Redistributions in binary form must reproduce the above copyright\n\
+   notice, this list of conditions and the following disclaimer in the\n\
+   documentation and/or other materials provided with the distribution.\n\
+\n\
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR\n\
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\n\
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE\n\
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY\n\
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\n\
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS\n\
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n\
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n\
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING\n\
+IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n\
+POSSIBILITY OF SUCH DAMAGE.");

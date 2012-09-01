@@ -7,6 +7,8 @@
 
 #include <wx/cmdline.h>
 
+extern const wxString licenseText;
+
 class MultiMC : public wxApp
 {
 public:
