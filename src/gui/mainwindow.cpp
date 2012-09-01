@@ -48,6 +48,7 @@
 #include <wx/gbsizer.h>
 #include <wx/filedlg.h>
 
+#include "config.h"
 #include "buildtag.h"
 
 const int instNameLengthLimit = 25;
@@ -351,6 +352,15 @@ void MainWindow::OnInstSelected(wxInstanceCtrlEvent &event)
 void MainWindow::LoadInstanceList(wxFileName instDir)
 {
 	GetStatusBar()->PushStatusText(_("Loading instances..."), 0);
+
+	if (!instDir.DirExists())
+	{
+		if (!instDir.Mkdir())
+		{
+			wxLogError(_T("Failed to create instance directory."));
+			return;
+		}
+	}
 	
 	instListCtrl->Clear();
 	instItems.clear();
@@ -511,7 +521,25 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 	int response = settingsDlg->ShowModal();
 
 	if (response == wxID_OK)
+	{
 		settingsDlg->ApplySettings();
+
+		if (settingsDlg->GetForceUpdateMultiMC())
+		{
+			wxString ciURL(_T(JENKINS_JOB_URL));
+
+			wxString dlFileName;
+			if (IS_WINDOWS())
+				dlFileName = _("MultiMC.exe");
+			else if (IS_LINUX() || IS_MAC())
+				dlFileName = _("MultiMC");
+
+			wxString dlURL = wxString::Format(
+				_("%s/lastStableBuild/artifact/%s"),
+				ciURL.c_str(), dlFileName.c_str());
+			DownloadInstallUpdates(dlURL);
+		}
+	}
 }
 
 void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
@@ -522,32 +550,37 @@ void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
 
 void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 {
-#ifdef __WXMSW__
-	wxString updaterFileName = _("MultiMCUpdate.exe");
-#else
-	wxString updaterFileName = _("MultiMCUpdate");
-#endif
-
 	if (event.m_latestBuildNumber > AppVersion.GetBuild())
 	{
 		if (wxMessageBox(wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
 				event.m_latestBuildNumber), 
 				_("Update Available"), wxYES_NO) == wxYES)
 		{
-			FileDownloadTask dlTask(event.m_downloadURL, 
-				wxFileName(updaterFileName), _("Downloading updates..."));
-			wxGetApp().updateOnExit = true;
-			StartModalTask(dlTask);
-			
-			// Give the task dialogs some time to close.
-			for (int i = 0; i < 100; i++)
-			{
-				wxSafeYield();
-			}
-			
-			Close(false);
+			DownloadInstallUpdates(event.m_downloadURL);
 		}
 	}
+}
+
+void MainWindow::DownloadInstallUpdates(const wxString &downloadURL)
+{
+#ifdef __WXMSW__
+	wxString updaterFileName = _("MultiMCUpdate.exe");
+#else
+	wxString updaterFileName = _("MultiMCUpdate");
+#endif
+
+	FileDownloadTask dlTask(downloadURL, 
+		wxFileName(updaterFileName), _("Downloading updates..."));
+	wxGetApp().updateOnExit = true;
+	StartModalTask(dlTask);
+
+	// Give the task dialogs some time to close.
+	for (int i = 0; i < 100; i++)
+	{
+		wxSafeYield();
+	}
+
+	Close(false);
 }
 
 void MainWindow::OnHelpClicked(wxCommandEvent& event)
@@ -557,14 +590,13 @@ void MainWindow::OnHelpClicked(wxCommandEvent& event)
 
 void MainWindow::OnAboutClicked(wxCommandEvent& event)
 {
-#ifndef __WXMSW__
 	wxAboutDialogInfo info;
 	info.SetName(_("MultiMC"));
 	info.SetVersion(wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
 	info.SetDescription(_("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once."));
 	info.SetCopyright(_("(C) 2012 Andrew Okin"));
 	
-#ifdef __WXGTK__
+#if defined __WXGTK__ || defined __WXMSW__
 	info.SetWebSite(_("http://forkk.net/MultiMC"));
 	info.SetLicense(_("Licensed under the Apache License, Version 2.0 (the \"License\");\n\
 you may not use this file except in compliance with the License.\n\
@@ -609,9 +641,7 @@ POSSIBILITY OF SUCH DAMAGE."));
 	info.AddDeveloper(_("Petr Mrázek <peterix@gmail.com>"));
 	
 	wxAboutBox(info);
-#else
-	wxMessageBox(wxString::Format(_("The about dialog is currently not supported in Windows.\nYou are using MultiMC version %s.\nThis build's tag is %s."), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
-#endif
+	//wxMessageBox(wxString::Format(_("The about dialog is currently not supported in Windows.\nYou are using MultiMC version %s.\nThis build's tag is %s."), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
 }
 
 
@@ -779,7 +809,7 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	if (!GetNewInstName(&instName, &instDirName, _("Copy existing instance")))
 		return;
 
-	instDirName = Path::Combine(settings->GetInstDir(), instDirName);
+	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName));
 
 	wxMkdir(instDirName);
 	FileCopyTask task(m_currentInstance->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));

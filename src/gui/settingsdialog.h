@@ -32,6 +32,8 @@ public:
 	
 	void ApplySettings(AppSettings *s = settings);
 	void LoadSettings(AppSettings *s = settings);
+
+	bool GetForceUpdateMultiMC() const;
 	
 protected:
 	void OnBrowseInstDirClicked(wxCommandEvent& event);

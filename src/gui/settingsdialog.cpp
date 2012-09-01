@@ -401,6 +401,11 @@ void SettingsDialog::UpdateCheckboxStuff()
 	winHeightSpin->Enable(!(winMaxCheckbox->IsChecked() || compatCheckbox->IsChecked()));
 }
 
+bool SettingsDialog::GetForceUpdateMultiMC() const
+{
+	return forceUpdateToggle->GetValue();
+}
+
 
 BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_BUTTON(ID_BrowseInstDir, SettingsDialog::OnBrowseInstDirClicked)

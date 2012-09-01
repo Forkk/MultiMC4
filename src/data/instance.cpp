@@ -120,8 +120,7 @@ wxFileName Instance::GetMCDir() const
 {
 	wxFileName mcDir;
 	
-	if (ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_MAC) || 
-		wxFileExists(Path::Combine(GetRootDir(), _("minecraft"))))
+	if (IS_MAC() || wxFileExists(Path::Combine(GetRootDir(), _("minecraft"))))
 	{
 		mcDir = wxFileName::DirName(Path::Combine(GetRootDir(), _("minecraft")));
 	}

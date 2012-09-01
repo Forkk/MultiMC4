@@ -97,6 +97,8 @@ public:
 	bool StartModalTask(Task &task, bool forceModal = true);
 	
 	void ShowLoginDlg(wxString errorMsg);
+
+	void DownloadInstallUpdates(const wxString &downloadURL);
 	
 	void LoadInstanceList(wxFileName instDir = settings->GetInstDir());
 	void LoadCentralModList();

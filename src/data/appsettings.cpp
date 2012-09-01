@@ -115,12 +115,12 @@ void AppSettings::SetInstDir(wxFileName value)
 
 wxString AppSettings::GetJavaPath() const
 {
-	return GetSetting<wxString>(_("JavaPath"), _("java"));
+	return GetSetting<wxString>(_("JPath"), _("java"));
 }
 
 void AppSettings::SetJavaPath(wxString value)
 {
-	SetSetting<wxString>(_("JavaPath"), value);
+	SetSetting<wxString>(_("JPath"), value);
 }
 
 

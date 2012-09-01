@@ -16,6 +16,7 @@
 
 #include "apputils.h"
 #include <wx/wx.h>
+#include <wx/arrstr.h>
 #include "osutils.h"
 
 void Utils::OpenFile(wxFileName path)
@@ -39,7 +40,7 @@ void Utils::OpenFile(wxFileName path)
 		return;
 	}
 	cmd.append(path.GetFullPath());
-	wxExecute(cmd);
+    wxExecute(cmd);
 }
 
 int Utils::GetMaxAllowedMemAlloc()
@@ -152,7 +153,19 @@ wxString FindJavaPath(const wxString& def)
 
 wxString FindJavaPath(const wxString& def)
 {
-	return def;
+    wxArrayString whichOutput;
+
+    // This should work on all UNIX systems, including MacOS X
+    if (wxExecute(_("which java"), whichOutput, wxEXEC_SYNC | wxEXEC_NODISABLE) == 0)
+    {
+        // Valid java found, return the string
+        return whichOutput.Last();
+    }
+    else
+    {
+        //Either no `java` is in the ${PATH}, or `which` command in not available
+        return def;
+    }
 }
 
 #else
