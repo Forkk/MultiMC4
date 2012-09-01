@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 2.8.6)
-find_package(Java 1.6 REQUIRED COMPONENTS Development)
 project(launcher Java)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
+find_package(Java 1.6 REQUIRED COMPONENTS Development)
+
+
 include(UseJava)
 set(CMAKE_JAVA_JAR_ENTRY_POINT MultiMCLauncher)
 set(CMAKE_JAVA_COMPILE_FLAGS -target 1.6 -source 1.6)

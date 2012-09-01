@@ -21,6 +21,13 @@
 
 const wxString guiModeDefault = _("Default");
 const wxString guiModeSimple = _("Simple");
+const wxString compadModeHelp =_(
+"Compatibility mode launches Minecraft\
+using the old Minecraft.main() method, rather than using MultiMC's\
+AppletWrapper. This should help fix a few issues with certain mods,\
+but it will disable certain features such as setting Minecraft's window\
+size and icon."
+);
 
 SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	: wxDialog(parent, id, _T("Settings"), wxDefaultPosition,
@@ -30,205 +37,204 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	SetSizer(mainBox);
 	
 	// Tab control
-	tabCtrl = new wxNotebook(this, -1, wxDefaultPosition, 
-							 wxDefaultSize);
+	tabCtrl = new wxNotebook(this, -1);
 	mainBox->Add(tabCtrl, 1, wxEXPAND | wxALL, 8);
 	
-	int row = 0;
+	// common sizer flags
+	auto staticBoxInnerFlags = wxSizerFlags().Expand();
+	auto staticBoxOuterFlags = wxSizerFlags().Border(wxALL,4).Expand();
+	// single item in a row
+	auto expandingItemFlags  = wxSizerFlags(1).Border(wxALL,4).Expand();
+	auto itemFlags           = wxSizerFlags().Border(wxALL,4);
+	// two items in a row - vertically aligned
+	auto itemsFlags          = wxSizerFlags().Border(wxALL,4).Align(wxALIGN_CENTER_VERTICAL);
+	auto expandingItemsFlags = wxSizerFlags(1).Border(wxALL,4).Expand().Align(wxALIGN_CENTER_VERTICAL);
+	// crappy gridbag hax
+	#define GBitemFlags wxALL, 4
+	#define GBitemsFlags wxALL | wxALIGN_CENTER_VERTICAL, 4
+	#define GBexpandingItemsFlags wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 4
+	
 	
 	// General tab
-	wxPanel *generalPanel = new wxPanel(tabCtrl, -1);
-	wxGridBagSizer *generalBox = new wxGridBagSizer();
-	generalBox->AddGrowableCol(0, 0);
-	generalPanel->SetSizer(generalBox);
-	tabCtrl->AddPage(generalPanel, _T("General"), true);
-	
-	// Visual settings group box
-	wxStaticBoxSizer *visualBox = new wxStaticBoxSizer(wxVERTICAL, 
-		generalPanel, _T("Visual Settings"));
-	wxBoxSizer *styleSz = new wxBoxSizer(wxHORIZONTAL);
-	wxStaticText *styleLabel = new wxStaticText(generalPanel, -1, _("GUI Style (requires restart): "));
-	styleSz->Add(styleLabel, wxSizerFlags(0).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 4));
-	wxArrayString choices; choices.Add(guiModeDefault); choices.Add(guiModeSimple);
-	guiStyleDropDown = new wxComboBox(generalPanel, -1, wxEmptyString,
-		wxDefaultPosition, wxDefaultSize, choices, wxCB_DROPDOWN | wxCB_READONLY);
-	styleSz->Add(guiStyleDropDown, wxSizerFlags(1).Align(wxALIGN_CENTER_VERTICAL).Border(wxALL, 4));
-	visualBox->Add(styleSz, wxSizerFlags(0).Expand());
-	generalBox->Add(visualBox, wxGBPosition(row++, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
-	
-	// Console settings group box
-	wxStaticBoxSizer *consoleBox = new wxStaticBoxSizer(wxVERTICAL, 
-		generalPanel, _T("Console Settings"));
-	showConsoleCheck = new wxCheckBox(generalPanel, -1, 
-		_T("Show console while an instance is running."));
-	consoleBox->Add(showConsoleCheck, 0, wxALL, 4);
-	autoCloseConsoleCheck = new wxCheckBox(generalPanel, -1,
-		_T("Automatically close console when the game quits."));
-	consoleBox->Add(autoCloseConsoleCheck, 0, wxALL, 4);
-	generalBox->Add(consoleBox, wxGBPosition(row++, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
-	
-	// Update settings group box
-	wxStaticBoxSizer *updateBox = new wxStaticBoxSizer(wxVERTICAL,
-		generalPanel, _T("Update Settings"));
-	autoUpdateCheck = new wxCheckBox(generalPanel, -1,
-		_T("Check for updates when MultiMC starts?"));
-	updateBox->Add(autoUpdateCheck, 0, wxALL, 4);
-	//devBuildCheck = new wxCheckBox(generalPanel, -1, _("Use development builds?"));
-	//updateBox->Add(devBuildCheck, 0, wxALL | wxEXPAND, 4);
-	forceUpdateToggle = new wxToggleButton(generalPanel, -1,
-		_T("Force-update MultiMC"));
-	updateBox->Add(forceUpdateToggle, 0, wxALL, 4);
-	generalBox->Add(updateBox, wxGBPosition(row++, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
-	
-	// Instance directory group box
-	wxStaticBoxSizer *instDirBox = new wxStaticBoxSizer(wxHORIZONTAL,
-		generalPanel, _T("Instance Folder"));
-	instDirTextBox = new wxTextCtrl(generalPanel, -1);
-	instDirBox->Add(instDirTextBox, 1, wxEXPAND | wxALL, 4);
-	wxButton *instDirBrowseButton = new wxButton(generalPanel, 
-		ID_BrowseInstDir, _T("Browse..."));
-	instDirBox->Add(instDirBrowseButton, 0, wxALL, 4);
-	generalBox->Add(instDirBox, wxGBPosition(row++, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
-	
-	generalBox->SetSizeHints(generalPanel);
-
+	{
+		auto generalPanel = new wxPanel(tabCtrl, -1);
+		auto generalBox = new wxBoxSizer(wxVERTICAL);
+		generalPanel->SetSizer(generalBox);
+		tabCtrl->AddPage(generalPanel, _T("General"), true);
+		// Visual settings group box
+		{
+			auto visualBox = new wxStaticBoxSizer(wxVERTICAL, generalPanel, _T("Visual Settings"));
+			auto styleSz = new wxBoxSizer(wxHORIZONTAL);
+			auto styleLabel = new wxStaticText(generalPanel, -1, _("GUI Style (requires restart): "));
+			styleSz->Add(styleLabel, itemsFlags);
+			
+			wxArrayString choices;
+			choices.Add(guiModeDefault);
+			choices.Add(guiModeSimple);
+			guiStyleDropDown = new wxComboBox(generalPanel, -1, wxEmptyString,
+				wxDefaultPosition, wxDefaultSize, choices, wxCB_DROPDOWN | wxCB_READONLY);
+			
+			styleSz->Add(guiStyleDropDown, expandingItemsFlags);
+			visualBox->Add(styleSz, staticBoxInnerFlags);
+			generalBox->Add(visualBox, staticBoxOuterFlags);
+		}
+		// Console settings group box
+		{
+			auto consoleBox = new wxStaticBoxSizer(wxVERTICAL, generalPanel, _T("Console Settings"));
+			showConsoleCheck = new wxCheckBox(generalPanel, -1, _T("Show console while an instance is running."));
+			consoleBox->Add(showConsoleCheck, itemFlags);
+			autoCloseConsoleCheck = new wxCheckBox(generalPanel, -1, _T("Automatically close console when the game quits."));
+			consoleBox->Add(autoCloseConsoleCheck, itemFlags);
+			generalBox->Add(consoleBox, staticBoxOuterFlags);
+		}
+		// Update settings group box
+		{
+			auto updateBox = new wxStaticBoxSizer(wxVERTICAL, generalPanel, _T("Update Settings"));
+			autoUpdateCheck = new wxCheckBox(generalPanel, -1, _T("Check for updates when MultiMC starts?"));
+			updateBox->Add(autoUpdateCheck, itemFlags);
+			forceUpdateToggle = new wxToggleButton(generalPanel, -1, _T("Force-update MultiMC"));
+			updateBox->Add(forceUpdateToggle, itemFlags);
+			generalBox->Add(updateBox, staticBoxOuterFlags);
+		}
+		// Instance directory group box
+		{
+			auto instDirBox = new wxStaticBoxSizer(wxHORIZONTAL, generalPanel, _T("Instance Folder"));
+			instDirTextBox = new wxTextCtrl(generalPanel, -1);
+			instDirBox->Add(instDirTextBox, expandingItemFlags);
+			wxButton *instDirBrowseButton = new wxButton(generalPanel, ID_BrowseInstDir, _T("Browse..."));
+			instDirBox->Add(instDirBrowseButton, itemFlags);
+			generalBox->Add(instDirBox, staticBoxOuterFlags);
+		}
+		generalBox->SetSizeHints(generalPanel);
+	}
 
 	// Minecraft tab
-	wxPanel *mcPanel = new wxPanel(tabCtrl, -1);
-	wxGridBagSizer *mcBox = new wxGridBagSizer();
-	mcBox->AddGrowableCol(0, 0);
-	mcPanel->SetSizer(mcBox);
-	tabCtrl->AddPage(mcPanel, _T("Minecraft"), false);
+	{
+		auto mcPanel = new wxPanel(tabCtrl, -1);
+		auto mcBox = new wxBoxSizer(wxVERTICAL);
+		mcPanel->SetSizer(mcBox);
+		
+		tabCtrl->AddPage(mcPanel, _T("Minecraft"), false);
 
-	// Compatibility mode check box.
-	compatCheckbox = new wxCheckBox(mcPanel, ID_CompatModeCheckbox, 
-		_("Compatibility mode?"));
-	compatCheckbox->SetHelpText(_("Compatibility mode launches Minecraft \
-using the old Minecraft.main() method, rather than using MultiMC's \
-AppletWrapper. This should help fix a few issues with certain mods, \
-but it will disable certain features such as setting Minecraft's window \
-size and icon."));
-	mcBox->Add(compatCheckbox, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+		// Compatibility mode check box.
+		{
+			compatCheckbox = new wxCheckBox(mcPanel, ID_CompatModeCheckbox, _("Compatibility mode?"));
+			compatCheckbox->SetHelpText(compadModeHelp);
+			mcBox->Add(compatCheckbox, staticBoxOuterFlags);
+		}
 
-	// Window size group box
-	wxStaticBoxSizer *windowSizeBox = new wxStaticBoxSizer(wxVERTICAL,
-		mcPanel, _("Minecraft Window Size"));
-	wxGridBagSizer *winSizeSz = new wxGridBagSizer();
-	windowSizeBox->Add(winSizeSz, wxSizerFlags(0).Expand());
-	mcBox->Add(windowSizeBox, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+		// Window size group box
+		{
+			auto windowSizeBox = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Minecraft Window Size"));
+			auto winSizeSz = new wxGridBagSizer();
+			winSizeSz->AddGrowableCol(1);
 
-	// Maximize
-	winMaxCheckbox = new wxCheckBox(mcPanel, ID_MCMaximizeCheckbox, 
-		_("Start Minecraft maximized?"));
-	winSizeSz->Add(winMaxCheckbox, wxGBPosition(0, 0), wxGBSpan(1, 2), 
-		wxALL | wxALIGN_CENTER_VERTICAL, 4);
+			// Maximize
+			winMaxCheckbox = new wxCheckBox(mcPanel, ID_MCMaximizeCheckbox, _("Start Minecraft maximized?"));
+			winSizeSz->Add(winMaxCheckbox, wxGBPosition(0, 0), wxGBSpan(1, 2), GBitemFlags);
 
-	// Window width
-	wxStaticText *winWidthLabel = new wxStaticText(mcPanel, -1, 
-		_("Window width: "));
-	winSizeSz->Add(winWidthLabel, wxGBPosition(1, 0), wxGBSpan(1, 1), 
-		wxALL | wxALIGN_CENTER_VERTICAL, 4);
-	winWidthSpin = new wxSpinCtrl(mcPanel, -1);
-	winWidthSpin->SetRange(854, wxSystemSettings::GetMetric (wxSYS_SCREEN_X));
-	winSizeSz->Add(winWidthSpin, wxGBPosition(1, 1), wxGBSpan(1, 1), 
-		wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 4);
+			// Window width
+			wxStaticText *winWidthLabel = new wxStaticText(mcPanel, -1, _("Window width: "));
+			winSizeSz->Add(winWidthLabel, wxGBPosition(1, 0), wxGBSpan(1, 1), GBitemsFlags);
+			winWidthSpin = new wxSpinCtrl(mcPanel, -1);
+			winWidthSpin->SetRange(854, wxSystemSettings::GetMetric (wxSYS_SCREEN_X));
+			winSizeSz->Add(winWidthSpin, wxGBPosition(1, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
 
-	// Window height
-	wxStaticText *winHeightLabel = new wxStaticText(mcPanel, -1, 
-		_("Window height: "));
-	winSizeSz->Add(winHeightLabel, wxGBPosition(2, 0), wxGBSpan(1, 1), 
-		wxALL | wxALIGN_CENTER_VERTICAL, 4);
-	winHeightSpin = new wxSpinCtrl(mcPanel, -1);
-	winHeightSpin->SetRange(480, wxSystemSettings::GetMetric (wxSYS_SCREEN_Y));
-	winSizeSz->Add(winHeightSpin, wxGBPosition(2, 1), wxGBSpan(1, 1), 
-		wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 4);
+			// Window height
+			wxStaticText *winHeightLabel = new wxStaticText(mcPanel, -1, _("Window height: "));
+			winSizeSz->Add(winHeightLabel, wxGBPosition(2, 0), wxGBSpan(1, 1), GBitemsFlags);
+			winHeightSpin = new wxSpinCtrl(mcPanel, -1);
+			winHeightSpin->SetRange(480, wxSystemSettings::GetMetric (wxSYS_SCREEN_Y));
+			winSizeSz->Add(winHeightSpin, wxGBPosition(2, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+			
+			windowSizeBox->Add(winSizeSz, staticBoxInnerFlags);
+			mcBox->Add(windowSizeBox, staticBoxOuterFlags);
+		}
 
+		// Console colors box
+		{
+			auto consoleColorsBox = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Instance Console Colors"));
+			auto consoleColorSz = new wxGridBagSizer();
+			consoleColorSz->AddGrowableCol(0);
+			consoleColorsBox->Add(consoleColorSz, staticBoxInnerFlags);
 
-	// Console colors box
-	wxStaticBoxSizer *consoleColorsBox = new wxStaticBoxSizer(wxVERTICAL,
-		mcPanel, _("Instance Console Colors"));
-	wxGridBagSizer *consoleColorSz = new wxGridBagSizer();
-	consoleColorsBox->Add(consoleColorSz, wxSizerFlags(0).Expand());
-	mcBox->Add(consoleColorsBox, wxGBPosition(2, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+			// System message color
+			wxStaticText *sysMsgColorLabel = new wxStaticText(mcPanel, -1, _("System message color: "));
+			consoleColorSz->Add(sysMsgColorLabel, wxGBPosition(0, 0), wxGBSpan(1, 1), GBitemsFlags);
+			sysMsgColorCtrl = new wxColourPickerCtrl(mcPanel, -1);
+			consoleColorSz->Add(sysMsgColorCtrl, wxGBPosition(0, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
 
-	// System message color
-	wxStaticText *sysMsgColorLabel = new wxStaticText(mcPanel, -1, _("System message color: "));
-	consoleColorSz->Add(sysMsgColorLabel, wxGBPosition(0, 0), wxGBSpan(1, 1), 
-		wxALL | wxALIGN_CENTER_VERTICAL, 4);
-	sysMsgColorCtrl = new wxColourPickerCtrl(mcPanel, -1, *wxBLACK, 
-		wxDefaultPosition, wxDefaultSize, wxCLRP_SHOW_LABEL);
-	consoleColorSz->Add(sysMsgColorCtrl, wxGBPosition(0, 1), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
+			// Stdout message color
+			wxStaticText *stdoutColorLabel = new wxStaticText(mcPanel, -1, _("Output message color: "));
+			consoleColorSz->Add(stdoutColorLabel, wxGBPosition(1, 0), wxGBSpan(1, 1), GBitemsFlags);
+			stdoutColorCtrl = new wxColourPickerCtrl(mcPanel, -1);
+			consoleColorSz->Add(stdoutColorCtrl, wxGBPosition(1, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
 
-	// Stdout message color
-	wxStaticText *stdoutColorLabel = new wxStaticText(mcPanel, -1, _("Output message color: "));
-	consoleColorSz->Add(stdoutColorLabel, wxGBPosition(1, 0), wxGBSpan(1, 1), 
-		wxALL | wxALIGN_CENTER_VERTICAL, 4);
-	stdoutColorCtrl = new wxColourPickerCtrl(mcPanel, -1, *wxBLACK, 
-		wxDefaultPosition, wxDefaultSize, wxCLRP_SHOW_LABEL);
-	consoleColorSz->Add(stdoutColorCtrl, wxGBPosition(1, 1), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
-
-	// Stderr message color
-	wxStaticText *stderrColorLabel = new wxStaticText(mcPanel, -1, _("Error message color: "));
-	consoleColorSz->Add(stderrColorLabel, wxGBPosition(2, 0), wxGBSpan(1, 1), 
-		wxALL | wxALIGN_CENTER_VERTICAL, 4);
-	stderrColorCtrl = new wxColourPickerCtrl(mcPanel, -1, *wxBLACK, 
-		wxDefaultPosition, wxDefaultSize, wxCLRP_SHOW_LABEL);
-	consoleColorSz->Add(stderrColorCtrl, wxGBPosition(2, 1), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
-
+			// Stderr message color
+			wxStaticText *stderrColorLabel = new wxStaticText(mcPanel, -1, _("Error message color: "));
+			consoleColorSz->Add(stderrColorLabel, wxGBPosition(2, 0), wxGBSpan(1, 1), GBitemsFlags);
+			stderrColorCtrl = new wxColourPickerCtrl(mcPanel, -1);
+			consoleColorSz->Add(stderrColorCtrl, wxGBPosition(2, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+			
+			mcBox->Add(consoleColorsBox, staticBoxOuterFlags);
+		}
+	}
 	
 	// Advanced tab
-	wxPanel *advancedPanel = new wxPanel(tabCtrl, -1);
-	wxGridBagSizer *advancedBox = new wxGridBagSizer();
-	advancedBox->AddGrowableCol(0, 0);
-	advancedPanel->SetSizer(advancedBox);
-	tabCtrl->AddPage(advancedPanel, _T("Advanced"), false);
-	
-	// Memory group box
-	wxStaticBoxSizer *memoryBox = new wxStaticBoxSizer(wxVERTICAL,
-		advancedPanel, _T("Memory"));
-	advancedBox->Add(memoryBox, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
-	
-	// Min memory
-	wxBoxSizer *minMemBox = new wxBoxSizer(wxHORIZONTAL);
-	memoryBox->Add(minMemBox, 0, wxALL, 4);
-	wxStaticText *minMemLabel = new wxStaticText(advancedPanel, -1, 
-		_T("Minimum memory allocation: "));
-	minMemBox->Add(minMemLabel, 1, wxEXPAND);
-	minMemorySpin = new wxSpinCtrl(advancedPanel, -1);
-	minMemorySpin->SetRange(256, Utils::GetMaxAllowedMemAlloc());
-	minMemBox->Add(minMemorySpin);
-	
-	// Max memory
-	wxBoxSizer *maxMemBox = new wxBoxSizer(wxHORIZONTAL);
-	memoryBox->Add(maxMemBox, 0, wxALL, 4);
-	wxStaticText *maxMemLabel = new wxStaticText(advancedPanel, -1, 
-		_T("Maximum memory allocation: "));
-	maxMemBox->Add(maxMemLabel, 1, wxEXPAND);
-	maxMemorySpin = new wxSpinCtrl(advancedPanel, -1);
-	maxMemorySpin->SetRange(512, Utils::GetMaxAllowedMemAlloc());
-	maxMemBox->Add(maxMemorySpin);
-	
-	// Java path
-	wxStaticBoxSizer *javaPathBox = new wxStaticBoxSizer(wxHORIZONTAL, 
-		advancedPanel, _T("Java path"));
-	javaPathTextBox = new wxTextCtrl(advancedPanel, -1);
-	javaPathBox->Add(javaPathTextBox, 1, wxALL | wxEXPAND, 4);
-	wxButton *autoDetectButton = new wxButton(advancedPanel, ID_DetectJavaPath, _("Auto-detect"));
-	javaPathBox->Add(autoDetectButton, 0, wxALL | wxEXPAND, 4);
-	advancedBox->Add(javaPathBox, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
-	
-	// JVM Arguments
-	wxStaticBoxSizer *jvmArgsBox = new wxStaticBoxSizer(wxHORIZONTAL,
-		advancedPanel, _T("Additional JVM Arguments"));
-	jvmArgsTextBox = new wxTextCtrl(advancedPanel, -1);
-	jvmArgsBox->Add(jvmArgsTextBox, 1, wxALL | wxEXPAND, 4);
-	advancedBox->Add(jvmArgsBox, wxGBPosition(2, 0), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
-
+	{
+		auto advancedPanel = new wxPanel(tabCtrl, -1);
+		auto advancedBox = new wxBoxSizer(wxVERTICAL);
+		advancedPanel->SetSizer(advancedBox);
+		tabCtrl->AddPage(advancedPanel, _T("Advanced"), false);
+		
+		// Memory group box
+		{
+			auto memoryBox = new wxStaticBoxSizer(wxVERTICAL, advancedPanel, _T("Memory"));
+			auto memorySz = new wxGridSizer(2,2,0,0);
+			// Min memory
+			wxStaticText *minMemLabel = new wxStaticText(advancedPanel, -1, _T("Minimum memory allocation: "));
+			memorySz->Add(minMemLabel, itemsFlags);
+			minMemorySpin = new wxSpinCtrl(advancedPanel, -1);
+			minMemorySpin->SetRange(256, Utils::GetMaxAllowedMemAlloc());
+			memorySz->Add(minMemorySpin, expandingItemsFlags);
+			
+			// Max memory
+			auto maxMemLabel = new wxStaticText(advancedPanel, -1, _T("Maximum memory allocation: "));
+			memorySz->Add(maxMemLabel,itemsFlags);
+			maxMemorySpin = new wxSpinCtrl(advancedPanel, -1);
+			maxMemorySpin->SetRange(512, Utils::GetMaxAllowedMemAlloc());
+			memorySz->Add(maxMemorySpin, expandingItemsFlags);
+			
+			memoryBox->Add(memorySz, staticBoxInnerFlags);
+			advancedBox->Add(memoryBox, staticBoxOuterFlags);
+		}
+		
+		// Java path
+		{
+			auto javaPathBox = new wxStaticBoxSizer(wxHORIZONTAL, advancedPanel, _T("Java path"));
+			javaPathTextBox = new wxTextCtrl(advancedPanel, -1);
+			javaPathBox->Add(javaPathTextBox, 1, wxALL | wxEXPAND, 4);
+			auto autoDetectButton = new wxButton(advancedPanel, ID_DetectJavaPath, _("Auto-detect"));
+			javaPathBox->Add(autoDetectButton, 0, wxALL | wxEXPAND, 4);
+			
+			advancedBox->Add(javaPathBox, staticBoxOuterFlags);
+		}
+		
+		// JVM Arguments
+		{
+			auto jvmArgsBox = new wxStaticBoxSizer(wxHORIZONTAL, advancedPanel, _T("Additional JVM Arguments"));
+			jvmArgsTextBox = new wxTextCtrl(advancedPanel, -1);
+			jvmArgsBox->Add(jvmArgsTextBox, 1, wxALL | wxEXPAND, 4);
+			
+			advancedBox->Add(jvmArgsBox, staticBoxOuterFlags);
+		}
+	}
 	
 	// Buttons
 	wxSizer *btnBox = CreateButtonSizer(wxOK | wxCANCEL);
 	mainBox->Add(btnBox, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT, 8);
 
+	mainBox->Fit(this);
 	LoadSettings();
 }
 
