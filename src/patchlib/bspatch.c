@@ -32,7 +32,7 @@
 	#include <unistd.h>
 #endif
 
-#ifdef __APPLE__ && __MACH__
+#if defined __APPLE__ && defined __MACH__
 	typedef unsigned char u_char;
 #endif
 
