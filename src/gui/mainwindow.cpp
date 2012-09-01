@@ -590,14 +590,13 @@ void MainWindow::OnHelpClicked(wxCommandEvent& event)
 
 void MainWindow::OnAboutClicked(wxCommandEvent& event)
 {
-#ifndef __WXMSW__
 	wxAboutDialogInfo info;
 	info.SetName(_("MultiMC"));
 	info.SetVersion(wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
 	info.SetDescription(_("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once."));
 	info.SetCopyright(_("(C) 2012 Andrew Okin"));
 	
-#ifdef __WXGTK__
+#if defined __WXGTK__ || defined __WXMSW__
 	info.SetWebSite(_("http://forkk.net/MultiMC"));
 	info.SetLicense(_("Licensed under the Apache License, Version 2.0 (the \"License\");\n\
 you may not use this file except in compliance with the License.\n\
@@ -642,9 +641,7 @@ POSSIBILITY OF SUCH DAMAGE."));
 	info.AddDeveloper(_("Petr Mrázek <peterix@gmail.com>"));
 	
 	wxAboutBox(info);
-#else
-	wxMessageBox(wxString::Format(_("The about dialog is currently not supported in Windows.\nYou are using MultiMC version %s.\nThis build's tag is %s."), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
-#endif
+	//wxMessageBox(wxString::Format(_("The about dialog is currently not supported in Windows.\nYou are using MultiMC version %s.\nThis build's tag is %s."), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
 }
 
 
