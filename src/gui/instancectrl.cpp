@@ -949,7 +949,12 @@ void wxInstanceCtrl::OnSize ( wxSizeEvent& event )
 		SetItemsPerRow(new_rows);
 		UpdateRows();
 	}
+	bool old_needsScrolling = m_needsScrolling;
 	SetupScrollbars();
+	if(old_needsScrolling != m_needsScrolling)
+	{
+		GetParent()->Layout();
+	}
 	RecreateBuffer();
 	event.Skip();
 }
