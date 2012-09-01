@@ -991,7 +991,7 @@ void wxInstanceCtrl::SetupScrollbars()
 	                0, unitsY,
 	                wxMin ( maxPositionX, startX ), wxMin ( maxPositionY, startY ) );
 
-	m_needsScrolling = (maxHeight - clientSize.y) > 0;
+	m_needsScrolling = (unitsY * pixelsPerUnit - clientSize.y) > 0;
 }
 
 /// Draws the item. Normally you override function in wxInstanceItem.
