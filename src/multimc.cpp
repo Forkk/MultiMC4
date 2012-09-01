@@ -199,15 +199,24 @@ int MultiMC::OnExit()
 		{
 			wxExecute(_("chmod +x ") + updateFile.GetFullPath());
 		}
-		
-		wxString updateFilePath = updateFile.GetFullPath();
-		updateFilePath.Replace(_(" "), _("^ "));
-
-		wxString thisFilePath = wxStandardPaths::Get().GetExecutablePath();
 
 		wxProcess proc;
+		
+		wxString updateFilePath = updateFile.GetFullPath();
+		wxString thisFilePath = wxStandardPaths::Get().GetExecutablePath();
+
+#if defined __WXMSW__
+		updateFilePath.Replace(_(" "), _("^ "));
+		
 		wxString launchCmd = wxString::Format(_("%s -u:^\"%s^\""),
 			updateFilePath.c_str(), thisFilePath.c_str());
+#else
+		updateFilePath.Replace(_(" "), _("\\ "));
+		thisFilePath.Replace(_(" "), _("\\ "));
+
+		wxString launchCmd = wxString::Format(_("%s -u:%s"),
+			updateFilePath.c_str(), thisFilePath.c_str());
+#endif
 
 		if (IS_WINDOWS())
 		{
