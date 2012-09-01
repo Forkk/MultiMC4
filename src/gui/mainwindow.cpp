@@ -48,6 +48,7 @@
 #include <wx/gbsizer.h>
 #include <wx/filedlg.h>
 
+#include "config.h"
 #include "buildtag.h"
 
 const int instNameLengthLimit = 25;
@@ -520,7 +521,25 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 	int response = settingsDlg->ShowModal();
 
 	if (response == wxID_OK)
+	{
 		settingsDlg->ApplySettings();
+
+		if (settingsDlg->GetForceUpdateMultiMC())
+		{
+			wxString ciURL(_T(JENKINS_JOB_URL));
+
+			wxString dlFileName;
+			if (IS_WINDOWS())
+				dlFileName = _("MultiMC.exe");
+			else if (IS_LINUX() || IS_MAC())
+				dlFileName = _("MultiMC");
+
+			wxString dlURL = wxString::Format(
+				_("%s/lastStableBuild/artifact/%s"),
+				ciURL.c_str(), dlFileName.c_str());
+			DownloadInstallUpdates(dlURL);
+		}
+	}
 }
 
 void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
@@ -531,32 +550,37 @@ void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
 
 void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 {
-#ifdef __WXMSW__
-	wxString updaterFileName = _("MultiMCUpdate.exe");
-#else
-	wxString updaterFileName = _("MultiMCUpdate");
-#endif
-
 	if (event.m_latestBuildNumber > AppVersion.GetBuild())
 	{
 		if (wxMessageBox(wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
 				event.m_latestBuildNumber), 
 				_("Update Available"), wxYES_NO) == wxYES)
 		{
-			FileDownloadTask dlTask(event.m_downloadURL, 
-				wxFileName(updaterFileName), _("Downloading updates..."));
-			wxGetApp().updateOnExit = true;
-			StartModalTask(dlTask);
-			
-			// Give the task dialogs some time to close.
-			for (int i = 0; i < 100; i++)
-			{
-				wxSafeYield();
-			}
-			
-			Close(false);
+			DownloadInstallUpdates(event.m_downloadURL);
 		}
 	}
+}
+
+void MainWindow::DownloadInstallUpdates(const wxString &downloadURL)
+{
+#ifdef __WXMSW__
+	wxString updaterFileName = _("MultiMCUpdate.exe");
+#else
+	wxString updaterFileName = _("MultiMCUpdate");
+#endif
+
+	FileDownloadTask dlTask(downloadURL, 
+		wxFileName(updaterFileName), _("Downloading updates..."));
+	wxGetApp().updateOnExit = true;
+	StartModalTask(dlTask);
+
+	// Give the task dialogs some time to close.
+	for (int i = 0; i < 100; i++)
+	{
+		wxSafeYield();
+	}
+
+	Close(false);
 }
 
 void MainWindow::OnHelpClicked(wxCommandEvent& event)
