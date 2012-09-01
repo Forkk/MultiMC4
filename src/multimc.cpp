@@ -211,7 +211,7 @@ int MultiMC::OnExit()
 
 		if (IS_WINDOWS())
 		{
-			launchCmd = wxString::Format(_("cmd /K \"%s\""), launchCmd.c_str());
+			launchCmd = wxString::Format(_("cmd /C \"%s\""), launchCmd.c_str());
 		}
 
 		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
