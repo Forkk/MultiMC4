@@ -36,7 +36,6 @@
 #include "downgradedialog.h"
 #include "downgradetask.h"
 #include "fsutils.h"
-#include "aboutdlg.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>

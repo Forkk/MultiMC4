@@ -75,7 +75,6 @@ gui/exportinstwizard.cpp
 gui/importpackwizard.cpp
 gui/downgradedialog.cpp
 gui/instancectrl.cpp
-gui/aboutdlg.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -119,7 +118,6 @@ gui/exportinstwizard.h
 gui/importpackwizard.h
 gui/downgradedialog.h
 gui/instancectrl.h
-gui/aboutdlg.h
 
 data/appsettings.h
 data/instance.h
