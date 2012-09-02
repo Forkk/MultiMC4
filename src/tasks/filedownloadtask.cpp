@@ -65,6 +65,11 @@ wxThread::ExitCode FileDownloadTask::TaskStart()
 		outStream.Write(buffer, size);
 		downloadedSize += outStream.LastWrite();
 		SetProgress(((double)downloadedSize / (double)downloadSize) * 100);
+
+		wxString sDownloadedSize = wxString::Format(wxT("%.0f"), (float)(downloadedSize / 1000));
+		wxString sDownloadSize = wxString::Format(wxT("%.0f"), (float)(downloadSize / 1000));
+		SetStatus(wxString::Format(_("Downloading... (%skB/%skB)"), sDownloadedSize, sDownloadSize));
+
 		return outStream.LastWrite();
 	};
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curlWrite);

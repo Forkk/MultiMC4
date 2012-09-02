@@ -559,7 +559,7 @@ void MainWindow::DownloadInstallUpdates(const wxString &downloadURL)
 
 	auto dlTask = new FileDownloadTask(downloadURL, wxFileName(updaterFileName), _("Downloading updates..."));
 	wxGetApp().updateOnExit = true;
-	StartTask(dlTask);
+	StartTask(dlTask, TASK_MODAL, false, wxSize(400, 120));
 
 	/*
 	// Give the task dialogs some time to close.
@@ -1031,7 +1031,7 @@ void MainWindow::OnTaskError(TaskErrorEvent& event)
 	wxLogError(event.m_errorMsg);
 }
 
-void MainWindow::StartTask ( Task* task, MainWindow::task_type type )
+void MainWindow::StartTask ( Task* task, MainWindow::task_type type, bool shouldFit, wxSize size )
 {
 	if(type == TASK_BACKGROUND)
 	{
@@ -1043,9 +1043,17 @@ void MainWindow::StartTask ( Task* task, MainWindow::task_type type )
 		int style = wxPD_APP_MODAL;
 		
 		wxProgressDialog *progDialog = new wxProgressDialog(_("Please wait..."), task->GetStatus(), 100, this, style);
-		progDialog->SetMinSize(wxSize(400, 80));
+		if(shouldFit)
+		{
+			progDialog->SetMinSize(size);
+			progDialog->Fit();
+		}
+		else
+		{
+			progDialog->SetSize(size);
+		}
+
 		progDialog->Update(0);
-		progDialog->Fit();
 		progDialog->CenterOnParent();
 		task->Start(this,true);
 		
@@ -1068,7 +1076,7 @@ void MainWindow::StartTask ( Task* task, MainWindow::task_type type )
 			{
 				progDialog->Update(progress, status);
 			}
-			progDialog->Fit();
+			if(shouldFit) progDialog->Fit();
 			wxYield();
 			wxMilliSleep(100);
 		}
