@@ -1033,48 +1033,12 @@ void MainWindow::OnTaskError(TaskErrorEvent& event)
 
 void MainWindow::StartTask ( Task* task, MainWindow::task_type type, bool shouldFit, wxSize size )
 {
-<<<<<<< HEAD
 	if(type == TASK_BACKGROUND)
 	{
 		task->Start(this,false);
 		// FIXME: there is only one such task. it is leaked. Sadly, the event system sucks and it's using it
 	}
 	else
-=======
-	task.SetEvtHandler(this);
-	task.Start();
-}
-
-bool MainWindow::StartModalTask(Task& task, bool forceModal, bool shouldFit, wxSize size)
-{
-	wxYield();
-
-	int style = wxPD_APP_MODAL;
-	if (task.CanUserCancel())
-		style = style | wxPD_CAN_ABORT;
-	
-	wxProgressDialog *progDialog = new wxProgressDialog(_("Please wait..."), task.GetStatus(), 100, this, style);
-	if(shouldFit)
-	{
-		progDialog->SetMinSize(size);
-		progDialog->Fit();
-	}
-	else
-	{
-		progDialog->SetSize(size);
-	}
-
-	progDialog->Update(0);
-	progDialog->CenterOnParent();
-	task.SetProgressDialog(progDialog);
-	task.SetEvtHandler(this);
-	modalTaskRunning = true;
-	task.Start();
-	
-	progDialog->Show();
-	bool cancelled = false;
-	while (!task.HasEnded())
->>>>>>> 0c2b8ab2b29870966c24540e4dbe550849b741c5
 	{
 		int style = wxPD_APP_MODAL;
 		
@@ -1116,16 +1080,9 @@ bool MainWindow::StartModalTask(Task& task, bool forceModal, bool shouldFit, wxS
 			wxYield();
 			wxMilliSleep(100);
 		}
-<<<<<<< HEAD
 		task->Wait();
 		delete task;
 		progDialog->Destroy();
-=======
-		if(shouldFit) progDialog->Fit();
-		wxYield();
-		
-		wxMilliSleep(100);
->>>>>>> 0c2b8ab2b29870966c24540e4dbe550849b741c5
 	}
 }
 
