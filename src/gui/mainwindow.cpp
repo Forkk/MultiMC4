@@ -1062,7 +1062,7 @@ void MainWindow::StartTask ( Task* task, MainWindow::task_type type )
 			//HACK: the dialog gets stuck when set to max. no idea why
 			else if (progress == 100)
 			{
-				continue;
+				progDialog->Update(99, status);
 			}
 			else
 			{

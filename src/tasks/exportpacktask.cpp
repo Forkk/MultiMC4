@@ -91,4 +91,5 @@ wxThread::ExitCode ExportPackTask::TaskStart()
 	zipOut.PutNextEntry(_("modpack.json"));
 	wxStringInputStream jsonIn(json);
 	zipOut.Write(jsonIn);
+	return (ExitCode)1;
 }
