@@ -41,6 +41,7 @@ public:
 
 	const std::vector<CPModInfo>* GetJarModList() const;
 	const std::vector<CPModInfo>* GetMLModList() const;
+	const std::vector<CPModInfo>* GetCoreModList() const;
 
 protected:
 	bool m_valid;
@@ -52,4 +53,5 @@ protected:
 
 	std::vector<CPModInfo> jarModInfoList;
 	std::vector<CPModInfo> mlModInfoList;
+	std::vector<CPModInfo> coreModInfoList;
 };

@@ -128,6 +128,21 @@ bool ImportPackWizard::Start()
 			}
 		}
 
+		// Add core mods...
+		for (std::vector<ConfigPack::CPModInfo>::const_iterator iter = m_pack->GetCoreModList()->begin(); 
+			iter != m_pack->GetCoreModList()->end(); ++iter)
+		{
+			Mod *mod = centralModList->FindByID(iter->m_id, iter->m_version);
+			if (mod == nullptr)
+			{
+				wxLogError(_("Missing modloader mod %s."), iter->m_id.c_str());
+			}
+			else
+			{
+				inst->GetCoreModList()->InsertMod(0, mod->GetFileName().GetFullPath());
+			}
+		}
+		
 		// Extract config files
 		wxFFileInputStream fileIn(m_pack->GetFileName());
 		ExtractZipArchive(fileIn, instDir.GetFullPath());
@@ -155,6 +170,15 @@ void ImportPackWizard::UpdateMissingModList()
 
 	for (std::vector<ConfigPack::CPModInfo>::const_iterator iter = m_pack->GetMLModList()->begin(); 
 		iter != m_pack->GetMLModList()->end(); ++iter)
+	{
+		if (centralModList->FindByID(iter->m_id, iter->m_version) == nullptr)
+		{
+			missingModsList->Append(wxString::Format(_("%s %s"), iter->m_id.c_str(), iter->m_version.c_str()));
+		}
+	}
+	
+	for (std::vector<ConfigPack::CPModInfo>::const_iterator iter = m_pack->GetCoreModList()->begin(); 
+		iter != m_pack->GetCoreModList()->end(); ++iter)
 	{
 		if (centralModList->FindByID(iter->m_id, iter->m_version) == nullptr)
 		{

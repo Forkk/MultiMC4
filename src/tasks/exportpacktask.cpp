@@ -83,6 +83,17 @@ wxThread::ExitCode ExportPackTask::TaskStart()
 	}
 	pt.push_back(std::make_pair("mlmods", mlMods));
 
+	ptree coreMods;
+	for (ModList::const_iterator iter = m_inst->GetCoreModList()->begin(); iter < m_inst->GetCoreModList()->end(); ++iter)
+	{
+		ptree currentMod;
+		currentMod.put<std::string>("id", stdStr(iter->GetModID()));
+		currentMod.put<std::string>("version", stdStr(iter->GetModVersion()));
+		currentMod.put<std::string>("mcversion", stdStr(iter->GetMCVersion()));
+
+		coreMods.push_back(std::make_pair("", currentMod));
+	}
+	pt.push_back(std::make_pair("coremods", coreMods));
 
 	std::stringstream jsonOut;
 	write_json(jsonOut, pt);

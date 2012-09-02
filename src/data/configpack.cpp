@@ -79,6 +79,20 @@ ConfigPack::ConfigPack(const wxString& fileName)
 
 			mlModInfoList.push_back(CPModInfo(id, version));
 		}
+		// older config packs don't have to have core mods...
+		try
+		{
+			auto coremods = pt.get_child("coremods");
+			// Load the core mod list.
+			BOOST_FOREACH(const ptree::value_type& v, coremods)
+			{
+				wxString id = wxStr(v.second.get<std::string>("id"));
+				wxString version = wxStr(v.second.get<std::string>("version"));
+
+				coreModInfoList.push_back(CPModInfo(id, version));
+			}
+		}
+		catch(ptree_bad_path e){};
 	}
 	catch (json_parser_error e)
 	{
@@ -122,6 +136,11 @@ const std::vector<ConfigPack::CPModInfo>* ConfigPack::GetJarModList() const
 const std::vector<ConfigPack::CPModInfo>* ConfigPack::GetMLModList() const
 {
 	return &mlModInfoList;
+}
+
+const std::vector<ConfigPack::CPModInfo>* ConfigPack::GetCoreModList() const
+{
+	return &coreModInfoList;
 }
 
 ConfigPack::CPModInfo::CPModInfo(const wxString& id, const wxString& version)

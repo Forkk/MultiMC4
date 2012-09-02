@@ -51,6 +51,7 @@ public:
 	wxFileName GetBinDir() const;
 	wxFileName GetSavesDir() const;
 	wxFileName GetMLModsDir() const;
+	wxFileName GetCoreModsDir() const;
 	wxFileName GetResourceDir() const;
 	wxFileName GetScreenshotsDir() const;
 	wxFileName GetTexturePacksDir() const;
@@ -89,6 +90,7 @@ public:
 	
 	ModList *GetModList();
 	ModList *GetMLModList();
+	ModList *GetCoreModList();
 	
 	template <typename T>
 	T GetSetting(const wxString &key, T defValue) const;
@@ -118,10 +120,10 @@ protected:
 		Instance *m_inst;
 	} modList;
 
-	class MLModList : public ModList
+	class FolderModList : public ModList
 	{
 	public:
-		MLModList(const wxString& dir = wxEmptyString)
+		FolderModList(const wxString& dir = wxEmptyString)
 			: ModList(dir) {}
 
 		virtual bool UpdateModList(bool quickLoad = true)
@@ -131,13 +133,16 @@ protected:
 		
 	protected:
 		virtual bool LoadModListFromDir(const wxString& loadFrom, bool quickLoad);
-	} mlModList;
+	};
+	FolderModList mlModList;
+	FolderModList coreModList;
 	
 	wxFileName rootDir;
 	
 	wxProcess *instProc;
 	bool m_running;
 	bool modloader_list_inited;
+	bool coremod_list_inited;
 	bool jar_list_inited;
 	wxString m_lastLaunchCommand;
 	
