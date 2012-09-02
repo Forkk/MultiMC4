@@ -94,8 +94,8 @@ public:
 		TASK_MODAL
 	};
 	// Other functions
+
 	void StartTask(Task *task, task_type type = TASK_MODAL, bool shouldFit = true, wxSize size = wxSize(400, 120));
-	
 	void ShowLoginDlg(wxString errorMsg);
 
 	void DownloadInstallUpdates(const wxString &downloadURL);
