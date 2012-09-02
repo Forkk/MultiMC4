@@ -580,6 +580,7 @@ void MainWindow::OnHelpClicked(wxCommandEvent& event)
 
 void MainWindow::OnAboutClicked(wxCommandEvent& event)
 {
+#ifndef __WXMSW__
 	wxAboutDialogInfo info;
 	info.SetName(_("MultiMC"));
 	info.SetVersion(wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
@@ -599,6 +600,7 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 #else
 	AboutDlg aboutDlg(this, info);
 	aboutDlg.ShowModal();
+#endif
 #endif
 }
 
