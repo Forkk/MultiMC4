@@ -36,12 +36,15 @@
 #include "downgradedialog.h"
 #include "downgradetask.h"
 #include "fsutils.h"
+#include "aboutdlg.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
 #include <wx/fs_arc.h>
 #include <wx/fs_mem.h>
+#ifdef __WXGTK__
 #include <wx/aboutdlg.h>
+#endif
 #include <wx/cmdline.h>
 #include <wx/stdpaths.h>
 #include <wx/listbook.h>
@@ -579,14 +582,14 @@ void MainWindow::OnHelpClicked(wxCommandEvent& event)
 
 void MainWindow::OnAboutClicked(wxCommandEvent& event)
 {
-#ifndef __WXMSW__
+#ifdef __WXGTK__
 	wxAboutDialogInfo info;
 	info.SetName(_("MultiMC"));
 	info.SetVersion(wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
 	info.SetDescription(_("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once."));
 	info.SetCopyright(_("(C) 2012 Andrew Okin"));
 	
-	info.SetWebSite(_("http://forkk.net/MultiMC"));
+	info.SetWebSite(_("http://forkk.net/MultiMC4"));
 	info.SetLicense(licenseText);
 	
 	info.SetIcon(wxGetApp().GetAppIcons().GetIcon(wxSize(64, 64)));
@@ -594,12 +597,22 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 	info.AddDeveloper(_("Andrew Okin <forkk@forkk.net>"));
 	info.AddDeveloper(_("Petr Mrázek <peterix@gmail.com>"));
 	
-#ifdef __WXGTK__
 	wxAboutBox(info);
 #else
+	AboutDlgInfo info;
+
+	info.name = _("MultiMC");
+	info.version = wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str());
+	info.description = _("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once.");
+	info.copyright = _("(C) 2012 Andrew Okin");
+
+	info.website = _("http://forkk.net/MultiMC4");
+	info.license = licenseText;
+
+	info.icon = wxGetApp().GetAppIcons().GetIcon(wxSize(64, 64));
+
 	AboutDlg aboutDlg(this, info);
 	aboutDlg.ShowModal();
-#endif
 #endif
 }
 

@@ -24,9 +24,9 @@
 #include <wx/textdlg.h>
 #include <wx/msgdlg.h>
 
-AboutDlg::AboutDlg(wxWindow *parent, const wxAboutDialogInfo &info)
+AboutDlg::AboutDlg(wxWindow *parent, const AboutDlgInfo &info)
 	: wxDialog(parent, -1, _("About MultiMC"), wxDefaultPosition, wxSize(600, 180)),
-		m_licenseText(info.GetLicence())
+		m_licenseText(info.license)
 {
 	wxWindow *mainPanel = this;
 	wxGridBagSizer *mainSz = new wxGridBagSizer();
@@ -42,22 +42,22 @@ AboutDlg::AboutDlg(wxWindow *parent, const wxAboutDialogInfo &info)
 	int rows = 0;
 
 	wxStaticText *titleLabel = new wxStaticText(mainPanel, -1, 
-		wxString::Format(_("%s %s"), info.GetName().c_str(), info.GetVersion().c_str()));
+		wxString::Format(_("%s %s"), info.name.c_str(), info.version.c_str()));
 	titleLabel->SetFont(titleFont);
 	mainSz->Add(titleLabel, wxGBPosition(rows++, 1), wxGBSpan(1, cols - 1), GB_CenterFlags);
 
 	wxStaticText *copyrightLabel = new wxStaticText(mainPanel, -1,
-		info.GetCopyrightToDisplay());
+		info.copyright);
 	mainSz->Add(copyrightLabel, wxGBPosition(rows++, 1), wxGBSpan(1, cols - 1), GB_CenterFlags);
 
 	wxStaticText *descLabel = new wxStaticText(mainPanel, -1, 
-		info.GetDescription(), wxDefaultPosition, wxDefaultSize, 
+		info.description, wxDefaultPosition, wxDefaultSize, 
 		wxALIGN_CENTRE | wxST_NO_AUTORESIZE);
 	mainSz->Add(descLabel, wxGBPosition(rows++, 1), wxGBSpan(1, cols - 1), GB_CenterFlags);
 	descLabel->Wrap(GetClientSize().GetWidth() - 100);
 
 	wxHyperlinkCtrl *homepageLink = new wxHyperlinkCtrl(mainPanel, -1, 
-		info.GetWebSiteURL(), info.GetWebSiteURL());
+		info.website, info.website);
 	mainSz->Add(homepageLink, wxGBPosition(rows++, 1), wxGBSpan(1, cols - 1), GB_CenterFlags);
 
 	mainSz->AddGrowableRow(rows++);
@@ -74,7 +74,7 @@ AboutDlg::AboutDlg(wxWindow *parent, const wxAboutDialogInfo &info)
 	wxButton *closeButton = new wxButton(mainPanel, wxID_CANCEL, _("&Close"));
 	btnSz->Add(closeButton, btnFlags);
 
-	wxStaticBitmap *iconCtrl = new wxStaticBitmap(mainPanel, -1, info.GetIcon());
+	wxStaticBitmap *iconCtrl = new wxStaticBitmap(mainPanel, -1, info.icon);
 	mainSz->Add(iconCtrl, wxGBPosition(0, 0), wxGBSpan(rows, 1), GB_IconFlags);
 }
 

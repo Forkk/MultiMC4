@@ -17,12 +17,27 @@
 #pragma once
 
 #include <wx/dialog.h>
-#include <wx/aboutdlg.h>
+#include <wx/string.h>
+#include <wx/icon.h>
+
+class AboutDlgInfo
+{
+public:
+	wxString name;
+	wxString version;
+	wxString description;
+	wxString copyright;
+
+	wxString website;
+	wxString license;
+
+	wxIcon icon;
+};
 
 class AboutDlg : public wxDialog
 {
 public:
-	AboutDlg(wxWindow *parent, const wxAboutDialogInfo &info);
+	AboutDlg(wxWindow *parent, const AboutDlgInfo &info);
 
 protected:
 	void OnViewLicense(wxCommandEvent& event);
