@@ -27,8 +27,8 @@
 
 DEFINE_EVENT_TYPE(wxEVT_CHECK_UPDATE)
 
-//const wxString ciURL = _(JENKINS_JOB_URL);
-const wxString ciURL = _("http://ci.forkk.net/job/MultiMC4/arch=x64,os=Linux/");
+const wxString ciURL = _(JENKINS_JOB_URL);
+//const wxString ciURL = _("http://ci.forkk.net/job/MultiMC4/arch=x64,os=Linux/");
 
 
 CheckUpdateTask::CheckUpdateTask()
