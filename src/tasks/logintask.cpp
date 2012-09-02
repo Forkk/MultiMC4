@@ -14,18 +14,13 @@
     limitations under the License.
 */
 
-#define CURL_LOGIN
-
 #include "logintask.h"
 #include <apputils.h>
 #include <wx/tokenzr.h>
 #include <wx/url.h>
 #include <wx/sstream.h>
 #include <sstream>
-
-#ifdef CURL_LOGIN
-	#include "curlutils.h"
-#endif
+#include "curlutils.h"
 
 
 DEFINE_EVENT_TYPE(wxEVT_LOGIN_COMPLETE)
@@ -38,11 +33,10 @@ LoginTask::LoginTask(UserInfo& uInfo, Instance* inst, bool forceUpdate)
 	m_forceUpdate = forceUpdate;
 }
 
-void LoginTask::TaskStart()
+wxThread::ExitCode LoginTask::TaskStart()
 {
 	SetStatus(_("Logging in..."));
-	
-	#ifdef CURL_LOGIN
+
 	CURL *curl = curl_easy_init();
 	// Get http://login.minecraft.net/?username=<username>&password=<password>&version=1337
 	wxCharBuffer login = m_userInfo.username.ToUTF8();
@@ -77,53 +71,24 @@ void LoginTask::TaskStart()
 	if (status != 0)
 	{
 		OnLoginComplete(wxStr(errorBuffer));
-		return;
+		return (void *)0;
 	}
 	
 	if (response == 200)
 	{
 		OnLoginComplete(outString);
-		return;
+		return (void *)1;
 	}
 	else
 	{
 		OnLoginComplete(wxString::Format(_("Unknown HTTP error %i occurred."), response));
-		return;
+		return (void *)0;
 	}
-	
-#else
-	if (loginURL.GetError() == wxURL_NOERR)
-	{
-		wxInputStream *inputStream = loginURL.GetInputStream();
-		
-		wxString response;
-		wxStringOutputStream outStream(&response);
-		outStream.Write(*inputStream);
-		
-		wxDELETE(inputStream);
-		
-		OnLoginComplete(response);
-	}
-	else
-	{
-		switch (loginURL.GetError())
-		{
-		case wxURL_CONNERR:
-			OnLoginComplete(LoginResult(_("Can't connect to login.minecraft.net.")));
-			break;
-			
-		default:
-			OnLoginComplete(LoginResult(_("An unknown error occurred.")));
-			break;
-		}
-	}
-#endif
 }
 
 void LoginTask::OnLoginComplete(LoginResult result)
 {
 	SetProgress(100);
-	OnTaskEnd();
 	LoginCompleteEvent event(this, new LoginResult(result), m_inst, m_forceUpdate);
 	m_evtHandler->AddPendingEvent(event);
 }

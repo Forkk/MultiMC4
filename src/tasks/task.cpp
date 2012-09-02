@@ -28,10 +28,8 @@ Task::Task()
 {
 	m_status = _("");
 	m_progress = 0;
-	started = false;
-	endCalled = false;
-	startCalled = false;
-	userCancelled = false;
+	m_modal = false;
+	ended = false;
 }
 
 Task::~Task()
@@ -39,174 +37,101 @@ Task::~Task()
 	
 }
 
-void Task::Start()
+void Task::Start(wxEvtHandler * handler, bool modal)
 {
+	m_evtHandler = handler;
+	m_modal = modal;
 	wxThread::Create();
 	wxThread::Run();
-	
 }
 
-void Task::Cancel()
+wxThread::ExitCode Task::Entry()
 {
-	SetProgress(100);
-	wxThread::Delete();
+	EmitTaskStart();
+	ExitCode ec = TaskStart();
+	EmitTaskEnd();
+	ended = true;
+	return ec;
 }
 
-void *Task::Entry()
+void Task::SetProgress(int progress)
 {
-	OnTaskStart();
-	TaskStart();
-	OnTaskEnd();
-	return NULL;
-}
-
-void Task::Dispose()
-{
-	wxThread::Delete();
-}
-
-void Task::SetProgress(int progress, bool fireEvent /* = true */)
-{
+	wxMutexLocker lock(access);
 	// For GTK to stop bitching
 	if (progress >= 100)
 		progress = 100;
 	if (progress <= 0)
 		progress = 0;
 	
-	m_progress = progress;
-	if (fireEvent && !endCalled)
-		OnProgressChanged(progress);
+	if(m_progress != progress)
+	{
+		m_progress = progress;
+		EmitProgressChanged(progress);
+	}
 }
 
-int Task::GetProgress() const
+int Task::GetProgress()
 {
+	wxMutexLocker lock(access);
 	return m_progress;
 }
 
-void Task::SetStatus(wxString status, bool fireEvent /* = true */)
+void Task::SetStatus(wxString status)
 {
-	m_status = status;
-	if (fireEvent && !endCalled)
-		OnStatusChanged(status);
+	wxMutexLocker lock(access);
+	if(m_status != status)
+	{
+		m_status = status;
+		EmitStatusChanged(status);
+	}
 }
 
-wxString Task::GetStatus() const
+wxString Task::GetStatus()
 {
+	wxMutexLocker lock(access);
 	return m_status;
 }
 
-bool Task::IsRunning() const
+bool Task::hasEnded()
 {
-	return wxThread::IsRunning();
+	wxMutexLocker lock(access);
+	return ended;
 }
 
-void Task::SetEvtHandler(wxEvtHandler* handler)
+bool Task::isModal()
 {
-	this->m_evtHandler = handler;
+	wxMutexLocker lock(access);
+	return m_modal;
 }
 
-void Task::OnTaskStart()
+
+void Task::EmitTaskStart()
 {
-	if (startCalled || endCalled)
-		return;
-	
 	TaskEvent event(wxEVT_TASK_START, this);
 	m_evtHandler->AddPendingEvent(event);
 }
 
-void Task::OnTaskEnd()
+void Task::EmitTaskEnd()
 {
-	if (endCalled)
-		return;
-	endCalled = true;
 	SetProgress(100);
-	
 	TaskEvent event(wxEVT_TASK_END, this);
 	m_evtHandler->AddPendingEvent(event);
 }
 
-void Task::OnStatusChanged(const wxString& status)
+void Task::EmitStatusChanged(const wxString& status)
 {
-	if (endCalled)
-	{
-		wxLogWarning(_("OnStatusChanged should not be called after the task ends!"));
-		return;
-	}
-	
-	TaskStatusEvent event(this, status);
+	TaskProgressEvent event(this, m_progress, status);
 	m_evtHandler->AddPendingEvent(event);
 }
 
-void Task::OnProgressChanged(const int& progress)
+void Task::EmitProgressChanged(const int& progress)
 {
-	if (endCalled)
-	{
-		wxLogWarning(_("OnProgressChanged should not be called after the task ends!"));
-		return;
-	}
-	
-	TaskProgressEvent event(this, progress);
+	TaskProgressEvent event(this, progress, m_status);
 	m_evtHandler->AddPendingEvent(event);
 }
 
-void Task::OnErrorMessage(const wxString& msg)
+void Task::EmitErrorMessage(const wxString& msg)
 {
 	TaskErrorEvent event(this, msg);
 	m_evtHandler->AddPendingEvent(event);
-}
-
-void Task::SetProgressDialog(wxProgressDialog* dialog)
-{
-	m_progDlg = dialog;
-	m_modal = true;
-}
-
-wxProgressDialog* Task::GetProgressDialog() const
-{
-	return m_progDlg;
-}
-
-bool Task::IsModal() const
-{
-	return m_modal;
-}
-
-bool Task::HasEnded() const
-{
-	return endCalled;
-}
-
-bool Task::HasStarted() const
-{
-	return started;
-}
-
-void Task::SetStarted(bool value)
-{
-	started = value;
-}
-
-bool Task::CanUserCancel() const
-{
-	return false;
-}
-
-bool Task::UserCancelled() const
-{
-	return userCancelled;
-}
-
-bool Task::CheckUserCancelled() const
-{
-	if (userCancelled)
-		return true;
-	
-	if (IsModal())
-	{
-// 		wxMutexGuiEnter();
-// 		bool userCancelled = !m_progDlg->Update(m_progress);
-// 		wxMutexGuiLeave();
-// 		return userCancelled;
-	}
-	return false;
 }

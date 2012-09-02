@@ -34,7 +34,7 @@ ExportPackTask::ExportPackTask(Instance *inst, const wxString &packName,
 	m_inst = inst;
 }
 
-void ExportPackTask::TaskStart()
+wxThread::ExitCode ExportPackTask::TaskStart()
 {
 	wxFFileOutputStream fileOut(m_filename);
 	wxZipOutputStream zipOut(fileOut);

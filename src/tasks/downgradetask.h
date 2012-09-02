@@ -23,7 +23,7 @@ class DowngradeTask : public Task
 public:
 	DowngradeTask(Instance *inst, const wxString& targetVersion);
 
-	void TaskStart();
+	ExitCode TaskStart();
 
 protected:
 	Instance *m_inst;

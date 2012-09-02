@@ -21,74 +21,53 @@
 
 class Task;
 struct TaskEvent;
-struct TaskStatusEvent;
 struct TaskProgressEvent;
 struct TaskErrorEvent;
 
 class Task : protected wxThread
 {
 public:
+	
 	Task();
 	~Task();
 	
-	void Start();
-	void Cancel();
-	virtual void Dispose();
-	
-	virtual void *Entry();
-	
-	
+	// Start the task by calling this
+	void Start(wxEvtHandler *handler, bool modal);
+	// Every task has to be waited on to properly free up resources.
+	// ExitCode of 1 means everything went OK. 0 means failure
+	ExitCode Wait()
+	{
+		return wxThread::Wait();
+	};
+
 	// Accessors
-	virtual wxString GetStatus() const;
-	virtual int GetProgress() const;
-	virtual bool IsRunning() const;
-	virtual bool CanUserCancel() const;
-	virtual bool HasStarted() const;
-	virtual bool HasEnded() const;
-	
-	virtual bool UserCancelled() const;
-	
-	virtual void SetStarted(bool value);
-	
-	virtual void SetEvtHandler(wxEvtHandler *handler);
-	
-	virtual bool IsModal() const;
-	virtual void SetProgressDialog(wxProgressDialog *dialog);
-	virtual wxProgressDialog *GetProgressDialog() const;
-	
-	virtual void *Wait() { return wxThread::Wait(); }
-	
-	int GetID() const;
+	virtual wxString GetStatus();
+	virtual int GetProgress();
+	bool isModal();
+	bool hasEnded();
 	
 protected:
-	virtual bool CheckUserCancelled() const;
+	// entry point for the task's thread - fires start/end events and calls TaskStart
+	// The returned value is the thread exit code which is the value returned by Wait.
+	virtual ExitCode Entry();
+	// This is the actual entry point. override this in the derived classes
+	virtual ExitCode TaskStart() = 0;
 	
-	virtual void TaskStart() = 0;
+	virtual void SetStatus(wxString status);
+	virtual void SetProgress(int progress);
 	
-	virtual void SetStatus(wxString status, bool fireEvent = true);
-	virtual void SetProgress(int progress, bool fireEvent = true);
-	
-	virtual void OnTaskStart();
-	virtual void OnTaskEnd();
-	virtual void OnProgressChanged(const int &progress);
-	virtual void OnStatusChanged(const wxString &status);
-	virtual void OnErrorMessage(const wxString &msg);
+	virtual void EmitTaskStart();
+	virtual void EmitTaskEnd();
+	virtual void EmitProgressChanged(const int &progress);
+	virtual void EmitStatusChanged(const wxString &status);
+	virtual void EmitErrorMessage(const wxString &msg);
 	
 	wxString m_status;
 	int m_progress;
-	
-	bool m_modal;
-	wxProgressDialog *m_progDlg;
-	
 	wxEvtHandler *m_evtHandler;
-private:
-	int m_taskID;
-	
-	bool endCalled;
-	bool started;
-	bool startCalled;
-	
-	bool userCancelled;
+	bool m_modal;
+	bool ended;
+	wxMutex access;
 };
 
 DECLARE_EVENT_TYPE(wxEVT_TASK_START, -1)
@@ -109,27 +88,20 @@ struct TaskEvent : wxNotifyEvent
 	}
 };
 
-struct TaskStatusEvent : TaskEvent
+struct TaskProgressEvent : TaskEvent
 {
-	TaskStatusEvent(Task *task, const wxString &status)
-		: TaskEvent(wxEVT_TASK_STATUS, task) { m_status = status; }
+	TaskProgressEvent(Task *task, const int &progress, const wxString &status) 
+		: TaskEvent(wxEVT_TASK_PROGRESS, task)
+	{
+		m_progress = progress;
+		m_status = status;
+	}
 	
+	int m_progress;
 	wxString m_status;
 	virtual wxEvent *Clone() const
 	{
-		return new TaskStatusEvent(m_task, m_status);
-	}
-};
-
-struct TaskProgressEvent : TaskEvent
-{
-	TaskProgressEvent(Task *task, const int &progress) 
-		: TaskEvent(wxEVT_TASK_PROGRESS, task) { m_progress = progress; }
-	
-	int m_progress;
-	virtual wxEvent *Clone() const
-	{
-		return new TaskProgressEvent(m_task, m_progress);
+		return new TaskProgressEvent(m_task, m_progress, m_status);
 	}
 };
 
@@ -141,13 +113,12 @@ struct TaskErrorEvent : TaskEvent
 	wxString m_errorMsg;
 	virtual wxEvent *Clone() const
 	{
-		return new TaskStatusEvent(m_task, m_errorMsg);
+		return new TaskErrorEvent(m_task, m_errorMsg);
 	}
 };
 
 typedef void (wxEvtHandler::*TaskEventFunction)(TaskEvent&);
 
-typedef void (wxEvtHandler::*TaskStatusEventFunction)(TaskStatusEvent&);
 typedef void (wxEvtHandler::*TaskProgressEventFunction)(TaskProgressEvent&);
 typedef void (wxEvtHandler::*TaskErrorEventFunction)(TaskErrorEvent&);
 
@@ -166,11 +137,6 @@ typedef void (wxEvtHandler::*TaskErrorEventFunction)(TaskErrorEvent&);
 		(wxObjectEventFunction)(wxEventFunction)\
 		(TaskProgressEventFunction) &fn, (wxObject*) NULL),
 
-#define EVT_TASK_STATUS(fn)\
-	DECLARE_EVENT_TABLE_ENTRY(wxEVT_TASK_STATUS, wxID_ANY, -1,\
-		(wxObjectEventFunction)(wxEventFunction)\
-		(TaskStatusEventFunction) &fn, (wxObject*) NULL),
-
 #define EVT_TASK_ERRORMSG(fn)\
 	DECLARE_EVENT_TABLE_ENTRY(wxEVT_TASK_ERRORMSG, wxID_ANY, -1,\
 		(wxObjectEventFunction)(wxEventFunction)\
@@ -183,9 +149,6 @@ typedef void (wxEvtHandler::*TaskErrorEventFunction)(TaskErrorEvent&);
 
 #define TaskEventHandler(func) \
 	(wxObjectEventFunction)(wxEventFunction)wxStaticCastEvent(TaskEventFunction, &func)
-
-#define TaskStatusHandler(func) \
-	(wxObjectEventFunction)(wxEventFunction)wxStaticCastEvent(TaskStatusEventFunction, &func)
 
 #define TaskProgressHandler(func) \
 	(wxObjectEventFunction)(wxEventFunction)wxStaticCastEvent(TaskProgressEventFunction, &func)

@@ -45,6 +45,7 @@ public:
 			pInstance = new InstIconList();
 		return pInstance;
 	};
+	//FIXME: actually call this on app shutdown
 	static void Dispose()
 	{
 		delete pInstance;

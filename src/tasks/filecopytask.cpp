@@ -29,14 +29,15 @@ FileCopyTask::FileCopyTask(const wxFileName &src, const wxFileName &dest)
 	m_dest = dest;
 }
 
-void FileCopyTask::TaskStart()
+wxThread::ExitCode FileCopyTask::TaskStart()
 {
 	SetStatus(_("Discovering files..."));
 
 	wxArrayString copyFiles;
 	if (!DiscoverFiles(m_src.GetFullPath(), copyFiles))
 	{
-		OnErrorMessage(_("Failed to read source directory."));
+		EmitErrorMessage(_("Failed to read source directory."));
+		return (ExitCode)0;
 	}
 
 	SetStatus(wxString::Format(_("Copying %i files..."), copyFiles.size()));
@@ -52,12 +53,13 @@ void FileCopyTask::TaskStart()
 		if (!wxDirExists(destFile.GetPath(true)))
 		{
 			if (!CreateAllDirs(wxFileName::DirName(destFile.GetPath(true))))
-				return;
+				return (ExitCode)0;
 		}
 
 		wxCopyFile(file.GetFullPath(), destFile.GetFullPath());
 		SetProgress(((float)ctr / (float)copyFiles.size()) * 100);
 	}
+	return (ExitCode)1;
 }
 
 bool FileCopyTask::DiscoverFiles(const wxString &path, wxArrayString &fileList)

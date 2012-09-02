@@ -24,7 +24,7 @@ class FileCopyTask : public Task
 public:
 	FileCopyTask(const wxFileName &src, const wxFileName &dest);
 
-	virtual void TaskStart();
+	virtual ExitCode TaskStart();
 
 protected:
 	bool DiscoverFiles(const wxString &path, wxArrayString &fileList);

@@ -47,10 +47,10 @@ GameUpdateTask::~GameUpdateTask()
 	
 }
 
-void GameUpdateTask::TaskStart()
+wxThread::ExitCode GameUpdateTask::TaskStart()
 {
 	if (!LoadJarURLs())
-		return;
+		return (ExitCode)0;
 	
 	SetProgress(5);
 	
@@ -85,16 +85,16 @@ void GameUpdateTask::TaskStart()
 			if (m_shouldUpdate)
 			{
 				m_inst->WriteVersionFile(m_latestVersion);
-				if (CheckUserCancelled()) return;
+				//if (CheckUserCancelled()) return;
 				DownloadJars();
-				if (CheckUserCancelled()) return;
+				//if (CheckUserCancelled()) return;
 				ExtractNatives();
-				if (CheckUserCancelled()) return;
-				wxRemoveFile(Path::Combine(m_inst->GetBinDir(), 
-					wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
+				//if (CheckUserCancelled()) return;
+				wxRemoveFile(Path::Combine(m_inst->GetBinDir(), wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
 			}
 		}
 	}
+	return (ExitCode)1;
 }
 
 bool GameUpdateTask::LoadJarURLs()
@@ -129,8 +129,7 @@ bool GameUpdateTask::LoadJarURLs()
 	}
 	else
 	{
-		OnErrorMessage(_("Your operating system does not support minecraft."));
-		Cancel();
+		EmitErrorMessage(_("Your operating system does not support minecraft."));
 		return false;
 	}
 	
@@ -242,9 +241,8 @@ void GameUpdateTask::DownloadJars()
 		DownloadFile:
 			if (downloadTries >= maxDownloadTries)
 			{
-				OnErrorMessage(_("Failed to download ") + currentFile.GetURL());
-				Cancel();
-				TestDestroy();
+				EmitErrorMessage(_("Failed to download ") + currentFile.GetURL());
+				return;
 			}
 			
 			downloadTries++;
@@ -270,11 +268,13 @@ void GameUpdateTask::DownloadJars()
 				outStream.Write(buffer, size);
 				MD5Update(&md5ctx, (unsigned char*)buffer, size);
 				
+				/*
 				if (CheckUserCancelled())
 				{
 					cancel = true;
 					return 0;
 				}
+				*/
 				
 				SetProgress(initialProgress + 
 					((double)totalDownloadedSize / (double)totalDownloadSize) * 
@@ -296,10 +296,12 @@ void GameUpdateTask::DownloadJars()
 			int errorCode = curl_easy_perform(curl);
 			curl_easy_cleanup(curl);
 			
+			/*
 			if (CheckUserCancelled())
 			{
 				return;
 			}
+			*/
 			
 			MD5Final(md5digest, &md5ctx);
 			

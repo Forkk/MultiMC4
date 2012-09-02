@@ -28,7 +28,7 @@ FileDownloadTask::FileDownloadTask(const wxString &src, const wxFileName &dest, 
 	successful = false;
 }
 
-void FileDownloadTask::TaskStart()
+wxThread::ExitCode FileDownloadTask::TaskStart()
 {
 	if (m_message.IsEmpty())
 		SetStatus(wxString::Format(_("Downloading file from %s..."), m_src.c_str()));
@@ -44,12 +44,12 @@ void FileDownloadTask::TaskStart()
 		switch (-(int)downloadSize)
 		{
 		case 404:
-			OnErrorMessage(baseError + _("Error 404, the page could not be found."));
-			return;
+			EmitErrorMessage(baseError + _("Error 404, the page could not be found."));
+			return (ExitCode)0;
 			
 		default:
-			OnErrorMessage(baseError + wxString::Format(_("Unknown error %i occurred."), -(int)downloadSize));
-			return;
+			EmitErrorMessage(baseError + wxString::Format(_("Unknown error %i occurred."), -(int)downloadSize));
+			return (ExitCode)0;
 		}
 	}
 	
@@ -74,12 +74,14 @@ void FileDownloadTask::TaskStart()
 	
 	if (curlErr != 0)
 	{
-		OnErrorMessage(_("Download failed."));
+		EmitErrorMessage(_("Download failed."));
 		successful = false;
+		return (ExitCode)0;
 	}
 	else
 	{
 		successful = true;
+		return (ExitCode)1;
 	}
 }
 
