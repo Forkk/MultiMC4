@@ -36,24 +36,25 @@ DowngradeTask::DowngradeTask(Instance *inst, const wxString& targetVersion)
 	m_targetVersion = targetVersion;
 }
 
-void DowngradeTask::TaskStart()
+wxThread::ExitCode DowngradeTask::TaskStart()
 {
 	if (!wxDirExists(_("patches")))
 		wxMkdir(_("patches"));
 
 	if (!DownloadPatches())
-		return;
+		return (ExitCode)0;
 
 	if (!VerifyOriginalFiles())
-		return;
+		return (ExitCode)0;
 
 	if (!ApplyPatches())
-		return;
+		return (ExitCode)0;
 
 	if (!VerifyPatchedFiles())
-		return;
+		return (ExitCode)0;
 
 	SetStep(STEP_DONE);
+	return (ExitCode)1;
 }
 
 bool DowngradeTask::DownloadPatches()

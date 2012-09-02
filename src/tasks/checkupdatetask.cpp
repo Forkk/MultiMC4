@@ -28,6 +28,8 @@
 DEFINE_EVENT_TYPE(wxEVT_CHECK_UPDATE)
 
 const wxString ciURL = _(JENKINS_JOB_URL);
+//const wxString ciURL = _("http://ci.forkk.net/job/MultiMC4/arch=x64,os=Linux/");
+
 
 CheckUpdateTask::CheckUpdateTask()
 	: Task()
@@ -35,7 +37,7 @@ CheckUpdateTask::CheckUpdateTask()
 	
 }
 
-void CheckUpdateTask::TaskStart()
+wxThread::ExitCode CheckUpdateTask::TaskStart()
 {
 	SetStatus(_("Getting version info..."));
 	
@@ -46,7 +48,7 @@ void CheckUpdateTask::TaskStart()
 	if (!DownloadString(jobURL + _("api/json"), &mainPageJSON))
 	{
 		wxLogError(_("Failed to check for updates. Please check your internet connection."));
-		return;
+		return (ExitCode)0;
 	}
 	
 	// Determine the latest stable build.
@@ -64,6 +66,7 @@ void CheckUpdateTask::TaskStart()
 	
 	SetProgress(75);
 	OnCheckComplete(buildNumber, dlURL);
+	return (ExitCode)1;
 }
 
 int CheckUpdateTask::GetBuildNumber(const wxString &mainPageJSON, bool stableOnly)
@@ -92,7 +95,6 @@ int CheckUpdateTask::GetBuildNumber(const wxString &mainPageJSON, bool stableOnl
 
 void CheckUpdateTask::OnCheckComplete(int buildNumber, wxString downloadURL)
 {
-	OnTaskEnd();
 	CheckUpdateEvent event(this, buildNumber, downloadURL);
 	m_evtHandler->AddPendingEvent(event);
 }

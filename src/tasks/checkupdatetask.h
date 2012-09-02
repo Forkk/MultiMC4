@@ -20,15 +20,12 @@
 
 DECLARE_EVENT_TYPE(wxEVT_CHECK_UPDATE, -1)
 
-const extern wxString stableCIURL;
-const extern wxString devCIURL;
-
 class CheckUpdateTask : public Task
 {
 public:
 	CheckUpdateTask();
 	
-	virtual void TaskStart();
+	virtual ExitCode TaskStart();
 	
 protected:
 	int GetBuildNumber(const wxString &mainPageJSON, bool stableOnly = true);

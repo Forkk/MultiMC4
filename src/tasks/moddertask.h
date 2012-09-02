@@ -23,7 +23,7 @@ class ModderTask : public Task
 public:
 	ModderTask(Instance *inst);
 	
-	virtual void TaskStart();
+	virtual ExitCode TaskStart();
 	
 protected:
 	Instance *m_inst;

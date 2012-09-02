@@ -56,7 +56,7 @@ public:
 	bool m_forceUpdate;
 	
 protected:
-	virtual void TaskStart();
+	virtual ExitCode TaskStart();
 	
 	virtual void OnLoginComplete(LoginResult result);
 	

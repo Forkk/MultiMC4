@@ -80,21 +80,21 @@ public:
 	void OnTaskStart(TaskEvent &event);
 	void OnTaskEnd(TaskEvent &event);
 	void OnTaskProgress(TaskProgressEvent &event);
-	void OnTaskStatus(TaskStatusEvent &event);
 	void OnTaskError(TaskErrorEvent &event);
-	
 	void OnLoginComplete(LoginCompleteEvent &event);
-	
 	void OnCheckUpdateComplete(CheckUpdateEvent &event);
 	
 	// Other events
 	void OnInstMenuOpened(wxInstanceCtrlEvent& event);
 	void OnWindowClosed(wxCloseEvent& event);
 	
-	
+	enum task_type
+	{
+		TASK_BACKGROUND,
+		TASK_MODAL
+	};
 	// Other functions
-	void StartTask(Task &task);
-	bool StartModalTask(Task &task, bool forceModal = true);
+	void StartTask(Task *task, task_type type = TASK_MODAL);
 	
 	void ShowLoginDlg(wxString errorMsg);
 
@@ -118,18 +118,10 @@ public:
 protected:
 	wxMenu *instMenu;
 	
-	bool modalTaskRunning;
-	
-	bool canLaunch;
-	
-	bool closeOnTaskEnd;
-	
 	GUIMode m_guiMode;
 
 	Instance* GetLinkedInst(int id);
 
-	Instance* GetSelectedInst();
-	
 	bool DeleteSelectedInstance();
 
 	// maps index in the used list control to an instance.
@@ -139,6 +131,10 @@ protected:
 	{
 		return m_guiMode;
 	};
+	
+	// Task related magick
+	wxProgressDialog *progDialog;
+	Task * currentModalTask;
 	
 	// Basic GUI (a simple list control with a context menu)
 	void InitBasicGUI(wxBoxSizer *mainSz);
@@ -158,7 +154,6 @@ protected:
 	void UpdateInstNameLabel(Instance *inst);
 	
 	wxPanel *instPanel;
-	wxGridBagSizer *instSz;
 	
 	wxButton *btnPlay;
 	wxButton *btnRename;
@@ -179,7 +174,6 @@ protected:
 	
 	void UpdateNotesBox();
 	void SaveNotesBox();
-	bool editingNotes;
 	
 	void StartRename();
 	void FinishRename();

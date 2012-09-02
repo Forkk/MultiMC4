@@ -24,7 +24,7 @@ class FileDownloadTask : public Task
 public:
 	FileDownloadTask(const wxString &src, const wxFileName &dest, const wxString &message = _(""));
 	
-	virtual void TaskStart();
+	virtual ExitCode TaskStart();
 	
 	bool WasSuccessful() const;
 	

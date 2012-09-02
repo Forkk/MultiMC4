@@ -25,7 +25,7 @@ public:
 	ExportPackTask(Instance *inst, const wxString &packName, 
 		const wxString &packNotes, const wxString &filename, wxArrayString &includedConfigs);
 
-	virtual void TaskStart();
+	virtual ExitCode TaskStart();
 
 protected:
 	Instance *m_inst;

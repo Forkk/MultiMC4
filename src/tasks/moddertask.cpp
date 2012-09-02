@@ -29,7 +29,7 @@ ModderTask::ModderTask(Instance* inst)
 	step = 0;
 }
 
-void ModderTask::TaskStart()
+wxThread::ExitCode ModderTask::TaskStart()
 {
 	// Get the mod list
 	ModList *modList = m_inst->GetModList();
@@ -42,18 +42,18 @@ void ModderTask::TaskStart()
 	if (!mcBackup.FileExists() && !wxCopyFile(mcJar.GetFullPath(), mcBackup.GetFullPath()))
 	{
 		OnFail(_("Failed to back up minecraft.jar"));
-		return;
+		return (ExitCode)0;
 	}
 	
 	if (mcJar.FileExists() && !wxRemoveFile(mcJar.GetFullPath()))
 	{
 		OnFail(_("Failed to delete old minecraft.jar"));
-		return;
+		return (ExitCode)0;
 	}
 	
 	
-	if (TestDestroy())
-		return;
+	// TODO: good spot for user cancel check? or not...
+	
 	TaskStep(); // STEP 1
 	SetStatus(_("Installing mods - Opening minecraft.jar"));
 
@@ -99,6 +99,7 @@ void ModderTask::TaskStart()
 	SetStatus(_("Installing mods - Recompressing jar..."));
 
 	m_inst->SetNeedsRebuild(false);
+	return (ExitCode)1;
 }
 
 
@@ -113,5 +114,5 @@ void ModderTask::OnFail(const wxString &errorMsg)
 {
 	SetStatus(errorMsg);
 	wxSleep(3);
-	OnErrorMessage(errorMsg);
+	EmitErrorMessage(errorMsg);
 }
