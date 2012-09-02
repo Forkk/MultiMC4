@@ -68,7 +68,7 @@ wxThread::ExitCode FileDownloadTask::TaskStart()
 
 		wxString sDownloadedSize = wxString::Format(wxT("%.0f"), (float)(downloadedSize / 1000));
 		wxString sDownloadSize = wxString::Format(wxT("%.0f"), (float)(downloadSize / 1000));
-		SetStatus(wxString::Format(_("Downloading... (%skB/%skB)"), sDownloadedSize, sDownloadSize));
+		SetStatus(wxString::Format(_("Downloading... (%skB/%skB)"), sDownloadedSize.c_str(), sDownloadSize.c_str()));
 
 		return outStream.LastWrite();
 	};
