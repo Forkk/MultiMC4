@@ -39,67 +39,98 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 	wxNotebook *modEditNotebook = new wxNotebook(mainPanel, -1);
 	mainBox->Add(modEditNotebook, wxSizerFlags(1).Expand().Border(wxALL, 8));
 	
-	wxPanel *jarModPanel = new wxPanel(modEditNotebook, -1);
-	wxBoxSizer *jarModSizer = new wxBoxSizer(wxHORIZONTAL);
-	jarModPanel->SetSizer(jarModSizer);
-	modEditNotebook->AddPage(jarModPanel, _("Jar Mods"), true);
+	// .jar mod panel
+	{
+		wxPanel *jarModPanel = new wxPanel(modEditNotebook, -1);
+		wxBoxSizer *jarModSizer = new wxBoxSizer(wxHORIZONTAL);
+		jarModPanel->SetSizer(jarModSizer);
+		modEditNotebook->AddPage(jarModPanel, _("Jar Mods"), true);
+		
+		jarModList = new JarModListCtrl(jarModPanel, ID_JAR_MOD_LIST, inst);
+		jarModList->InsertColumn(0, _("Mod Name"));
+		jarModList->InsertColumn(1, _("Mod Version"), wxLIST_FORMAT_RIGHT);
+		jarModList->SetDropTarget(new JarModsDropTarget(jarModList, inst));
+		jarModSizer->Add(jarModList, wxSizerFlags(1).Expand().Border(wxALL, 8));
+		
+		wxBoxSizer *jarListBtnBox = new wxBoxSizer(wxVERTICAL);
+		jarModSizer->Add(jarListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
+		
+		wxButton *addJarModBtn = new wxButton(jarModPanel, ID_ADD_JAR_MOD, _("&Add"));
+		jarListBtnBox->Add(addJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+		
+		delJarModBtn = new wxButton(jarModPanel, ID_DEL_JAR_MOD, _("&Remove"));
+		jarListBtnBox->Add(delJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+		
+		jarModUpBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_UP, _("Move &Up"));
+		jarListBtnBox->Add(jarModUpBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM));
+		
+		jarModDownBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_DOWN, _("Move &Down"));
+		jarListBtnBox->Add(jarModDownBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM));
+	}
 	
-	jarModList = new JarModListCtrl(jarModPanel, ID_JAR_MOD_LIST, inst);
-	jarModList->InsertColumn(0, _("Mod Name"));
-	jarModList->InsertColumn(1, _("Mod Version"), wxLIST_FORMAT_RIGHT);
-	jarModList->SetDropTarget(new JarModsDropTarget(jarModList, inst));
-	jarModSizer->Add(jarModList, wxSizerFlags(1).Expand().Border(wxALL, 8));
+	// Core mod folder panel
+	{
+		auto coreModPanel = new wxPanel(modEditNotebook, -1);
+		auto coreModSizer = new wxBoxSizer(wxHORIZONTAL);
+		coreModPanel->SetSizer(coreModSizer);
+		modEditNotebook->AddPage(coreModPanel, _("Coremods Folder"));
+		
+		coreModList = new CoreModListCtrl(coreModPanel, ID_CORE_MOD_LIST, inst);
+		coreModList->InsertColumn(0, _("Mod Name"));
+		coreModList->InsertColumn(1, _("Mod Version"), wxLIST_FORMAT_RIGHT);
+		coreModList->SetDropTarget(new CoreModsDropTarget(coreModList, inst));
+		coreModSizer->Add(coreModList, wxSizerFlags(1).Expand().Border(wxALL, 8));
+		
+		auto coreModListBtnBox = new wxBoxSizer(wxVERTICAL);
+		coreModSizer->Add(coreModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
+		
+		wxButton *addCoreModBtn = new wxButton(coreModPanel, ID_ADD_CORE_MOD, _("&Add"));
+		coreModListBtnBox->Add(addCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+		
+		wxButton *delCoreModBtn = new wxButton(coreModPanel, ID_DEL_CORE_MOD, _("&Remove"));
+		coreModListBtnBox->Add(delCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+	}
 	
-	wxBoxSizer *jarListBtnBox = new wxBoxSizer(wxVERTICAL);
-	jarModSizer->Add(jarListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
+	// Mod folder panel
+	{
+		wxPanel *mlModPanel = new wxPanel(modEditNotebook, -1);
+		wxBoxSizer *mlModSizer = new wxBoxSizer(wxHORIZONTAL);
+		mlModPanel->SetSizer(mlModSizer);
+		modEditNotebook->AddPage(mlModPanel, _("Mods Folder"));
+		
+		mlModList = new MLModListCtrl(mlModPanel, ID_ML_MOD_LIST, inst);
+		mlModList->InsertColumn(0, _("Mod Name"));
+		mlModList->InsertColumn(1, _("Mod Version"), wxLIST_FORMAT_RIGHT);
+		mlModList->SetDropTarget(new MLModsDropTarget(mlModList, inst));
+		mlModSizer->Add(mlModList, wxSizerFlags(1).Expand().Border(wxALL, 8));
+		
+		wxBoxSizer *mlModListBtnBox = new wxBoxSizer(wxVERTICAL);
+		mlModSizer->Add(mlModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
+		
+		wxButton *addMLModBtn = new wxButton(mlModPanel, ID_ADD_ML_MOD, _("&Add"));
+		mlModListBtnBox->Add(addMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+		
+		wxButton *delMLModBtn = new wxButton(mlModPanel, ID_DEL_ML_MOD, _("&Remove"));
+		mlModListBtnBox->Add(delMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+	}
 	
-	wxButton *addJarModBtn = new wxButton(jarModPanel, ID_ADD_JAR_MOD, _("&Add"));
-	jarListBtnBox->Add(addJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
-	
-	delJarModBtn = new wxButton(jarModPanel, ID_DEL_JAR_MOD, _("&Remove"));
-	jarListBtnBox->Add(delJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
-	
-	jarModUpBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_UP, _("Move &Up"));
-	jarListBtnBox->Add(jarModUpBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM));
-	
-	jarModDownBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_DOWN, _("Move &Down"));
-	jarListBtnBox->Add(jarModDownBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM));
-	
-	
-	wxPanel *mlModPanel = new wxPanel(modEditNotebook, -1);
-	wxBoxSizer *mlModSizer = new wxBoxSizer(wxHORIZONTAL);
-	mlModPanel->SetSizer(mlModSizer);
-	modEditNotebook->AddPage(mlModPanel, _("Mods Folder"));
-	
-	mlModList = new MLModListCtrl(mlModPanel, ID_ML_MOD_LIST, inst);
-	mlModList->InsertColumn(0, _("Mod Name"));
-	mlModList->InsertColumn(1, _("Mod Version"), wxLIST_FORMAT_RIGHT);
-	mlModList->SetDropTarget(new MLModsDropTarget(mlModList, inst));
-	mlModSizer->Add(mlModList, wxSizerFlags(1).Expand().Border(wxALL, 8));
-	
-	wxBoxSizer *mlModListBtnBox = new wxBoxSizer(wxVERTICAL);
-	mlModSizer->Add(mlModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
-	
-	wxButton *addMLModBtn = new wxButton(mlModPanel, ID_ADD_ML_MOD, _("&Add"));
-	mlModListBtnBox->Add(addMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
-	
-	wxButton *delMLModBtn = new wxButton(mlModPanel, ID_DEL_ML_MOD, _("&Remove"));
-	mlModListBtnBox->Add(delMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
-	
-	
-	wxBoxSizer *btnBox = new wxBoxSizer(wxHORIZONTAL);
-	mainBox->Add(btnBox, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT | wxLEFT, 8);
+	// Buttons on the bottom of the dialog
+	{
+		wxBoxSizer *btnBox = new wxBoxSizer(wxHORIZONTAL);
+		mainBox->Add(btnBox, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT | wxLEFT, 8);
 
-	wxButton *btnExport = new wxButton(mainPanel, ID_EXPORT, _("&Export"));
-	btnBox->Add(btnExport, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxALL, 4));
+		wxButton *btnExport = new wxButton(mainPanel, ID_EXPORT, _("&Export"));
+		btnBox->Add(btnExport, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxALL, 4));
 
-	wxButton *btnClose = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
-	btnBox->Add(btnClose, wxSizerFlags(0).Align(wxALIGN_RIGHT).Border(wxALL, 4));
+		wxButton *btnClose = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
+		btnBox->Add(btnClose, wxSizerFlags(0).Align(wxALIGN_RIGHT).Border(wxALL, 4));
+	}
 	
 	CenterOnParent();
 	
 	LoadJarMods();
 	LoadMLMods();
+	LoadCoreMods();
 }
 
 void ModEditWindow::LoadJarMods()
@@ -107,16 +138,22 @@ void ModEditWindow::LoadJarMods()
 	jarModList->UpdateItems();
 }
 
+void ModEditWindow::LoadMLMods()
+{
+	mlModList->UpdateItems();
+}
+
+void ModEditWindow::LoadCoreMods()
+{
+	coreModList->UpdateItems();
+}
+
+
 void ModEditWindow::ModListCtrl::UpdateItems()
 {
 	SetItemCount(GetModList()->size());
 	Refresh();
 	Update();
-}
-
-void ModEditWindow::LoadMLMods()
-{
-	mlModList->UpdateItems();
 }
 
 ModEditWindow::ModListCtrl::ModListCtrl(wxWindow *parent, int id, Instance *inst)
@@ -150,10 +187,18 @@ wxString ModEditWindow::ModListCtrl::OnGetItemText(long int item, long int colum
 
 ModList *ModEditWindow::ModListCtrl::GetModList() const
 {
-	if (GetId() == ID_ML_MOD_LIST)
-		return m_inst->GetMLModList();
-	else
-		return m_inst->GetModList();
+	int ID = GetId();
+	switch(ID)
+	{
+		case ID_ML_MOD_LIST:
+			return m_inst->GetMLModList();
+		case ID_CORE_MOD_LIST:
+			return m_inst->GetCoreModList();
+		case ID_JAR_MOD_LIST:
+			return m_inst->GetModList();
+		default:
+			return nullptr;
+	}
 }
 
 void ModEditWindow::UpdateColSizes()
@@ -167,6 +212,9 @@ void ModEditWindow::UpdateColSizes()
 	
 	mlModList->SetColumnWidth(0, width - versionColumnWidth);
 	mlModList->SetColumnWidth(1, versionColumnWidth);
+	
+	coreModList->SetColumnWidth(0, width - versionColumnWidth);
+	coreModList->SetColumnWidth(1, versionColumnWidth);
 }
 
 bool ModEditWindow::Show(bool show)
@@ -396,6 +444,87 @@ void ModEditWindow::MLModListCtrl::DeleteMod()
 	UpdateItems();
 }
 
+void ModEditWindow::CoreModListCtrl::PasteMod()
+{
+	wxFileDataObject data;
+
+	// Get data from the clipboard.
+	if (wxTheClipboard->Open())
+	{
+		if (wxTheClipboard->IsSupported(wxDF_FILENAME))
+		{
+			wxTheClipboard->GetData(data);
+		}
+		else
+		{
+			wxTheClipboard->Close();
+			return;
+		}
+		wxTheClipboard->Close();
+	}
+
+	// Add the given mods.
+	wxArrayString filenames = data.GetFilenames();
+	for (wxArrayString::iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
+	{
+		wxFileName file(*iter);
+		wxCopyFile(file.GetFullPath(), Path::Combine(m_inst->GetCoreModsDir(), file.GetFullName()));
+	}
+	//FIXME: this looks like lazy code. it can be done better.
+	auto mllist = m_inst->GetCoreModList();
+	mllist->UpdateModList();
+	UpdateItems();
+}
+
+void ModEditWindow::CoreModListCtrl::CopyMod()
+{
+	ModList *mods = m_inst->GetCoreModList();
+	wxFileDataObject *modFileObj = new wxFileDataObject;
+
+	wxArrayInt indices = GetSelectedItems();
+	for (wxArrayInt::const_iterator iter = indices.begin(); iter != indices.end(); ++iter)
+	{
+		wxFileName modFile = mods->at(*iter).GetFileName();
+		modFile.MakeAbsolute();
+		modFileObj->AddFile(modFile.GetFullPath());
+	}
+
+	if (wxTheClipboard->Open())
+	{
+		wxTheClipboard->SetData(modFileObj);
+		wxTheClipboard->Close();
+	}
+}
+
+void ModEditWindow::CoreModListCtrl::DeleteMod()
+{
+	if (GetItemCount() <= 0)
+		return;
+	
+	wxArrayInt indices;
+	long item = -1;
+	while (true)
+	{
+		item = GetNextItem(item, wxLIST_NEXT_ALL, 
+									  wxLIST_STATE_SELECTED);
+		
+		if (item == -1)
+			break;
+		
+		indices.Add(item);
+	}
+	
+	//FIXME: this looks like lazy code. it can be done better.
+	for (int i = indices.GetCount() -1; i >= 0; i--)
+	{
+		m_inst->GetCoreModList()->DeleteMod(indices[i]);
+	}
+	auto mllist = m_inst->GetCoreModList();
+	mllist->UpdateModList();
+	UpdateItems();
+}
+
+
 void ModEditWindow::ModListCtrl::SetInsertMark(const int index)
 {
 	m_insMarkIndex = index;
@@ -460,6 +589,32 @@ bool ModEditWindow::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wx
 	}
 	
 	auto mllist = m_inst->GetMLModList();
+	mllist->UpdateModList();
+	m_owner->UpdateItems();
+
+	return true;
+}
+
+ModEditWindow::CoreModsDropTarget::CoreModsDropTarget(ModEditWindow::ModListCtrl *owner, Instance *inst)
+{
+	m_owner = owner;
+	m_inst = inst;
+}
+
+wxDragResult ModEditWindow::CoreModsDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
+{
+	return wxDragCopy;
+}
+
+bool ModEditWindow::CoreModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
+{
+	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
+	{
+		wxFileName dest(Path::Combine(m_inst->GetCoreModsDir().GetFullPath(), *iter));
+		wxCopyFile(*iter, dest.GetFullPath());
+	}
+	
+	auto mllist = m_inst->GetCoreModList();
 	mllist->UpdateModList();
 	m_owner->UpdateItems();
 
@@ -544,7 +699,6 @@ void ModEditWindow::OnAddMLMod(wxCommandEvent &event)
 	if (addModDialog->ShowModal() == wxID_OK)
 	{
 		wxFileName file(addModDialog->GetPath());
-		//wxCopyFile(file.GetFullPath(), Path::Combine(m_inst->GetMLModsDir(), file.GetFullName()));
 		m_inst->GetMLModList()->InsertMod(0, file.GetFullPath());
 		mlModList->UpdateItems();
 	}
@@ -553,6 +707,23 @@ void ModEditWindow::OnAddMLMod(wxCommandEvent &event)
 void ModEditWindow::OnDeleteMLMod(wxCommandEvent &event)
 {
 	mlModList->DeleteMod();
+}
+
+void ModEditWindow::OnAddCoreMod(wxCommandEvent &event)
+{
+	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."), 
+												  wxGetCwd(), wxEmptyString);
+	if (addModDialog->ShowModal() == wxID_OK)
+	{
+		wxFileName file(addModDialog->GetPath());
+		m_inst->GetCoreModList()->InsertMod(0, file.GetFullPath());
+		coreModList->UpdateItems();
+	}
+}
+
+void ModEditWindow::OnDeleteCoreMod(wxCommandEvent &event)
+{
+	coreModList->DeleteMod();
 }
 
 wxArrayInt ModEditWindow::ModListCtrl::GetSelectedItems()
@@ -631,6 +802,9 @@ BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
 	
 	EVT_BUTTON(ID_ADD_ML_MOD, ModEditWindow::OnAddMLMod)
 	EVT_BUTTON(ID_DEL_ML_MOD, ModEditWindow::OnDeleteMLMod)
+	
+	EVT_BUTTON(ID_ADD_CORE_MOD, ModEditWindow::OnAddCoreMod)
+	EVT_BUTTON(ID_DEL_CORE_MOD, ModEditWindow::OnDeleteCoreMod)
 	
 	EVT_LIST_ITEM_SELECTED(ID_JAR_MOD_LIST, ModEditWindow::OnJarModSelChanged)
 	EVT_LIST_ITEM_DESELECTED(ID_JAR_MOD_LIST, ModEditWindow::OnJarModSelChanged)

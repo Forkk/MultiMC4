@@ -57,7 +57,9 @@ Instance::Instance(const wxFileName &rootDir)
 	// initialize empty mod lists - they are filled later and only if requested (see apropriate Get* methods)
 	modList.SetDir(GetInstModsDir().GetFullPath());
 	mlModList.SetDir(GetMLModsDir().GetFullPath());
+	coreModList.SetDir(GetCoreModsDir().GetFullPath());
 	modloader_list_inited = false;
+	coremod_list_inited = false;
 	jar_list_inited = false;
 }
 
@@ -85,6 +87,8 @@ void Instance::MkDirs()
 		GetSavesDir().Mkdir();
 	if (!GetMLModsDir().DirExists())
 		GetMLModsDir().Mkdir();
+	if (!GetCoreModsDir().DirExists())
+		GetCoreModsDir().Mkdir();
 	if (!GetResourceDir().DirExists())
 		GetResourceDir().Mkdir();
 	if (!GetScreenshotsDir().DirExists())
@@ -135,6 +139,11 @@ wxFileName Instance::GetMCDir() const
 wxFileName Instance::GetBinDir() const
 {
 	return wxFileName::DirName(GetMCDir().GetFullPath() + _("/bin"));
+}
+
+wxFileName Instance::GetCoreModsDir() const
+{
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("coremods")));
 }
 
 wxFileName Instance::GetMLModsDir() const
@@ -390,6 +399,18 @@ ModList *Instance::GetMLModList()
 	return &mlModList;
 }
 
+ModList *Instance::GetCoreModList()
+{
+	// if nothing requested the modloader list yet, load it.
+	if(!coremod_list_inited)
+	{
+		// check the modloader mods...
+		coreModList.UpdateModList();
+		coremod_list_inited = true;
+	}
+	return &coreModList;
+}
+
 template <typename T>
 T Instance::GetSetting(const wxString &key, T defValue) const
 {
@@ -508,7 +529,7 @@ bool Instance::JarModList::UpdateModList(bool quickLoad)
 	return false;
 }
 
-bool Instance::MLModList::LoadModListFromDir(const wxString& loadFrom, bool quickLoad)
+bool Instance::FolderModList::LoadModListFromDir(const wxString& loadFrom, bool quickLoad)
 {
 	wxString dir(loadFrom.IsEmpty() ? modsFolder : loadFrom);
 

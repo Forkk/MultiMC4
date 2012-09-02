@@ -58,7 +58,7 @@ public:
 		int m_insMarkIndex;
 
 		DECLARE_EVENT_TABLE()
-	} *jarModList, *mlModList;
+	} *jarModList, *mlModList, *coreModList;
 	
 protected:
 	class JarModListCtrl : public ModListCtrl
@@ -83,12 +83,24 @@ protected:
 		virtual void DeleteMod();
 	};
 
+	class CoreModListCtrl : public ModListCtrl
+	{
+	public:
+		CoreModListCtrl(wxWindow *parent, int id, Instance *inst)
+			: ModListCtrl(parent, id, inst) {}
+
+		virtual void CopyMod();
+		virtual void PasteMod();
+		virtual void DeleteMod();
+	};
+	
 	wxButton *delJarModBtn;
 	wxButton *jarModUpBtn;
 	wxButton *jarModDownBtn;
 	
 	void LoadJarMods();
 	void LoadMLMods();
+	void LoadCoreMods();
 	
 	void UpdateColSizes();
 	
@@ -98,6 +110,7 @@ protected:
 	void OnDeleteMLMod();
 	void OnJarListKeyDown(wxListEvent &event);
 	void OnMLListKeyDown(wxListEvent &event);
+	void OnCoreListKeyDown(wxListEvent &event);
 	
 	void OnAddJarMod(wxCommandEvent &event);
 	void OnDeleteJarMod(wxCommandEvent &event);
@@ -108,6 +121,9 @@ protected:
 	
 	void OnAddMLMod(wxCommandEvent &event);
 	void OnDeleteMLMod(wxCommandEvent &event);
+	
+	void OnAddCoreMod(wxCommandEvent &event);
+	void OnDeleteCoreMod(wxCommandEvent &event);
 	
 	void OnExportClicked(wxCommandEvent& event);
 	void OnCloseClicked(wxCommandEvent &event);
@@ -137,7 +153,19 @@ protected:
 		ModListCtrl *m_owner;
 		Instance *m_inst;
 	};
-
+	
+	class CoreModsDropTarget : public wxFileDropTarget
+	{
+	public:
+		CoreModsDropTarget(ModListCtrl *owner, Instance *inst);
+		
+		virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames);
+		virtual wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
+		
+		ModListCtrl *m_owner;
+		Instance *m_inst;
+	};
+	
 	MainWindow *m_mainWin;
 	
 	DECLARE_EVENT_TABLE()
@@ -147,6 +175,7 @@ enum
 {
 	ID_JAR_MOD_LIST,
 	ID_ML_MOD_LIST,
+	ID_CORE_MOD_LIST,
 	
 	ID_ADD_JAR_MOD,
 	ID_DEL_JAR_MOD,
@@ -155,6 +184,9 @@ enum
 	
 	ID_ADD_ML_MOD,
 	ID_DEL_ML_MOD,
+	
+	ID_ADD_CORE_MOD,
+	ID_DEL_CORE_MOD,
 
 	ID_EXPORT,
 };
