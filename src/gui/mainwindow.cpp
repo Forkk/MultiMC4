@@ -36,6 +36,7 @@
 #include "downgradedialog.h"
 #include "downgradetask.h"
 #include "fsutils.h"
+#include "aboutdlg.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -579,25 +580,25 @@ void MainWindow::OnHelpClicked(wxCommandEvent& event)
 
 void MainWindow::OnAboutClicked(wxCommandEvent& event)
 {
-#ifndef __WXMSW__
 	wxAboutDialogInfo info;
 	info.SetName(_("MultiMC"));
 	info.SetVersion(wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
 	info.SetDescription(_("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once."));
 	info.SetCopyright(_("(C) 2012 Andrew Okin"));
 	
-#if defined __WXGTK__
 	info.SetWebSite(_("http://forkk.net/MultiMC"));
 	info.SetLicense(licenseText);
 	
-	info.SetIcon(wxGetApp().GetAppIcons().GetIcon(wxSize(128,128)));
-#endif
+	info.SetIcon(wxGetApp().GetAppIcons().GetIcon(wxSize(64, 64)));
+
 	info.AddDeveloper(_("Andrew Okin <forkk@forkk.net>"));
 	info.AddDeveloper(_("Petr Mrázek <peterix@gmail.com>"));
 	
+#ifdef __WXGTK__
 	wxAboutBox(info);
 #else
-	wxMessageBox(wxString::Format(_("The about dialog is currently not supported in Windows.\nYou are using MultiMC version %s.\nThis build's tag is %s."), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
+	AboutDlg aboutDlg(this, info);
+	aboutDlg.ShowModal();
 #endif
 }
 
