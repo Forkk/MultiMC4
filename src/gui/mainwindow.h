@@ -112,6 +112,8 @@ public:
 	void AddInstance(Instance *inst);
 	void RenameEvent();
 	
+	void OnNewInstance(wxCommandEvent& event);
+	void OnImportMCFolder(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE()
 
@@ -195,6 +197,7 @@ enum
 {
 	// Toolbar
 	ID_AddInst = 1,
+	ID_NewInst,
 	ID_ImportInst,
 	ID_ImportCP,
 	ID_ViewFolder,

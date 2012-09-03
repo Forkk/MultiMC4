@@ -14,6 +14,10 @@
 //    limitations under the License.
 //
 
+#if (defined __WXMSW__ || defined __WXGTK__) && wxCHECK_VERSION(2, 9, 4) 
+#define USE_DROPDOWN_MENU
+#endif
+
 #include "mainwindow.h"
 #include "logindialog.h"
 #include "consolewindow.h"
@@ -109,37 +113,24 @@ MainWindow::MainWindow(void)
 	wxBitmap checkUpdateIcon = wxMEMORY_IMAGE(checkupdateicon);
 	wxBitmap helpIcon = wxMEMORY_IMAGE(helpicon);
 	wxBitmap aboutIcon = wxMEMORY_IMAGE(abouticon);
+
+	
 	
 	// Build the toolbar
-	#if (defined __WXMSW__ || defined __WXGTK__) && wxCHECK_VERSION(2, 9, 4) 
+	#ifdef USE_DROPDOWN_MENU
 	{
-		auto tool = mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."),wxITEM_DROPDOWN);
-		wxMenu* newInstanceMenu = new wxMenu();
-		
-		wxMenuItem* create = new wxMenuItem(0, ID_AddInst, _("Add a new instance."));
-		create->SetBitmap(newInstIcon);
-		((wxMenuBase*)newInstanceMenu)->Append(create);
-		
-		//wxMenuItem* copy = new wxMenuItem(0, ID_CopyInst, _("Copy selected instance."));
-		//copy->SetBitmap(newInstIcon);
-		//((wxMenuBase*)newInstanceMenu)->Append(copy);
-		//
-		//wxMenuItem* import = new wxMenuItem(0, ID_ImportInst, _("Import existing .minecraft folder"));
-		//import->SetBitmap(newInstIcon);
-		//((wxMenuBase*)newInstanceMenu)->Append(import);
+		wxMenu *addInstMenu = new wxMenu();
+		addInstMenu->Append(ID_NewInst, _("Add a new instance."));
+		addInstMenu->Append(ID_CopyInst, _("Copy selected instance."));
+		addInstMenu->Append(ID_ImportInst, _("Import existing .minecraft folder"));
+		addInstMenu->Append(ID_ImportCP, _("Import config pack"));
 
-		wxMenuItem* importPack = new wxMenuItem(0, ID_ImportInst, _("Import config pack"));
-		importPack->SetBitmap(newInstIcon);
-		((wxMenuBase*)newInstanceMenu)->Append(importPack);
-		
+		auto tool = mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."), wxITEM_DROPDOWN);
 		tool->SetDropdownMenu(newInstanceMenu);
 	}
 	#else
 	{
 		mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."));
-		//mainToolBar->AddTool(ID_CopyInst, _("Copy instance"), newInstIcon, _("Copy selected instance."));
-		//mainToolBar->AddTool(ID_ImportInst, _("Import .minecraft"), newInstIcon, _("Import existing .minecraft folder"));
-		mainToolBar->AddTool(ID_ImportCP, _("Import config pack"), importCPIcon, _("Import a config pack."));
 	}
 	#endif
 	mainToolBar->AddTool(ID_Refresh, _("Refresh"), reloadIcon, _("Reload ALL the instances!"));
@@ -475,13 +466,28 @@ Retry:
 // Toolbar
 void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 {
+#ifdef USE_DROPDOWN_MENU
+	OnNewInstance(event);
+#else
+	wxMenu *addInstMenu = new wxMenu();
+	addInstMenu->Append(ID_NewInst, _("Add a new instance."));
+	addInstMenu->Append(ID_CopyInst, _("Copy selected instance."));
+	addInstMenu->Append(ID_ImportInst, _("Import existing .minecraft folder"));
+	addInstMenu->Append(ID_ImportCP, _("Import config pack"));
+	PopupMenu(addInstMenu);
+	wxDELETE(addInstMenu);
+#endif
+}
+
+void MainWindow::OnNewInstance(wxCommandEvent& event)
+{
 	wxString instName;
 	wxString instDirName;
 	if (!GetNewInstName(&instName, &instDirName))
 		return;
 
 	wxFileName instDir = wxFileName::DirName(Path::Combine(settings->GetInstDir(), instDirName));
-	
+
 	Instance *inst = new Instance(instDir);
 	UserInfo lastLogin;
 	if (wxFileExists(_("lastlogin4")))
@@ -493,6 +499,29 @@ void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 		}
 	}
 	inst->SetName(instName);
+	AddInstance(inst);
+}
+
+void MainWindow::OnImportMCFolder(wxCommandEvent& event)
+{
+	wxDirDialog *dirDlg = new wxDirDialog(this, _("Select a Minecraft folder to import"));
+	if (dirDlg->ShowModal() != wxID_OK)
+		return;
+
+	wxString existingMCDir = dirDlg->GetPath();
+
+	wxString instName;
+	wxString instDirName;
+	if (!GetNewInstName(&instName, &instDirName, _("Import existing Minecraft folder")))
+		return;
+
+	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName));
+
+	wxMkdir(instDirName);
+
+	Instance *inst = new Instance(instDirName);
+	inst->SetName(instName);
+	StartTask(new FileCopyTask(existingMCDir, inst->GetMCDir()));
 	AddInstance(inst);
 }
 
@@ -1161,6 +1190,10 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_Help, MainWindow::OnHelpClicked)
 	EVT_TOOL(ID_About, MainWindow::OnAboutClicked)
 
+	EVT_MENU(ID_NewInst, MainWindow::OnNewInstance)
+	EVT_MENU(ID_CopyInst, MainWindow::OnCopyInstClicked)
+	EVT_MENU(ID_ImportInst, MainWindow::OnImportMCFolder)
+	EVT_MENU(ID_ImportCP, MainWindow::OnImportCPClicked)
 
 	EVT_MENU(ID_Play, MainWindow::OnPlayClicked)
 	
