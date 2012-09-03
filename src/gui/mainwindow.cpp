@@ -109,6 +109,7 @@ MainWindow::MainWindow(void)
 	wxBitmap importCPIcon = wxMEMORY_IMAGE(importcpicon);
 	wxBitmap reloadIcon = wxMEMORY_IMAGE(refreshinsticon);
 	wxBitmap viewFolderIcon = wxMEMORY_IMAGE(viewfoldericon);
+	wxBitmap viewCMFolderIcon = wxMEMORY_IMAGE(centralmodsfolder);
 	wxBitmap settingsIcon = wxMEMORY_IMAGE(settingsicon);
 	wxBitmap checkUpdateIcon = wxMEMORY_IMAGE(checkupdateicon);
 	wxBitmap helpIcon = wxMEMORY_IMAGE(helpicon);
@@ -135,6 +136,7 @@ MainWindow::MainWindow(void)
 	#endif
 	mainToolBar->AddTool(ID_Refresh, _("Refresh"), reloadIcon, _("Reload ALL the instances!"));
 	mainToolBar->AddTool(ID_ViewFolder, _("View folder"), viewFolderIcon, _("Open the instance folder."));
+	mainToolBar->AddTool(ID_ViewCMFolder, _("View Central mods folder"), viewCMFolderIcon, _("Open the instance folder."));
 	mainToolBar->AddSeparator();
 	mainToolBar->AddTool(ID_Settings, _("Settings"), settingsIcon, _("Settings"));
 	mainToolBar->AddTool(ID_CheckUpdate, _("Check for updates"), checkUpdateIcon, _("Check for MultiMC updates."));
@@ -542,7 +544,18 @@ void MainWindow::OnImportCPClicked(wxCommandEvent& event)
 
 void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
 {
+	if (!settings->GetInstDir().DirExists())
+		settings->GetInstDir().Mkdir();
+
 	Utils::OpenFile(settings->GetInstDir());
+}
+
+void MainWindow::OnViewCMFolderClicked(wxCommandEvent& event)
+{
+	if (!settings->GetModsDir().DirExists())
+		settings->GetModsDir().Mkdir();
+
+	Utils::OpenFile(settings->GetModsDir());
 }
 
 void MainWindow::OnRefreshClicked(wxCommandEvent& event)
@@ -1182,6 +1195,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)
 	EVT_TOOL(ID_ImportCP, MainWindow::OnImportCPClicked)
 	EVT_TOOL(ID_ViewFolder, MainWindow::OnViewFolderClicked)
+	EVT_TOOL(ID_ViewCMFolder, MainWindow::OnViewCMFolderClicked)
 	EVT_TOOL(ID_Refresh, MainWindow::OnRefreshClicked)
 
 	EVT_TOOL(ID_Settings, MainWindow::OnSettingsClicked)

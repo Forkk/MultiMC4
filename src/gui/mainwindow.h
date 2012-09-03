@@ -47,6 +47,7 @@ public:
 	void OnAddInstClicked(wxCommandEvent& event);
 	void OnImportCPClicked(wxCommandEvent& event);
 	void OnViewFolderClicked(wxCommandEvent& event);
+	void OnViewCMFolderClicked(wxCommandEvent& event);
 	void OnRefreshClicked(wxCommandEvent& event);
 
 	void OnSettingsClicked(wxCommandEvent& event);
@@ -201,6 +202,7 @@ enum
 	ID_ImportInst,
 	ID_ImportCP,
 	ID_ViewFolder,
+	ID_ViewCMFolder,
 	ID_ModsFolder,
 	ID_Refresh,
 
