@@ -363,7 +363,13 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 	}
 	
 	instListCtrl->Clear();
+	for(int i = 0; i < instItems.size(); i++)
+	{
+		delete instItems[i];
+	}
 	instItems.clear();
+	m_currentInstance = nullptr;
+	m_currentInstanceIdx = -1;
 	
 	wxDir dir(instDir.GetFullPath());
 	if (!dir.IsOpened())
@@ -518,12 +524,16 @@ void MainWindow::OnRefreshClicked(wxCommandEvent& event)
 void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 {
 	SettingsDialog *settingsDlg = new SettingsDialog(this, -1);
+	auto oldInstDir = settings->GetInstDir();
 	int response = settingsDlg->ShowModal();
-
 	if (response == wxID_OK)
 	{
-		settingsDlg->ApplySettings();
-
+		// if the instance folder changed, reload the instance list
+		if(!oldInstDir.SameAs(settings->GetInstDir()))
+		{
+			LoadInstanceList();
+		}
+		
 		if (settingsDlg->GetForceUpdateMultiMC())
 		{
 			wxString ciURL(_T(JENKINS_JOB_URL));

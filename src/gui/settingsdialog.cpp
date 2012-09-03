@@ -29,10 +29,10 @@ but it will disable certain features such as setting Minecraft's window\
 size and icon."
 );
 
-SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
-	: wxDialog(parent, id, _T("Settings"), wxDefaultPosition,
-		wxSize(500, 450))
+SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *_settings /* = settings */)
+	: wxDialog(parent, id, _T("Settings"), wxDefaultPosition, wxSize(500, 450))
 {
+	currentSettings = _settings;
 	wxBoxSizer *mainBox = new wxBoxSizer(wxVERTICAL);
 	SetSizer(mainBox);
 	
@@ -238,37 +238,38 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id)
 	LoadSettings();
 }
 
-void SettingsDialog::OnButtonClicked(wxCommandEvent& event)
+void SettingsDialog::OnOKClicked(wxCommandEvent& event)
 {
-	this->Close();
+	if(ApplySettings())
+		EndModal(wxID_OK);
 }
 
-void SettingsDialog::ApplySettings(AppSettings *s /* = settings */)
+bool SettingsDialog::ApplySettings()
 {
-	s->SetShowConsole(showConsoleCheck->IsChecked());
-	s->SetAutoCloseConsole(autoCloseConsoleCheck->IsChecked());
-	
-	s->SetAutoUpdate(autoUpdateCheck->IsChecked());
-	
 	wxFileName newInstDir = wxFileName::DirName(instDirTextBox->GetValue());
-	if (!s->GetInstDir().SameAs(newInstDir))
+	if (!currentSettings->GetInstDir().SameAs(newInstDir))
 	{
-		wxFileName oldInstDir = s->GetInstDir();
+		wxFileName oldInstDir = currentSettings->GetInstDir();
 		
 		int response = wxMessageBox(
 			_T("You've changed your instance directory, would you like to transfer all of your instances?"),
 			_T("Instance directory changed."), 
 			wxYES | wxNO | wxCANCEL | wxCENTER, this);
 		
-		if (response != wxCANCEL)
+		if(response == wxCANCEL)
 		{
-			s->SetInstDir(newInstDir);
+			return false;
 		}
 		
 		if (response == wxYES)
 		{
 			wxDir instDir(oldInstDir.GetFullPath());
 
+			if(!newInstDir.Mkdir(0777,wxPATH_MKDIR_FULL))
+			{
+				wxLogError(_("Failed to create the new instance folder: %s"), newInstDir.GetFullPath().c_str());
+				return false;
+			}
 			wxString oldDirName;
 			if (instDir.GetFirst(&oldDirName))
 			{
@@ -285,13 +286,18 @@ void SettingsDialog::ApplySettings(AppSettings *s /* = settings */)
 				} while (instDir.GetNext(&oldDirName));
 			}
 		}
+		currentSettings->SetInstDir(newInstDir);
 	}
+	
+	currentSettings->SetShowConsole(showConsoleCheck->IsChecked());
+	currentSettings->SetAutoCloseConsole(autoCloseConsoleCheck->IsChecked());
+	currentSettings->SetAutoUpdate(autoUpdateCheck->IsChecked());
 
-	s->SetMinMemAlloc(minMemorySpin->GetValue());
-	s->SetMaxMemAlloc(maxMemorySpin->GetValue());
+	currentSettings->SetMinMemAlloc(minMemorySpin->GetValue());
+	currentSettings->SetMaxMemAlloc(maxMemorySpin->GetValue());
 
-	s->SetJavaPath(javaPathTextBox->GetValue());
-	s->SetJvmArgs(jvmArgsTextBox->GetValue());
+	currentSettings->SetJavaPath(javaPathTextBox->GetValue());
+	currentSettings->SetJvmArgs(jvmArgsTextBox->GetValue());
 	
 	GUIMode newGUIMode;
 	if (guiStyleDropDown->GetValue() == guiModeDefault)
@@ -299,69 +305,52 @@ void SettingsDialog::ApplySettings(AppSettings *s /* = settings */)
 	else if (guiStyleDropDown->GetValue() == guiModeSimple)
 		newGUIMode = GUI_Simple;
 	
-	if (newGUIMode != s->GetGUIMode())
+	if (newGUIMode != currentSettings->GetGUIMode())
 	{
-		s->SetGUIMode(newGUIMode);
+		currentSettings->SetGUIMode(newGUIMode);
 		wxMessageBox(_("Changing the GUI style requires a restart in order to take effect. Please restart MultiMC."),
 			_("Restart Required"));
 	}
 
-//	if (devBuildCheck->GetValue() && !s->GetUseDevBuilds())
-//	{
-//		// Display a warning.
-//		if (wxMessageBox(_("Warning: Dev builds contain incomplete, experimental, and possibly unstable features-> \
-//Some may be extremely buggy, and others may not work at all. Use these at your own risk. \
-//Are you sure you want to use dev builds?"), 
-//			_("Are you sure?"), wxOK | wxCANCEL) == wxOK)
-//		{
-//			s->SetUseDevBuilds(devBuildCheck->GetValue());
-//		}
-//	}
-//	else
-//	{
-//		s->SetUseDevBuilds(devBuildCheck->GetValue());
-//	}
+	currentSettings->SetUseAppletWrapper(!compatCheckbox->IsChecked());
 
-	s->SetUseAppletWrapper(!compatCheckbox->IsChecked());
+	currentSettings->SetMCWindowMaximize(winMaxCheckbox->IsChecked());
+	currentSettings->SetMCWindowWidth(winWidthSpin->GetValue());
+	currentSettings->SetMCWindowHeight(winHeightSpin->GetValue());
 
-	s->SetMCWindowMaximize(winMaxCheckbox->IsChecked());
-	s->SetMCWindowWidth(winWidthSpin->GetValue());
-	s->SetMCWindowHeight(winHeightSpin->GetValue());
-
-	s->SetConsoleSysMsgColor(sysMsgColorCtrl->GetColour());
-	s->SetConsoleStdoutColor(stdoutColorCtrl->GetColour());
-	s->SetConsoleStderrColor(stderrColorCtrl->GetColour());
+	currentSettings->SetConsoleSysMsgColor(sysMsgColorCtrl->GetColour());
+	currentSettings->SetConsoleStdoutColor(stdoutColorCtrl->GetColour());
+	currentSettings->SetConsoleStderrColor(stderrColorCtrl->GetColour());
+	return true;
 }
 
-void SettingsDialog::LoadSettings(AppSettings *s /* = settings */)
+void SettingsDialog::LoadSettings()
 {
-	showConsoleCheck->SetValue(s->GetShowConsole());
-	autoCloseConsoleCheck->SetValue(s->GetAutoCloseConsole());
+	showConsoleCheck->SetValue(currentSettings->GetShowConsole());
+	autoCloseConsoleCheck->SetValue(currentSettings->GetAutoCloseConsole());
 
-	autoUpdateCheck->SetValue(s->GetAutoUpdate());
+	autoUpdateCheck->SetValue(currentSettings->GetAutoUpdate());
 
-	//devBuildCheck->SetValue(s->GetUseDevBuilds());
+	instDirTextBox->SetValue(currentSettings->GetInstDir().GetFullPath());
 
-	instDirTextBox->SetValue(s->GetInstDir().GetFullPath());
+	minMemorySpin->SetValue(currentSettings->GetMinMemAlloc());
+	maxMemorySpin->SetValue(currentSettings->GetMaxMemAlloc());
 
-	minMemorySpin->SetValue(s->GetMinMemAlloc());
-	maxMemorySpin->SetValue(s->GetMaxMemAlloc());
+	javaPathTextBox->SetValue(currentSettings->GetJavaPath());
+	jvmArgsTextBox->SetValue(currentSettings->GetJvmArgs());
 
-	javaPathTextBox->SetValue(s->GetJavaPath());
-	jvmArgsTextBox->SetValue(s->GetJvmArgs());
+	compatCheckbox->SetValue(!currentSettings->GetUseAppletWrapper());
 
-	compatCheckbox->SetValue(!s->GetUseAppletWrapper());
-
-	winMaxCheckbox->SetValue(s->GetMCWindowMaximize());
-	winWidthSpin->SetValue(s->GetMCWindowWidth());
-	winHeightSpin->SetValue(s->GetMCWindowHeight());
+	winMaxCheckbox->SetValue(currentSettings->GetMCWindowMaximize());
+	winWidthSpin->SetValue(currentSettings->GetMCWindowWidth());
+	winHeightSpin->SetValue(currentSettings->GetMCWindowHeight());
 	UpdateCheckboxStuff();
 
-	sysMsgColorCtrl->SetColour(s->GetConsoleSysMsgColor());
-	stdoutColorCtrl->SetColour(s->GetConsoleStdoutColor());
-	stderrColorCtrl->SetColour(s->GetConsoleStderrColor());
+	sysMsgColorCtrl->SetColour(currentSettings->GetConsoleSysMsgColor());
+	stdoutColorCtrl->SetColour(currentSettings->GetConsoleStdoutColor());
+	stderrColorCtrl->SetColour(currentSettings->GetConsoleStderrColor());
 	
-	switch (s->GetGUIMode())
+	switch (currentSettings->GetGUIMode())
 	{
 	case GUI_Simple:
 		guiStyleDropDown->SetValue(guiModeSimple);
@@ -410,6 +399,7 @@ bool SettingsDialog::GetForceUpdateMultiMC() const
 BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_BUTTON(ID_BrowseInstDir, SettingsDialog::OnBrowseInstDirClicked)
 	EVT_BUTTON(ID_DetectJavaPath, SettingsDialog::OnDetectJavaPathClicked)
+	EVT_BUTTON(wxID_OK, SettingsDialog::OnOKClicked)
 
 	EVT_CHECKBOX(ID_MCMaximizeCheckbox, SettingsDialog::OnUpdateMCTabCheckboxes)
 	EVT_CHECKBOX(ID_CompatModeCheckbox, SettingsDialog::OnUpdateMCTabCheckboxes)

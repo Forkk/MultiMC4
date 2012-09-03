@@ -26,22 +26,20 @@
 class SettingsDialog : public wxDialog
 {
 public:
-	SettingsDialog(wxWindow *parent, wxWindowID id);
-	
-	void OnButtonClicked(wxCommandEvent& event);
-	
-	void ApplySettings(AppSettings *s = settings);
-	void LoadSettings(AppSettings *s = settings);
-
+	SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *s = settings);
 	bool GetForceUpdateMultiMC() const;
-	
+
 protected:
 	void OnBrowseInstDirClicked(wxCommandEvent& event);
 	void OnDetectJavaPathClicked(wxCommandEvent& event);
 	void OnUpdateMCTabCheckboxes(wxCommandEvent& event);
+	void OnOKClicked(wxCommandEvent& event);
 
 	void UpdateCheckboxStuff();
+	void LoadSettings();
+	bool ApplySettings();
 	
+	AppSettings * currentSettings;
 	wxNotebook *tabCtrl;
 	
 	wxCheckBox *showConsoleCheck;
@@ -64,8 +62,6 @@ protected:
 	wxTextCtrl *javaPathTextBox;
 	wxTextCtrl *jvmArgsTextBox;
 
-	//wxCheckBox *devBuildCheck;
-	
 	wxComboBox *guiStyleDropDown;
 
 	wxColourPickerCtrl *sysMsgColorCtrl;
