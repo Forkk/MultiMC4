@@ -477,6 +477,15 @@ void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 	wxFileName instDir = wxFileName::DirName(Path::Combine(settings->GetInstDir(), instDirName));
 	
 	Instance *inst = new Instance(instDir);
+	UserInfo lastLogin;
+	if (wxFileExists(_("lastlogin4")))
+	{
+		lastLogin.LoadFromFile("lastlogin4");
+		if(lastLogin.username.Lower().Contains(_("direwolf")))
+		{
+			inst->SetIconKey(_("enderman"));
+		}
+	}
 	inst->SetName(instName);
 	AddInstance(inst);
 }
