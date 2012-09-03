@@ -14,10 +14,6 @@
 //    limitations under the License.
 //
 
-#if (defined __WXMSW__ || defined __WXGTK__) && wxCHECK_VERSION(2, 9, 4) 
-#define USE_DROPDOWN_MENU
-#endif
-
 #include "mainwindow.h"
 #include "logindialog.h"
 #include "consolewindow.h"
@@ -54,6 +50,10 @@
 #include <wx/listbook.h>
 #include <wx/gbsizer.h>
 #include <wx/filedlg.h>
+
+#if (defined __WXMSW__ || defined __WXGTK__) && wxCHECK_VERSION(2, 9, 4) 
+#define USE_DROPDOWN_MENU
+#endif
 
 #include "config.h"
 #include "buildtag.h"
