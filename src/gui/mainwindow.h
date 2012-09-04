@@ -47,6 +47,7 @@ public:
 	void OnAddInstClicked(wxCommandEvent& event);
 	void OnImportCPClicked(wxCommandEvent& event);
 	void OnViewFolderClicked(wxCommandEvent& event);
+	void OnViewCMFolderClicked(wxCommandEvent& event);
 	void OnRefreshClicked(wxCommandEvent& event);
 
 	void OnSettingsClicked(wxCommandEvent& event);
@@ -112,6 +113,8 @@ public:
 	void AddInstance(Instance *inst);
 	void RenameEvent();
 	
+	void OnNewInstance(wxCommandEvent& event);
+	void OnImportMCFolder(wxCommandEvent& event);
 	
 	DECLARE_EVENT_TABLE()
 
@@ -195,9 +198,11 @@ enum
 {
 	// Toolbar
 	ID_AddInst = 1,
+	ID_NewInst,
 	ID_ImportInst,
 	ID_ImportCP,
 	ID_ViewFolder,
+	ID_ViewCMFolder,
 	ID_ModsFolder,
 	ID_Refresh,
 

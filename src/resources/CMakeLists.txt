@@ -20,6 +20,7 @@ HelpIcon.png
 RefreshInstIcon.png
 SettingsIcon.png
 ViewFolderIcon.png
+CentralModsFolder.png
 )
 
 SET(TOOLBAR_ICONS_DEP ${INSTANCE_ICONS})
