@@ -115,6 +115,8 @@ public:
 	
 	void OnNewInstance(wxCommandEvent& event);
 	void OnImportMCFolder(wxCommandEvent& event);
+
+	wxString launchInstance;
 	
 	DECLARE_EVENT_TABLE()
 
@@ -124,6 +126,7 @@ protected:
 	GUIMode m_guiMode;
 
 	Instance* GetLinkedInst(int id);
+	Instance* GetLinkedListByName(wxString instanceName);
 
 	bool DeleteSelectedInstance();
 

@@ -166,6 +166,9 @@ MainWindow::MainWindow(void)
 		InitAdvancedGUI(box);
 		break;
 	}
+
+	launchInstance = _("");
+
 	CenterOnScreen();
 }
 
@@ -188,6 +191,23 @@ void MainWindow::OnStartup()
 	{
 		CheckUpdateTask *task = new CheckUpdateTask();
 		StartTask(task,TASK_BACKGROUND);
+	}
+
+	if(!launchInstance.empty())
+	{
+		m_currentInstance = GetLinkedListByName(launchInstance);
+
+		if(m_currentInstance == nullptr)
+		{
+			wxString output = _("Couldn't find the instance you tried to load: ");
+			output.append(launchInstance);
+			output.append(_(". Make sure it exists!"));
+			wxLogError(output);
+		}
+		else
+		{
+			ShowLoginDlg(_(""));
+		}
 	}
 }
 
@@ -423,6 +443,19 @@ Instance* MainWindow::GetLinkedInst(int id)
 	if(id == -1)
 		return nullptr;
 	return instItems[id];
+}
+
+Instance* MainWindow::GetLinkedListByName(wxString instanceName)
+{
+	for(std::vector<Instance*>::iterator it = instItems.begin(); it != instItems.end(); ++it)
+	{
+		if((*it)->GetName().CompareTo(instanceName) == 0)
+		{
+			return (*it);
+		}
+	}
+
+	return nullptr;
 }
 
 bool MainWindow::GetNewInstName(wxString *instName, wxString *instDirName, const wxString title)

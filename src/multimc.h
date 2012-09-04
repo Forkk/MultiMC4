@@ -27,6 +27,7 @@ protected:
 
 	wxString thisFileName;
 	wxString updateTarget;
+	wxString launchInstance;
 	
 	void InstallUpdate();
 	void YieldSleep(int secs);
@@ -38,6 +39,9 @@ protected:
 
 		// Installs updates and exits.
 		START_INSTALL_UPDATE,
+
+		// Launches an instance on start.
+		START_LAUNCH_INSTANCE
 	} startMode;
 };
 
@@ -47,6 +51,9 @@ const wxCmdLineEntryDesc cmdLineDesc[] =
 		wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
 
 	{ wxCMD_LINE_OPTION, _("u"), _("update"), _("replaces the given file with the running executable"),
+		wxCMD_LINE_VAL_STRING },
+
+	{ wxCMD_LINE_OPTION, _("l"), _("launch"), _("tries to launch the given instance"),
 		wxCMD_LINE_VAL_STRING },
 
 	{ wxCMD_LINE_NONE }

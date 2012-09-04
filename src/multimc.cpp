@@ -90,6 +90,15 @@ bool MultiMC::OnInit()
 			return true;
 		}
 
+	case START_LAUNCH_INSTANCE:
+		{
+			MainWindow *mainWin = new MainWindow();
+			mainWin->Show();
+			mainWin->launchInstance = launchInstance;
+			mainWin->OnStartup();
+			return true;
+		}
+
 	case START_INSTALL_UPDATE:
 		InstallUpdate();
 		return false;
@@ -106,12 +115,18 @@ void MultiMC::OnInitCmdLine(wxCmdLineParser &parser)
 
 bool MultiMC::OnCmdLineParsed(wxCmdLineParser& parser)
 {
-	wxString fileToUpdate;
-	if (parser.Found(_("u"), &fileToUpdate))
+	wxString parsedOption;
+	if (parser.Found(_("u"), &parsedOption))
 	{
 		thisFileName = wxStandardPaths::Get().GetExecutablePath();
-		updateTarget = fileToUpdate;
+		updateTarget = parsedOption;
 		startMode = START_INSTALL_UPDATE;
+		return true;
+	}
+	else if(parser.Found(_("l"), &parsedOption))
+	{
+		launchInstance = parsedOption;
+		startMode = START_LAUNCH_INSTANCE;
 		return true;
 	}
 	return true;
