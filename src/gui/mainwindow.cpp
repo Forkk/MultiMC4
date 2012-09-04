@@ -177,7 +177,6 @@ MainWindow::~MainWindow(void)
 void MainWindow::OnStartup()
 {
 	LoadInstanceList();
-	LoadCentralModList();
 
 	// Automatically auto-detect the Java path.
 	if (settings->GetJavaPath() == _("java"))
