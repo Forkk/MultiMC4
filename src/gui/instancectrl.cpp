@@ -235,7 +235,8 @@ bool wxInstanceCtrl::GetItemRect ( int n, wxRect& rect, bool view_relative )
 		if ( !GetRowCol ( n, GetClientSize(), row, col ) )
 			return false;
 
-		int x = col * ( m_itemWidth + m_spacing ) + m_spacing;
+		wxSize bsz = GetWindowBorderSize();
+		int x = col * ( m_itemWidth + m_spacing ) + m_spacing + bsz.GetWidth()/2;
 		int y = m_row_ys[row] + m_spacing;
 
 		if ( view_relative )
@@ -1424,11 +1425,13 @@ bool wxInstanceItem::DrawBackground ( wxDC& dc, wxInstanceCtrl* ctrl, const wxRe
 
 wxSize wxInstanceCtrl::DoGetBestSize() const
 {
-	int best_width = m_spacing + (m_itemWidth + m_spacing) * GetItemsPerRow();
+	wxSize bsz = GetWindowBorderSize();
+	int best_width = m_spacing + (m_itemWidth + m_spacing) * GetItemsPerRow() + bsz.GetWidth() * 2;
 	if(( GetWindowStyle() & wxINST_SINGLE_COLUMN ) != 0 && m_needsScrolling)
 	{
 		best_width += wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
 	}
+	
 	wxSize sz(best_width,0);
 	return sz;
 }

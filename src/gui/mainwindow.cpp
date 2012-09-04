@@ -45,9 +45,9 @@
 #ifdef __WXGTK__
 #include <wx/aboutdlg.h>
 #endif
+
 #include <wx/cmdline.h>
 #include <wx/stdpaths.h>
-#include <wx/listbook.h>
 #include <wx/gbsizer.h>
 #include <wx/filedlg.h>
 
@@ -98,7 +98,8 @@ MainWindow::MainWindow(void)
 	
 	SetIcons(wxGetApp().GetAppIcons());
 	
-	wxToolBar *mainToolBar = CreateToolBar();
+	wxToolBar *mainToolBar = CreateToolBar(wxTB_HORIZONTAL| wxTB_NO_TOOLTIPS);
+	
 	
 	// Load toolbar icons
 	wxBitmap newInstIcon = wxMEMORY_IMAGE(newinsticon);
@@ -136,26 +137,52 @@ MainWindow::MainWindow(void)
 	}
 	#else
 	{
-		mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."));
-		//mainToolBar->AddTool(ID_CopyInst, _("Copy instance"), newInstIcon, _("Copy selected instance."));
-		//mainToolBar->AddTool(ID_ImportInst, _("Import .minecraft"), newInstIcon, _("Import existing .minecraft folder"));
-		mainToolBar->AddTool(ID_ImportCP, _("Import config pack"), importCPIcon, _("Import a config pack."));
+		mainToolBar->AddTool(ID_AddInst, _("Add"),
+			newInstIcon, wxNullBitmap, wxITEM_NORMAL,
+			_("Add a new instance."), _("Add a new Minecraft instance."));
+		/*
+		mainToolBar->AddTool(ID_CopyInst, _("Copy instance"), newInstIcon, _("Copy selected instance."));
+		*/
+		/*
+		mainToolBar->AddTool(ID_ImportInst, _("Import .minecraft"), newInstIcon, _("Import existing .minecraft folder"));
+		*/
+		mainToolBar->AddTool(ID_ImportCP, _("Import config pack"),
+			importCPIcon, wxNullBitmap, wxITEM_NORMAL,
+			_("Import a config pack."), _("Import a config pack."));
 	}
 	#endif
-	mainToolBar->AddTool(ID_Refresh, _("Refresh"), reloadIcon, _("Reload ALL the instances!"));
-	mainToolBar->AddTool(ID_ViewFolder, _("View folder"), viewFolderIcon, _("Open the instance folder."));
+	mainToolBar->AddTool(ID_Refresh, _("Refresh"),
+		reloadIcon, wxNullBitmap, wxITEM_NORMAL,
+		_("Reload ALL the instances!"),_("Reload ALL the instances!"));
+	
+	mainToolBar->AddTool(ID_ViewFolder, _("View folder"),
+		viewFolderIcon, wxNullBitmap, wxITEM_NORMAL,
+		_("Open the instance folder."), _("Open the instance folder."));
+	
 	mainToolBar->AddSeparator();
-	mainToolBar->AddTool(ID_Settings, _("Settings"), settingsIcon, _("Settings"));
-	mainToolBar->AddTool(ID_CheckUpdate, _("Check for updates"), checkUpdateIcon, _("Check for MultiMC updates."));
+	
+	mainToolBar->AddTool(ID_Settings, _("Settings"),
+		settingsIcon, wxNullBitmap, wxITEM_NORMAL,
+		_("Settings"), _("Change MultiMC or Minecraft settings."));
+	
+	mainToolBar->AddTool(ID_CheckUpdate, _("Check for updates"),
+		checkUpdateIcon, wxNullBitmap, wxITEM_NORMAL,
+		_("Check for MultiMC updates."), _("Check for MultiMC updates."));
+	
 	mainToolBar->AddSeparator();
-	mainToolBar->AddTool(ID_Help, _("Help"), helpIcon, _("Help"));
-	mainToolBar->AddTool(ID_About, _("About"), aboutIcon, _("About MultiMC"));
+	
+	mainToolBar->AddTool(ID_Help, _("Help"),
+		helpIcon, wxNullBitmap, wxITEM_NORMAL,
+		_("Help"),_("Help"));
+	mainToolBar->AddTool(ID_About, _("About"),
+		aboutIcon, wxNullBitmap, wxITEM_NORMAL,
+		_("About MultiMC"), _("About MultiMC"));
 	
 	mainToolBar->Realize();
 	
 	
 	// Create the status bar
-	CreateStatusBar(1);
+	auto sbar = CreateStatusBar(1);
 	SetStatusBarPane(0);
 	
 	// Set up the main panel and sizers
@@ -243,14 +270,17 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	
 	wxFont titleFont(18, wxSWISS, wxNORMAL, wxNORMAL);
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
-	
-	instListCtrl = new wxInstanceCtrl(instPanel, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize,wxINST_SINGLE_COLUMN);
+	#ifdef __WXMSW__
+	int borderstyle = wxWindow::GetThemedBorderStyle();
+	#else
+	int borderstyle = wxBORDER_SUNKEN;
+	#endif
+	instListCtrl = new wxInstanceCtrl(instPanel, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize,wxINST_SINGLE_COLUMN|borderstyle);
 	instListCtrl->SetImageSize(wxSize(32,32));
-	instSz->Add(instListCtrl,wxGBPosition(0, 0), wxGBSpan(rows, 1),wxEXPAND);
+	instSz->Add(instListCtrl,wxGBPosition(0, 0), wxGBSpan(rows, 1),wxEXPAND/* | wxALL, 4*/);
 	
 	instNameSz = new wxBoxSizer(wxVERTICAL);
-	instSz->Add(instNameSz, wxGBPosition(0, 1), wxGBSpan(1, cols - 2), 
-		wxEXPAND | wxALL, 4);
+	instSz->Add(instNameSz, wxGBPosition(0, 1), wxGBSpan(1, cols - 2), wxEXPAND | wxALL, 4);
 	
 	instNameEditor = new wxTextCtrl(instPanel, ID_InstNameEditor, wxEmptyString,
 		wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
@@ -264,16 +294,13 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	instNameSz->Add(instNameLabel, wxSizerFlags(0).Align(wxALIGN_CENTER));
 	
 	
-	instNotesEditor = new wxTextCtrl(instPanel, -1, wxEmptyString,
-		wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_RICH);
-	instSz->Add(instNotesEditor, wxGBPosition(1, 1), wxGBSpan(rows - 2, cols - 2), 
-		wxEXPAND | wxALL, 4);
+	instNotesEditor = new wxTextCtrl(instPanel, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_RICH);
+	instSz->Add(instNotesEditor, wxGBPosition(1, 1), wxGBSpan(rows - 2, cols - 2), wxEXPAND | wxLEFT | wxTOP | wxRIGHT, 4);
 	
 	
 	wxPanel *btnPanel = new wxPanel(instPanel);
 	wxBoxSizer *btnSz = new wxBoxSizer(wxVERTICAL);
-	instSz->Add(btnPanel, wxGBPosition(1, cols - 1), wxGBSpan(rows - 2, 1),
-		wxALIGN_RIGHT | wxLEFT | wxRIGHT, 8);
+	instSz->Add(btnPanel, wxGBPosition(1, cols - 1), wxGBSpan(rows - 2, 1), wxALIGN_RIGHT | wxLEFT | wxRIGHT, 8);
 	btnPanel->SetSizer(btnSz);
 	
 	const int spacerSize = 4;
@@ -408,7 +435,7 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		UpdateInstPanel();
 	}
 	
-	GetStatusBar()->PopStatusText(0);
+	//GetStatusBar()->PopStatusText(0);
 }
 
 void MainWindow::AddInstance(Instance *inst)
