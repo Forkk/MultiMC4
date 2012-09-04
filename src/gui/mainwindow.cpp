@@ -195,7 +195,9 @@ void MainWindow::OnStartup()
 
 	if(!launchInstance.empty())
 	{
-		m_currentInstance = GetLinkedInstByName(launchInstance);
+		wxFileName instanceDir = settings->GetInstDir();
+		instanceDir.AppendDir(launchInstance);
+		m_currentInstance = Instance::LoadInstance(instanceDir);
 
 		if(m_currentInstance == nullptr)
 		{
@@ -443,19 +445,6 @@ Instance* MainWindow::GetLinkedInst(int id)
 	if(id == -1)
 		return nullptr;
 	return instItems[id];
-}
-
-Instance* MainWindow::GetLinkedInstByName(wxString instanceName)
-{
-	for(std::vector<Instance*>::iterator it = instItems.begin(); it != instItems.end(); ++it)
-	{
-		if((*it)->GetName().CompareTo(instanceName) == 0)
-		{
-			return (*it);
-		}
-	}
-
-	return nullptr;
 }
 
 bool MainWindow::GetNewInstName(wxString *instName, wxString *instDirName, const wxString title)
