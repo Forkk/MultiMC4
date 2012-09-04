@@ -18,11 +18,15 @@
 #include <wx/wx.h>
 #include <wx/zipstrm.h>
 
-bool RecursiveDelete(const wxString &path);
+namespace fsutils
+{
+	bool CopyDir(wxString sFrom, wxString sTo);
+	bool RecursiveDelete(const wxString &path);
 
-bool CreateAllDirs(const wxFileName &dir);
+	bool CreateAllDirs(const wxFileName &dir);
 
-void ExtractZipArchive(wxInputStream &stream, const wxString &dest);
-void TransferZipArchive(wxInputStream &stream, wxZipOutputStream &out);
+	void ExtractZipArchive(wxInputStream &stream, const wxString &dest);
+	void TransferZipArchive(wxInputStream &stream, wxZipOutputStream &out);
 
-bool CompressZipArchive(wxOutputStream &stream, const wxString &srcDir);
+	bool CompressZipArchive(wxOutputStream &stream, const wxString &srcDir);
+}

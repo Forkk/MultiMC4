@@ -18,6 +18,7 @@
 #include <wx/notebook.h>
 #include <wx/clipbrd.h>
 #include <apputils.h>
+#include <fsutils.h>
 
 #include "exportinstwizard.h"
 
@@ -585,7 +586,14 @@ bool ModEditWindow::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wx
 	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
 	{
 		wxFileName dest(Path::Combine(m_inst->GetMLModsDir().GetFullPath(), *iter));
-		wxCopyFile(*iter, dest.GetFullPath());
+		if(wxFileName::DirExists(*iter))
+		{
+			fsutils::CopyDir(*iter,dest.GetFullPath());
+		}
+		else
+		{
+			wxCopyFile(*iter, dest.GetFullPath());
+		}
 	}
 	
 	auto mllist = m_inst->GetMLModList();
@@ -611,7 +619,14 @@ bool ModEditWindow::CoreModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const 
 	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
 	{
 		wxFileName dest(Path::Combine(m_inst->GetCoreModsDir().GetFullPath(), *iter));
-		wxCopyFile(*iter, dest.GetFullPath());
+		if(wxFileName::DirExists(*iter))
+		{
+			fsutils::CopyDir(*iter,dest.GetFullPath());
+		}
+		else
+		{
+			wxCopyFile(*iter, dest.GetFullPath());
+		}
 	}
 	
 	auto mllist = m_inst->GetCoreModList();

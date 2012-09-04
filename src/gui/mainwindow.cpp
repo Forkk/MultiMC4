@@ -1058,7 +1058,7 @@ Deleted instances are lost FOREVER! (a really long time)"),
 		wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
 	if (dlg->ShowModal() == wxID_YES)
 	{
-		RecursiveDelete(m_currentInstance->GetRootDir().GetFullPath());
+		fsutils::RecursiveDelete(m_currentInstance->GetRootDir().GetFullPath());
 		instListCtrl->Delete(m_currentInstanceIdx);
 		delete m_currentInstance;
 		
