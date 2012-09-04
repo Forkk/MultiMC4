@@ -126,7 +126,7 @@ protected:
 	GUIMode m_guiMode;
 
 	Instance* GetLinkedInst(int id);
-	Instance* GetLinkedListByName(wxString instanceName);
+	Instance* GetLinkedInstByName(wxString instanceName);
 
 	bool DeleteSelectedInstance();
 

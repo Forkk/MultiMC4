@@ -195,7 +195,7 @@ void MainWindow::OnStartup()
 
 	if(!launchInstance.empty())
 	{
-		m_currentInstance = GetLinkedListByName(launchInstance);
+		m_currentInstance = GetLinkedInstByName(launchInstance);
 
 		if(m_currentInstance == nullptr)
 		{
@@ -445,7 +445,7 @@ Instance* MainWindow::GetLinkedInst(int id)
 	return instItems[id];
 }
 
-Instance* MainWindow::GetLinkedListByName(wxString instanceName)
+Instance* MainWindow::GetLinkedInstByName(wxString instanceName)
 {
 	for(std::vector<Instance*>::iterator it = instItems.begin(); it != instItems.end(); ++it)
 	{
