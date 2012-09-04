@@ -135,8 +135,8 @@ MainWindow::MainWindow(void)
 	}
 	#endif
 	mainToolBar->AddTool(ID_Refresh, _("Refresh"), reloadIcon, _("Reload ALL the instances!"));
-	mainToolBar->AddTool(ID_ViewFolder, _("View folder"), viewFolderIcon, _("Open the instance folder."));
-	mainToolBar->AddTool(ID_ViewCMFolder, _("View Central mods folder"), viewCMFolderIcon, _("Open the instance folder."));
+	mainToolBar->AddTool(ID_ViewFolder, _("View folder"), viewFolderIcon, _("Open the instances folder."));
+	mainToolBar->AddTool(ID_ViewCMFolder, _("View Central mods folder"), viewCMFolderIcon, _("Open the central mods folder."));
 	mainToolBar->AddSeparator();
 	mainToolBar->AddTool(ID_Settings, _("Settings"), settingsIcon, _("Settings"));
 	mainToolBar->AddTool(ID_CheckUpdate, _("Check for updates"), checkUpdateIcon, _("Check for MultiMC updates."));
