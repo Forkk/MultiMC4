@@ -752,6 +752,13 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 			OnLoginComplete(event);
 		}
 	}
+	else if(response == wxID_CANCEL)
+	{
+		if(!launchInstance.empty())
+		{
+			this->Destroy();
+		}
+	}
 }
 
 void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
