@@ -102,7 +102,7 @@ MainWindow::MainWindow(void)
 	
 	SetIcons(wxGetApp().GetAppIcons());
 	
-	wxToolBar *mainToolBar = CreateToolBar(wxTB_HORIZONTAL| wxTB_NO_TOOLTIPS);
+	wxToolBar *mainToolBar = CreateToolBar(/*wxTB_HORIZONTAL| wxTB_NO_TOOLTIPS*/);
 	
 	
 	// Load toolbar icons
