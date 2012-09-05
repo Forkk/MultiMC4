@@ -64,9 +64,20 @@ wxThread::ExitCode FileDownloadTask::TaskStart()
 	{
 		outStream.Write(buffer, size);
 		downloadedSize += outStream.LastWrite();
-		SetProgress(((double)downloadedSize / (double)downloadSize) * 100);
+		int progress = ((double)downloadedSize / (double)downloadSize) * 100;
+		SetProgress(progress);
 
-		wxString sDownloadedSize = wxString::Format(wxT("%.0f"), (float)(downloadedSize / 1000));
+		wxString sDownloadedSize = _("???");
+
+		if(progress >= 100 || downloadedSize > downloadSize)
+		{
+			sDownloadedSize = wxString::Format(wxT("%.0f"), (float)(downloadSize / 1000));
+		}
+		else
+		{
+			sDownloadedSize = wxString::Format(wxT("%.0f"), (float)(downloadedSize / 1000));
+		}
+
 		wxString sDownloadSize = wxString::Format(wxT("%.0f"), (float)(downloadSize / 1000));
 		SetStatus(wxString::Format(_("Downloading... (%skB/%skB)"), sDownloadedSize.c_str(), sDownloadSize.c_str()));
 
