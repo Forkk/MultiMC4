@@ -81,7 +81,7 @@ wxThread::ExitCode LoginTask::TaskStart()
 	}
 	else if (response == 503)
 	{
-		OnLoginComplete(wxString::Format(_("HTTP error 503 - the login servers are currently unavailable.")));
+		OnLoginComplete(wxString::Format(_("503 - login servers unavailable. Check help.mojang.com!")));
 	}
 	else
 	{
