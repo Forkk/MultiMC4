@@ -20,6 +20,7 @@
 #include <wx/fs_mem.h>
 #include <apputils.h>
 
+#include <set>
 #include <memory>
 
 ModderTask::ModderTask(Instance* inst)
@@ -60,37 +61,68 @@ wxThread::ExitCode ModderTask::TaskStart()
 	wxFFileOutputStream jarStream(mcJar.GetFullPath());
 	wxZipOutputStream zipOut(jarStream);
 
-	{
-		wxFFileInputStream inStream(mcBackup.GetFullPath());
-		wxZipInputStream zipIn(inStream);
-		
-		std::auto_ptr<wxZipEntry> entry;
-		while (entry.reset(zipIn.GetNextEntry()), entry.get() != NULL)
-			if (!entry->GetName().Matches(_("META-INF*")))
-				if (!zipOut.CopyEntry(entry.release(), zipIn))
-					break;
-	}
-	
+	// Files already added to the jar.
+	// These files will be skipped.
+	std::set<wxString> addedFiles;
+
 	// Modify the jar
 	TaskStep(); // STEP 2
 	SetStatus(_("Installing mods - Adding mod files..."));
-	for (ModList::const_iterator iter = modList->begin(); iter != modList->end(); iter++)
+	for (ModList::const_reverse_iterator iter = modList->rbegin(); iter != modList->rend(); iter++)
 	{
 		wxFileName modFileName = iter->GetFileName();
 		SetStatus(_("Installing mods - Adding ") + modFileName.GetFullName());
 		if (iter->IsZipMod())
 		{
 			wxFFileInputStream modStream(modFileName.GetFullPath());
-			TransferZipArchive(modStream, zipOut);
+			wxZipInputStream zipStream(modStream);
+			std::auto_ptr<wxZipEntry> entry;
+			while (entry.reset(zipStream.GetNextEntry()), entry.get() != NULL)
+			{
+				if (entry->IsDir())
+					continue;
+
+				wxString name = entry->GetName();
+				if (addedFiles.count(name) == 0)
+				{
+					if (!zipOut.CopyEntry(entry.release(), zipStream))
+						break;
+					addedFiles.insert(name);
+				}
+			}
 		}
 		else
 		{
 			wxFileName destFileName = modFileName;
 			destFileName.MakeRelativeTo(m_inst->GetInstModsDir().GetFullPath());
 
-			wxFFileInputStream input(modFileName.GetFullPath());
-			zipOut.PutNextEntry(destFileName.GetFullPath());
-			zipOut.Write(input);
+			if (addedFiles.count(modFileName.GetFullPath()) == 0)
+			{
+				wxFFileInputStream input(modFileName.GetFullPath());
+				zipOut.PutNextEntry(destFileName.GetFullPath());
+				zipOut.Write(input);
+
+				addedFiles.insert(modFileName.GetFullPath());
+			}
+		}
+	}
+
+	{
+		wxFFileInputStream inStream(mcBackup.GetFullPath());
+		wxZipInputStream zipIn(inStream);
+
+		std::auto_ptr<wxZipEntry> entry;
+		while (entry.reset(zipIn.GetNextEntry()), entry.get() != NULL)
+		{
+			wxString name = entry->GetName();
+
+			if (!name.Matches(_("META-INF*")) &&
+				addedFiles.count(name) == 0)
+			{
+				if (!zipOut.CopyEntry(entry.release(), zipIn))
+					break;
+				addedFiles.insert(name);
+			}
 		}
 	}
 	
