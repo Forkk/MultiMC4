@@ -752,12 +752,9 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 			OnLoginComplete(event);
 		}
 	}
-	else if(response == wxID_CANCEL)
+	else if (!launchInstance.IsEmpty() && response == wxID_CANCEL)
 	{
-		if(!launchInstance.empty())
-		{
-			this->Destroy();
-		}
+		this->Destroy();
 	}
 }
 
@@ -785,7 +782,8 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 		if(inst->Launch(result.username, result.sessionID, true))
 		{
 			Show(false);
-			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this);
+			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, 
+				!launchInstance.IsEmpty());
 			cwin->Start();
 		}
 		else

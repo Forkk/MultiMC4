@@ -29,11 +29,12 @@
 #include "multimc.h"
 #include "resources/consoleicon.h"
 
-InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin)
+InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin, bool quitAppOnClose)
 	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250)),
 	  stdoutListener(inst, this, InstConsoleListener::LISTENER_STDOUT), 
 	  stderrListener(inst, this, InstConsoleListener::LISTENER_STDERR)
 {
+	m_quitAppOnClose = quitAppOnClose;
 	instListenerStarted = false;
 	killedInst = false;
 	m_mainWin = mainWin;
@@ -209,6 +210,11 @@ void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
 			trayIcon->RemoveIcon();
 		m_mainWin->Show();
 		Destroy();
+		if (m_quitAppOnClose)
+		{
+			m_mainWin->Destroy();
+			wxGetApp().ExitMainLoop();
+		}
 	}
 }
 

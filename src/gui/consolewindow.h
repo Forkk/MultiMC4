@@ -23,7 +23,7 @@
 class InstConsoleWindow : public wxFrame
 {
 public:
-	InstConsoleWindow(Instance* inst, wxWindow* mainWin);
+	InstConsoleWindow(Instance* inst, wxWindow* mainWin, bool quitAppOnClose = false);
 	virtual ~InstConsoleWindow();
 	
 	virtual bool Show(bool show = true);
@@ -33,6 +33,8 @@ public:
 	void StopListening();
 	
 protected:
+	bool m_quitAppOnClose;
+
 	enum MessageType
 	{
 		MSGT_SYSTEM,
