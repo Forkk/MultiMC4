@@ -24,6 +24,68 @@
 
 #include <memory>
 
+namespace fsutils {
+void CopyFileList ( const wxArrayString& filenames, wxFileName targetDir )
+{
+	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
+	{
+		wxFileName dest(Path::Combine(targetDir.GetFullPath(), *iter));
+		if(wxFileName::DirExists(*iter))
+		{
+			fsutils::CopyDir(*iter,dest.GetFullPath());
+		}
+		else
+		{
+			wxCopyFile(*iter, dest.GetFullPath());
+		}
+	}
+}
+
+bool CopyDir(wxString sFrom, wxString sTo)
+{
+	if (sFrom.Last() != wxFILE_SEP_PATH) sFrom += wxFILE_SEP_PATH;
+	if (sTo.Last() != wxFILE_SEP_PATH) sTo += wxFILE_SEP_PATH;
+
+	if (!::wxDirExists(sFrom))
+	{
+		::wxLogError(wxT("%s does not exist!\r\nCan not copy directory"), sFrom.c_str());
+		return false;
+	}
+	if (!wxDirExists(sTo))
+	{
+		if (!wxFileName::Mkdir(sTo, 0750, wxPATH_MKDIR_FULL)) {
+			::wxLogError(wxT("%s could not be created!"), sTo.c_str());
+			return false;
+		}
+	}
+
+	wxDir fDir(sFrom);
+	wxString sNext = wxEmptyString;
+	bool bIsFile = fDir.GetFirst(&sNext);
+	while (bIsFile)
+	{
+		const wxString sFileFrom = sFrom + sNext;
+		const wxString sFileTo = sTo + sNext;
+		if (::wxDirExists(sFileFrom))
+		{
+			CopyDir(sFileFrom, sFileTo);
+		}
+		else
+		{
+			if (!::wxFileExists(sFileTo))
+			{
+				if (!::wxCopyFile(sFileFrom, sFileTo))
+				{
+					::wxLogError(wxT("Could not copy %s to %s !"), sFileFrom.c_str(), sFileTo.c_str());
+					return false;
+				}
+			}
+		}
+		bIsFile = fDir.GetNext(&sNext);
+	}
+	return true;
+}
+
 bool RecursiveDelete(const wxString &path)
 {
 	if (wxFileExists(path))
@@ -144,4 +206,5 @@ bool CreateAllDirs(const wxFileName &dir)
 			return false;
 	}
 	return wxMkdir(dir.GetFullPath());
+}
 }

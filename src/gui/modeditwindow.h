@@ -121,10 +121,13 @@ protected:
 	
 	void OnAddMLMod(wxCommandEvent &event);
 	void OnDeleteMLMod(wxCommandEvent &event);
+	void OnExploreML(wxCommandEvent &event);
 	
 	void OnAddCoreMod(wxCommandEvent &event);
 	void OnDeleteCoreMod(wxCommandEvent &event);
+	void OnExploreCore(wxCommandEvent &event);
 	
+	void OnReloadClicked(wxCommandEvent& event);
 	void OnExportClicked(wxCommandEvent& event);
 	void OnCloseClicked(wxCommandEvent &event);
 	
@@ -184,9 +187,12 @@ enum
 	
 	ID_ADD_ML_MOD,
 	ID_DEL_ML_MOD,
+	ID_EXPLORE_ML,
 	
 	ID_ADD_CORE_MOD,
 	ID_DEL_CORE_MOD,
+	ID_EXPLORE_CORE,
 
 	ID_EXPORT,
+	ID_RELOAD,
 };

@@ -145,7 +145,7 @@ bool ImportPackWizard::Start()
 		
 		// Extract config files
 		wxFFileInputStream fileIn(m_pack->GetFileName());
-		ExtractZipArchive(fileIn, instDir.GetFullPath());
+		fsutils::ExtractZipArchive(fileIn, instDir.GetFullPath());
 
 		return true;
 	}

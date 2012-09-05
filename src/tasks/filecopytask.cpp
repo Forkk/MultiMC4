@@ -52,7 +52,7 @@ wxThread::ExitCode FileCopyTask::TaskStart()
 
 		if (!wxDirExists(destFile.GetPath(true)))
 		{
-			if (!CreateAllDirs(wxFileName::DirName(destFile.GetPath(true))))
+			if (!fsutils::CreateAllDirs(wxFileName::DirName(destFile.GetPath(true))))
 				return (ExitCode)0;
 		}
 
