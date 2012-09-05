@@ -25,6 +25,21 @@
 #include <memory>
 
 namespace fsutils {
+void CopyFileList ( const wxArrayString& filenames, wxFileName targetDir )
+{
+	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
+	{
+		wxFileName dest(Path::Combine(targetDir.GetFullPath(), *iter));
+		if(wxFileName::DirExists(*iter))
+		{
+			fsutils::CopyDir(*iter,dest.GetFullPath());
+		}
+		else
+		{
+			wxCopyFile(*iter, dest.GetFullPath());
+		}
+	}
+}
 
 bool CopyDir(wxString sFrom, wxString sTo)
 {

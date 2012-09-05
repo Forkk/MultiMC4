@@ -57,16 +57,16 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		jarModSizer->Add(jarListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
 		
 		wxButton *addJarModBtn = new wxButton(jarModPanel, ID_ADD_JAR_MOD, _("&Add"));
-		jarListBtnBox->Add(addJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+		jarListBtnBox->Add(addJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		delJarModBtn = new wxButton(jarModPanel, ID_DEL_JAR_MOD, _("&Remove"));
-		jarListBtnBox->Add(delJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+		jarListBtnBox->Add(delJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		jarModUpBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_UP, _("Move &Up"));
-		jarListBtnBox->Add(jarModUpBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM));
+		jarListBtnBox->Add(jarModUpBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
 		
 		jarModDownBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_DOWN, _("Move &Down"));
-		jarListBtnBox->Add(jarModDownBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM));
+		jarListBtnBox->Add(jarModDownBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
 	}
 	
 	// Core mod folder panel
@@ -86,10 +86,13 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		coreModSizer->Add(coreModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
 		
 		wxButton *addCoreModBtn = new wxButton(coreModPanel, ID_ADD_CORE_MOD, _("&Add"));
-		coreModListBtnBox->Add(addCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+		coreModListBtnBox->Add(addCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		wxButton *delCoreModBtn = new wxButton(coreModPanel, ID_DEL_CORE_MOD, _("&Remove"));
-		coreModListBtnBox->Add(delCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+		coreModListBtnBox->Add(delCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+		
+		auto exploreCoreModBtn = new wxButton(coreModPanel, ID_EXPLORE_CORE, _("&View Folder"));
+		coreModListBtnBox->Add(exploreCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 	}
 	
 	// Mod folder panel
@@ -109,16 +112,22 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		mlModSizer->Add(mlModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
 		
 		wxButton *addMLModBtn = new wxButton(mlModPanel, ID_ADD_ML_MOD, _("&Add"));
-		mlModListBtnBox->Add(addMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+		mlModListBtnBox->Add(addMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		wxButton *delMLModBtn = new wxButton(mlModPanel, ID_DEL_ML_MOD, _("&Remove"));
-		mlModListBtnBox->Add(delMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+		mlModListBtnBox->Add(delMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+		
+		auto exploreMLModBtn = new wxButton(mlModPanel, ID_EXPLORE_ML, _("&View Folder"));
+		mlModListBtnBox->Add(exploreMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 	}
 	
 	// Buttons on the bottom of the dialog
 	{
 		wxBoxSizer *btnBox = new wxBoxSizer(wxHORIZONTAL);
 		mainBox->Add(btnBox, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT | wxLEFT, 8);
+
+		wxButton *btnReload = new wxButton(mainPanel, ID_RELOAD, _("&Reload"));
+		btnBox->Add(btnReload, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxALL, 4));
 
 		wxButton *btnExport = new wxButton(mainPanel, ID_EXPORT, _("&Export"));
 		btnBox->Add(btnExport, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxALL, 4));
@@ -274,6 +283,9 @@ bool ModEditWindow::JarModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const w
 	
 	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); iter++)
 	{
+		// just skip the dirs here...
+		if(wxFileName::DirExists(*iter))
+			continue;
 		wxFileName modFileName(*iter);
 		m_inst->GetModList()->InsertMod(index, modFileName.GetFullPath());
 		m_owner->UpdateItems();
@@ -326,6 +338,9 @@ void ModEditWindow::JarModListCtrl::PasteMod()
 	wxArrayString filenames = data.GetFilenames();
 	for (wxArrayString::iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
 	{
+		// just skip the dirs here...
+		if(wxFileName::DirExists(*iter))
+			continue;
 		m_inst->GetModList()->InsertMod(insertPoint, *iter);
 	}
 	UpdateItems();
@@ -386,11 +401,7 @@ void ModEditWindow::MLModListCtrl::PasteMod()
 
 	// Add the given mods.
 	wxArrayString filenames = data.GetFilenames();
-	for (wxArrayString::iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
-	{
-		wxFileName file(*iter);
-		wxCopyFile(file.GetFullPath(), Path::Combine(m_inst->GetMLModsDir(), file.GetFullName()));
-	}
+	fsutils::CopyFileList(filenames,m_inst->GetMLModsDir());
 	//FIXME: this looks like lazy code. it can be done better.
 	auto mllist = m_inst->GetMLModList();
 	mllist->UpdateModList();
@@ -463,14 +474,9 @@ void ModEditWindow::CoreModListCtrl::PasteMod()
 		}
 		wxTheClipboard->Close();
 	}
-
 	// Add the given mods.
 	wxArrayString filenames = data.GetFilenames();
-	for (wxArrayString::iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
-	{
-		wxFileName file(*iter);
-		wxCopyFile(file.GetFullPath(), Path::Combine(m_inst->GetCoreModsDir(), file.GetFullName()));
-	}
+	fsutils::CopyFileList(filenames,m_inst->GetMLModsDir());
 	//FIXME: this looks like lazy code. it can be done better.
 	auto mllist = m_inst->GetCoreModList();
 	mllist->UpdateModList();
@@ -506,8 +512,7 @@ void ModEditWindow::CoreModListCtrl::DeleteMod()
 	long item = -1;
 	while (true)
 	{
-		item = GetNextItem(item, wxLIST_NEXT_ALL, 
-									  wxLIST_STATE_SELECTED);
+		item = GetNextItem(item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
 		
 		if (item == -1)
 			break;
@@ -583,19 +588,7 @@ wxDragResult ModEditWindow::MLModsDropTarget::OnDragOver(wxCoord x, wxCoord y, w
 
 bool ModEditWindow::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
 {
-	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
-	{
-		wxFileName dest(Path::Combine(m_inst->GetMLModsDir().GetFullPath(), *iter));
-		if(wxFileName::DirExists(*iter))
-		{
-			fsutils::CopyDir(*iter,dest.GetFullPath());
-		}
-		else
-		{
-			wxCopyFile(*iter, dest.GetFullPath());
-		}
-	}
-	
+	fsutils::CopyFileList(filenames,m_inst->GetMLModsDir());
 	auto mllist = m_inst->GetMLModList();
 	mllist->UpdateModList();
 	m_owner->UpdateItems();
@@ -616,19 +609,7 @@ wxDragResult ModEditWindow::CoreModsDropTarget::OnDragOver(wxCoord x, wxCoord y,
 
 bool ModEditWindow::CoreModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
 {
-	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
-	{
-		wxFileName dest(Path::Combine(m_inst->GetCoreModsDir().GetFullPath(), *iter));
-		if(wxFileName::DirExists(*iter))
-		{
-			fsutils::CopyDir(*iter,dest.GetFullPath());
-		}
-		else
-		{
-			wxCopyFile(*iter, dest.GetFullPath());
-		}
-	}
-	
+	fsutils::CopyFileList(filenames,m_inst->GetCoreModsDir());
 	auto mllist = m_inst->GetCoreModList();
 	mllist->UpdateModList();
 	m_owner->UpdateItems();
@@ -774,6 +755,26 @@ void ModEditWindow::OnDragJarMod(wxListEvent &event)
 	modsDropSource.DoDragDrop(wxDrag_CopyOnly);
 }
 
+void ModEditWindow::OnExploreCore ( wxCommandEvent& event )
+{
+	Utils::OpenFile(m_inst->GetCoreModsDir());
+}
+
+void ModEditWindow::OnExploreML ( wxCommandEvent& event )
+{
+	Utils::OpenFile(m_inst->GetMLModsDir());
+}
+
+void ModEditWindow::OnReloadClicked ( wxCommandEvent& event )
+{
+	m_inst->GetCoreModList()->UpdateModList();
+	coreModList->UpdateItems();
+	m_inst->GetMLModList()->UpdateModList();
+	mlModList->UpdateItems();
+	m_inst->GetModList()->UpdateModList();
+	jarModList->UpdateItems();
+}
+
 void ModEditWindow::OnExportClicked(wxCommandEvent& event)
 {
 	ExportInstWizard *exportWizard = new ExportInstWizard(this, this->m_inst);
@@ -817,9 +818,11 @@ BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
 	
 	EVT_BUTTON(ID_ADD_ML_MOD, ModEditWindow::OnAddMLMod)
 	EVT_BUTTON(ID_DEL_ML_MOD, ModEditWindow::OnDeleteMLMod)
+	EVT_BUTTON(ID_EXPLORE_ML, ModEditWindow::OnExploreML)
 	
 	EVT_BUTTON(ID_ADD_CORE_MOD, ModEditWindow::OnAddCoreMod)
 	EVT_BUTTON(ID_DEL_CORE_MOD, ModEditWindow::OnDeleteCoreMod)
+	EVT_BUTTON(ID_EXPLORE_CORE, ModEditWindow::OnExploreCore)
 	
 	EVT_LIST_ITEM_SELECTED(ID_JAR_MOD_LIST, ModEditWindow::OnJarModSelChanged)
 	EVT_LIST_ITEM_DESELECTED(ID_JAR_MOD_LIST, ModEditWindow::OnJarModSelChanged)
@@ -827,6 +830,7 @@ BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
 	EVT_LIST_BEGIN_DRAG(ID_JAR_MOD_LIST, ModEditWindow::OnDragJarMod)
 	
 	EVT_BUTTON(ID_EXPORT, ModEditWindow::OnExportClicked)
+	EVT_BUTTON(ID_RELOAD, ModEditWindow::OnReloadClicked)
 	EVT_BUTTON(wxID_CLOSE, ModEditWindow::OnCloseClicked)
 END_EVENT_TABLE()
 

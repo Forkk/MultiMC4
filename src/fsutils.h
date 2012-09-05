@@ -21,6 +21,8 @@
 namespace fsutils
 {
 	bool CopyDir(wxString sFrom, wxString sTo);
+	void CopyFileList(const wxArrayString &filenames, wxFileName targetDir);
+
 	bool RecursiveDelete(const wxString &path);
 
 	bool CreateAllDirs(const wxFileName &dir);
