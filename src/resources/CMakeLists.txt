@@ -49,6 +49,7 @@ creeper.png
 squarecreeper.png
 skeleton.png
 enderpearl.png
+herobrine.png
 )
 SET(INSTANCE_ICONS_DEP ${INSTANCE_ICONS})
 PREFIXSUFFIX(INSTANCE_ICONS_DEP "insticons/" "")
