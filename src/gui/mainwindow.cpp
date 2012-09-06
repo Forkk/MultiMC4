@@ -51,6 +51,8 @@
 #include <wx/gbsizer.h>
 #include <wx/filedlg.h>
 
+#include <wx/utils.h>
+
 #if (defined __WXMSW__ || defined __WXGTK__) && wxCHECK_VERSION(2, 9, 4) 
 #define USE_DROPDOWN_MENU
 #endif
@@ -115,6 +117,7 @@ MainWindow::MainWindow(void)
 	wxBitmap checkUpdateIcon = wxMEMORY_IMAGE(checkupdateicon);
 	wxBitmap helpIcon = wxMEMORY_IMAGE(helpicon);
 	wxBitmap aboutIcon = wxMEMORY_IMAGE(abouticon);
+	wxBitmap bugIcon = wxMEMORY_IMAGE(reportbug);
 
 	
 	
@@ -169,6 +172,9 @@ MainWindow::MainWindow(void)
 	mainToolBar->AddTool(ID_About, _("About"),
 		aboutIcon, wxNullBitmap, wxITEM_NORMAL,
 		_("About MultiMC"), _("About MultiMC"));
+	mainToolBar->AddTool(ID_BugReport, _("Report bug"),
+		bugIcon, wxNullBitmap, wxITEM_NORMAL,
+		_("Report bug"), _("Report bug"));
 	
 	mainToolBar->Realize();
 	
@@ -702,6 +708,15 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 #endif
 }
 
+void MainWindow::OnBugReportClicked ( wxCommandEvent& event )
+{
+	if(!wxLaunchDefaultBrowser(_("http://bugs.forkk.net/")))
+	{
+		wxMessageBox(_T("MultiMC was unable to run your web browser.\n\nTo report bugs, visit:\nhttp://bugs.forkk.net/"), 
+		_T("Error"), wxOK | wxCENTER | wxICON_ERROR, this);
+	}
+}
+
 
 void MainWindow::NotImplemented()
 {
@@ -1228,6 +1243,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
 	EVT_TOOL(ID_Help, MainWindow::OnHelpClicked)
 	EVT_TOOL(ID_About, MainWindow::OnAboutClicked)
+	EVT_TOOL(ID_BugReport, MainWindow::OnBugReportClicked)
 
 	EVT_MENU(ID_NewInst, MainWindow::OnNewInstance)
 	EVT_MENU(ID_CopyInst, MainWindow::OnCopyInstClicked)

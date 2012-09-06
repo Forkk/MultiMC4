@@ -55,6 +55,7 @@ public:
 
 	void OnHelpClicked(wxCommandEvent& event);
 	void OnAboutClicked(wxCommandEvent& event);
+	void OnBugReportClicked(wxCommandEvent& event);
 
 
 	// Instance menu
@@ -211,6 +212,7 @@ enum
 
 	ID_Help,
 	ID_About,
+	ID_BugReport,
 
 	// Instance menu
 	ID_Play,
