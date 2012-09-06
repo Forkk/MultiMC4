@@ -21,6 +21,7 @@ RefreshInstIcon.png
 SettingsIcon.png
 ViewFolderIcon.png
 CentralModsFolder.png
+ReportBug.png
 )
 
 SET(TOOLBAR_ICONS_DEP ${INSTANCE_ICONS})
@@ -50,6 +51,7 @@ squarecreeper.png
 skeleton.png
 enderpearl.png
 herobrine.png
+meat.png
 )
 SET(INSTANCE_ICONS_DEP ${INSTANCE_ICONS})
 PREFIXSUFFIX(INSTANCE_ICONS_DEP "insticons/" "")
