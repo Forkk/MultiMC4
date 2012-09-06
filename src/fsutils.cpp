@@ -46,15 +46,15 @@ bool CopyDir(wxString sFrom, wxString sTo)
 	if (sFrom.Last() != wxFILE_SEP_PATH) sFrom += wxFILE_SEP_PATH;
 	if (sTo.Last() != wxFILE_SEP_PATH) sTo += wxFILE_SEP_PATH;
 
-	if (!::wxDirExists(sFrom))
+	if (!wxDirExists(sFrom))
 	{
-		::wxLogError(wxT("%s does not exist!\r\nCan not copy directory"), sFrom.c_str());
+		//wxLogError(wxT("%s does not exist!\r\nCan not copy directory"), sFrom.c_str());
 		return false;
 	}
 	if (!wxDirExists(sTo))
 	{
 		if (!wxFileName::Mkdir(sTo, 0750, wxPATH_MKDIR_FULL)) {
-			::wxLogError(wxT("%s could not be created!"), sTo.c_str());
+			//::wxLogError(wxT("%s could not be created!"), sTo.c_str());
 			return false;
 		}
 	}
@@ -66,17 +66,17 @@ bool CopyDir(wxString sFrom, wxString sTo)
 	{
 		const wxString sFileFrom = sFrom + sNext;
 		const wxString sFileTo = sTo + sNext;
-		if (::wxDirExists(sFileFrom))
+		if (wxDirExists(sFileFrom))
 		{
 			CopyDir(sFileFrom, sFileTo);
 		}
 		else
 		{
-			if (!::wxFileExists(sFileTo))
+			if (!wxFileExists(sFileTo))
 			{
-				if (!::wxCopyFile(sFileFrom, sFileTo))
+				if (!wxCopyFile(sFileFrom, sFileTo))
 				{
-					::wxLogError(wxT("Could not copy %s to %s !"), sFileFrom.c_str(), sFileTo.c_str());
+					//wxLogError(wxT("Could not copy %s to %s !"), sFileFrom.c_str(), sFileTo.c_str());
 					return false;
 				}
 			}
