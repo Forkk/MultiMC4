@@ -165,16 +165,16 @@ MainWindow::MainWindow(void)
 		_("Check for MultiMC updates."), _("Check for MultiMC updates."));
 	
 	mainToolBar->AddSeparator();
-	
+
+	mainToolBar->AddTool(ID_BugReport, _("Report bug"),
+		bugIcon, wxNullBitmap, wxITEM_NORMAL,
+		_("Report bug"), _("Report bug"));
 	mainToolBar->AddTool(ID_Help, _("Help"),
 		helpIcon, wxNullBitmap, wxITEM_NORMAL,
 		_("Help"),_("Help"));
 	mainToolBar->AddTool(ID_About, _("About"),
 		aboutIcon, wxNullBitmap, wxITEM_NORMAL,
 		_("About MultiMC"), _("About MultiMC"));
-	mainToolBar->AddTool(ID_BugReport, _("Report bug"),
-		bugIcon, wxNullBitmap, wxITEM_NORMAL,
-		_("Report bug"), _("Report bug"));
 	
 	mainToolBar->Realize();
 	
