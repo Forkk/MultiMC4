@@ -20,6 +20,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#ifdef __linux__
+ __asm__(".symver memcpy,memcpy@GLIBC_2.2.5");
+#endif
+
 //----------------------------------------------------------------------
 //basic includes
 #include <fstream>

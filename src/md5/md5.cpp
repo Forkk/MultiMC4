@@ -8,6 +8,10 @@
 #include <string.h>
 #include "md5.h"
 
+#ifdef __linux__
+ __asm__(".symver memcpy,memcpy@GLIBC_2.2.5");
+#endif
+
 #ifndef HIGHFIRST
 #define byteReverse(buf, len)   /* Nothing */
 #else
