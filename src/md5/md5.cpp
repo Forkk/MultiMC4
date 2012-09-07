@@ -8,10 +8,6 @@
 #include <string.h>
 #include "md5.h"
 
-#ifdef __linux__
- __asm__(".symver memcpy,memcpy@GLIBC_2.2.5");
-#endif
-
 #ifndef HIGHFIRST
 #define byteReverse(buf, len)   /* Nothing */
 #else
@@ -71,10 +67,10 @@ void MD5Update( MD5Context *ctx, unsigned char *buf, unsigned len)
         t = 64 - t;
         if (len < t)
         {
-            memcpy(p, buf, len);
+            memmove(p, buf, len);
             return;
         }
-        memcpy(p, buf, t);
+        memmove(p, buf, t);
         byteReverse(ctx->in, 16);
         MD5Transform(ctx->buf, (uint32_t *) ctx->in);
         buf += t;
@@ -83,7 +79,7 @@ void MD5Update( MD5Context *ctx, unsigned char *buf, unsigned len)
     /* Process data in 64-byte chunks */
     while (len >= 64)
     {
-        memcpy(ctx->in, buf, 64);
+        memmove(ctx->in, buf, 64);
         byteReverse(ctx->in, 16);
         MD5Transform(ctx->buf, (uint32_t *) ctx->in);
         buf += 64;
@@ -91,7 +87,7 @@ void MD5Update( MD5Context *ctx, unsigned char *buf, unsigned len)
     }
 
     /* Handle any remaining bytes of data. */
-    memcpy(ctx->in, buf, len);
+    memmove(ctx->in, buf, len);
 }
 
 /*
@@ -138,7 +134,7 @@ void MD5Final(unsigned char digest[16], MD5Context *ctx)
 
     MD5Transform(ctx->buf, (uint32_t *) ctx->in);
     byteReverse((unsigned char *) ctx->buf, 4);
-    memcpy(digest, ctx->buf, 16);
+    memmove(digest, ctx->buf, 16);
     memset(ctx, 0, sizeof(*ctx));        /* In case it's sensitive */
 }
 

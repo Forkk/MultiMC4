@@ -20,10 +20,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#ifdef __linux__
- __asm__(".symver memcpy,memcpy@GLIBC_2.2.5");
-#endif
-
 //----------------------------------------------------------------------
 //basic includes
 #include <fstream>
@@ -135,7 +131,7 @@ std::string md5wrapper::getHashFromFile(std::string filename, uint32_t & length,
         len = fread (buffer, 1, 1024, file);
         if(saved < 1024 && first_kb)
         {
-            memcpy(first_kb + saved, buffer, std::min (len, 1024 - saved));
+            memmove(first_kb + saved, buffer, std::min (len, 1024 - saved));
             saved += len;
         }
         length += len;
