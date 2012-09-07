@@ -46,6 +46,12 @@ bool MultiMC::OnInit()
 
 		wxSetWorkingDirectory(mmcDir.GetFullPath());
 	}
+	else
+	{
+		wxFileName mmcDir = wxStandardPaths::Get().GetExecutablePath();
+		std::cerr << mmcDir.GetPath().fn_str() << std::endl;
+		wxSetWorkingDirectory(mmcDir.GetPath());
+	}
 
 	SetAppName(_("MultiMC"));
 	
