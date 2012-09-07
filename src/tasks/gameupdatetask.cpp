@@ -150,7 +150,7 @@ void GameUpdateTask::DownloadJars()
 	using namespace boost::property_tree;
 	ptree md5s;
 	
-	wxFileName md5File(m_inst->GetBinDir().GetFullPath(), _("md5s"));
+	wxFileName md5File(m_inst->GetBinDir().GetFullPath(), _("md5sums"));
 	if (md5File.FileExists())
 	{
 		try
