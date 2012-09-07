@@ -221,9 +221,9 @@ int MultiMC::OnExit()
 		wxString thisFilePath = wxStandardPaths::Get().GetExecutablePath();
 
 #if defined __WXMSW__
-		updateFilePath.Replace(_(" "), _("^ "));
-		
-		wxString launchCmd = wxString::Format(_("%s -u:^\"%s^\""),
+		updateFilePath.Replace(wxT(" "), wxT("^ "));
+
+		wxString launchCmd = wxString::Format(_("%s -u \"%s\""),
 			updateFilePath.c_str(), thisFilePath.c_str());
 #else
 		updateFilePath.Replace(_(" "), _("\\ "));
@@ -235,7 +235,7 @@ int MultiMC::OnExit()
 
 		if (IS_WINDOWS())
 		{
-			launchCmd = wxString::Format(_("cmd /C \"%s\""), launchCmd.c_str());
+			launchCmd = wxString::Format(_("cmd /C %s"), launchCmd.c_str());
 		}
 
 		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
