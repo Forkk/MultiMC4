@@ -56,7 +56,7 @@ ENDIF ()
 configure_file("${PROJECT_SOURCE_DIR}/config.h.in"
 			   "${PROJECT_BINARY_DIR}/config.h")
 
-IF (CMAKE_CROSSCOMPILING)
+IF (CMAKE_CROSSCOMPILING OR MultiMC_STATIC_LIBGCC)
 	set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS "-Wl,-Bstatic -static-libgcc -static-libstdc++")
 	set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS "-Wl,-Bstatic -static-libgcc -static-libstdc++")
 ENDIF ()
