@@ -49,7 +49,6 @@ bool MultiMC::OnInit()
 	else
 	{
 		wxFileName mmcDir = wxStandardPaths::Get().GetExecutablePath();
-		std::cerr << mmcDir.GetPath().fn_str() << std::endl;
 		wxSetWorkingDirectory(mmcDir.GetPath());
 	}
 
