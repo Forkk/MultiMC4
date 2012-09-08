@@ -8,3 +8,7 @@ src/build/*
 *‌.h~
 *‌.txt~
 Thumbs.db
+
+.project
+.classpath
+*.class

@@ -10,7 +10,7 @@ set(CMAKE_JAVA_COMPILE_FLAGS -target 1.6 -source 1.6)
 
 set(SRC
     MultiMCLauncher.java
-    Launcher.java
+    net/minecraft/Launcher.java
     MCFrame.java
 )
 
