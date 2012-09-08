@@ -18,6 +18,7 @@
 #include <wx/gbsizer.h>
 #include <wx/dir.h>
 #include <apputils.h>
+#include <fsutils.h>
 
 const wxString guiModeDefault = _("Default");
 const wxString guiModeSimple = _("Simple");
@@ -104,6 +105,15 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *_se
 			wxButton *instDirBrowseButton = new wxButton(generalPanel, ID_BrowseInstDir, _T("Browse..."));
 			instDirBox->Add(instDirBrowseButton, itemFlags);
 			generalBox->Add(instDirBox, staticBoxOuterFlags);
+		}
+		// Instance directory group box
+		{
+			auto modDirBox = new wxStaticBoxSizer(wxHORIZONTAL, generalPanel, _T("Central Mods Folder"));
+			modsDirTextBox = new wxTextCtrl(generalPanel, -1);
+			modDirBox->Add(modsDirTextBox, expandingItemFlags);
+			auto instDirBrowseButton = new wxButton(generalPanel, ID_BrowseModDir, _T("Browse..."));
+			modDirBox->Add(instDirBrowseButton, itemFlags);
+			generalBox->Add(modDirBox, staticBoxOuterFlags);
 		}
 		generalBox->SetSizeHints(generalPanel);
 	}
@@ -244,50 +254,80 @@ void SettingsDialog::OnOKClicked(wxCommandEvent& event)
 		EndModal(wxID_OK);
 }
 
+bool SettingsDialog::FolderMove ( wxFileName oldDir, wxFileName newDir, wxString message, wxString title )
+{
+	int response = wxMessageBox(
+	message,
+	title,
+	wxYES | wxNO | wxCANCEL | wxCENTER, this);
+
+	if(response == wxCANCEL)
+	{
+		return false;
+	}
+	
+	if (response == wxYES)
+	{
+		wxDir srcDir(oldDir.GetFullPath());
+
+		if(!newDir.Mkdir(0777,wxPATH_MKDIR_FULL))
+		{
+			wxLogError(_("Failed to create the new folder: %s"), newDir.GetFullPath().c_str());
+			return false;
+		}
+		wxString oldName;
+		if (srcDir.GetFirst(&oldName))
+		{
+			do 
+			{
+				oldName = Path::Combine(oldDir, oldName);
+				wxFileName newDirName(oldName);
+				newDirName.MakeRelativeTo(oldDir.GetFullPath());
+				newDirName.Normalize(wxPATH_NORM_ALL, newDir.GetFullPath());
+				if (!wxRenameFile(oldName, newDirName.GetFullPath(), false))
+				{
+					wxLogError(_("Failed to move: %s"), oldName.c_str());
+				}
+			} while (srcDir.GetNext(&oldName));
+		}
+	}
+	return true;
+}
+
 bool SettingsDialog::ApplySettings()
 {
 	wxFileName newInstDir = wxFileName::DirName(instDirTextBox->GetValue());
-	if (!currentSettings->GetInstDir().SameAs(newInstDir))
+	wxFileName oldInstDir = currentSettings->GetInstDir();
+	wxFileName test = newInstDir;
+	test.MakeAbsolute();
+	wxString tests = test.GetFullPath();
+	if(tests.Contains(_("!")))
 	{
-		wxFileName oldInstDir = currentSettings->GetInstDir();
-		
-		int response = wxMessageBox(
+		wxLogError(_("The chosen instance path contains a ! character.\nThis would make Minecraft crash. Please change it."), tests.c_str());
+		return false;
+	}
+	if (!oldInstDir.SameAs(newInstDir))
+	{
+		if(!FolderMove(oldInstDir, newInstDir,
 			_T("You've changed your instance directory, would you like to transfer all of your instances?"),
-			_T("Instance directory changed."), 
-			wxYES | wxNO | wxCANCEL | wxCENTER, this);
-		
-		if(response == wxCANCEL)
+			_T("Instance directory changed.")))
 		{
 			return false;
 		}
-		
-		if (response == wxYES)
-		{
-			wxDir instDir(oldInstDir.GetFullPath());
-
-			if(!newInstDir.Mkdir(0777,wxPATH_MKDIR_FULL))
-			{
-				wxLogError(_("Failed to create the new instance folder: %s"), newInstDir.GetFullPath().c_str());
-				return false;
-			}
-			wxString oldDirName;
-			if (instDir.GetFirst(&oldDirName))
-			{
-				do 
-				{
-					oldDirName = Path::Combine(oldInstDir, oldDirName);
-					wxFileName newDirName(oldDirName);
-					newDirName.MakeRelativeTo(oldInstDir.GetFullPath());
-					newDirName.Normalize(wxPATH_NORM_ALL, newInstDir.GetFullPath());
-					if (!wxRenameFile(oldDirName, newDirName.GetFullPath(), false))
-					{
-						wxLogError(_("Failed to move instance folder %s->"), oldDirName.c_str());
-					}
-				} while (instDir.GetNext(&oldDirName));
-			}
-		}
-		currentSettings->SetInstDir(newInstDir);
 	}
+	currentSettings->SetInstDir(newInstDir);
+	wxFileName newModDir = wxFileName::DirName(modsDirTextBox->GetValue());
+	wxFileName oldModDir = currentSettings->GetModsDir();
+	if (!oldModDir.SameAs(newModDir))
+	{
+		if(!FolderMove(oldModDir, newModDir,
+			_T("You've changed your central mods directory, would you like to transfer all of your mods?"),
+			_T("Central mods directory changed.")))
+		{
+			return false;
+		}
+	}
+	currentSettings->SetModsDir(newModDir);
 	
 	currentSettings->SetShowConsole(showConsoleCheck->IsChecked());
 	currentSettings->SetAutoCloseConsole(autoCloseConsoleCheck->IsChecked());
@@ -332,6 +372,7 @@ void SettingsDialog::LoadSettings()
 	autoUpdateCheck->SetValue(currentSettings->GetAutoUpdate());
 
 	instDirTextBox->SetValue(currentSettings->GetInstDir().GetFullPath());
+	modsDirTextBox->SetValue(currentSettings->GetModsDir().GetFullPath());
 
 	minMemorySpin->SetValue(currentSettings->GetMinMemAlloc());
 	maxMemorySpin->SetValue(currentSettings->GetMaxMemAlloc());
@@ -364,10 +405,40 @@ void SettingsDialog::LoadSettings()
 
 void SettingsDialog::OnBrowseInstDirClicked(wxCommandEvent& event)
 {
-	wxDirDialog *dirDlg = new wxDirDialog(this, _("Select a new instance folder."), 
-		instDirTextBox->GetValue());
+	wxDirDialog *dirDlg = new wxDirDialog(this, _("Select a new instance folder."), instDirTextBox->GetValue());
 	if (dirDlg->ShowModal() == wxID_OK)
-		instDirTextBox->ChangeValue(dirDlg->GetPath());
+	{
+		wxFileName a = dirDlg->GetPath();
+		if(fsutils::isSubsetOf(a,wxGetCwd()))
+			a.MakeRelativeTo();
+		if(a.SameAs(wxGetCwd()))
+		{
+			instDirTextBox->ChangeValue(_("."));
+		}
+		else
+		{
+			instDirTextBox->ChangeValue(a.GetFullPath());
+		}
+	}
+}
+
+void SettingsDialog::OnBrowseModsDirClicked(wxCommandEvent& event)
+{
+	wxDirDialog *dirDlg = new wxDirDialog(this, _("Select a new central mods folder."), modsDirTextBox->GetValue());
+	if (dirDlg->ShowModal() == wxID_OK)
+	{
+		wxFileName a = dirDlg->GetPath();
+		if(fsutils::isSubsetOf(a,wxGetCwd()))
+			a.MakeRelativeTo();
+		if(a.SameAs(wxGetCwd()))
+		{
+			modsDirTextBox->ChangeValue(_("."));
+		}
+		else
+		{
+			modsDirTextBox->ChangeValue(a.GetFullPath());
+		}
+	}
 }
 
 void SettingsDialog::OnDetectJavaPathClicked(wxCommandEvent& event)
@@ -398,6 +469,7 @@ bool SettingsDialog::GetForceUpdateMultiMC() const
 
 BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_BUTTON(ID_BrowseInstDir, SettingsDialog::OnBrowseInstDirClicked)
+	EVT_BUTTON(ID_BrowseModDir, SettingsDialog::OnBrowseModsDirClicked)
 	EVT_BUTTON(ID_DetectJavaPath, SettingsDialog::OnDetectJavaPathClicked)
 	EVT_BUTTON(wxID_OK, SettingsDialog::OnOKClicked)
 

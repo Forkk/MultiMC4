@@ -1280,7 +1280,7 @@ void wxInstanceItem::updateName()
 	
 	for(int i = 0; i < extents.size();i++)
 	{
-		if(raw_name[i]==' ')
+		if(raw_name[i]==wxT(' '))
 		{
 			lastspace = i;
 		}

@@ -25,6 +25,45 @@
 #include <memory>
 
 namespace fsutils {
+
+// tests if 'a' is subset of 'b'
+bool isSubsetOf ( wxFileName a, wxFileName b )
+{
+	a.MakeAbsolute();
+	b.MakeAbsolute();
+	
+	// different volume?
+	if(a.GetVolume() != b.GetVolume())
+		return false;
+	if(a.HasName())
+	{
+		a.AppendDir(a.GetName());
+		a.SetFullName(wxEmptyString);
+	}
+	if(b.HasName())
+	{
+		b.AppendDir(b.GetName());
+		b.SetFullName(wxEmptyString);
+	}
+	
+	auto adirs = a.GetDirs();
+	auto bdirs = b.GetDirs();
+	// 'a' can't be a subset of 'b' if it's a shorter path
+	if(adirs.size() < bdirs.size())
+		return false;
+	
+	// now we compare from the start... 'b' is the same size or shorter than 'a', use 'b's length as a limit
+	for(int i = 0; i < bdirs.size(); i++)
+	{
+		// any difference = failure
+		if(adirs[i] != bdirs[i])
+			return false;
+	}
+	// 'a' is a subset of 'b'
+	return true;
+}
+
+	
 void CopyFileList ( const wxArrayString& filenames, wxFileName targetDir )
 {
 	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); ++iter)

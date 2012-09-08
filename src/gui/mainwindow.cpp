@@ -52,6 +52,9 @@
 #include <wx/filedlg.h>
 
 #include <wx/utils.h>
+#include <wx/toolbar.h>
+#include <wx/tbarbase.h>
+#include <wx/image.h>
 
 #if (defined __WXMSW__ || defined __WXGTK__) && wxCHECK_VERSION(2, 9, 4) 
 #define USE_DROPDOWN_MENU
@@ -172,12 +175,14 @@ MainWindow::MainWindow(void)
 	mainToolBar->AddTool(ID_Help, _("Help"),
 		helpIcon, wxNullBitmap, wxITEM_NORMAL,
 		_("Help"),_("Help"));
+	// interestingly, calling tool->Enable(false) won't disable it reliably. This works:
+	mainToolBar->EnableTool(ID_Help,false);
+	
 	mainToolBar->AddTool(ID_About, _("About"),
 		aboutIcon, wxNullBitmap, wxITEM_NORMAL,
 		_("About MultiMC"), _("About MultiMC"));
 	
 	mainToolBar->Realize();
-	
 	
 	// Create the status bar
 	auto sbar = CreateStatusBar(1);
