@@ -97,23 +97,39 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *_se
 			updateBox->Add(forceUpdateToggle, itemFlags);
 			generalBox->Add(updateBox, staticBoxOuterFlags);
 		}
-		// Instance directory group box
+		// Directory group box
 		{
-			auto instDirBox = new wxStaticBoxSizer(wxHORIZONTAL, generalPanel, _T("Instance Folder"));
-			instDirTextBox = new wxTextCtrl(generalPanel, -1);
-			instDirBox->Add(instDirTextBox, expandingItemFlags);
-			wxButton *instDirBrowseButton = new wxButton(generalPanel, ID_BrowseInstDir, _T("Browse..."));
-			instDirBox->Add(instDirBrowseButton, itemFlags);
-			generalBox->Add(instDirBox, staticBoxOuterFlags);
-		}
-		// Instance directory group box
-		{
-			auto modDirBox = new wxStaticBoxSizer(wxHORIZONTAL, generalPanel, _T("Central Mods Folder"));
-			modsDirTextBox = new wxTextCtrl(generalPanel, -1);
-			modDirBox->Add(modsDirTextBox, expandingItemFlags);
-			auto instDirBrowseButton = new wxButton(generalPanel, ID_BrowseModDir, _T("Browse..."));
-			modDirBox->Add(instDirBrowseButton, itemFlags);
-			generalBox->Add(modDirBox, staticBoxOuterFlags);
+			auto dirsStaticBox = new wxStaticBoxSizer(wxVERTICAL, 
+				generalPanel, _T("Folders"));
+			auto dirsBox = new wxGridBagSizer();
+			dirsBox->AddGrowableCol(1);
+
+			int row = 0;
+
+			{
+				auto instDirLabel = new wxStaticText(generalPanel, -1, _("Instances: "));
+				dirsBox->Add(instDirLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
+
+				instDirTextBox = new wxTextCtrl(generalPanel, -1);
+				dirsBox->Add(instDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+				wxButton *instDirBrowseButton = new wxButton(generalPanel, ID_BrowseInstDir, _T("Browse..."));
+				dirsBox->Add(instDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
+			}
+			row++;
+			{
+				auto modsDirLabel = new wxStaticText(generalPanel, -1, _("Mods: "));
+				dirsBox->Add(modsDirLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
+
+				modsDirTextBox = new wxTextCtrl(generalPanel, -1);
+				dirsBox->Add(modsDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+				auto modDirBrowseButton = new wxButton(generalPanel, ID_BrowseModDir, _T("Browse..."));
+				dirsBox->Add(modDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
+			}
+
+			dirsStaticBox->Add(dirsBox, staticBoxInnerFlags);
+			generalBox->Add(dirsStaticBox, staticBoxOuterFlags);
 		}
 		generalBox->SetSizeHints(generalPanel);
 	}
