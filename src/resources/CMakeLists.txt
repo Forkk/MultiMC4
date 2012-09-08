@@ -52,6 +52,7 @@ skeleton.png
 enderpearl.png
 herobrine.png
 meat.png
+chicken.png
 )
 SET(INSTANCE_ICONS_DEP ${INSTANCE_ICONS})
 PREFIXSUFFIX(INSTANCE_ICONS_DEP "insticons/" "")
