@@ -95,14 +95,15 @@ wxThread::ExitCode ModderTask::TaskStart()
 		{
 			wxFileName destFileName = modFileName;
 			destFileName.MakeRelativeTo(m_inst->GetInstModsDir().GetFullPath());
+			wxString destFile = destFileName.GetFullPath();
 
-			if (addedFiles.count(modFileName.GetFullPath()) == 0)
+			if (addedFiles.count(destFile) == 0)
 			{
 				wxFFileInputStream input(modFileName.GetFullPath());
-				zipOut.PutNextEntry(destFileName.GetFullPath());
+				zipOut.PutNextEntry(destFile);
 				zipOut.Write(input);
 
-				addedFiles.insert(modFileName.GetFullPath());
+				addedFiles.insert(destFile);
 			}
 		}
 	}
