@@ -89,7 +89,7 @@ void UserInfo::LoadFromFile(const char * filename)
 	fclose(passfile);
 	wxString inString = wxString::FromUTF8(utf8_str.c_str(),utf8_str.size());
 	rememberUsername = true;
-	int split_pos = inString.Find(L'=',true);
+	int split_pos = inString.Find(wxT('='),true);
 	if ( split_pos != wxString::npos)
 	{
 		username = inString.SubString(0, split_pos - 1);

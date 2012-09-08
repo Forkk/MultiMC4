@@ -51,6 +51,13 @@ bool MultiMC::OnInit()
 		wxFileName mmcDir = wxStandardPaths::Get().GetExecutablePath();
 		wxSetWorkingDirectory(mmcDir.GetPath());
 	}
+	
+	wxString cwd = wxGetCwd();
+	if(cwd.Contains(_("!")))
+	{
+		wxLogError(_("MultiMC has been started from a path that contains '!':\n%s\nThis would break Minecraft. Please move it to a different place."), cwd.c_str());
+		return false;
+	}
 
 	SetAppName(_("MultiMC"));
 	

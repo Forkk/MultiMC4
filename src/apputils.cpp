@@ -62,7 +62,7 @@ wxString Utils::RemoveInvalidPathChars(wxString path, wxChar replaceWith)
 {
 	for (size_t i = 0; i < path.Len(); i++)
 	{
-		if (wxFileName::GetForbiddenChars().Contains(path[i]))
+		if (wxFileName::GetForbiddenChars().Contains(path[i]) || path[i] == wxT('!'))
 		{
 			path[i] = replaceWith;
 		}

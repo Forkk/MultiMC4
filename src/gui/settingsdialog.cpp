@@ -298,6 +298,14 @@ bool SettingsDialog::ApplySettings()
 {
 	wxFileName newInstDir = wxFileName::DirName(instDirTextBox->GetValue());
 	wxFileName oldInstDir = currentSettings->GetInstDir();
+	wxFileName test = newInstDir;
+	test.MakeAbsolute();
+	wxString tests = test.GetFullPath();
+	if(tests.Contains(_("!")))
+	{
+		wxLogError(_("The chosen instance path contains a ! character.\nThis would make Minecraft crash. Please change it."), tests.c_str());
+		return false;
+	}
 	if (!oldInstDir.SameAs(newInstDir))
 	{
 		if(!FolderMove(oldInstDir, newInstDir,

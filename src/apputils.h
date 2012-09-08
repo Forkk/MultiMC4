@@ -67,7 +67,7 @@ namespace Utils
 	// (this is based on the amount of free memory on the users computer)
 	int GetMaxAllowedMemAlloc();
 	
-	wxString RemoveInvalidPathChars(wxString path, wxChar replaceWith = '-');
+	wxString RemoveInvalidPathChars(wxString path, wxChar replaceWith = wxT('-'));
 	
 	wxString ExecutePost(const wxString &address, const wxString &requestString, 
 		wxProtocolError *error);
