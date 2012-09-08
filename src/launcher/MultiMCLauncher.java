@@ -2,12 +2,18 @@ import java.applet.Applet;
 import java.awt.Dimension;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 public class MultiMCLauncher
 {
@@ -96,26 +102,105 @@ public class MultiMCLauncher
 					new URLClassLoader(urls, MultiMCLauncher.class.getClassLoader());
 			
 			// Get the Minecraft Class.
-			Class<?> mc = cl.loadClass("net.minecraft.client.Minecraft");
-			Field[] fields = mc.getDeclaredFields();
-			
-			for (int i = 0; i < fields.length; i++)
+			Class<?> mc = null;
+			try
 			{
-				Field f = fields[i];
-				if (f.getType() != File.class)
+				mc = cl.loadClass("net.minecraft.client.Minecraft");
+				
+				Field f = getMCPathField(mc);
+				
+				if (f == null)
 				{
-					// Has to be File
-					continue;
+					System.err.println("Could not find Minecraft path field. Launch failed.");
+					System.exit(-1);
 				}
-				if (f.getModifiers() != (Modifier.PRIVATE + Modifier.STATIC))
-				{
-					// And Private Static.
-					continue;
-				}
+				
 				f.setAccessible(true);
 				f.set(null, new File(args[0]));
 				// And set it.
 				System.out.println("Fixed Minecraft Path: Field was " + f.toString());
+			}
+			catch (ClassNotFoundException e)
+			{
+				System.err.println("Can't find main class. Searching...");
+				
+				// Look for any class that looks like the main class.
+				File mcJar = new File(new File(args[0], "bin"), "minecraft.jar");
+				ZipFile zip = null;
+				try
+				{
+					zip = new ZipFile(mcJar);
+				} catch (ZipException e1)
+				{
+					e1.printStackTrace();
+					System.err.println("Search failed.");
+					System.exit(-1);
+				} catch (IOException e1)
+				{
+					e1.printStackTrace();
+					System.err.println("Search failed.");
+					System.exit(-1);
+				}
+				
+				Enumeration<? extends ZipEntry> entries = zip.entries();
+				ArrayList<String> classes = new ArrayList<String>();
+				
+				while (entries.hasMoreElements())
+				{
+					ZipEntry entry = entries.nextElement();
+					if (entry.getName().endsWith(".class"))
+					{
+						String entryName = entry.getName().substring(0, entry.getName().lastIndexOf('.'));
+						entryName = entryName.replace('/', '.');
+						System.out.println("Found class: " + entryName);
+						classes.add(entryName);
+					}
+				}
+				
+				for (String clsName : classes)
+				{
+					try
+					{
+						Class<?> cls = cl.loadClass(clsName);
+						if (!Runnable.class.isAssignableFrom(cls))
+						{
+							continue;
+						}
+						else
+						{
+							System.out.println("Found class implementing runnable: " + 
+									cls.getName());
+						}
+						
+						if (getMCPathField(cls) == null)
+						{
+							continue;
+						}
+						else
+						{
+							System.out.println("Found class implementing runnable " +
+									"with mcpath field: " + cls.getName());
+						}
+						
+						mc = cls;
+						break;
+					}
+					catch (ClassNotFoundException e1)
+					{
+						// Ignore
+						continue;
+					}
+				}
+				
+				if (mc == null)
+				{
+					System.err.println("Failed to find Minecraft main class.");
+					System.exit(-1);
+				}
+				else
+				{
+					System.out.println("Found main class: " + mc.getName());
+				}
 			}
 			
 			System.setProperty("minecraft.applet.TargetDirectory", args[0]);
@@ -176,5 +261,26 @@ public class MultiMCLauncher
 			System.exit(4);
 		}
 	}
-	
+
+	public static Field getMCPathField(Class<?> mc)
+	{
+		Field[] fields = mc.getDeclaredFields();
+		
+		for (int i = 0; i < fields.length; i++)
+		{
+			Field f = fields[i];
+			if (f.getType() != File.class)
+			{
+				// Has to be File
+				continue;
+			}
+			if (f.getModifiers() != (Modifier.PRIVATE + Modifier.STATIC))
+			{
+				// And Private Static.
+				continue;
+			}
+			return f;
+		}
+		return null;
+	}
 }
