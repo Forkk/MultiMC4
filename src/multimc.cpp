@@ -81,9 +81,9 @@ bool MultiMC::OnInit()
 	}
 	
 	if (!settings->GetInstDir().DirExists())
-	{
 		settings->GetInstDir().Mkdir();
-	}
+	if (!settings->GetModsDir().DirExists())
+		settings->GetModsDir().Mkdir();
 	
 	switch (startMode)
 	{

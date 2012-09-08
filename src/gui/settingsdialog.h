@@ -31,6 +31,7 @@ public:
 
 protected:
 	void OnBrowseInstDirClicked(wxCommandEvent& event);
+	void OnBrowseModsDirClicked(wxCommandEvent& event);
 	void OnDetectJavaPathClicked(wxCommandEvent& event);
 	void OnUpdateMCTabCheckboxes(wxCommandEvent& event);
 	void OnOKClicked(wxCommandEvent& event);
@@ -38,6 +39,7 @@ protected:
 	void UpdateCheckboxStuff();
 	void LoadSettings();
 	bool ApplySettings();
+	bool FolderMove( wxFileName oldDir, wxFileName newDir, wxString message, wxString title);
 	
 	AppSettings * currentSettings;
 	wxNotebook *tabCtrl;
@@ -49,6 +51,7 @@ protected:
 	wxToggleButton *forceUpdateToggle;
 	
 	wxTextCtrl *instDirTextBox;
+	wxTextCtrl *modsDirTextBox;
 	
 	wxSpinCtrl *minMemorySpin;
 	wxSpinCtrl *maxMemorySpin;
@@ -74,6 +77,7 @@ protected:
 enum
 {
 	ID_BrowseInstDir,
+	ID_BrowseModDir,
 	ID_DetectJavaPath,
 
 	ID_MCMaximizeCheckbox,

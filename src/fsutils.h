@@ -20,6 +20,9 @@
 
 namespace fsutils
 {
+	// tests if a is subset of b
+	bool isSubsetOf(wxFileName a, wxFileName b);
+	
 	bool CopyDir(wxString sFrom, wxString sTo);
 	void CopyFileList(const wxArrayString &filenames, wxFileName targetDir);
 
