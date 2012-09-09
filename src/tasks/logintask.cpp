@@ -82,6 +82,7 @@ wxThread::ExitCode LoginTask::TaskStart()
 	else if (response == 503)
 	{
 		OnLoginComplete(wxString::Format(_("503 - login servers unavailable. Check help.mojang.com!")));
+		return (void *)0;
 	}
 	else
 	{

@@ -60,8 +60,11 @@ inline std::string stdStr(const wxString &str)
 
 namespace Utils
 {
-	// Opens the given path with the default program.
-	void OpenFile(wxFileName path);
+	// Opens the given url with whatever browser the OS thinks is best.
+	bool OpenURL(wxString what);
+	
+	// Opens the given filename with whatever the OS thinks is best.
+	void OpenFolder(wxFileName what);
 	
 	// Gets the max value of the users memory allocation settings.
 	// (this is based on the amount of free memory on the users computer)
