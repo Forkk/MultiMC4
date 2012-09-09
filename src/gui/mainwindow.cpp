@@ -776,8 +776,8 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	{
 		lastLogin.LoadFromFile("lastlogin4");
 	}
-	
-	LoginDialog loginDialog(this, errorMsg, lastLogin);
+	bool canPlayOffline = m_currentInstance->HasBinaries();
+	LoginDialog loginDialog(this, errorMsg, lastLogin, canPlayOffline);
 	int response = loginDialog.ShowModal();
 	
 	bool playOffline = response == ID_PLAY_OFFLINE;
@@ -814,8 +814,7 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 		Instance *inst = event.m_inst;
 
 		// If the session ID is empty, the game updater will not be run.
-		if (!result.playOffline && !result.sessionID.IsEmpty() && 
-			!result.sessionID.Trim().IsEmpty() && result.sessionID != _("Offline"))
+		if (!result.playOffline && !result.sessionID.Trim().IsEmpty() && result.sessionID != _("Offline"))
 		{
 			StartTask(new GameUpdateTask(inst, result.latestVersion, _("minecraft.jar"), event.m_forceUpdate));
 		}

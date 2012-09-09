@@ -24,7 +24,7 @@
 class LoginDialog : public wxDialog
 {
 public:
-	LoginDialog(wxWindow* parent, wxString errorMsg = _(""), UserInfo info = UserInfo());
+	LoginDialog(wxWindow* parent, wxString errorMsg = _(""), UserInfo info = UserInfo(), bool canGoOffline = false);
 	~LoginDialog();
 	
 	void OnUsernameEnter(wxCommandEvent &event);

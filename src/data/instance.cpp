@@ -271,6 +271,13 @@ void Instance::SetNeedsRebuild(bool value)
 	SetSetting<bool>(_("NeedsRebuild"), value);
 }
 
+bool Instance::HasBinaries()
+{
+	bool isOK = true;
+	isOK &= GetMCJar().FileExists();
+	// FIXME: add more here, as needed
+	return isOK;
+}
 
 wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirectOutput)
 {
