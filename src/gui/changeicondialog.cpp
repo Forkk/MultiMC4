@@ -90,12 +90,13 @@ void ChangeIconDialog::InstIconListCtrl::UpdateItems()
 	AssignImageList(imgList, wxIMAGE_LIST_NORMAL);
 	SetImageList(imgList, wxIMAGE_LIST_SMALL);
 	
-	const IconListIndexMap &indexMap = iconList->GetIndexMap();
-	for (IconListIndexMap::const_iterator iter = indexMap.begin(); iter != indexMap.end(); ++iter)
+	const InstIconMap &iconMap = iconList->GetIconMap();
+	int i = 0;
+	for (InstIconMap::const_iterator iter = iconMap.begin(); iter != iconMap.end(); ++iter)
 	{
 		wxString key = iter->first;
-		int index = iter->second;
-		InsertItem(index, key, index);
+		InsertItem(i, key, i);
+		i++;
 	}
 }
 

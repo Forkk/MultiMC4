@@ -20,17 +20,34 @@
 #include <vector>
 #include <wx/imaglist.h>
 
-typedef std::map<wxString, int> IconListIndexMap;
+struct InstIcon
+{
+	InstIcon(wxString key, wxImage image, wxImage hlImage, 
+		wxString fileName = wxEmptyString, InstIcon *defIcon = nullptr);
+	InstIcon(const InstIcon &iIcon);
+	InstIcon();
+	~InstIcon();
+
+	wxString m_key;
+	wxString m_fileName;
+	wxImage m_image;
+	wxImage m_hlImage;
+
+	InstIcon *m_defIcon;
+
+	bool deleteDefIconOnDestroy;
+};
+
+typedef std::map<wxString, InstIcon> InstIconMap;
 
 class InstIconList
 {
 public:
-	int Add(const wxImage image, const wxImage hlimage, const wxString key,
+	bool Add(const wxImage image, const wxImage hlimage, const wxString key,
 		const wxString filename = wxEmptyString);
-	int AddFile(const wxString fileName);
-	bool RemoveIcon(wxString key);
+	bool AddFile(const wxString fileName);
+	bool RemoveIcon(const wxString key);
 
-	int getIndexForKey(wxString key);
 	wxImage &getImageForKey(wxString key);
 	wxImage &getHLImageForKey(wxString key);
 	wxString &getFileNameForKey(wxString key);
@@ -48,17 +65,14 @@ public:
 	};
 	wxImageList *CreateImageList() const;
 	
-	const IconListIndexMap &GetIndexMap() const;
-	
+	const InstIconMap &GetIconMap() const;
+
 	int GetCount() const;
 	
 protected:
 	InstIconList(int width = 32, int height = 32, wxString customIconDir = wxEmptyString);
 	
-	IconListIndexMap indexMap;
-	std::vector <wxImage> imageList;
-	std::vector <wxImage> hlimageList;
-	std::vector<wxString> fileNameList;
+	InstIconMap iconMap;
 	int width, height;
 private:
 	static InstIconList* pInstance;

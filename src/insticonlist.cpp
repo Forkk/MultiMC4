@@ -126,7 +126,7 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		{
 			do 
 			{
-				if (AddFile(Path::Combine(customIconDirName, iconFile)) == -1)
+				if (!AddFile(Path::Combine(customIconDirName, iconFile)))
 				{
 					if(customIconDir.GetNext(&iconFile))
 						continue;
@@ -137,9 +137,15 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 	}
 }
 
-int InstIconList::Add(const wxImage image, const wxImage hlimage, const wxString key,
+bool InstIconList::Add(const wxImage image, const wxImage hlimage, const wxString key,
 	const wxString filename)
 {
+	InstIcon *defIcon = nullptr;
+	if (iconMap.count(key) > 0)
+	{
+		defIcon = new InstIcon(iconMap[key]);
+	}
+
 	if (image.GetWidth() != 32 || image.GetHeight() != 32)
 	{
 		wxImage newImg(image);
@@ -152,95 +158,108 @@ int InstIconList::Add(const wxImage image, const wxImage hlimage, const wxString
 			wxLogMessage(_("Image %s has no alpha after rescaling."), key.c_str()  );
 		}
 #endif
-		
-		imageList.push_back(newImg);
-		hlimageList.push_back(newHLImg);
-		fileNameList.push_back(filename);
+
+		InstIcon newInstIcon(key, newImg, newHLImg, filename, defIcon);
+		newInstIcon.deleteDefIconOnDestroy = false;
+		iconMap[key] = newInstIcon;
 	}
 	else
 	{
-		imageList.push_back(image);
-		hlimageList.push_back(hlimage);
-		fileNameList.push_back(filename);
+		InstIcon newInstIcon(key, image, hlimage, filename, defIcon);
+		newInstIcon.deleteDefIconOnDestroy = false;
+		iconMap[key] = newInstIcon;
 	}
-	return indexMap[key] = imageList.size() - 1;
+	return true;
 }
 
-int InstIconList::AddFile(const wxString fileName)
+bool InstIconList::AddFile(const wxString fileName)
 {
 	wxFileName iconFileName(fileName);
 	wxImage image(iconFileName.GetFullPath());
 	if(!image.IsOk())
 	{
-		return -1;
+		return false;
 	}
 	wxString iconKey = iconFileName.GetName();
 	wxImage highlightIcon = tintImage(image,wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
 	return Add(image,highlightIcon, iconKey, iconFileName.GetFullPath());
 }
 
-bool InstIconList::RemoveIcon(wxString key)
+bool InstIconList::RemoveIcon(const wxString key)
 {
-	if (indexMap.count(key) <= 0)
+	if (iconMap.count(key) <= 0)
 		return false;
 
-	int index = indexMap[key];
-	
-	// Decrement the value of each key whose index is greater than the index being removed.
-	for (IconListIndexMap::iterator iter = indexMap.begin(); iter != indexMap.end(); iter++)
+	InstIcon *defIcon = iconMap[key].m_defIcon;
+
+	iconMap[key].deleteDefIconOnDestroy = false;
+	iconMap.erase(iconMap.find(key));
+
+	if (defIcon != nullptr)
 	{
-		if (iter->second > index)
-			indexMap[iter->first]--;
+		iconMap[key] = InstIcon(*defIcon);
 	}
-
-	indexMap.erase(indexMap.find(key));
-	imageList.erase(imageList.begin() + index);
-	hlimageList.erase(hlimageList.begin() + index);
-	fileNameList.erase(fileNameList.begin() + index);
-}
-
-const IconListIndexMap &InstIconList::GetIndexMap() const
-{
-	return indexMap;
 }
 
 wxImageList *InstIconList::CreateImageList() const
 {
 	wxImageList *newImgList = new wxImageList(width, height);
 	
-	for (int i = 0; i < imageList.size(); i++)
+	for (InstIconMap::const_iterator iter = iconMap.begin(); iter != iconMap.end(); iter++)
 	{
-		newImgList->Add(imageList[i]);
+		newImgList->Add(iter->second.m_image);
 	}
 	return newImgList;
 }
 
 int InstIconList::GetCount() const
 {
-	return indexMap.size();
-}
-
-int InstIconList::getIndexForKey(wxString key)
-{
-	if (indexMap.count(key) <= 0)
-	{
-		return indexMap[wxT("default")];
-	}
-
-	return indexMap[key];
+	return iconMap.size();
 }
 
 wxImage& InstIconList::getImageForKey(wxString key)
 {
-	return imageList[getIndexForKey(key)];
+	return iconMap[key].m_image;
 }
 
 wxImage& InstIconList::getHLImageForKey(wxString key)
 {
-	return hlimageList[getIndexForKey(key)];
+	return iconMap[key].m_hlImage;
 }
 
 wxString& InstIconList::getFileNameForKey(wxString key)
 {
-	return fileNameList[getIndexForKey(key)];
+	return iconMap[key].m_fileName;
+}
+
+const InstIconMap &InstIconList::GetIconMap() const
+{
+	return iconMap;
+}
+
+InstIcon::InstIcon(wxString key, wxImage image, wxImage hlImage, 
+	wxString fileName, InstIcon *defIcon)
+	: m_key(key), m_image(image), m_hlImage(hlImage), m_fileName(fileName)
+{
+	m_defIcon = defIcon;
+	deleteDefIconOnDestroy = true;
+}
+
+InstIcon::InstIcon(const InstIcon &iIcon)
+	: m_key(iIcon.m_key), m_image(iIcon.m_image), m_hlImage(iIcon.m_hlImage), m_fileName(iIcon.m_fileName)
+{
+	m_defIcon = iIcon.m_defIcon;
+	deleteDefIconOnDestroy = true;
+}
+
+InstIcon::InstIcon()
+{
+	m_defIcon = nullptr;
+	deleteDefIconOnDestroy = true;
+}
+
+InstIcon::~InstIcon()
+{
+	if (m_defIcon != nullptr && deleteDefIconOnDestroy)
+		delete m_defIcon;
 }
