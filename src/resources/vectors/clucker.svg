@@ -90,14 +90,6 @@
     </linearGradient>
     <filter
        inkscape:collect="always"
-       id="filter3802">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="0.69135803"
-         id="feGaussianBlur3804" />
-    </filter>
-    <filter
-       inkscape:collect="always"
        id="filter3816"
        x="-0.22469135"
        width="1.4493827"
@@ -165,7 +157,7 @@
        xlink:href="#linearGradient3838"
        id="linearGradient3958"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(17.843184,-8.4298076)"
+       gradientTransform="translate(16.843186,-7.4298756)"
        x1="14.142136"
        y1="1038.0433"
        x2="18.119612"
@@ -175,7 +167,7 @@
        xlink:href="#linearGradient3830"
        id="linearGradient3960"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(17.843184,-8.4298076)"
+       gradientTransform="translate(16.843186,-7.4298756)"
        x1="13.258252"
        y1="1033.889"
        x2="17.500893"
@@ -262,9 +254,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.313708"
-     inkscape:cx="16.215095"
-     inkscape:cy="15.807554"
+     inkscape:zoom="1"
+     inkscape:cx="-180.31774"
+     inkscape:cy="156.4474"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -289,7 +281,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -376,8 +368,9 @@
     <path
        inkscape:connector-curvature="0"
        id="rect3970"
-       d="m 8,1034.3622 -2,2 0,4 0,4 16,0 2,-2 0,-4 0,-4 -16,0 z"
-       style="opacity:0.78242678;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter4004)" />
+       d="m 8,1034.3622 -2,2 0,4 -0.7071068,4.8397 15.9999998,0 2.707107,-2.8397 0,-4 0,-4 z"
+       style="opacity:0.78242678;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter4004)"
+       sodipodi:nodetypes="ccccccccc" />
     <g
        id="g3951"
        transform="translate(-20.843186,10.429895)">
@@ -386,37 +379,37 @@
          id="rect3917"
          width="16"
          height="4"
-         x="25.843184"
-         y="1028.9324" />
+         x="24.843185"
+         y="1029.9323" />
       <rect
          style="fill:url(#linearGradient3960);fill-opacity:1;stroke:none"
          id="rect3923"
          width="16"
          height="4"
-         x="25.843184"
-         y="1024.9324" />
+         x="24.843185"
+         y="1025.9323" />
       <rect
          transform="matrix(0.70711293,-0.70710064,0,1,0,0)"
          y="1066.7748"
-         x="59.174686"
-         height="4"
-         width="2.8284025"
+         x="57.760487"
+         height="3.999999"
+         width="4.2426047"
          id="rect3927"
          style="fill:url(#linearGradient3962);fill-opacity:1;stroke:none" />
       <rect
          transform="matrix(1,0,-0.70710986,0.7071037,0,0)"
          y="1446.6511"
          x="1050.7844"
-         height="2.8284149"
-         width="16"
+         height="4.242579"
+         width="16.000004"
          id="rect3931"
          style="fill:url(#linearGradient3964);fill-opacity:1;stroke:none" />
       <rect
          transform="matrix(0.70711293,-0.70710064,0,1,0,0)"
          y="1070.7748"
-         x="59.174686"
-         height="4"
-         width="2.8284025"
+         x="57.760487"
+         height="3.999999"
+         width="4.2426047"
          id="rect3935"
          style="fill:url(#linearGradient3966);fill-opacity:1;stroke:none" />
     </g>
