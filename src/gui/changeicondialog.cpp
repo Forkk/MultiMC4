@@ -16,13 +16,42 @@
 
 #include "changeicondialog.h"
 
+#include <wx/filename.h>
+
+#include "apputils.h"
+#include "appsettings.h"
+
+enum
+{
+	ID_AddIcon,
+	ID_RemoveIcon,
+	ID_ReloadIcons,
+};
+
 ChangeIconDialog::ChangeIconDialog(wxWindow *parent)
 	: wxDialog(parent, -1, _("Change Icon"), wxDefaultPosition, wxSize(500, 400))
 {
 	wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
 	
+	wxBoxSizer *hSz = new wxBoxSizer(wxHORIZONTAL);
 	iconListCtrl = new InstIconListCtrl(this);
-	mainSizer->Add(iconListCtrl, wxSizerFlags(1).Border(wxALL, 8).Expand());
+	hSz->Add(iconListCtrl, wxSizerFlags(1).Expand().Border(wxALL, 8));
+
+	wxBoxSizer *sideBtnSz = new wxBoxSizer(wxVERTICAL);
+
+	wxButton *addIconBtn = new wxButton(this, ID_AddIcon, _("&Add Icon"));
+	sideBtnSz->Add(addIconBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+
+	wxButton *removeIconBtn = new wxButton(this, ID_RemoveIcon, _("&Remove Icon"));
+	sideBtnSz->Add(removeIconBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+
+	wxButton *reloadIconBtn = new wxButton(this, ID_ReloadIcons, _("&Reload Icons"));
+	reloadIconBtn->Enable(false);
+	sideBtnSz->Add(reloadIconBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+
+	hSz->Add(sideBtnSz, wxSizerFlags().Border(wxTOP | wxBOTTOM | wxRIGHT, 4));
+
+	mainSizer->Add(hSz, wxSizerFlags(1).Expand());
 	
 	wxSizer *btnSizer = CreateButtonSizer(wxOK | wxCANCEL);
 	mainSizer->Add(btnSizer, wxSizerFlags(0).Border(wxBOTTOM | wxRIGHT, 8).
@@ -55,6 +84,7 @@ ChangeIconDialog::InstIconListCtrl::InstIconListCtrl(wxWindow *parent)
 
 void ChangeIconDialog::InstIconListCtrl::UpdateItems()
 {
+	this->ClearAll();
 	auto iconList = InstIconList::Instance();
 	wxImageList *imgList = iconList->CreateImageList();
 	AssignImageList(imgList, wxIMAGE_LIST_NORMAL);
@@ -74,7 +104,56 @@ void ChangeIconDialog::OnItemActivated(wxListEvent &event)
 	EndModal(wxID_OK);
 }
 
+void ChangeIconDialog::OnAddIcon(wxCommandEvent &event)
+{
+	wxFileDialog *addIconDialog = new wxFileDialog(this, _("Choose an icon to add."), 
+		wxGetCwd(), wxEmptyString, wxT("*.png"));
+	if (addIconDialog->ShowModal() == wxID_OK)
+	{
+		auto iconList = InstIconList::Instance();
+
+		if (!wxDirExists(settings->GetIconsDir().GetFullPath()))
+			wxMkdir(settings->GetIconsDir().GetFullPath());
+
+		wxFileName src(addIconDialog->GetPath());
+		wxFileName dest = Path::Combine(settings->GetIconsDir(), src.GetFullName());
+
+		wxCopyFile(src.GetFullPath(), dest.GetFullPath());
+		iconList->AddFile(dest.GetFullPath());
+	}
+	iconListCtrl->UpdateItems();
+}
+
+void ChangeIconDialog::OnRemoveIcon(wxCommandEvent &event)
+{
+	auto iconList = InstIconList::Instance();
+	wxString removeIcon = GetSelectedIconKey();
+	wxString iconFilename = iconList->getFileNameForKey(removeIcon);
+
+	if (wxFileExists(iconFilename))
+	{
+		wxRemoveFile(iconFilename);
+	}
+	else
+	{
+		return;
+	}
+
+	iconList->RemoveIcon(removeIcon);
+	iconListCtrl->UpdateItems();
+}
+
+void ChangeIconDialog::OnReloadIcons(wxCommandEvent &event)
+{
+	// TODO Make this work :P
+	iconListCtrl->UpdateItems();
+}
+
 BEGIN_EVENT_TABLE(ChangeIconDialog, wxDialog)
 	EVT_LIST_ITEM_ACTIVATED(-1, ChangeIconDialog::OnItemActivated)
+
+	EVT_BUTTON(ID_AddIcon, ChangeIconDialog::OnAddIcon)
+	EVT_BUTTON(ID_RemoveIcon, ChangeIconDialog::OnRemoveIcon)
+	EVT_BUTTON(ID_ReloadIcons, ChangeIconDialog::OnReloadIcons)
 END_EVENT_TABLE()
 

@@ -23,6 +23,8 @@
 #include <wx/dir.h>
 #include <boost/concept_check.hpp>
 #include <iostream>
+
+#include "appsettings.h"
 // #define DEBUG_ICONS
 
 InstIconList* InstIconList::pInstance = 0;
@@ -70,11 +72,15 @@ wxImage tintImage( wxImage to_colorize, wxColour col)
 
 InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 {
+	if (customIconDirName == wxEmptyString)
+		customIconDirName = settings->GetIconsDir().GetFullPath();
+
 	this->width = width;
 	this->height = height;
 	
 	const InstIconDef builtInIcons[] =
 	{
+		InstIconDef(_T("default"), wxMEMORY_IMAGE(grass)),
 		InstIconDef(_T("grass"), wxMEMORY_IMAGE(grass)),
 		InstIconDef(_T("dirt"), wxMEMORY_IMAGE(dirt)),
 		InstIconDef(_T("stone"), wxMEMORY_IMAGE(stone)),
@@ -120,23 +126,19 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		{
 			do 
 			{
-				wxFileName iconFileName(Path::Combine(customIconDirName, iconFile));
-				wxImage image(iconFileName.GetFullPath());
-				if(!image.IsOk())
+				if (AddFile(Path::Combine(customIconDirName, iconFile)) == -1)
 				{
 					if(customIconDir.GetNext(&iconFile))
 						continue;
 					break;
 				}
-				wxString iconKey = iconFileName.GetName();
-				wxImage highlightIcon = tintImage(image,wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
-				Add(image,highlightIcon, iconKey);
 			} while (customIconDir.GetNext(&iconFile));
 		}
 	}
 }
 
-int InstIconList::Add(const wxImage image, const wxImage hlimage, const wxString key)
+int InstIconList::Add(const wxImage image, const wxImage hlimage, const wxString key,
+	const wxString filename)
 {
 	if (image.GetWidth() != 32 || image.GetHeight() != 32)
 	{
@@ -153,13 +155,48 @@ int InstIconList::Add(const wxImage image, const wxImage hlimage, const wxString
 		
 		imageList.push_back(newImg);
 		hlimageList.push_back(newHLImg);
+		fileNameList.push_back(filename);
 	}
 	else
 	{
 		imageList.push_back(image);
 		hlimageList.push_back(hlimage);
+		fileNameList.push_back(filename);
 	}
 	return indexMap[key] = imageList.size() - 1;
+}
+
+int InstIconList::AddFile(const wxString fileName)
+{
+	wxFileName iconFileName(fileName);
+	wxImage image(iconFileName.GetFullPath());
+	if(!image.IsOk())
+	{
+		return -1;
+	}
+	wxString iconKey = iconFileName.GetName();
+	wxImage highlightIcon = tintImage(image,wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+	return Add(image,highlightIcon, iconKey, iconFileName.GetFullPath());
+}
+
+bool InstIconList::RemoveIcon(wxString key)
+{
+	if (indexMap.count(key) <= 0)
+		return false;
+
+	int index = indexMap[key];
+	
+	// Decrement the value of each key whose index is greater than the index being removed.
+	for (IconListIndexMap::iterator iter = indexMap.begin(); iter != indexMap.end(); iter++)
+	{
+		if (iter->second > index)
+			indexMap[iter->first]--;
+	}
+
+	indexMap.erase(indexMap.find(key));
+	imageList.erase(imageList.begin() + index);
+	hlimageList.erase(hlimageList.begin() + index);
+	fileNameList.erase(fileNameList.begin() + index);
 }
 
 const IconListIndexMap &InstIconList::GetIndexMap() const
@@ -181,4 +218,29 @@ wxImageList *InstIconList::CreateImageList() const
 int InstIconList::GetCount() const
 {
 	return indexMap.size();
+}
+
+int InstIconList::getIndexForKey(wxString key)
+{
+	if (indexMap.count(key) <= 0)
+	{
+		return indexMap[wxT("default")];
+	}
+
+	return indexMap[key];
+}
+
+wxImage& InstIconList::getImageForKey(wxString key)
+{
+	return imageList[getIndexForKey(key)];
+}
+
+wxImage& InstIconList::getHLImageForKey(wxString key)
+{
+	return hlimageList[getIndexForKey(key)];
+}
+
+wxString& InstIconList::getFileNameForKey(wxString key)
+{
+	return fileNameList[getIndexForKey(key)];
 }

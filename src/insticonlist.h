@@ -25,20 +25,15 @@ typedef std::map<wxString, int> IconListIndexMap;
 class InstIconList
 {
 public:
-	int Add(const wxImage image, const wxImage hlimage, const wxString key);
+	int Add(const wxImage image, const wxImage hlimage, const wxString key,
+		const wxString filename = wxEmptyString);
+	int AddFile(const wxString fileName);
+	bool RemoveIcon(wxString key);
 
-	int getIndexForKey(wxString key)
-	{
-		return indexMap[key];
-	}
-	wxImage &getImageForKey(wxString key)
-	{
-		return imageList[indexMap[key]];
-	}
-	wxImage &getHLImageForKey(wxString key)
-	{
-		return hlimageList[indexMap[key]];
-	}
+	int getIndexForKey(wxString key);
+	wxImage &getImageForKey(wxString key);
+	wxImage &getHLImageForKey(wxString key);
+	wxString &getFileNameForKey(wxString key);
 	static InstIconList* Instance()
 	{
 		if (pInstance == 0)
@@ -58,11 +53,12 @@ public:
 	int GetCount() const;
 	
 protected:
-	InstIconList(int width = 32, int height = 32, wxString customIconDir = _T("icons"));
+	InstIconList(int width = 32, int height = 32, wxString customIconDir = wxEmptyString);
 	
 	IconListIndexMap indexMap;
 	std::vector <wxImage> imageList;
 	std::vector <wxImage> hlimageList;
+	std::vector<wxString> fileNameList;
 	int width, height;
 private:
 	static InstIconList* pInstance;

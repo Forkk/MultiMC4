@@ -146,6 +146,17 @@ void AppSettings::SetModsDir(wxFileName value)
 }
 
 
+wxFileName AppSettings::GetIconsDir() const
+{
+	return GetSetting(_("IconsDir"), wxFileName::DirName(_("icons")));
+}
+
+void AppSettings::SetIconsDir(wxFileName value)
+{
+	SetSetting(_("IconsDir"), value);
+}
+
+
 bool AppSettings::GetAutoCloseConsole() const
 {
 	return GetSetting<bool>(_("AutoCloseConsole"), true);
