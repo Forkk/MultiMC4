@@ -73,6 +73,9 @@ public:
 	
 	wxFileName GetModsDir() const;
 	void SetModsDir(wxFileName value);
+
+	wxFileName GetIconsDir() const;
+	void SetIconsDir(wxFileName value);
 	
 	bool GetShowConsole() const;
 	void SetShowConsole(bool value);

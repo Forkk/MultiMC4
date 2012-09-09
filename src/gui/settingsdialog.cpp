@@ -237,22 +237,29 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *_se
 		
 		// Java path
 		{
-			auto javaPathBox = new wxStaticBoxSizer(wxHORIZONTAL, advancedPanel, _T("Java path"));
+			auto javaSettingsStaticBox = new wxStaticBoxSizer(wxVERTICAL, advancedPanel, _T("Java Settings"));
+			auto javaSettingsBox = new wxGridBagSizer();
+			javaSettingsBox->AddGrowableCol(1);
+
+			int row = 0;
+
+			auto javaPathLabel = new wxStaticText(advancedPanel, -1, _("Java Path: "));
+			javaSettingsBox->Add(javaPathLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
 			javaPathTextBox = new wxTextCtrl(advancedPanel, -1);
-			javaPathBox->Add(javaPathTextBox, 1, wxALL | wxEXPAND, 4);
+			javaSettingsBox->Add(javaPathTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
 			auto autoDetectButton = new wxButton(advancedPanel, ID_DetectJavaPath, _("Auto-detect"));
-			javaPathBox->Add(autoDetectButton, 0, wxALL | wxEXPAND, 4);
-			
-			advancedBox->Add(javaPathBox, staticBoxOuterFlags);
-		}
-		
-		// JVM Arguments
-		{
-			auto jvmArgsBox = new wxStaticBoxSizer(wxHORIZONTAL, advancedPanel, _T("Additional JVM Arguments"));
+			javaSettingsBox->Add(autoDetectButton, wxGBPosition(row++, 2), wxGBSpan(1, 1), GBitemsFlags);
+
+			auto jvmArgsBox = new wxBoxSizer(wxHORIZONTAL);
+
+			auto jvmArgsLabel = new wxStaticText(advancedPanel, -1, _("JVM Arguments: "));
+			javaSettingsBox->Add(jvmArgsLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
+
 			jvmArgsTextBox = new wxTextCtrl(advancedPanel, -1);
-			jvmArgsBox->Add(jvmArgsTextBox, 1, wxALL | wxEXPAND, 4);
+			javaSettingsBox->Add(jvmArgsTextBox, wxGBPosition(row, 1), wxGBSpan(1, 2), GBexpandingItemsFlags);
 			
-			advancedBox->Add(jvmArgsBox, staticBoxOuterFlags);
+			javaSettingsStaticBox->Add(javaSettingsBox, staticBoxInnerFlags);
+			advancedBox->Add(javaSettingsStaticBox, staticBoxOuterFlags);
 		}
 	}
 	

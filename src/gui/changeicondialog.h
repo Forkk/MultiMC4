@@ -36,6 +36,10 @@ protected:
 		InstIconListCtrl(wxWindow *parent);
 		void UpdateItems();
 	} *iconListCtrl;
+
+	void OnAddIcon(wxCommandEvent &event);
+	void OnRemoveIcon(wxCommandEvent &event);
+	void OnReloadIcons(wxCommandEvent &event);
 	
 	DECLARE_EVENT_TABLE()
 };
