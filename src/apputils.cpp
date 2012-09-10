@@ -48,7 +48,7 @@ void Utils::OpenFolder(wxFileName path)
 #ifdef __WXMSW__
 bool Utils::OpenURL(wxString url)
 {
-	auto r = (int) ShellExecute(NULL, L"open", url.fn_str(), NULL, NULL, SW_SHOWNORMAL);
+	auto r = (int) ShellExecute(NULL, "open", url.fn_str(), NULL, NULL, SW_SHOWNORMAL);
 	return r > 32;
 }
 #else
