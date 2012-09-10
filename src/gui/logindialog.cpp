@@ -17,7 +17,7 @@
 #include "logindialog.h"
 #include <wx/gbsizer.h>
 
-LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info)
+LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info, bool canGoOffline)
 	: wxDialog(parent, -1, _T("Login"), wxDefaultPosition, wxSize(520, 140))
 {
 	wxGridBagSizer *mainBox = new wxGridBagSizer();
@@ -72,6 +72,9 @@ LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info)
 	playOfflineSizer->Add(playOfflineButton, 1, wxTOP | wxBOTTOM | wxEXPAND, 8);
 	mainBox->Add(playOfflineSizer, wxGBPosition(3 + offset, 0), wxGBSpan(1, 1), 
 		wxLEFT | wxRIGHT | wxEXPAND, padding);
+	
+	if(!canGoOffline)
+		playOfflineButton->Enable(false);
 	
 	wxSizer *btnBox = CreateButtonSizer(wxOK | wxCANCEL);
 	mainBox->Add(btnBox, wxGBPosition(3 + offset, 1), wxGBSpan(1, cols - 1), 

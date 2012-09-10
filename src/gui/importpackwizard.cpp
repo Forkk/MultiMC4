@@ -194,7 +194,7 @@ void ImportPackWizard::UpdateMissingModList(wxCommandEvent& event)
 
 void ImportPackWizard::ViewFolderClicked(wxCommandEvent& event)
 {
-	Utils::OpenFile(settings->GetModsDir());
+	Utils::OpenFolder(settings->GetModsDir());
 }
 
 BEGIN_EVENT_TABLE(ImportPackWizard, wxWizard)

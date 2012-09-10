@@ -757,12 +757,12 @@ void ModEditWindow::OnDragJarMod(wxListEvent &event)
 
 void ModEditWindow::OnExploreCore ( wxCommandEvent& event )
 {
-	Utils::OpenFile(m_inst->GetCoreModsDir());
+	Utils::OpenFolder(m_inst->GetCoreModsDir());
 }
 
 void ModEditWindow::OnExploreML ( wxCommandEvent& event )
 {
-	Utils::OpenFile(m_inst->GetMLModsDir());
+	Utils::OpenFolder(m_inst->GetMLModsDir());
 }
 
 void ModEditWindow::OnReloadClicked ( wxCommandEvent& event )

@@ -19,7 +19,7 @@
 #include <wx/arrstr.h>
 #include "osutils.h"
 
-void Utils::OpenFile(wxFileName path)
+void Utils::OpenFolder(wxFileName path)
 {
 	wxString cmd;
 	if (IS_WINDOWS())
@@ -44,6 +44,19 @@ void Utils::OpenFile(wxFileName path)
 	cmd.Append(wxT("\""));
     wxExecute(cmd);
 }
+
+#ifdef __WXMSW__
+bool Utils::OpenURL(wxString url)
+{
+	auto r = (int) ShellExecute(NULL, L"open", url.fn_str(), NULL, NULL, SW_SHOWNORMAL);
+	return r > 32;
+}
+#else
+bool Utils::OpenURL(wxString url)
+{
+	return wxLaunchDefaultBrowser(url);
+}
+#endif
 
 int Utils::GetMaxAllowedMemAlloc()
 {

@@ -86,6 +86,7 @@ public:
 	
 	void SetEvtHandler(wxEvtHandler *handler);
 	
+	bool HasBinaries();
 	wxProcess* Launch(wxString username, wxString sessionID, bool redirectOutput = false);
 	
 	ModList *GetModList();

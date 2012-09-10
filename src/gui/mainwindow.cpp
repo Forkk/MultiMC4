@@ -605,7 +605,7 @@ void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
 	if (!settings->GetInstDir().DirExists())
 		settings->GetInstDir().Mkdir();
 
-	Utils::OpenFile(settings->GetInstDir());
+	Utils::OpenFolder(settings->GetInstDir());
 }
 
 void MainWindow::OnViewCMFolderClicked(wxCommandEvent& event)
@@ -613,7 +613,7 @@ void MainWindow::OnViewCMFolderClicked(wxCommandEvent& event)
 	if (!settings->GetModsDir().DirExists())
 		settings->GetModsDir().Mkdir();
 
-	Utils::OpenFile(settings->GetModsDir());
+	Utils::OpenFolder(settings->GetModsDir());
 }
 
 void MainWindow::OnRefreshClicked(wxCommandEvent& event)
@@ -737,7 +737,7 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 
 void MainWindow::OnBugReportClicked ( wxCommandEvent& event )
 {
-	if(!wxLaunchDefaultBrowser(_("http://bugs.forkk.net/")))
+	if(!Utils::OpenURL(_("http://bugs.forkk.net/")))
 	{
 		wxMessageBox(_T("MultiMC was unable to run your web browser.\n\nTo report bugs, visit:\nhttp://bugs.forkk.net/"), 
 		_T("Error"), wxOK | wxCENTER | wxICON_ERROR, this);
@@ -776,8 +776,8 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	{
 		lastLogin.LoadFromFile("lastlogin4");
 	}
-	
-	LoginDialog loginDialog(this, errorMsg, lastLogin);
+	bool canPlayOffline = m_currentInstance->HasBinaries();
+	LoginDialog loginDialog(this, errorMsg, lastLogin, canPlayOffline);
 	int response = loginDialog.ShowModal();
 	
 	bool playOffline = response == ID_PLAY_OFFLINE;
@@ -814,8 +814,7 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 		Instance *inst = event.m_inst;
 
 		// If the session ID is empty, the game updater will not be run.
-		if (!result.playOffline && !result.sessionID.IsEmpty() && 
-			!result.sessionID.Trim().IsEmpty() && result.sessionID != _("Offline"))
+		if (!result.playOffline && !result.sessionID.Trim().IsEmpty() && result.sessionID != _("Offline"))
 		{
 			StartTask(new GameUpdateTask(inst, result.latestVersion, _("minecraft.jar"), event.m_forceUpdate));
 		}
@@ -1101,7 +1100,7 @@ void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
 {
 	if(m_currentInstance == nullptr)
 		return;
-	Utils::OpenFile(m_currentInstance->GetRootDir());
+	Utils::OpenFolder(m_currentInstance->GetRootDir());
 }
 
 bool MainWindow::DeleteSelectedInstance()
