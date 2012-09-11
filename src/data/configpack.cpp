@@ -52,6 +52,7 @@ ConfigPack::ConfigPack(const wxString& fileName)
 	zipIn.Read(raw_buf,e->GetSize());
 	raw_buf[e->GetSize()] = 0;
 	std::stringstream jsonIn(raw_buf);
+	delete[] raw_buf;
 	
 	using namespace boost::property_tree;
 	try
