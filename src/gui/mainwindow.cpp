@@ -37,6 +37,7 @@
 #include "downgradetask.h"
 #include "fsutils.h"
 #include "aboutdlg.h"
+#include "updatepromptdlg.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -662,9 +663,12 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 {
 	if (event.m_latestBuildNumber > AppVersion.GetBuild())
 	{
-		if (wxMessageBox(wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
-				event.m_latestBuildNumber), 
-				_("Update Available"), wxYES_NO) == wxYES)
+		wxString updateMsg = wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
+			event.m_latestBuildNumber);
+
+		UpdatePromptDialog *updatePrompt = new UpdatePromptDialog(this, updateMsg);
+
+		if (updatePrompt->ShowModal() == wxID_YES)
 		{
 			DownloadInstallUpdates(event.m_downloadURL);
 		}
