@@ -1,0 +1,15 @@
+Source: multimc4
+Section: games
+Priority: optional
+Maintainer: Petr Mrázek <peterix@gmail.com>
+Build-Depends: debhelper (>= 4.1.16), cmake, libwxgtk2.8-dev, libboost-all-dev, libcurl4-opennsl-dev
+
+Package: multimc4
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: A great Minecraft launcher!
+ MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once.
+ This means that you can have two different .minecraft folders each with it's own mods saves texture packs, etc.
+ without having to waste your time fooling around with .bat files.
+ It also allows you to easily install and remove mods without you even having to touch WinRAR or 7zip at all.
+ This allows you to spend less time trying to get your mods to work and more time actually enjoying Minecraft.
