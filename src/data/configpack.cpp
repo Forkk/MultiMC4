@@ -45,14 +45,14 @@ ConfigPack::ConfigPack(const wxString& fileName)
 	{
 		entry.reset(zipIn.GetNextEntry());
 	} while (entry.get() != nullptr && entry->GetInternalName() != _("modpack.json"));
-
-	// Read the file into a string so boost can parse it
-	wxStringOutputStream jsonOut;
-	jsonOut.Write(zipIn);
-
-	// Create a std::stringstream for boost to read from.
-	std::stringstream jsonIn(cStr(jsonOut.GetString()));
-
+	
+	// Read the file into a stringstream so boost can parse it
+	auto e = entry.get();
+	char * raw_buf = new char[e->GetSize()+1];
+	zipIn.Read(raw_buf,e->GetSize());
+	raw_buf[e->GetSize()] = 0;
+	std::stringstream jsonIn(raw_buf);
+	
 	using namespace boost::property_tree;
 	try
 	{
@@ -74,8 +74,10 @@ ConfigPack::ConfigPack(const wxString& fileName)
 		// Load the ML mod list.
 		BOOST_FOREACH(const ptree::value_type& v, pt.get_child("mlmods"))
 		{
-			wxString id = wxStr(v.second.get<std::string>("id"));
-			wxString version = wxStr(v.second.get<std::string>("version"));
+			std::string idstr =v.second.get<std::string>("id");
+			std::string vstr =v.second.get<std::string>("version");
+			wxString id = wxStr(idstr);
+			wxString version = wxStr(vstr);
 
 			mlModInfoList.push_back(CPModInfo(id, version));
 		}

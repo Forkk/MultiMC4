@@ -194,6 +194,9 @@ if(WIN32)
   set(SRCS ${SRCS} multimc.rc)
 endif(WIN32)
 
+# First, include header overrides
+include_directories("${PROJECT_SOURCE_DIR}/hacks")
+
 # Include CURL
 include_directories("${CURL_INCLUDE_DIR}")
 
