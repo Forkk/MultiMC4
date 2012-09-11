@@ -566,6 +566,7 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 void MainWindow::OnImportMCFolder(wxCommandEvent& event)
 {
 	wxDirDialog *dirDlg = new wxDirDialog(this, _("Select a Minecraft folder to import"));
+	dirDlg->CenterOnParent();
 	if (dirDlg->ShowModal() != wxID_OK)
 		return;
 
@@ -590,6 +591,7 @@ void MainWindow::OnImportCPClicked(wxCommandEvent& event)
 {
 	wxFileDialog *fileDlg = new wxFileDialog(this, _("Choose a pack to import."),
 		wxEmptyString, wxEmptyString, _("*.zip"), wxFD_OPEN);
+	fileDlg->CenterOnParent();
 	if (fileDlg->ShowModal() == wxID_OK)
 	{
 		ConfigPack cp(fileDlg->GetPath());
@@ -626,6 +628,7 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 {
 	SettingsDialog *settingsDlg = new SettingsDialog(this, -1);
 	auto oldInstDir = settings->GetInstDir();
+	settingsDlg->CenterOnParent();
 	int response = settingsDlg->ShowModal();
 	if (response == wxID_OK)
 	{
@@ -667,7 +670,7 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 			event.m_latestBuildNumber);
 
 		UpdatePromptDialog *updatePrompt = new UpdatePromptDialog(this, updateMsg);
-
+		updatePrompt->CenterOnParent();
 		if (updatePrompt->ShowModal() == wxID_YES)
 		{
 			DownloadInstallUpdates(event.m_downloadURL);
@@ -735,6 +738,7 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 	info.icon = wxGetApp().GetAppIcons().GetIcon(wxSize(64, 64));
 
 	AboutDlg aboutDlg(this, info);
+	aboutDlg.CenterOnParent();
 	aboutDlg.ShowModal();
 #endif
 }
@@ -782,6 +786,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	}
 	bool canPlayOffline = m_currentInstance->HasBinaries();
 	LoginDialog loginDialog(this, errorMsg, lastLogin, canPlayOffline);
+	loginDialog.CenterOnParent();
 	int response = loginDialog.ShowModal();
 	
 	bool playOffline = response == ID_PLAY_OFFLINE;
@@ -861,6 +866,7 @@ void MainWindow::RenameEvent()
 			break;
 		wxTextEntryDialog textDlg(this, _("Enter a new name for this instance."), 
 			_("Rename Instance"), m_currentInstance->GetName());
+		textDlg.CenterOnParent();
 		while(1)
 		{
 			int response = textDlg.ShowModal();
@@ -893,6 +899,7 @@ void MainWindow::OnRenameClicked(wxCommandEvent& event)
 void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 {
 	ChangeIconDialog iconDlg(this);
+	iconDlg.CenterOnParent();
 	if (iconDlg.ShowModal() == wxID_OK)
 	{
 		if(!m_currentInstance)
@@ -933,6 +940,7 @@ void MainWindow::OnNotesClicked(wxCommandEvent& event)
 		wxTextEntryDialog textDlg(this, _("Instance notes"), _("Notes"), m_currentInstance->GetNotes(), 
 			wxOK | wxCANCEL | wxTE_MULTILINE);
 		textDlg.SetSize(600, 400);
+		textDlg.CenterOnParent();
 		if (textDlg.ShowModal() == wxID_OK)
 		{
 			m_currentInstance->SetNotes(textDlg.GetValue());
@@ -1071,6 +1079,7 @@ void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
 	if (m_currentInstance->GetVersionFile().FileExists())
 	{
 		DowngradeDialog *downDlg = new DowngradeDialog(this);
+		downDlg->CenterOnParent();
 		if (downDlg->ShowModal() == wxID_OK && !downDlg->GetSelectedVersion().IsEmpty())
 		{
 			if (downDlg->GetSelectedVersion().Contains(wxT("indev")) ||
@@ -1117,6 +1126,7 @@ bool MainWindow::DeleteSelectedInstance()
 Deleted instances are lost FOREVER! (a really long time)"),
 		_("Confirm deletion."),
 		wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
+	dlg->CenterOnParent();
 	if (dlg->ShowModal() == wxID_YES)
 	{
 		fsutils::RecursiveDelete(m_currentInstance->GetRootDir().GetFullPath());
