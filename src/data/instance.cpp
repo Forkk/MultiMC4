@@ -483,7 +483,10 @@ void Instance::GetPossibleConfigFiles(wxArrayString *array, wxString dir)
 				fileName.GetExt() == _("properties") ||
 				fileName.GetExt() == _("xml") ||
 				fileName.GetExt() == _("yml") ||
-				fileName.GetFullPath().Contains(_("options")))
+				fileName.GetFullPath().Contains(_("options")) ||
+				fileName.GetPath().Contains(_("config")) ||
+				fileName.GetName().Contains(_("config")) ||
+				fileName.GetName().Contains(_("options")))
 			{
 				fileName.MakeRelativeTo(GetRootDir().GetFullPath());
 				array->Add(fileName.GetFullPath());

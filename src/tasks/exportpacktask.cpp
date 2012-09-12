@@ -54,17 +54,17 @@ wxThread::ExitCode ExportPackTask::TaskStart()
 	using namespace boost::property_tree;
 	ptree pt;
 
-	pt.put<std::string>("name", stdStr(m_packName));
-	pt.put<std::string>("notes", stdStr(m_packNotes));
+	pt.put<std::string>("name", m_packName.mb_str(wxConvUTF8).data());
+	pt.put<std::string>("notes", m_packNotes.mb_str(wxConvUTF8).data());
 
 
 	ptree jarMods;
 	for (ModList::const_iterator iter = m_inst->GetModList()->begin(); iter < m_inst->GetModList()->end(); ++iter)
 	{
 		ptree currentMod;
-		currentMod.put<std::string>("id", stdStr(iter->GetModID()));
-		currentMod.put<std::string>("version", stdStr(iter->GetModVersion()));
-		currentMod.put<std::string>("mcversion", stdStr(iter->GetMCVersion()));
+		currentMod.put<std::string>("id", iter->GetModID().mb_str(wxConvUTF8).data());
+		currentMod.put<std::string>("version", iter->GetModVersion().mb_str(wxConvUTF8).data());
+		currentMod.put<std::string>("mcversion", iter->GetMCVersion().mb_str(wxConvUTF8).data());
 
 		jarMods.push_back(std::make_pair("", currentMod));
 	}
@@ -75,26 +75,26 @@ wxThread::ExitCode ExportPackTask::TaskStart()
 	for (ModList::const_iterator iter = m_inst->GetMLModList()->begin(); iter < m_inst->GetMLModList()->end(); ++iter)
 	{
 		ptree currentMod;
-		currentMod.put<std::string>("id", stdStr(iter->GetModID()));
-		currentMod.put<std::string>("version", stdStr(iter->GetModVersion()));
-		currentMod.put<std::string>("mcversion", stdStr(iter->GetMCVersion()));
+		currentMod.put<std::string>("id", iter->GetModID().mb_str(wxConvUTF8).data());
+		currentMod.put<std::string>("version", iter->GetModVersion().mb_str(wxConvUTF8).data());
+		currentMod.put<std::string>("mcversion", iter->GetMCVersion().mb_str(wxConvUTF8).data());
 
 		mlMods.push_back(std::make_pair("", currentMod));
 	}
 	pt.push_back(std::make_pair("mlmods", mlMods));
 
 	ptree coreMods;
-	for (ModList::const_iterator iter = m_inst->GetCoreModList()->begin(); iter < m_inst->GetCoreModList()->end(); ++iter)
+	for (auto iter = m_inst->GetCoreModList()->begin(); iter < m_inst->GetCoreModList()->end(); ++iter)
 	{
 		ptree currentMod;
-		currentMod.put<std::string>("id", stdStr(iter->GetModID()));
-		currentMod.put<std::string>("version", stdStr(iter->GetModVersion()));
-		currentMod.put<std::string>("mcversion", stdStr(iter->GetMCVersion()));
+		currentMod.put<std::string>("id", iter->GetModID().mb_str(wxConvUTF8).data());
+		currentMod.put<std::string>("version", iter->GetModVersion().mb_str(wxConvUTF8).data());
+		currentMod.put<std::string>("mcversion", iter->GetMCVersion().mb_str(wxConvUTF8).data());
 
 		coreMods.push_back(std::make_pair("", currentMod));
 	}
 	pt.push_back(std::make_pair("coremods", coreMods));
-
+	printf ("Locale is: %s\n", setlocale(LC_ALL,NULL) );
 	std::stringstream jsonOut;
 	write_json(jsonOut, pt);
 	wxString json = wxStr(jsonOut.str());

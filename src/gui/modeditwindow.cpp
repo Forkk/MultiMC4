@@ -781,17 +781,44 @@ void ModEditWindow::OnExportClicked(wxCommandEvent& event)
 	exportWizard->Start();
 
 	wxString fileName;
-
+	wxString defaultPath = wxGetCwd();
+	wxFileName file;
+// We have to do this because of buggy wx.
+// See: http://trac.wxwidgets.org/ticket/9917
+#ifdef __WXGTK__
+	repeat_filepicker:
 	wxFileDialog *chooseFileDlg = new wxFileDialog(this, _("Save..."), 
-		wxGetCwd(), wxEmptyString, _("*.zip"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+	defaultPath, wxEmptyString, _("*.zip"), wxFD_SAVE);
 	if (chooseFileDlg->ShowModal() == wxID_OK)
 	{
-		fileName = chooseFileDlg->GetPath();
+		file = chooseFileDlg->GetPath();
+		file.SetExt(_("zip"));
+		if(file.FileExists())
+		{
+			int res = wxMessageBox(_("Do you want to overwrite the original file?"),_("Overwrite file?"),wxYES_NO|wxICON_QUESTION,this);
+			if(res == wxNO)
+			{
+				defaultPath = file.GetPath();
+				goto repeat_filepicker;
+			}
+		}
 	}
 	else
 	{
 		return;
 	}
+#else
+	wxFileDialog *chooseFileDlg = new wxFileDialog(this, _("Save..."), 
+		defaultPath, wxEmptyString, _("*.zip"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+	if (chooseFileDlg->ShowModal() == wxID_OK)
+	{
+		file = chooseFileDlg->GetPath();
+	}
+	else
+	{
+		return;
+	}
+#endif
 
 	wxString packName = exportWizard->GetPackName();
 	wxString packNotes = exportWizard->GetPackNotes();
@@ -801,7 +828,7 @@ void ModEditWindow::OnExportClicked(wxCommandEvent& event)
 
 	exportWizard->Destroy();
 
-	m_mainWin->BuildConfPack(m_inst, packName, packNotes, fileName, includedConfigs);
+	m_mainWin->BuildConfPack(m_inst, packName, packNotes, file.GetFullPath(), includedConfigs);
 }
 
 void ModEditWindow::OnCloseClicked(wxCommandEvent &event)

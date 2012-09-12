@@ -29,14 +29,16 @@
 ImportPackWizard::ImportPackWizard(MainWindow *parent, ConfigPack *pack)
 	: wxWizard(parent, -1, _("Import Config Pack"))
 {
+	auto sizer = GetPageAreaSizer();
 	this->m_pack = pack;
 	this->m_mainWin = parent;
 
 	this->SetPageSize(wxSize(400, 300));
 
 	wxFont titleFont(12, wxSWISS, wxNORMAL, wxNORMAL);
-
+	
 	packInfoPage = new wxWizardPageSimple(this);
+	sizer->Add(packInfoPage);
 	wxGridBagSizer *infoPageSz = new wxGridBagSizer();
 	infoPageSz->AddGrowableCol(0, 0);
 	packInfoPage->SetSizer(infoPageSz);
@@ -74,7 +76,7 @@ ImportPackWizard::ImportPackWizard(MainWindow *parent, ConfigPack *pack)
 	configPageSz->Add(viewCentralModsFolderButton, wxGBPosition(2, 0), wxGBSpan(1, 1), wxALIGN_CENTER | wxALL, 4);
 
 	wxButton *refreshButton = new wxButton(findModFilesPage, ID_RefreshList, _("&Refresh"));
-	configPageSz->Add(refreshButton, wxGBPosition(2, 2), wxGBSpan(1, 1), wxALIGN_CENTER | wxALL, 4);
+	configPageSz->Add(refreshButton, wxGBPosition(2, 2), wxGBSpan(1, 1), wxALIGN_CENTER | wxALL | wxEXPAND, 4);
 
 	UpdateMissingModList();
 }
