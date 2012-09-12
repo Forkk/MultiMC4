@@ -33,9 +33,11 @@
 #ifdef __WXMSW__
 #define TOASCII(str) str.ToAscii()
 #define FNSTR(str) str.fn_str()
+#define MBSTR(str) str.mb_str(wxConvUTF8)
 #else
 #define TOASCII(str) str.ToAscii().data()
 #define FNSTR(str) str.fn_str().data()
+#define MBSTR(str) str.mb_str(wxConvUTF8).data()
 #endif
 
 inline const char* cStr(const std::string& str)
