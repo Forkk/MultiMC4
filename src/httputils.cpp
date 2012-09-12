@@ -15,8 +15,8 @@
 //
 
 #include "httputils.h"
-#include "curlutils.h"
 #include "apputils.h"
+#include "curlutils.h"
 
 #include <wx/sstream.h>
 

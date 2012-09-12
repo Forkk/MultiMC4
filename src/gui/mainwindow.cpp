@@ -135,7 +135,7 @@ MainWindow::MainWindow(void)
 		addInstMenu->Append(ID_ImportCP, _("Import config pack"));
 
 		auto tool = mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."), wxITEM_DROPDOWN);
-		tool->SetDropdownMenu(newInstanceMenu);
+		tool->SetDropdownMenu(addInstMenu);
 	}
 	#else
 	{
@@ -295,12 +295,9 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	
 	wxFont titleFont(18, wxSWISS, wxNORMAL, wxNORMAL);
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
-	#ifdef __WXMSW__
-	int borderstyle = wxWindow::GetThemedBorderStyle();
-	#else
-	int borderstyle = wxBORDER_SUNKEN;
-	#endif
-	instListCtrl = new wxInstanceCtrl(instPanel, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize,wxINST_SINGLE_COLUMN|borderstyle);
+	instListCtrl = new wxInstanceCtrl(instPanel, ID_InstListCtrl, 
+		wxDefaultPosition, wxDefaultSize, 
+		wxINST_SINGLE_COLUMN | wxBORDER_SUNKEN);
 	instListCtrl->SetImageSize(wxSize(32,32));
 	instSz->Add(instListCtrl,wxGBPosition(0, 0), wxGBSpan(rows, 1),wxEXPAND/* | wxALL, 4*/);
 	
