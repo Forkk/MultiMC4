@@ -57,6 +57,10 @@
 #include <wx/tbarbase.h>
 #include <wx/image.h>
 
+#ifdef wx29
+#include <wx/persist/toplevel.h>
+#endif
+
 #if (defined __WXMSW__ || defined __WXGTK__) && wxCHECK_VERSION(2, 9, 4) 
 #define USE_DROPDOWN_MENU
 #endif
@@ -839,6 +843,9 @@ void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
 			Show(false);
 			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, 
 				!launchInstance.IsEmpty());
+			cwin->SetName(wxT("InstConsoleWindow"));
+			if (!wxPersistenceManager::Get().RegisterAndRestore(cwin))
+				cwin->CenterOnScreen();
 			cwin->Start();
 		}
 		else

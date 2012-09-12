@@ -16,6 +16,10 @@
 #include "apputils.h"
 #include "osutils.h"
 
+#ifdef wx29
+#include <wx/persist/toplevel.h>
+#endif
+
 #include "resources/windowicon.h"
 
 IMPLEMENT_APP(MultiMC)
@@ -97,6 +101,9 @@ bool MultiMC::OnInit()
 	case START_NORMAL:
 		{
 			MainWindow *mainWin = new MainWindow();
+			mainWin->SetName(wxT("MainWindow"));
+			if (!wxPersistenceManager::Get().RegisterAndRestore(mainWin))
+				mainWin->CenterOnScreen();
 			mainWin->Show();
 			mainWin->OnStartup();
 			return true;
@@ -105,6 +112,9 @@ bool MultiMC::OnInit()
 	case START_LAUNCH_INSTANCE:
 		{
 			MainWindow *mainWin = new MainWindow();
+			mainWin->SetName(wxT("MainWindow"));
+			if (!wxPersistenceManager::Get().RegisterAndRestore(mainWin))
+				mainWin->CenterOnScreen();
 			mainWin->Show();
 			mainWin->launchInstance = launchInstance;
 			mainWin->OnStartup();

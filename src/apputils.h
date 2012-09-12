@@ -19,10 +19,8 @@
 #include <wx/filesys.h>
 #include <wx/protocol/http.h>
 
-#if wxCHECK_VERSION(2, 9, 4)
+#if wxCHECK_VERSION(2, 9, 0)
 #define wx29
-#else
-#define wx28
 #endif
 
 #ifdef __GNUC__
