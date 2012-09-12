@@ -48,6 +48,8 @@ ConfigPack::ConfigPack(const wxString& fileName)
 	
 	// Read the file into a stringstream so boost can parse it
 	auto e = entry.get();
+	if(!e)
+		return;
 	char * raw_buf = new char[e->GetSize()+1];
 	zipIn.Read(raw_buf,e->GetSize());
 	raw_buf[e->GetSize()] = 0;

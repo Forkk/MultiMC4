@@ -597,6 +597,10 @@ void MainWindow::OnImportCPClicked(wxCommandEvent& event)
 			ImportPackWizard importWiz(this, &cp);
 			importWiz.Start();
 		}
+		else
+		{
+			wxLogError(_("This is not a valid config pack!"));
+		}
 	}
 }
 
