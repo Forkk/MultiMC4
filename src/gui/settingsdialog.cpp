@@ -102,7 +102,6 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *_se
 			auto dirsStaticBox = new wxStaticBoxSizer(wxVERTICAL, 
 				generalPanel, _T("Folders"));
 			auto dirsBox = new wxGridBagSizer();
-			dirsBox->AddGrowableCol(1);
 
 			int row = 0;
 
@@ -127,6 +126,8 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *_se
 				auto modDirBrowseButton = new wxButton(generalPanel, ID_BrowseModDir, _T("Browse..."));
 				dirsBox->Add(modDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
 			}
+
+			dirsBox->AddGrowableCol(1);
 
 			dirsStaticBox->Add(dirsBox, staticBoxInnerFlags);
 			generalBox->Add(dirsStaticBox, staticBoxOuterFlags);
@@ -153,7 +154,6 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *_se
 		{
 			auto windowSizeBox = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Minecraft Window Size"));
 			auto winSizeSz = new wxGridBagSizer();
-			winSizeSz->AddGrowableCol(1);
 
 			// Maximize
 			winMaxCheckbox = new wxCheckBox(mcPanel, ID_MCMaximizeCheckbox, _("Start Minecraft maximized?"));
@@ -173,6 +173,8 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *_se
 			winHeightSpin->SetRange(480, wxSystemSettings::GetMetric (wxSYS_SCREEN_Y));
 			winSizeSz->Add(winHeightSpin, wxGBPosition(2, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
 			
+			winSizeSz->AddGrowableCol(1);
+
 			windowSizeBox->Add(winSizeSz, staticBoxInnerFlags);
 			mcBox->Add(windowSizeBox, staticBoxOuterFlags);
 		}
@@ -181,7 +183,6 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *_se
 		{
 			auto consoleColorsBox = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Instance Console Colors"));
 			auto consoleColorSz = new wxGridBagSizer();
-			consoleColorSz->AddGrowableCol(0);
 			consoleColorsBox->Add(consoleColorSz, staticBoxInnerFlags);
 
 			// System message color
@@ -202,6 +203,8 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *_se
 			stderrColorCtrl = new wxColourPickerCtrl(mcPanel, -1);
 			consoleColorSz->Add(stderrColorCtrl, wxGBPosition(2, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
 			
+			consoleColorSz->AddGrowableCol(0);
+
 			mcBox->Add(consoleColorsBox, staticBoxOuterFlags);
 		}
 	}
@@ -239,7 +242,6 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *_se
 		{
 			auto javaSettingsStaticBox = new wxStaticBoxSizer(wxVERTICAL, advancedPanel, _T("Java Settings"));
 			auto javaSettingsBox = new wxGridBagSizer();
-			javaSettingsBox->AddGrowableCol(1);
 
 			int row = 0;
 
@@ -258,6 +260,8 @@ SettingsDialog::SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *_se
 			jvmArgsTextBox = new wxTextCtrl(advancedPanel, -1);
 			javaSettingsBox->Add(jvmArgsTextBox, wxGBPosition(row, 1), wxGBSpan(1, 2), GBexpandingItemsFlags);
 			
+			javaSettingsBox->AddGrowableCol(1);
+
 			javaSettingsStaticBox->Add(javaSettingsBox, staticBoxInnerFlags);
 			advancedBox->Add(javaSettingsStaticBox, staticBoxOuterFlags);
 		}

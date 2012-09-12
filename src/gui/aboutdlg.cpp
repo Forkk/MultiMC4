@@ -30,7 +30,6 @@ AboutDlg::AboutDlg(wxWindow *parent, const AboutDlgInfo &info)
 {
 	wxWindow *mainPanel = this;
 	wxGridBagSizer *mainSz = new wxGridBagSizer();
-	mainSz->AddGrowableCol(1);
 	mainPanel->SetSizer(mainSz);
 
 	#define GB_CenterFlags wxLEFT | wxRIGHT | wxTOP | wxALIGN_CENTER, 8
@@ -54,12 +53,13 @@ AboutDlg::AboutDlg(wxWindow *parent, const AboutDlgInfo &info)
 		info.description, wxDefaultPosition, wxDefaultSize, 
 		wxALIGN_CENTRE | wxST_NO_AUTORESIZE);
 	mainSz->Add(descLabel, wxGBPosition(rows++, 1), wxGBSpan(1, cols - 1), GB_CenterFlags);
-	descLabel->Wrap(GetClientSize().GetWidth() - 100);
+	//descLabel->Wrap(GetClientSize().GetWidth() - 100);
 
 	wxHyperlinkCtrl *homepageLink = new wxHyperlinkCtrl(mainPanel, -1, 
 		info.website, info.website);
 	mainSz->Add(homepageLink, wxGBPosition(rows++, 1), wxGBSpan(1, cols - 1), GB_CenterFlags);
 
+	mainSz->Add(0, 0, wxGBPosition(rows, 1), wxGBSpan(1, cols - 1), GB_CenterFlags);
 	mainSz->AddGrowableRow(rows++);
 
 	wxBoxSizer *btnSz = new wxBoxSizer(wxHORIZONTAL);
@@ -76,6 +76,9 @@ AboutDlg::AboutDlg(wxWindow *parent, const AboutDlgInfo &info)
 
 	wxStaticBitmap *iconCtrl = new wxStaticBitmap(mainPanel, -1, info.icon);
 	mainSz->Add(iconCtrl, wxGBPosition(0, 0), wxGBSpan(rows, 1), GB_IconFlags);
+
+	mainSz->AddGrowableCol(1);
+	mainSz->SetSizeHints(this);
 }
 
 void AboutDlg::OnViewLicense(wxCommandEvent& event)

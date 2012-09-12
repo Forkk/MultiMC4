@@ -19,6 +19,12 @@
 #include <wx/filesys.h>
 #include <wx/protocol/http.h>
 
+#if wxCHECK_VERSION(2, 9, 4)
+#define wx29
+#else
+#define wx28
+#endif
+
 #ifdef __GNUC__
 #define DEPRECATED(func) func __attribute__ ((deprecated))
 #elif defined(_MSC_VER)
@@ -30,11 +36,17 @@
 
 #define ENUM_CONTAINS(val, check) (val & check) == check
 
-#ifdef __WXMSW__
+#if defined __WXMSW__ && !defined wx29
 #define TOASCII(str) str.ToAscii()
-#define FNSTR(str) str.fn_str()
+#define MBSTR(str) str.mb_str(wxConvUTF8)
 #else
 #define TOASCII(str) str.ToAscii().data()
+#define MBSTR(str) str.mb_str(wxConvUTF8).data()
+#endif
+
+#if defined __WXMSW__
+#define FNSTR(str) str.fn_str()
+#else
 #define FNSTR(str) str.fn_str().data()
 #endif
 
