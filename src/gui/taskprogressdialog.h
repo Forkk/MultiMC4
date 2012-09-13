@@ -35,9 +35,11 @@ protected:
 	wxStaticText * message;
 	
 	// Stuff used to auto-pulse the progress bar
+#ifdef __WXGTK__
 	wxTimer * pulse_timer;
-	bool is_pulsing;
 	void OnTimer(wxTimerEvent& event);
+#endif
+	bool is_pulsing;
 	void StartPulsing();
 	
 	// The managed task and its events

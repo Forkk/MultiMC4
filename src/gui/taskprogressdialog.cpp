@@ -27,11 +27,12 @@ TaskProgressDialog::TaskProgressDialog ( wxWindow* parent)
 	auto sizer = new wxBoxSizer(wxVERTICAL);
 	panel->SetSizer(sizer);
 	
+#ifdef __WXGTK__
 	pulse_timer = new wxTimer(this,ID_PulseTimer);
-	
+#endif
 	message = new wxStaticText(panel, -1, initial_text ,wxDefaultPosition, wxDefaultSize,wxALIGN_CENTRE|wxST_NO_AUTORESIZE);
 	sizer->Add(message,wxSizerFlags().Expand());
-	gauge = new wxGauge(panel,-1,100);
+	gauge = new wxGauge(panel,-1,100,wxDefaultPosition,wxDefaultSize,wxGA_HORIZONTAL | wxGA_SMOOTH);
 	sizer->Add(gauge,wxSizerFlags().Expand());
 	SetSizerAndFit(wrapsizer);
 	CenterOnParent();
@@ -67,7 +68,9 @@ void TaskProgressDialog::OnTaskEnd ( TaskEvent& event )
 	long exitcode = (long) t->Wait();
 	// running timer would cause a segfault.
 	is_pulsing = false;
+#ifdef __WXGTK__
 	pulse_timer->Stop();
+#endif
 	EndModal(exitcode);
 }
 void TaskProgressDialog::OnTaskError ( TaskErrorEvent& event )
@@ -81,11 +84,13 @@ void TaskProgressDialog::StartPulsing()
 	{
 		is_pulsing = true;
 		gauge->Pulse();
+#ifdef __WXGTK__
 		pulse_timer->Start(30);
+#endif
 	}
 }
 
-
+#ifdef __WXGTK__
 void TaskProgressDialog::OnTimer ( wxTimerEvent& event )
 {
 	if(is_pulsing)
@@ -97,12 +102,14 @@ void TaskProgressDialog::OnTimer ( wxTimerEvent& event )
 		pulse_timer->Stop();
 	}
 }
-
+#endif
 
 BEGIN_EVENT_TABLE(TaskProgressDialog, wxDialog)
 	EVT_TASK_START(TaskProgressDialog::OnTaskStart)
 	EVT_TASK_END(TaskProgressDialog::OnTaskEnd)
 	EVT_TASK_PROGRESS(TaskProgressDialog::OnTaskProgress)
 	EVT_TASK_ERRORMSG(TaskProgressDialog::OnTaskError)
+#ifdef __WXGTK__
 	EVT_TIMER(ID_PulseTimer, TaskProgressDialog::OnTimer)
+#endif
 END_EVENT_TABLE()
