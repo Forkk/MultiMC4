@@ -432,7 +432,9 @@ template <typename T>
 void Instance::SetSetting(const wxString &key, T value, bool suppressErrors)
 {
 	if (!config->Write(key, value) && !suppressErrors)
+	{
 		wxLogError(_("Failed to write config setting %s"), key.c_str());
+	}
 	config->Flush();
 }
 
@@ -453,7 +455,9 @@ wxFileName Instance::GetSetting(const wxString &key, wxFileName defValue) const
 void Instance::SetSetting(const wxString &key, wxFileName value, bool suppressErrors)
 {
 	if (!config->Write(key, value.GetFullPath()) && !suppressErrors)
+	{
 		wxLogError(_("Failed to write config setting %s"), key.c_str());
+	}
 	config->Flush();
 }
 
