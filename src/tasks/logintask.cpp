@@ -22,9 +22,6 @@
 #include <sstream>
 #include "curlutils.h"
 
-
-DEFINE_EVENT_TYPE(wxEVT_LOGIN_COMPLETE)
-
 LoginTask::LoginTask(UserInfo& uInfo, Instance* inst, bool forceUpdate)
 	: Task()
 {

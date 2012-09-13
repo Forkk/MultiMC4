@@ -21,8 +21,6 @@
 
 #include <wx/wx.h>
 
-DECLARE_EVENT_TYPE(wxEVT_LOGIN_COMPLETE, -1)
-
 // Stores a response from login.minecraft.net
 struct LoginResult
 {
