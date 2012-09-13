@@ -37,7 +37,7 @@ UpdatePromptDialog::UpdatePromptDialog(wxWindow *parent, const wxString &updateM
 	mainSz->Add(msgLabel, wxSizerFlags(1).Expand().
 		Align(wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL).Border(wxTOP | wxLEFT | wxRIGHT, 8));
 
-	wxSizer *btnSz = CreateButtonSizer(wxOK | wxCANCEL);
+	wxSizer *btnSz = CreateButtonSizer(wxYES_NO);
 
 	wxButton *changelogBtn = new wxButton(this, ID_Changelog, _("&Changelog"));
 	btnSz->Insert(0, changelogBtn, wxSizerFlags().Align(wxALIGN_RIGHT).Border(wxLEFT | wxRIGHT, 4));

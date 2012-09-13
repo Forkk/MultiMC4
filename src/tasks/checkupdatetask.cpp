@@ -96,5 +96,7 @@ int CheckUpdateTask::GetBuildNumber(const wxString &mainPageJSON, bool stableOnl
 void CheckUpdateTask::OnCheckComplete(int buildNumber, wxString downloadURL)
 {
 	CheckUpdateEvent event(this, buildNumber, downloadURL);
+	m_buildNumber = buildNumber;
+	m_downloadURL = downloadURL;
 	m_evtHandler->AddPendingEvent(event);
 }

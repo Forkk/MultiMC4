@@ -27,6 +27,9 @@ public:
 	
 	virtual ExitCode TaskStart();
 	
+	int m_buildNumber;
+	wxString m_downloadURL;
+	
 protected:
 	int GetBuildNumber(const wxString &mainPageJSON, bool stableOnly = true);
 	

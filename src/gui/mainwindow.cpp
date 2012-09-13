@@ -669,8 +669,13 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
 {
 	auto task = new CheckUpdateTask();
-	StartTask(task);
-	// task caught and destroyed later
+	// if task was successful (this is modal, unlike the autoupdate check on start)
+	if(StartTask(task))
+	{
+		CheckUpdateEvent event(task, task->m_buildNumber, task->m_downloadURL);
+		OnCheckUpdateComplete(event);
+	}
+	delete task;
 }
 
 void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
