@@ -687,7 +687,7 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 
 		UpdatePromptDialog *updatePrompt = new UpdatePromptDialog(this, updateMsg);
 		updatePrompt->CenterOnParent();
-		if (updatePrompt->ShowModal() == wxID_YES)
+		if (updatePrompt->ShowModal() == wxID_OK)
 		{
 			DownloadInstallUpdates(event.m_downloadURL);
 		}
