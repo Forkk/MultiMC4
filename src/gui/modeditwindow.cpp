@@ -778,8 +778,9 @@ void ModEditWindow::OnReloadClicked ( wxCommandEvent& event )
 void ModEditWindow::OnExportClicked(wxCommandEvent& event)
 {
 	ExportInstWizard *exportWizard = new ExportInstWizard(this, this->m_inst);
-	exportWizard->Start();
-
+	if(!exportWizard->Start())
+		return;
+	
 	wxString fileName;
 	wxString defaultPath = wxGetCwd();
 	wxFileName file;

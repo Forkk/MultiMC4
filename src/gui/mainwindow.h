@@ -79,11 +79,9 @@ public:
 	
 	
 	// Task Events
-	void OnTaskStart(TaskEvent &event);
 	void OnTaskEnd(TaskEvent &event);
-	void OnTaskProgress(TaskProgressEvent &event);
 	void OnTaskError(TaskErrorEvent &event);
-	void OnLoginComplete(LoginCompleteEvent &event);
+	void OnLoginComplete(const LoginResult &result);
 	void OnCheckUpdateComplete(CheckUpdateEvent &event);
 	
 	// Other events
@@ -97,7 +95,7 @@ public:
 	};
 	// Other functions
 
-	void StartTask(Task *task, task_type type = TASK_MODAL, bool shouldFit = false, wxSize size = wxSize(400, 120));
+	int StartTask(Task *task);
 	void ShowLoginDlg(wxString errorMsg);
 
 	void DownloadInstallUpdates(const wxString &downloadURL);
@@ -137,10 +135,6 @@ protected:
 	{
 		return m_guiMode;
 	};
-	
-	// Task related magick
-	wxProgressDialog *progDialog;
-	Task * currentModalTask;
 	
 	// Basic GUI (a simple list control with a context menu)
 	void InitBasicGUI(wxBoxSizer *mainSz);

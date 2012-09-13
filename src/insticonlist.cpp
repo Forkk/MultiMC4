@@ -200,6 +200,7 @@ bool InstIconList::RemoveIcon(const wxString key)
 	{
 		iconMap[key] = InstIcon(*defIcon);
 	}
+	return true;
 }
 
 wxImageList *InstIconList::CreateImageList() const

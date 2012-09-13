@@ -401,9 +401,3 @@ void GameUpdateTask::SetState(UpdateState state)
 		break;
 	}
 }
-
-void GameUpdateTask::OnGameUpdateComplete()
-{
-	TaskEvent event(wxEVT_GAME_UPDATE_COMPLETE, this);
-	m_evtHandler->AddPendingEvent(event);
-}

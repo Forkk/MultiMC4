@@ -22,9 +22,6 @@
 #include <sstream>
 #include "curlutils.h"
 
-
-DEFINE_EVENT_TYPE(wxEVT_LOGIN_COMPLETE)
-
 LoginTask::LoginTask(UserInfo& uInfo, Instance* inst, bool forceUpdate)
 	: Task()
 {
@@ -70,32 +67,32 @@ wxThread::ExitCode LoginTask::TaskStart()
 	
 	if (status != 0)
 	{
-		OnLoginComplete(wxStr(errorBuffer));
+		SetLoginResult(wxStr(errorBuffer));
 		return (void *)0;
 	}
 	
 	if (response == 200)
 	{
-		OnLoginComplete(outString);
+		SetLoginResult(outString);
 		return (void *)1;
 	}
 	else if (response == 503)
 	{
-		OnLoginComplete(wxString::Format(_("503 - login servers unavailable. Check help.mojang.com!")));
+		SetLoginResult(wxString::Format(_("503 - login servers unavailable. Check help.mojang.com!")));
 		return (void *)0;
 	}
 	else
 	{
-		OnLoginComplete(wxString::Format(_("Unknown HTTP error %i occurred."), response));
+		SetLoginResult(wxString::Format(_("Unknown HTTP error %i occurred."), response));
 		return (void *)0;
 	}
 }
 
-void LoginTask::OnLoginComplete(LoginResult result)
+void LoginTask::SetLoginResult(LoginResult result)
 {
 	SetProgress(100);
-	LoginCompleteEvent event(this, new LoginResult(result), m_inst, m_forceUpdate);
-	m_evtHandler->AddPendingEvent(event);
+	m_result = new LoginResult(result);
+	m_result.forceUpdate = m_forceUpdate;
 }
 
 LoginResult::LoginResult(wxString loginResponse)
@@ -137,7 +134,8 @@ LoginResult::LoginResult(const wxString username,
 						 const wxString downloadTicket, 
 						 const wxString latestVersion,
 						 bool loginFailed,
-						 bool playOffline)
+						 bool playOffline,
+						 bool forceUpdate)
 {
 	this->username = username;
 	this->sessionID = sessionID;
@@ -145,6 +143,7 @@ LoginResult::LoginResult(const wxString username,
 	this->latestVersion = latestVersion;
 	this->loginFailed = loginFailed;
 	this->playOffline = playOffline;
+	this->forceUpdate = forceUpdate;
 }
 
 LoginResult::LoginResult(const LoginResult *result)
@@ -156,9 +155,10 @@ LoginResult::LoginResult(const LoginResult *result)
 	this->loginFailed = result->loginFailed;
 	this->sessionID = result->sessionID;
 	this->username = result->username;
+	this->forceUpdate = result->forceUpdate;
 }
 
 LoginResult LoginResult::PlayOffline(const wxString username)
 {
-	return LoginResult(username, wxEmptyString, wxEmptyString, wxEmptyString, false, true);
+	return LoginResult(username, wxEmptyString, wxEmptyString, wxEmptyString, false, true, false);
 }

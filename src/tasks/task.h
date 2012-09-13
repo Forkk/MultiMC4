@@ -77,9 +77,9 @@ DECLARE_EVENT_TYPE(wxEVT_TASK_PROGRESS, -1)
 DECLARE_EVENT_TYPE(wxEVT_TASK_STATUS, -1)
 DECLARE_EVENT_TYPE(wxEVT_TASK_ERRORMSG, -1)
 
-struct TaskEvent : wxNotifyEvent
+struct TaskEvent : wxThreadEvent
 {
-	TaskEvent(wxEventType type, Task *task) : wxNotifyEvent(type, -1) { m_task = task; }
+	TaskEvent(wxEventType type, Task *task) : wxThreadEvent(type, -1) { m_task = task; }
 	
 	Task *m_task;
 	virtual wxEvent *Clone() const

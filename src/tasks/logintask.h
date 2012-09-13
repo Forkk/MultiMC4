@@ -21,8 +21,6 @@
 
 #include <wx/wx.h>
 
-DECLARE_EVENT_TYPE(wxEVT_LOGIN_COMPLETE, -1)
-
 // Stores a response from login.minecraft.net
 struct LoginResult
 {
@@ -32,13 +30,16 @@ struct LoginResult
 				const wxString downloadTicket, 
 				const wxString latestVersion,
 				bool loginFailed = false,
-				bool playOffline = false);
+				bool playOffline = false,
+				bool forceUpdate = false
+			);
 	LoginResult(const LoginResult *result);
 
 	static LoginResult PlayOffline(const wxString username);
 	
 	bool loginFailed;
 	bool playOffline;
+	bool forceUpdate;
 	wxString errorMessage;
 	
 	wxString username;
@@ -54,35 +55,16 @@ public:
 	
 	Instance *m_inst;
 	bool m_forceUpdate;
+	const LoginResult & GetLoginResult()
+	{
+		return m_result;
+	};
 	
 protected:
 	virtual ExitCode TaskStart();
 	
-	virtual void OnLoginComplete(LoginResult result);
+	virtual void SetLoginResult(LoginResult result);
 	
 	UserInfo m_userInfo;
+	LoginResult m_result;
 };
-
-struct LoginCompleteEvent : TaskEvent
-{
-	LoginCompleteEvent(Task* task, const LoginResult &loginResult, Instance *inst, bool forceUpdate = false) 
-		: TaskEvent(wxEVT_LOGIN_COMPLETE, task)
-	{
-		m_loginResult = LoginResult(loginResult);
-		m_inst = inst;
-		m_forceUpdate = forceUpdate;
-	}
-	
-	LoginResult m_loginResult;
-	Instance *m_inst;
-	bool m_forceUpdate;
-	
-	virtual wxEvent *Clone() const
-	{
-		return new LoginCompleteEvent(m_task, m_loginResult, m_inst, m_forceUpdate);
-	}
-};
-
-typedef void (wxEvtHandler::*LoginCompleteEventFunction)(LoginCompleteEvent&);
-
-#define EVT_LOGIN_COMPLETE(fn) EVT_TASK_CUSTOM(wxEVT_LOGIN_COMPLETE, fn, LoginCompleteEventFunction)

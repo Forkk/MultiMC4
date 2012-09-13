@@ -61,32 +61,4 @@ protected:
 	virtual void ExtractNatives();
 	
 	virtual void SetState(UpdateState state);
-	
-	virtual void OnGameUpdateComplete();
-	
-// 	struct WriteJarCBkInfo
-// 	{
-// 		WriteJarCBkInfo(GameUpdateTask *task, 
-// 						wxFileOutputStream *fileOutStream, 
-// 						int initialProgress, 
-// 						int currentFileSize, 
-// 						int totalDownloadSize)
-// 		{
-// 			m_task = task;
-// 			m_fileOutStream = fileOutStream;
-// 			m_initialProgress = initialProgress;
-// 			m_currentFileSize = currentFileSize;
-// 			m_totalDLSize = totalDownloadSize;
-// 		}
-// 		
-// 		GameUpdateTask *m_task;
-// 		wxFileOutputStream *m_fileOutStream;
-// 		int m_initialProgress;
-// 		int m_currentFileSize;
-// 		int m_totalDLSize;
-// 	};
 };
-
-DECLARE_EVENT_TYPE(wxEVT_GAME_UPDATE_COMPLETE, -1)
-
-#define EVT_GAME_UPDATE_COMPLETE(fn) EVT_TASK_CUSTOM(wxEVT_GAME_UPDATE_COMPLETE, fn, TaskEventFunction)
