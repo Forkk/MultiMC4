@@ -83,6 +83,7 @@ gui/downgradedialog.cpp
 gui/instancectrl.cpp
 gui/aboutdlg.cpp
 gui/updatepromptdlg.cpp
+gui/taskprogressdialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -128,6 +129,7 @@ gui/downgradedialog.h
 gui/instancectrl.h
 gui/aboutdlg.h
 gui/updatepromptdlg.h
+gui/taskprogressdialog.h
 
 data/appsettings.h
 data/instance.h

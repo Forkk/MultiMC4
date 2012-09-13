@@ -38,6 +38,7 @@
 #include "fsutils.h"
 #include "aboutdlg.h"
 #include "updatepromptdlg.h"
+#include "taskprogressdialog.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -228,7 +229,7 @@ void MainWindow::OnStartup()
 	if (settings->GetAutoUpdate())
 	{
 		CheckUpdateTask *task = new CheckUpdateTask();
-		StartTask(task,TASK_BACKGROUND);
+		task->Start(this,false);
 	}
 
 	if(!launchInstance.empty())
@@ -580,7 +581,11 @@ void MainWindow::OnImportMCFolder(wxCommandEvent& event)
 
 	Instance *inst = new Instance(instDirName);
 	inst->SetName(instName);
-	StartTask(new FileCopyTask(existingMCDir, inst->GetMCDir()));
+	
+	auto task = new FileCopyTask(existingMCDir, inst->GetMCDir());
+	StartTask(task);
+	delete task;
+	
 	AddInstance(inst);
 }
 
@@ -659,8 +664,9 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 
 void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
 {
-	CheckUpdateTask *task = new CheckUpdateTask();
+	auto task = new CheckUpdateTask();
 	StartTask(task);
+	// task caught and destroyed later
 }
 
 void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
@@ -689,16 +695,8 @@ void MainWindow::DownloadInstallUpdates(const wxString &downloadURL)
 
 	auto dlTask = new FileDownloadTask(downloadURL, wxFileName(updaterFileName), _("Downloading updates..."));
 	wxGetApp().updateOnExit = true;
-	StartTask(dlTask, TASK_MODAL, false, wxSize(400, 120));
-
-	/*
-	// Give the task dialogs some time to close.
-	for (int i = 0; i < 100; i++)
-	{
-		wxSafeYield();
-	}
-	*/
-
+	StartTask(dlTask);
+	delete dlTask;
 	Close(false);
 }
 
@@ -801,11 +799,13 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 		{
 			LoginTask *task = new LoginTask(info,m_currentInstance , loginDialog.ShouldForceUpdate());
 			StartTask(task);
+			OnLoginComplete(task->GetLoginResult());
+			delete task;
 		}
 		else
 		{
-			LoginCompleteEvent event(nullptr, LoginResult::PlayOffline(info.username), m_currentInstance);
-			OnLoginComplete(event);
+			LoginResult lr = LoginResult::PlayOffline(info.username);
+			OnLoginComplete(lr);
 		}
 	}
 	else if (!launchInstance.IsEmpty() && response == wxID_CANCEL)
@@ -814,31 +814,34 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	}
 }
 
-void MainWindow::OnLoginComplete(LoginCompleteEvent& event)
+void MainWindow::OnLoginComplete( const LoginResult& result )
 {
-	LoginResult result = event.m_loginResult;
-
 	if (!result.loginFailed)
 	{
 		// Login success
-		Instance *inst = event.m_inst;
+		Instance *inst = m_currentInstance;
 
 		// If the session ID is empty, the game updater will not be run.
-		if (!result.playOffline && !result.sessionID.Trim().IsEmpty() && result.sessionID != _("Offline"))
+		wxString sessionID = result.sessionID;
+		sessionID.Trim();
+		if (!result.playOffline && !sessionID.IsEmpty() && sessionID != _("Offline"))
 		{
-			StartTask(new GameUpdateTask(inst, result.latestVersion, _("minecraft.jar"), event.m_forceUpdate));
+			auto task = new GameUpdateTask(inst, result.latestVersion, _("minecraft.jar"), result.forceUpdate);
+			StartTask(task);
+			delete task;
 		}
 		
 		if (inst->ShouldRebuild())
 		{
-			StartTask(new ModderTask (inst));
+			auto task = new ModderTask (inst);
+			StartTask(task);
+			delete task;
 		}
 		
 		if(inst->Launch(result.username, result.sessionID, true))
 		{
 			Show(false);
-			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, 
-				!launchInstance.IsEmpty());
+			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, !launchInstance.IsEmpty());
 			cwin->Start();
 		}
 		else
@@ -923,7 +926,9 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName));
 
 	wxMkdir(instDirName);
-	StartTask(new FileCopyTask (m_currentInstance->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName)));
+	auto task = new FileCopyTask (m_currentInstance->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));
+	StartTask(task);
+	delete task;
 
 	Instance *newInst = new Instance(instDirName);
 	newInst->SetName(instName);
@@ -1094,7 +1099,9 @@ indev and infdev. Are you sure you would like to downgrade to this version?"),
 				}
 			}
 
-			StartTask(new DowngradeTask (m_currentInstance, downDlg->GetSelectedVersion()));
+			auto task = new DowngradeTask (m_currentInstance, downDlg->GetSelectedVersion());
+			StartTask(task);
+			delete task;
 		}
 	}
 	else
@@ -1107,7 +1114,9 @@ void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
 {
 	if(m_currentInstance == nullptr)
 		return;
-	StartTask(new ModderTask(m_currentInstance));
+	auto task = new ModderTask(m_currentInstance);
+	StartTask(task);
+	delete task;
 }
 
 void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
@@ -1177,26 +1186,12 @@ void MainWindow::OnInstMenuOpened(wxInstanceCtrlEvent& event)
 	}
 }
 
-
-void MainWindow::OnTaskStart(TaskEvent& event)
-{
-	
-}
-
+// this catches background tasks and destroys them
 void MainWindow::OnTaskEnd(TaskEvent& event)
 {
-	/*
 	Task * t = event.m_task;
-	if(!t->isModal())
-	{
-		t->Wait();
-		delete t;
-	}*/
-}
-
-void MainWindow::OnTaskProgress(TaskProgressEvent& event)
-{
-	
+	t->Wait();
+	delete t;
 }
 
 void MainWindow::OnTaskError(TaskErrorEvent& event)
@@ -1204,59 +1199,10 @@ void MainWindow::OnTaskError(TaskErrorEvent& event)
 	wxLogError(event.m_errorMsg);
 }
 
-void MainWindow::StartTask ( Task* task, MainWindow::task_type type, bool shouldFit, wxSize size )
+int MainWindow::StartTask ( Task* task )
 {
-	if(type == TASK_BACKGROUND)
-	{
-		task->Start(this,false);
-		// FIXME: there is only one such task. it is leaked. Sadly, the event system sucks and it's using it
-	}
-	else
-	{
-		int style = wxPD_APP_MODAL;
-		
-		wxProgressDialog *progDialog = new wxProgressDialog(_("Please wait..."), task->GetStatus(), 100, this, style);
-		if(shouldFit)
-		{
-			progDialog->SetMinSize(size);
-			progDialog->Fit();
-		}
-		else
-		{
-			progDialog->SetSize(size);
-		}
-
-		progDialog->Update(0);
-		progDialog->CenterOnParent();
-		task->Start(this,true);
-		
-		progDialog->Show();
-		while (!task->hasEnded())
-		{
-			bool retVal = true;
-			wxString status = task->GetStatus();
-			int progress = task->GetProgress();
-			if (progress == 0)
-			{
-				retVal = progDialog->Pulse(status);
-			}
-			//HACK: the dialog gets stuck when set to max. no idea why
-			else if (progress == 100)
-			{
-				progDialog->Update(99, status);
-			}
-			else
-			{
-				progDialog->Update(progress, status);
-			}
-			if(shouldFit) progDialog->Fit();
-			wxYield();
-			wxMilliSleep(100);
-		}
-		task->Wait();
-		delete task;
-		progDialog->Destroy();
-	}
+	TaskProgressDialog dlg(this);
+	return dlg.ShowModal(task);
 }
 
 void MainWindow::OnWindowClosed(wxCloseEvent& event)
@@ -1345,12 +1291,9 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_INST_RIGHT_CLICK(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
 	EVT_INST_ITEM_SELECTED(ID_InstListCtrl, MainWindow::OnInstSelected)
 	
-	EVT_TASK_START(MainWindow::OnTaskStart)
 	EVT_TASK_END(MainWindow::OnTaskEnd)
-	EVT_TASK_PROGRESS(MainWindow::OnTaskProgress)
 	EVT_TASK_ERRORMSG(MainWindow::OnTaskError)
 	
-	EVT_LOGIN_COMPLETE(MainWindow::OnLoginComplete)
 	EVT_CHECK_UPDATE(MainWindow::OnCheckUpdateComplete)
 	
 	EVT_TEXT_ENTER(ID_InstNameEditor, MainWindow::OnRenameEnterPressed)
