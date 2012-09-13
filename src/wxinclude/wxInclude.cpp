@@ -66,13 +66,17 @@ void definemacros ( std::ostringstream& data )
 	data << "inline wxImage _wxConvertMemoryToImage(const unsigned char* data, int length, long type = wxBITMAP_TYPE_ANY )" << std::endl;
 	data << "{" << std::endl;
 	data << "	wxMemoryInputStream stream( data, length );" << std::endl;
-	data << "	return wxImage( stream, type, -1 );" << std::endl;
+	data << "	wxImage img;" << std::endl;
+	data << "	img.LoadFile(stream, (wxBitmapType)type, -1);" << std::endl;
+	data << "	return img;" << std::endl;
 	data << "}" << std::endl << std::endl;
 
 	data << "inline wxBitmap _wxConvertMemoryToBitmap(const unsigned char* data, int length, long type = wxBITMAP_TYPE_ANY )" << std::endl;
 	data << "{" << std::endl;
 	data << "	wxMemoryInputStream stream( data, length );" << std::endl;
-	data << "	return wxBitmap( wxImage( stream, type, -1 ), -1 );" << std::endl;
+	data << "	wxImage img;" << std::endl;
+	data << "	img.LoadFile(stream, (wxBitmapType)type, -1);" << std::endl;
+	data << "	return wxBitmap( img, -1 );" << std::endl;
 	data << "}" << std::endl << std::endl;
 }
 
