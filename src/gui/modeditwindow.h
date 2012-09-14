@@ -35,6 +35,7 @@ public:
 		ModListCtrl(wxWindow *parent, int id, Instance *inst);
 		
 		virtual wxString OnGetItemText(long int item, long int column) const;
+		virtual wxListItemAttr* OnGetItemAttr ( long int item ) const;
 		
 		virtual void UpdateItems();
 		wxArrayInt GetSelectedItems();
