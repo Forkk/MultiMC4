@@ -184,6 +184,11 @@ ModEditWindow::ModListCtrl::ModListCtrl(wxWindow *parent, int id, Instance *inst
 
 wxString ModEditWindow::ModListCtrl::OnGetItemText(long int item, long int column) const
 {
+	if(item >= GetModList()->size() )
+	{
+		//BUG: this should never happen!
+		return wxEmptyString;
+	}
 	switch (column)
 	{
 	case 0:
@@ -194,6 +199,16 @@ wxString ModEditWindow::ModListCtrl::OnGetItemText(long int item, long int colum
 		return wxEmptyString;
 	}
 }
+
+wxListItemAttr* ModEditWindow::ModListCtrl::OnGetItemAttr ( long int item ) const
+{
+	if(item >= GetModList()->size())
+	{
+		//BUG: this should never happen! (yet it does)
+	}
+	return nullptr;
+}
+
 
 ModList *ModEditWindow::ModListCtrl::GetModList() const
 {
@@ -372,10 +387,11 @@ void ModEditWindow::JarModListCtrl::DeleteMod()
 		return;
 	
 	wxArrayInt indices = GetSelectedItems();
-	for (int i = indices.GetCount() -1; i >= 0; i--)
+	for (int i = indices.GetCount()-1; i >= 0; i--)
 	{
 		m_inst->GetModList()->DeleteMod(indices[i]);
 	}
+	
 	UpdateItems();
 }
 
@@ -557,13 +573,20 @@ void ModEditWindow::ModListCtrl::DrawInsertMark(int index)
 
 	int lineY = 0;
 	wxRect itemRect;
-	this->GetItemRect(index, itemRect);
-	lineY = itemRect.GetTop() + offsetY;
-	
+
 	if (index == GetItemCount() && GetItemCount() > 0)
 	{
 		this->GetItemRect(index - 1, itemRect);
 		lineY = itemRect.GetBottom() + offsetY;
+	}
+	else if(GetItemCount() > 0)
+	{
+		this->GetItemRect(index, itemRect);
+		lineY = itemRect.GetTop() + offsetY;
+	}
+	else
+	{
+		lineY = offsetY;
 	}
 	
 	wxWindowDC dc(listMainWin);
