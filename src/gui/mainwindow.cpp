@@ -39,6 +39,7 @@
 #include "aboutdlg.h"
 #include "updatepromptdlg.h"
 #include "taskprogressdialog.h"
+#include "snapshotdialog.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -286,6 +287,7 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_ManageSaves, _T("&Manage Saves"), _T("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _T("&Edit Mods"), _T("Install or remove mods."));
 	instMenu->Append(ID_DowngradeInst, _T("Downgrade"), _T("Use MCNostalgia to downgrade this instance."));
+	instMenu->Append(ID_UseSnapshot, _T("Snapshot"), _T("Install a snapshot."));
 	instMenu->Append(ID_RebuildJar, _T("Re&build Jar"), _T("Reinstall all the instance's jar mods."));
 	instMenu->Append(ID_ViewInstFolder, _T("&View Folder"), _T("Open the instance's folder."));
 	instMenu->AppendSeparator();
@@ -355,6 +357,8 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnSz->Add(btnEditMods, szflags);
 	btnDowngrade = new wxButton(btnPanel, ID_DowngradeInst, _("Downgrade"));
 	btnSz->Add(btnDowngrade, szflags);
+	btnSnapshot = new wxButton(btnPanel, ID_UseSnapshot, _("Snapshot"));
+	btnSz->Add(btnSnapshot, szflags);
 	btnRebuildJar = new wxButton(btnPanel, ID_RebuildJar, _("Re&build Jar"));
 	btnSz->Add(btnRebuildJar, szflags);
 	btnViewFolder = new wxButton(btnPanel, ID_ViewInstFolder, _("&View Folder"));
@@ -1129,6 +1133,43 @@ indev and infdev. Are you sure you would like to downgrade to this version?"),
 	}
 }
 
+void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
+{
+	if(m_currentInstance == nullptr)
+		return;
+
+	if (m_currentInstance->GetVersionFile().FileExists())
+	{
+		SnapshotDialog *snapDlg = new SnapshotDialog(this);
+		snapDlg->CenterOnParent();
+		if (snapDlg->ShowModal() == wxID_OK && !snapDlg->GetSelectedSnapshot().IsEmpty())
+		{
+			wxString snapURL = wxString::Format(wxT("assets.minecraft.net/%s/minecraft.jar"), 
+				snapDlg->GetSelectedSnapshot().c_str());
+
+			wxString snapshotJar = Path::Combine(m_currentInstance->GetBinDir(), wxT("snapshot.jar"));
+			auto task = FileDownloadTask(snapURL, snapshotJar);
+			if (StartTask(&task))
+			{
+				if (wxFileExists(m_currentInstance->GetMCBackup().GetFullPath()) &&
+					!wxRemoveFile(m_currentInstance->GetMCBackup().GetFullPath()))
+				{
+					return;
+				}
+
+				if (wxCopyFile(snapshotJar, m_currentInstance->GetMCJar().GetFullPath()))
+				{
+					return;
+				}
+			}
+		}
+	}
+	else
+	{
+		wxLogError(_("You must run this instance at least once to download minecraft before you can downgrade it!"));
+	}
+}
+
 void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
 {
 	if(m_currentInstance == nullptr)
@@ -1286,6 +1327,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_MENU(ID_EditMods, MainWindow::OnEditModsClicked)
 	EVT_MENU(ID_DowngradeInst, MainWindow::OnDowngradeInstClicked)
+	EVT_MENU(ID_UseSnapshot, MainWindow::OnSnapshotClicked)
 	EVT_MENU(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_MENU(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
 	
@@ -1302,6 +1344,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_BUTTON(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_BUTTON(ID_EditMods, MainWindow::OnEditModsClicked)
 	EVT_BUTTON(ID_DowngradeInst, MainWindow::OnDowngradeInstClicked)
+	EVT_BUTTON(ID_UseSnapshot, MainWindow::OnSnapshotClicked)
 	EVT_BUTTON(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_BUTTON(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
 	

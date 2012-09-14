@@ -91,6 +91,7 @@ gui/instancectrl.cpp
 gui/aboutdlg.cpp
 gui/updatepromptdlg.cpp
 gui/taskprogressdialog.cpp
+gui/snapshotdialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -98,6 +99,7 @@ data/userinfo.cpp
 data/mod.cpp
 data/modlist.cpp
 data/configpack.cpp
+data/snapshotlist.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
@@ -137,6 +139,7 @@ gui/instancectrl.h
 gui/aboutdlg.h
 gui/updatepromptdlg.h
 gui/taskprogressdialog.h
+gui/snapshotdialog.h
 
 data/appsettings.h
 data/instance.h
@@ -144,6 +147,7 @@ data/userinfo.h
 data/mod.h
 data/modlist.h
 data/configpack.h
+data/snapshotlist.h
 
 tasks/task.h
 tasks/logintask.h
