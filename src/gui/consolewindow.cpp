@@ -279,6 +279,7 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		
 		// Pass lines to the console
 		size_t newlinePos;
+		wxString lines;
 		while ((newlinePos = outputBuffer.First('\n')) != wxString::npos)
 		{
 			wxString line = outputBuffer.Left(newlinePos);
@@ -287,10 +288,14 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 			if (line.EndsWith(_("\r\n")))
 				line = line.Left(line.size() - 2);
 			outputBuffer = outputBuffer.Mid(newlinePos + 1);
-			
-			InstOutputEvent event(m_inst, line, m_lType == LISTENER_STDERR);
-			m_console->AddPendingEvent(event);
+
+			if (lines != wxEmptyString)
+				lines = lines.Append(wxT("\n"));
+			lines = lines.Append(line);
 		}
+
+		InstOutputEvent event(m_inst, lines, m_lType == LISTENER_STDERR);
+		m_console->AddPendingEvent(event);
 	}
 
 	return NULL;

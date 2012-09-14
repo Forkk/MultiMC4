@@ -163,10 +163,10 @@ protected:
 
 DECLARE_EVENT_TYPE(wxEVT_INST_OUTPUT, -1)
 
-struct InstOutputEvent : wxNotifyEvent
+struct InstOutputEvent : wxThreadEvent
 {
 	InstOutputEvent(Instance *inst, wxString output, bool stdErr = false) 
-		: wxNotifyEvent(wxEVT_INST_OUTPUT) 
+		: wxThreadEvent(wxEVT_INST_OUTPUT) 
 		{ m_inst = inst; m_output = output; m_stdErr = stdErr; }
 	
 	Instance *m_inst;
