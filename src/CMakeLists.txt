@@ -5,6 +5,13 @@ IF (DEFINED CMAKE_TOOLCHAIN_FILE)
 	include("${CMAKE_TOOLCHAIN_FILE}")
 ENDIF ()
 
+IF (MultiMC_USE_HTTPS)
+	MESSAGE(STATUS "** Using HTTPS for login.")
+ELSE ()
+	MESSAGE(STATUS "** Not using HTTPS for login.")
+	SET(MultiMC_USE_HTTPS false)
+ENDIF ()
+
 IF (MSVC)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /D MSVC")
 

@@ -22,6 +22,8 @@
 #include <sstream>
 #include "curlutils.h"
 
+#include "config.h"
+
 LoginTask::LoginTask(UserInfo& uInfo, Instance* inst, bool forceUpdate)
 	: Task()
 {
@@ -41,7 +43,12 @@ wxThread::ExitCode LoginTask::TaskStart()
 	std::ostringstream sst;
 	char * encodedLogin = curl_easy_escape(curl,login.data(), strlen(login));
 	char * encodedPasswd = curl_easy_escape(curl,passwd.data(), strlen(passwd));
-	sst << "http://login.minecraft.net/?user=" << encodedLogin << "&password=" << encodedPasswd << "&version=1337";
+#ifdef USE_HTTPS
+	sst << "https";
+#else
+	sst << "http";
+#endif
+	sst << "://login.minecraft.net/?user=" << encodedLogin << "&password=" << encodedPasswd << "&version=1337";
 	char errorBuffer[CURL_ERROR_SIZE];
 	
 	

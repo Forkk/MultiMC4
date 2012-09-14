@@ -11,3 +11,5 @@
 #define JENKINS_BUILD_TAG "@MultiMC_BUILD_TAG@"
 
 #define JENKINS_JOB_URL "@MultiMC_JOB_URL@"
+
+#define USE_HTTPS @MultiMC_USE_HTTPS@
