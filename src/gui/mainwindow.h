@@ -87,6 +87,8 @@ public:
 	// Other events
 	void OnInstMenuOpened(wxInstanceCtrlEvent& event);
 	void OnWindowClosed(wxCloseEvent& event);
+
+	void OnExitApp(wxCommandEvent &event);
 	
 	enum task_type
 	{

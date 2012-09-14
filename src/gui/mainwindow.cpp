@@ -212,6 +212,12 @@ MainWindow::MainWindow(void)
 
 	launchInstance = _("");
 
+	// Keyboard accelerators.
+	wxAcceleratorEntry entries[1];
+	entries[0].Set(wxACCEL_CTRL,	(int) 'Q',	wxID_EXIT);
+	wxAcceleratorTable accel(sizeof(entries), entries);
+	SetAcceleratorTable(accel);
+
 	CenterOnScreen();
 }
 
@@ -1246,6 +1252,11 @@ ModList* MainWindow::GetCentralModList()
 	return &centralModList;
 }
 
+void MainWindow::OnExitApp(wxCommandEvent &event)
+{
+	Close();
+}
+
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)
@@ -1312,4 +1323,5 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TEXT_ENTER(ID_InstNameEditor, MainWindow::OnRenameEnterPressed)
 
 	EVT_CLOSE(MainWindow::OnWindowClosed)
+	EVT_MENU(wxID_EXIT, MainWindow::OnExitApp)
 END_EVENT_TABLE()
