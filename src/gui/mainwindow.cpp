@@ -1148,7 +1148,7 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 				snapDlg->GetSelectedSnapshot().c_str());
 
 			wxString snapshotJar = Path::Combine(m_currentInstance->GetBinDir(), wxT("snapshot.jar"));
-			auto task = FileDownloadTask(snapURL, snapshotJar);
+			FileDownloadTask task(snapURL, snapshotJar);
 			if (StartTask(&task))
 			{
 				if (wxFileExists(m_currentInstance->GetMCBackup().GetFullPath()) &&
