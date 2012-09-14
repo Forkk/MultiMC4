@@ -135,6 +135,12 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		wxButton *btnClose = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
 		btnBox->Add(btnClose, wxSizerFlags(0).Align(wxALIGN_RIGHT).Border(wxALL, 4));
 	}
+
+	// Keyboard accelerators.
+	wxAcceleratorEntry entries[1];
+	entries[0].Set(wxACCEL_CTRL,	(int) 'W',	wxID_CLOSE);
+	wxAcceleratorTable accel(sizeof(entries), entries);
+	SetAcceleratorTable(accel);
 	
 	CenterOnParent();
 	
@@ -883,6 +889,8 @@ BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
 	EVT_BUTTON(ID_EXPORT, ModEditWindow::OnExportClicked)
 	EVT_BUTTON(ID_RELOAD, ModEditWindow::OnReloadClicked)
 	EVT_BUTTON(wxID_CLOSE, ModEditWindow::OnCloseClicked)
+
+	EVT_MENU(wxID_CLOSE, ModEditWindow::OnCloseClicked)
 END_EVENT_TABLE()
 
 BEGIN_EVENT_TABLE(ModEditWindow::ModListCtrl, wxListCtrl)
