@@ -690,7 +690,7 @@ void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
 
 void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 {
-	if (event.m_latestBuildNumber > AppVersion.GetBuild())
+	if (event.m_latestBuildNumber != AppVersion.GetBuild())
 	{
 		wxString updateMsg = wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
 			event.m_latestBuildNumber);
