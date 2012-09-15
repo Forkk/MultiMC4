@@ -43,9 +43,10 @@ wxThread::ExitCode LoginTask::TaskStart()
 	std::ostringstream sst;
 	char * encodedLogin = curl_easy_escape(curl,login.data(), strlen(login));
 	char * encodedPasswd = curl_easy_escape(curl,passwd.data(), strlen(passwd));
-#ifdef USE_HTTPS
+#if USE_HTTPS == ON
 	sst << "https";
 #else
+#warning ("Not using SSL for logins.")
 	sst << "http";
 #endif
 	sst << "://login.minecraft.net/?user=" << encodedLogin << "&password=" << encodedPasswd << "&version=1337";
