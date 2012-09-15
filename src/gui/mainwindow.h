@@ -68,6 +68,7 @@ public:
 	void OnCopyInstClicked(wxCommandEvent &event);
 	void OnChangeIconClicked(wxCommandEvent& event);
 	void OnNotesClicked(wxCommandEvent& event);
+	void OnInstanceSettingsClicked(wxCommandEvent& event);
 
 	void OnManageSavesClicked(wxCommandEvent& event);
 	void OnEditModsClicked(wxCommandEvent& event);
@@ -220,6 +221,7 @@ enum
 	ID_ChangeIcon,
 	ID_EditNotes,
 	ID_Cancel_EditNotes,
+	ID_Configure,
 
 	ID_ManageSaves,
 	ID_EditMods,

@@ -26,7 +26,7 @@
 class SettingsDialog : public wxDialog
 {
 public:
-	SettingsDialog(wxWindow *parent, wxWindowID id, AppSettings *s = settings);
+	SettingsDialog(wxWindow *parent, wxWindowID id, SettingsBase *s = settings);
 	bool GetForceUpdateMultiMC() const;
 
 protected:
@@ -41,36 +41,51 @@ protected:
 	bool ApplySettings();
 	bool FolderMove( wxFileName oldDir, wxFileName newDir, wxString message, wxString title);
 	
-	AppSettings * currentSettings;
+	SettingsBase * currentSettings;
 	wxNotebook *tabCtrl;
+	bool instanceMode;
 	
+	// console tab stuff
 	wxCheckBox *showConsoleCheck;
 	wxCheckBox *autoCloseConsoleCheck;
-	
-	wxCheckBox *autoUpdateCheck;
-	wxToggleButton *forceUpdateToggle;
-	
-	wxTextCtrl *instDirTextBox;
-	wxTextCtrl *modsDirTextBox;
-	
-	wxSpinCtrl *minMemorySpin;
-	wxSpinCtrl *maxMemorySpin;
-
-	wxCheckBox *compatCheckbox;
-
-	wxCheckBox *winMaxCheckbox;
-	wxSpinCtrl *winWidthSpin;
-	wxSpinCtrl *winHeightSpin;
-	
-	wxTextCtrl *javaPathTextBox;
-	wxTextCtrl *jvmArgsTextBox;
-
-	wxComboBox *guiStyleDropDown;
-
 	wxColourPickerCtrl *sysMsgColorCtrl;
 	wxColourPickerCtrl *stdoutColorCtrl;
 	wxColourPickerCtrl *stderrColorCtrl;
 	
+	// multimc tab stuff
+	wxCheckBox *autoUpdateCheck;
+	wxToggleButton *forceUpdateToggle;
+	wxComboBox *guiStyleDropDown;
+	wxTextCtrl *instDirTextBox;
+	wxTextCtrl *modsDirTextBox;
+	
+
+	// java tab stuff
+	wxToggleButton *overrideJava;
+	wxTextCtrl *javaPathTextBox;
+	wxTextCtrl *jvmArgsTextBox;
+	wxButton *autoDetectButton;
+	wxStaticText *jvmArgsLabel;
+	wxStaticText *javaPathLabel;
+	
+	wxToggleButton *overrideMemory;
+	wxSpinCtrl *minMemorySpin;
+	wxSpinCtrl *maxMemorySpin;
+	wxStaticText *minMemLabel;
+	wxStaticText *maxMemLabel;
+
+	// minecraft tab stuff
+	wxToggleButton *overrideWin;
+	wxCheckBox *compatCheckbox;
+	wxCheckBox *winMaxCheckbox;
+	wxSpinCtrl *winWidthSpin;
+	wxSpinCtrl *winHeightSpin;
+	wxStaticText *winHeightLabel;
+	wxStaticText *winWidthLabel;
+	
+	wxToggleButton *overrideUpdate;
+	wxComboBox *mcUpdateDropDown;
+
 	DECLARE_EVENT_TABLE()
 };
 
@@ -82,4 +97,8 @@ enum
 
 	ID_MCMaximizeCheckbox,
 	ID_CompatModeCheckbox,
+	ID_OverrideJava,
+	ID_OverrideWindow,
+	ID_OverrideUpdate,
+	ID_OverrideMemory
 };

@@ -282,6 +282,7 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_Rename, _T("&Rename"), _T("Change the instance's name."));
 	instMenu->Append(ID_ChangeIcon, _T("&Change Icon"), _T("Change this instance's icon."));
 	instMenu->Append(ID_EditNotes, _T("&Notes"), _T("View / edit this instance's notes."));
+	instMenu->Append(ID_Configure, _T("&Settings"), _T("Change instance settings."));
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_ManageSaves, _T("&Manage Saves"), _T("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _T("&Edit Mods"), _T("Install or remove mods."));
@@ -954,6 +955,13 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	AddInstance(newInst);
 }
 
+void MainWindow::OnInstanceSettingsClicked ( wxCommandEvent& event )
+{
+	SettingsDialog *settingsDlg = new SettingsDialog(this, -1, m_currentInstance);
+	settingsDlg->CenterOnParent();
+	int response = settingsDlg->ShowModal();
+}
+
 void MainWindow::OnNotesClicked(wxCommandEvent& event)
 {
 	switch (GetGUIMode())
@@ -1282,6 +1290,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_Rename, MainWindow::OnRenameClicked)
 	EVT_MENU(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
 	EVT_MENU(ID_EditNotes, MainWindow::OnNotesClicked)
+	EVT_MENU(ID_Configure, MainWindow::OnInstanceSettingsClicked)
 	
 	EVT_MENU(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_MENU(ID_EditMods, MainWindow::OnEditModsClicked)
