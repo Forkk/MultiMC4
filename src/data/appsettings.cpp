@@ -270,7 +270,9 @@ template <typename T>
 void AppSettings::SetSetting(const wxString &key, T value, bool suppressErrors)
 {
 	if (!config.Write(key, value) && !suppressErrors)
+	{
 		wxLogError(_("Failed to write config setting %s"), key.c_str());
+	}
 	config.Flush();
 }
 
@@ -291,6 +293,8 @@ wxFileName AppSettings::GetSetting(const wxString &key, wxFileName defValue) con
 void AppSettings::SetSetting(const wxString &key, wxFileName value, bool suppressErrors)
 {
 	if (!config.Write(key, value.GetFullPath()) && !suppressErrors)
+	{
 		wxLogError(_("Failed to write config setting %s"), key.c_str());
+	}
 	config.Flush();
 }
