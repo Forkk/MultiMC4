@@ -1,6 +1,13 @@
 cmake_minimum_required (VERSION 2.8)
 project (MultiMC)
 
+# Static link!
+IF(WIN32)
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+ELSE(WIN32)
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+ENDIF(WIN32)
+
 IF (DEFINED CMAKE_TOOLCHAIN_FILE)
 	include("${CMAKE_TOOLCHAIN_FILE}")
 ENDIF ()
@@ -202,6 +209,11 @@ ENDIF()
 # Find libCURL
 find_package(CURL REQUIRED)
 
+# Find OpenSSL
+if (MultiMC_USE_HTTPS)
+	find_package(OpenSSL REQUIRED)
+endif ()
+
 # Include wxWidgets.
 include("${wxWidgets_USE_FILE}")
 
@@ -257,6 +269,7 @@ target_link_libraries(MultiMC
 	${wxWidgets_LIBRARIES}
 	${Boost_LIBRARIES}
 	${CURL_LIBRARIES}
+	${OPENSSL_LIBRARIES}
 	tinymd5
 	patchlib
 	${MULTIMC_ADDITIONAL_LINKS}
