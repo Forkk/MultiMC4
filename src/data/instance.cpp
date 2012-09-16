@@ -243,7 +243,23 @@ void Instance::SetName(wxString name)
 
 wxString Instance::GetIconKey() const
 {
-	return GetSetting<wxString>(_("iconKey"), _("default"));
+	wxString iconKey = GetSetting<wxString>(_("iconKey"), _("default"));
+
+	if (iconKey == "default")
+	{
+		if (GetName().Lower().Contains("btw") ||
+			GetName().Lower().Contains("better then wolves") || // Because some people are stupid :D
+			GetName().Lower().Contains("better than wolves"))
+		{
+			iconKey = "herobrine";
+		}
+		else if (GetName().Lower().Contains("direwolf"))
+		{
+			iconKey = "enderman";
+		}
+	}
+
+	return iconKey;
 }
 
 void Instance::SetIconKey(wxString iconKey)
