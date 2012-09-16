@@ -78,6 +78,7 @@ void SnapshotDialog::LoadSnapshotList()
 {
 	SnapshotList snapList;
 	snapList.LoadFromURL(wxT("assets.minecraft.net"));
+	snapList.Sort(true);
 	snapshotList->Set(snapList);
 
 	UpdateOKBtn();

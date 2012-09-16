@@ -26,4 +26,18 @@ public:
 	SnapshotList();
 
 	bool LoadFromURL(wxString url);
+
+	void Sort(bool descending = false);
+
+	static int CompareSnapshots(wxString *first, wxString *second, bool reverse = false);
+
+	static inline int CompareSnapshotsAscending(wxString *first, wxString *second)
+	{
+		return CompareSnapshots(first, second);
+	}
+
+	static inline int CompareSnapshotsDescending(wxString *first, wxString *second)
+	{
+		return CompareSnapshots(first, second, true);
+	}
 };
