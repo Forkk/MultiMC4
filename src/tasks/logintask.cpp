@@ -43,8 +43,12 @@ wxThread::ExitCode LoginTask::TaskStart()
 	std::ostringstream sst;
 	char * encodedLogin = curl_easy_escape(curl,login.data(), strlen(login));
 	char * encodedPasswd = curl_easy_escape(curl,passwd.data(), strlen(passwd));
+#ifndef MSVC
 #if USE_HTTPS == true
 	sst << "https";
+#else
+	sst << "http";
+#endif
 #else
 	sst << "http";
 #endif

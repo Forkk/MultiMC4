@@ -72,4 +72,5 @@ bool SnapshotList::LoadFromURL(wxString url)
 	}
 
 	// ^[0-9][0-9]w[0-9][0-9][a-z]/minecraft.jar$
+	return true;
 }
