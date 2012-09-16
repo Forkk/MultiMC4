@@ -163,6 +163,7 @@ protected:
 	wxButton *btnRename;
 	wxButton *btnChangeIcon;
 	wxButton *btnCopyInst;
+	wxButton *btnInstSettings;
 	wxButton *btnEditMods;
 	wxButton *btnDowngrade;
 	wxButton *btnSnapshot;

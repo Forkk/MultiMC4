@@ -353,6 +353,8 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnSz->Add(btnChangeIcon, szflags);
 	btnCopyInst = new wxButton(btnPanel, ID_CopyInst, _("Copy Instance"));
 	btnSz->Add(btnCopyInst, szflags);
+	btnInstSettings = new wxButton(btnPanel, ID_Configure, _("Instance Settings"));
+	btnSz->Add(btnInstSettings, szflags);
 	btnSz->AddSpacer(spacerSize);
 	btnEditMods = new wxButton(btnPanel, ID_EditMods, _("Edit &Mods"));
 	btnSz->Add(btnEditMods, szflags);
@@ -1078,6 +1080,7 @@ void MainWindow::EnableInstActions(bool enabled)
 		btnRename->Enable(enabled);
 		btnChangeIcon->Enable(enabled);
 		btnEditMods->Enable(enabled);
+		btnInstSettings->Enable(enabled);
 		btnRebuildJar->Enable(enabled);
 		btnViewFolder->Enable(enabled);
 		btnCopyInst->Enable(enabled);
@@ -1350,6 +1353,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_BUTTON(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
 	EVT_BUTTON(ID_CopyInst, MainWindow::OnCopyInstClicked)
 	EVT_BUTTON(ID_EditNotes, MainWindow::OnNotesClicked)
+	EVT_BUTTON(ID_Configure, MainWindow::OnInstanceSettingsClicked)
 	
 	EVT_BUTTON(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_BUTTON(ID_EditMods, MainWindow::OnEditModsClicked)
