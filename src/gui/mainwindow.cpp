@@ -1074,6 +1074,7 @@ void MainWindow::EnableInstActions(bool enabled)
 		btnViewFolder->Enable(enabled);
 		btnCopyInst->Enable(enabled);
 		btnDowngrade->Enable(enabled);
+		btnSnapshot->Enable(enabled);
 		break;
 		
 	case GUI_Simple:
