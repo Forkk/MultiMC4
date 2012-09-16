@@ -68,7 +68,9 @@ void CopyFileList ( const wxArrayString& filenames, wxFileName targetDir )
 {
 	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); ++iter)
 	{
-		wxFileName dest(Path::Combine(targetDir.GetFullPath(), *iter));
+		wxFileName source (*iter);
+		wxString fileName = source.GetFullName();
+		wxFileName dest(Path::Combine(targetDir.GetFullPath(), fileName));
 		if(wxFileName::DirExists(*iter))
 		{
 			fsutils::CopyDir(*iter,dest.GetFullPath());

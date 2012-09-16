@@ -39,26 +39,23 @@ ImportPackWizard::ImportPackWizard(MainWindow *parent, ConfigPack *pack)
 	
 	packInfoPage = new wxWizardPageSimple(this);
 	sizer->Add(packInfoPage);
-	wxGridBagSizer *infoPageSz = new wxGridBagSizer();
-	infoPageSz->AddGrowableCol(0, 0);
+	auto infoPageSz = new wxBoxSizer(wxVERTICAL);
 	packInfoPage->SetSizer(infoPageSz);
 
 	wxStaticText *infoTitleLabel = new wxStaticText(packInfoPage, -1, m_pack->GetPackName(), 
 		wxDefaultPosition, wxDefaultSize);
 	infoTitleLabel->SetFont(titleFont);
-	infoPageSz->Add(infoTitleLabel, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALIGN_CENTER | wxALL, 4);
+	infoPageSz->Add(infoTitleLabel, 0, wxALIGN_CENTER | wxALL, 4);
 
 	packNotesTextbox = new wxTextCtrl(packInfoPage, -1, m_pack->GetPackNotes(),
 		wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
-	infoPageSz->Add(packNotesTextbox, wxGBPosition(3, 0), wxGBSpan(1, 2), 
-		wxEXPAND | wxALL, 4);
-	infoPageSz->AddGrowableRow(3, 0);
+	infoPageSz->Add(packNotesTextbox, 1, wxEXPAND | wxALL, 4);
 
 
 	findModFilesPage = new wxWizardPageSimple(this, packInfoPage);
 	packInfoPage->SetNext(findModFilesPage);
 	wxGridBagSizer *configPageSz = new wxGridBagSizer();
-	configPageSz->AddGrowableCol(1, 0);
+	
 	findModFilesPage->SetSizer(configPageSz);
 
 	wxStaticText *configTitleLabel = new wxStaticText(findModFilesPage, -1, 
@@ -69,15 +66,16 @@ ImportPackWizard::ImportPackWizard(MainWindow *parent, ConfigPack *pack)
 	missingModsList = new wxListBox(findModFilesPage, -1,
 		wxDefaultPosition, wxDefaultSize, configList);
 	configPageSz->Add(missingModsList, wxGBPosition(1, 0), wxGBSpan(1, 3), wxALIGN_CENTER | wxALL | wxEXPAND, 4);
-	configPageSz->AddGrowableRow(1, 0);
-
+	
 	wxButton *viewCentralModsFolderButton = new wxButton(findModFilesPage, ID_ViewCentralModsFolder,
 		_("&View Central Mods Folder"));
 	configPageSz->Add(viewCentralModsFolderButton, wxGBPosition(2, 0), wxGBSpan(1, 1), wxALIGN_CENTER | wxALL, 4);
 
 	wxButton *refreshButton = new wxButton(findModFilesPage, ID_RefreshList, _("&Refresh"));
 	configPageSz->Add(refreshButton, wxGBPosition(2, 2), wxGBSpan(1, 1), wxALIGN_CENTER | wxALL | wxEXPAND, 4);
-
+	
+	configPageSz->AddGrowableCol(1, 0);
+	configPageSz->AddGrowableRow(1, 0);
 	UpdateMissingModList();
 }
 
@@ -101,8 +99,7 @@ bool ImportPackWizard::Start()
 		ModList *centralModList = m_mainWin->GetCentralModList();
 
 		// Add jar mods...
-		for (std::vector<ConfigPack::CPModInfo>::const_iterator iter = m_pack->GetJarModList()->begin(); 
-			iter != m_pack->GetJarModList()->end(); ++iter)
+		for (auto iter = m_pack->GetJarModList()->begin(); iter != m_pack->GetJarModList()->end(); ++iter)
 		{
 			Mod *mod = centralModList->FindByID(iter->m_id, iter->m_version);
 			if (mod == nullptr)
@@ -116,8 +113,7 @@ bool ImportPackWizard::Start()
 		}
 
 		// Add mod loader mods...
-		for (std::vector<ConfigPack::CPModInfo>::const_iterator iter = m_pack->GetMLModList()->begin(); 
-			iter != m_pack->GetMLModList()->end(); ++iter)
+		for (auto iter = m_pack->GetMLModList()->begin(); iter != m_pack->GetMLModList()->end(); ++iter)
 		{
 			Mod *mod = centralModList->FindByID(iter->m_id, iter->m_version);
 			if (mod == nullptr)
@@ -131,8 +127,7 @@ bool ImportPackWizard::Start()
 		}
 
 		// Add core mods...
-		for (std::vector<ConfigPack::CPModInfo>::const_iterator iter = m_pack->GetCoreModList()->begin(); 
-			iter != m_pack->GetCoreModList()->end(); ++iter)
+		for (auto iter = m_pack->GetCoreModList()->begin(); iter != m_pack->GetCoreModList()->end(); ++iter)
 		{
 			Mod *mod = centralModList->FindByID(iter->m_id, iter->m_version);
 			if (mod == nullptr)
@@ -161,8 +156,7 @@ void ImportPackWizard::UpdateMissingModList()
 	m_mainWin->LoadCentralModList();
 	ModList *centralModList = m_mainWin->GetCentralModList();
 
-	for (std::vector<ConfigPack::CPModInfo>::const_iterator iter = m_pack->GetJarModList()->begin(); 
-		iter != m_pack->GetJarModList()->end(); ++iter)
+	for (auto iter = m_pack->GetJarModList()->begin(); iter != m_pack->GetJarModList()->end(); ++iter)
 	{
 		if (centralModList->FindByID(iter->m_id, iter->m_version) == nullptr)
 		{
@@ -170,8 +164,7 @@ void ImportPackWizard::UpdateMissingModList()
 		}
 	}
 
-	for (std::vector<ConfigPack::CPModInfo>::const_iterator iter = m_pack->GetMLModList()->begin(); 
-		iter != m_pack->GetMLModList()->end(); ++iter)
+	for (auto iter = m_pack->GetMLModList()->begin(); iter != m_pack->GetMLModList()->end(); ++iter)
 	{
 		if (centralModList->FindByID(iter->m_id, iter->m_version) == nullptr)
 		{
@@ -179,8 +172,7 @@ void ImportPackWizard::UpdateMissingModList()
 		}
 	}
 	
-	for (std::vector<ConfigPack::CPModInfo>::const_iterator iter = m_pack->GetCoreModList()->begin(); 
-		iter != m_pack->GetCoreModList()->end(); ++iter)
+	for (auto iter = m_pack->GetCoreModList()->begin(); iter != m_pack->GetCoreModList()->end(); ++iter)
 	{
 		if (centralModList->FindByID(iter->m_id, iter->m_version) == nullptr)
 		{

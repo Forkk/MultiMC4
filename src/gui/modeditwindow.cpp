@@ -498,7 +498,7 @@ void ModEditWindow::CoreModListCtrl::PasteMod()
 	}
 	// Add the given mods.
 	wxArrayString filenames = data.GetFilenames();
-	fsutils::CopyFileList(filenames,m_inst->GetMLModsDir());
+	fsutils::CopyFileList(filenames,m_inst->GetCoreModsDir());
 	//FIXME: this looks like lazy code. it can be done better.
 	auto mllist = m_inst->GetCoreModList();
 	mllist->UpdateModList();

@@ -29,11 +29,9 @@ ExportInstWizard::ExportInstWizard(wxWindow *parent, Instance *inst)
 
 	enterInfoPage = new wxWizardPageSimple(this);
 	wxGridBagSizer *infoPageSz = new wxGridBagSizer();
-	infoPageSz->AddGrowableCol(1, 0);
 	enterInfoPage->SetSizer(infoPageSz);
 
-	wxStaticText *infoTitleLabel = new wxStaticText(enterInfoPage, -1, _("Config Pack Info"), 
-		wxDefaultPosition, wxDefaultSize);
+	wxStaticText *infoTitleLabel = new wxStaticText(enterInfoPage, -1, _("Config Pack Info"), wxDefaultPosition, wxDefaultSize);
 	infoTitleLabel->SetFont(titleFont);
 	infoPageSz->Add(infoTitleLabel, wxGBPosition(0, 0), wxGBSpan(1, 2), wxALIGN_CENTER | wxALL, 4);
 
@@ -46,11 +44,10 @@ ExportInstWizard::ExportInstWizard(wxWindow *parent, Instance *inst)
 	wxStaticText *notesLabel = new wxStaticText(enterInfoPage, -1, _("Notes: "));
 	infoPageSz->Add(notesLabel, wxGBPosition(2, 0), wxGBSpan(1, 2), wxALL | wxALIGN_CENTER_VERTICAL, 4);
 
-	packNotesTextbox = new wxTextCtrl(enterInfoPage, -1, wxEmptyString,
-		wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
-	infoPageSz->Add(packNotesTextbox, wxGBPosition(3, 0), wxGBSpan(1, 2), 
-		wxEXPAND | wxALL, 4);
-	infoPageSz->AddGrowableRow(3, 0);
+	packNotesTextbox = new wxTextCtrl(enterInfoPage, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
+	infoPageSz->Add(packNotesTextbox, wxGBPosition(3, 0), wxGBSpan(1, 2), wxEXPAND | wxALL, 4);
+	infoPageSz->AddGrowableCol(1);
+	infoPageSz->AddGrowableRow(3);
 
 
 	chooseConfigFilesPage = new wxWizardPageSimple(this, enterInfoPage);
