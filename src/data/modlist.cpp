@@ -130,7 +130,9 @@ Mod* ModList::FindByID(const wxString& modID, const wxString& modVersion)
 	// Search the list for a mod that matches
 	for (iterator iter = begin(); iter != end(); ++iter)
 	{
-		if (iter->GetModID() == modID && iter->GetModVersion() == modVersion)
+		wxString ID = iter->GetModID();
+		wxString version = iter->GetModVersion();
+		if ( ID == modID && version == modVersion)
 			return &(*iter);
 	}
 
