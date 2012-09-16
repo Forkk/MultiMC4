@@ -198,8 +198,8 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			// Override
 			if(instanceMode)
 			{
-				overrideUpdate = new wxToggleButton(box->GetStaticBox(),ID_OverrideUpdate,_("Override"));
-				box->Add(overrideUpdate,0,wxALL | wxALIGN_CENTER_HORIZONTAL,4);
+				updateUseDefs = new wxCheckBox(box->GetStaticBox(), ID_OverrideUpdate, _("Use defaults?"));
+				box->Add(updateUseDefs, 0, wxALL, 4);
 			}
 			
 			wxArrayString choices;
@@ -223,8 +223,8 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			if(instanceMode)
 			{
 				// Override
-				overrideWin = new wxToggleButton(mcPanel,ID_OverrideWindow,_("Override"));
-				sizer->Add(overrideWin, wxGBPosition(row, 0), wxGBSpan(1, 2),wxALL | wxALIGN_CENTER_HORIZONTAL,4);
+				winUseDefs = new wxCheckBox(mcPanel, ID_OverrideWindow, _("Use defaults?"));
+				sizer->Add(winUseDefs, wxGBPosition(row, 0), wxGBSpan(1, 2), wxALL, 4);
 				row++;
 			}
 			
@@ -273,8 +273,8 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			if(instanceMode)
 			{
 				// Override
-				overrideMemory = new wxToggleButton(mcPanel,ID_OverrideMemory,_("Override"));
-				sizer->Add(overrideMemory, wxGBPosition(row, 0), wxGBSpan(1, 2),wxALL | wxALIGN_CENTER_HORIZONTAL,4);
+				memoryUseDefs = new wxCheckBox(mcPanel, ID_OverrideMemory, _("Use defaults?"));
+				sizer->Add(memoryUseDefs, wxGBPosition(row, 0), wxGBSpan(1, 2), wxALL, 4);
 				row++;
 			}
 			
@@ -309,8 +309,8 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 
 			if(instanceMode)
 			{
-				overrideJava = new wxToggleButton(mcPanel,ID_OverrideJava,_("Override"));
-				sizer->Add(overrideJava, wxGBPosition(row, 0), wxGBSpan(1, 3),wxALL | wxALIGN_CENTER_HORIZONTAL,4);
+				javaUseDefs = new wxCheckBox(mcPanel, ID_OverrideJava, _("Use defaults?"));
+				sizer->Add(javaUseDefs, wxGBPosition(row, 0), wxGBSpan(1, 3), wxALL, 4);
 				row++;
 			}
 			
@@ -490,7 +490,7 @@ Are you sure you want to use dev builds?"),
 	else
 	{
 		// apply instance settings to the instance
-		bool haveUpdate = overrideUpdate->GetValue();
+		bool haveUpdate = !updateUseDefs->GetValue();
 		if(haveUpdate)
 		{
 			UpdateMode newUpdateMode = Update_Never;
@@ -506,7 +506,7 @@ Are you sure you want to use dev builds?"),
 		}
 		currentSettings->SetUpdatesOverride(haveUpdate);
 		
-		bool haveMemory = overrideMemory->GetValue();
+		bool haveMemory = !memoryUseDefs->GetValue();
 		if(haveMemory)
 		{
 			currentSettings->SetMinMemAlloc(minMemorySpin->GetValue());
@@ -519,7 +519,7 @@ Are you sure you want to use dev builds?"),
 		}
 		currentSettings->SetMemoryOverride(haveMemory);
 
-		bool haveJava = overrideJava->GetValue();
+		bool haveJava = !javaUseDefs->GetValue();
 		if(haveJava)
 		{
 			currentSettings->SetJavaPath(javaPathTextBox->GetValue());
@@ -532,7 +532,7 @@ Are you sure you want to use dev builds?"),
 		}
 		currentSettings->SetJavaOverride(haveJava);
 		
-		bool haveWindow = overrideWin->GetValue();
+		bool haveWindow = !winUseDefs->GetValue();
 		if(haveWindow)
 		{
 			currentSettings->SetUseAppletWrapper(!compatCheckbox->GetValue());
@@ -582,10 +582,10 @@ void SettingsDialog::LoadSettings()
 	}
 	else
 	{
-		overrideJava->SetValue(currentSettings->GetJavaOverride());
-		overrideMemory->SetValue(currentSettings->GetMemoryOverride());
-		overrideUpdate->SetValue(currentSettings->GetUpdatesOverride());
-		overrideWin->SetValue(currentSettings->GetWindowOverride());
+		javaUseDefs->SetValue(!currentSettings->GetJavaOverride());
+		memoryUseDefs->SetValue(!currentSettings->GetMemoryOverride());
+		updateUseDefs->SetValue(!currentSettings->GetUpdatesOverride());
+		winUseDefs->SetValue(!currentSettings->GetWindowOverride());
 	}
 	
 	switch (currentSettings->GetUpdateMode())
@@ -666,10 +666,10 @@ void SettingsDialog::UpdateCheckboxStuff()
 {
 	if(instanceMode)
 	{
-		bool enableUpdates = overrideUpdate->GetValue();
-		bool enableJava = overrideJava->GetValue();
-		bool enableMemory = overrideMemory->GetValue();
-		bool enableWindow = overrideWin->GetValue();
+		bool enableUpdates = !updateUseDefs->GetValue();
+		bool enableJava = !javaUseDefs->GetValue();
+		bool enableMemory = !memoryUseDefs->GetValue();
+		bool enableWindow = !winUseDefs->GetValue();
 		
 		// java tab stuff
 		javaPathTextBox->Enable(enableJava);
@@ -718,8 +718,8 @@ BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 
 	EVT_CHECKBOX(ID_MCMaximizeCheckbox, SettingsDialog::OnUpdateMCTabCheckboxes)
 	EVT_CHECKBOX(ID_CompatModeCheckbox, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_TOGGLEBUTTON(ID_OverrideJava, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_TOGGLEBUTTON(ID_OverrideWindow, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_TOGGLEBUTTON(ID_OverrideUpdate, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_TOGGLEBUTTON(ID_OverrideMemory, SettingsDialog::OnUpdateMCTabCheckboxes)
+	EVT_CHECKBOX(ID_OverrideJava, SettingsDialog::OnUpdateMCTabCheckboxes)
+	EVT_CHECKBOX(ID_OverrideWindow, SettingsDialog::OnUpdateMCTabCheckboxes)
+	EVT_CHECKBOX(ID_OverrideUpdate, SettingsDialog::OnUpdateMCTabCheckboxes)
+	EVT_CHECKBOX(ID_OverrideMemory, SettingsDialog::OnUpdateMCTabCheckboxes)
 END_EVENT_TABLE()
