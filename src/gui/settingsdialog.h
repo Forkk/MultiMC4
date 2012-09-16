@@ -54,6 +54,7 @@ protected:
 	
 	// multimc tab stuff
 	wxCheckBox *autoUpdateCheck;
+	wxCheckBox *useDevBuildsCheck;
 	wxToggleButton *forceUpdateToggle;
 	wxComboBox *guiStyleDropDown;
 	wxTextCtrl *instDirTextBox;

@@ -17,6 +17,7 @@ ENDIF ()
 
 IF (MultiMC_USE_HTTPS)
 	MESSAGE(STATUS "** Using HTTPS for login.")
+	SET(MultiMC_LINK_OPENSSL true)
 ELSE ()
 	MESSAGE(STATUS "** Not using HTTPS for login.")
 	SET(MultiMC_USE_HTTPS false)
@@ -213,7 +214,7 @@ ENDIF()
 find_package(CURL REQUIRED)
 
 # Find OpenSSL
-if (MultiMC_USE_HTTPS)
+if (MultiMC_LINK_OPENSSL)
 	find_package(OpenSSL REQUIRED)
 endif ()
 

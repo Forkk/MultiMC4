@@ -112,6 +112,9 @@ public:
 	virtual bool GetShowConsole() const { return GetSetting<bool>(_("ShowConsole"), true); }
 	void SetShowConsole(bool value) { SetSetting<bool>(_("ShowConsole"), value); }
 
+	virtual bool GetUseDevBuilds() const { return GetSetting<bool>(_("UseDevBuilds"), false); }
+	void SetUseDevBuilds(bool value) { SetSetting<bool>(_("UseDevBuilds"), value); }
+
 	virtual GUIMode GetGUIMode() const { return (GUIMode)GetSetting<int>(_("GUIMode"), GUI_Default); }
 	void SetGUIMode(GUIMode value) { SetSetting<int>(_("GUIMode"), value); }
 

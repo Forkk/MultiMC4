@@ -31,7 +31,7 @@ public:
 	wxString m_downloadURL;
 	
 protected:
-	int GetBuildNumber(const wxString &mainPageJSON, bool stableOnly = true);
+	int GetBuildNumber(const wxString &mainPageJSON);
 	
 	void OnCheckComplete(int buildNumber, wxString downloadURL);
 };
