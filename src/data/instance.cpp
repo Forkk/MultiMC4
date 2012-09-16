@@ -289,20 +289,20 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 	
 	ExtractLauncher();
 	
-	wxString javaPath = settings->GetJavaPath();
-	wxString additionalArgs = settings->GetJvmArgs();
-	int xms = settings->GetMinMemAlloc();
-	int xmx = settings->GetMaxMemAlloc();
+	wxString javaPath = GetJavaPath();
+	wxString additionalArgs = GetJvmArgs();
+	int xms = GetMinMemAlloc();
+	int xmx = GetMaxMemAlloc();
 	wxFileName mcDirFN = GetMCDir().GetFullPath();
 	mcDirFN.MakeAbsolute();
 	wxString mcDir = mcDirFN.GetFullPath();
 	wxString wdArg = wxGetCwd();
 	wxString winSizeArg = wxString::Format(_("%ix%i"), 
-		settings->GetMCWindowWidth(), settings->GetMCWindowHeight());
+		GetMCWindowWidth(), GetMCWindowHeight());
 
-	if (!settings->GetUseAppletWrapper())
+	if (!GetUseAppletWrapper())
 		winSizeArg = _("compatmode");
-	else if (settings->GetMCWindowMaximize())
+	else if (GetMCWindowMaximize())
 		winSizeArg = _("max");
 	
 // 	if (IS_WINDOWS())
@@ -332,7 +332,6 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 
 void Instance::ExtractLauncher()
 {
-	
 	wxMemoryInputStream launcherInputStream(multimclauncher, sizeof(multimclauncher));
 	wxZipInputStream dezipper(launcherInputStream);
 	wxFFileOutputStream launcherOutStream(_("MultiMCLauncher.jar"));
@@ -416,49 +415,6 @@ ModList *Instance::GetCoreModList()
 		coremod_list_inited = true;
 	}
 	return &coreModList;
-}
-
-template <typename T>
-T Instance::GetSetting(const wxString &key, T defValue) const
-{
-	T val;
-	if (config->Read(key, &val))
-		return val;
-	else
-		return defValue;
-}
-
-template <typename T>
-void Instance::SetSetting(const wxString &key, T value, bool suppressErrors)
-{
-	if (!config->Write(key, value) && !suppressErrors)
-	{
-		wxLogError(_("Failed to write config setting %s"), key.c_str());
-	}
-	config->Flush();
-}
-
-wxFileName Instance::GetSetting(const wxString &key, wxFileName defValue) const
-{
-	wxString val;
-	if (config->Read(key, &val))
-	{
-		if (defValue.IsDir())
-			return wxFileName::DirName(val);
-		else
-			return wxFileName::FileName(val);
-	}
-	else
-		return defValue;
-}
-
-void Instance::SetSetting(const wxString &key, wxFileName value, bool suppressErrors)
-{
-	if (!config->Write(key, value.GetFullPath()) && !suppressErrors)
-	{
-		wxLogError(_("Failed to write config setting %s"), key.c_str());
-	}
-	config->Flush();
 }
 
 void Instance::GetPossibleConfigFiles(wxArrayString *array, wxString dir)

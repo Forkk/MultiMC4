@@ -28,11 +28,7 @@
 
 bool IsValidInstance(wxFileName rootDir);
 
-//typedef std::vector<Mod> ModList;
-wxDEPRECATED(typedef ModList::iterator ModIterator); // Use ModList::iterator instead
-wxDEPRECATED(typedef ModList::const_iterator ConstModIterator); // Use ModList::const_iterator instead
-
-class Instance : public wxEvtHandler
+class Instance : public wxEvtHandler, public SettingsBase
 {
 public:
 	static Instance *LoadInstance(wxFileName rootDir);
@@ -93,20 +89,49 @@ public:
 	ModList *GetMLModList();
 	ModList *GetCoreModList();
 	
-	template <typename T>
-	T GetSetting(const wxString &key, T defValue) const;
-	template <typename T>
-	void SetSetting(const wxString &key, T value, bool suppressErrors = false);
-	
-	wxFileName GetSetting(const wxString &key, wxFileName defValue) const;
-	void SetSetting(const wxString &key, wxFileName value, bool suppressErrors = false);
-
 	void GetPossibleConfigFiles(wxArrayString *array, wxString dir = wxEmptyString);
 	
-protected:
-	wxFileConfig *config;
+	// these just pass on through
+	virtual bool GetAutoCloseConsole() const { return settings->GetAutoCloseConsole(); };
+	virtual bool GetAutoUpdate() const { return settings->GetAutoUpdate(); };
+	virtual wxColour GetConsoleStderrColor() const { return settings->GetConsoleStderrColor(); };
+	virtual wxColour GetConsoleStdoutColor() const { return settings->GetConsoleStdoutColor(); };
+	virtual wxColour GetConsoleSysMsgColor() const { return settings->GetConsoleSysMsgColor(); };
+	virtual GUIMode GetGUIMode() const { return settings->GetGUIMode(); };
+	virtual wxFileName GetIconsDir() const { return settings->GetIconsDir(); };
+	virtual wxFileName GetInstDir() const { return settings->GetInstDir(); };
+	virtual wxFileName GetModsDir() const { return settings->GetModsDir(); };
+	virtual bool GetShowConsole() const { return settings->GetShowConsole(); };
 	
+	// and these are overrides
+	wxString GetJavaPath() const { return GetSetting<wxString>("JPath",settings->GetJavaPath()); };
+	wxString GetJvmArgs() const { return GetSetting<wxString>("JvmArgs",settings->GetJvmArgs()); };
+	int GetMaxMemAlloc() const { return GetSetting<int>("MaxMemoryAlloc",settings->GetMaxMemAlloc()); };
+	int GetMinMemAlloc() const { return GetSetting<int>("MinMemoryAlloc",settings->GetMinMemAlloc()); };
+	int GetMCWindowHeight() const { return GetSetting<int>("MCWindowHeight",settings->GetMCWindowHeight()); };
+	int GetMCWindowWidth() const { return GetSetting<int>("MCWindowWidth",settings->GetMCWindowWidth()); };
+	bool GetMCWindowMaximize() const { return GetSetting<bool>("MCWindowMaximize",settings->GetMCWindowMaximize()); };
+	bool GetUseAppletWrapper() const { return GetSetting<bool>("UseAppletWrapper",settings->GetUseAppletWrapper()); };
+	UpdateMode GetUpdateMode() const { return (UpdateMode) GetSetting<int>("UpdateMode",settings->GetUpdateMode()); };
 
+	virtual bool GetJavaOverride() const { return GetSetting<bool>(_("OverrideJava"), false); };
+	virtual void SetJavaOverride( bool value ) {              SetSetting<bool>(_("OverrideJava"), value); };
+
+	virtual bool GetMemoryOverride() const { return GetSetting<bool>(_("OverrideMemory"), false); };
+	virtual void SetMemoryOverride( bool value ) {              SetSetting<bool>(_("OverrideMemory"), value); };
+
+	virtual bool GetWindowOverride() const { return GetSetting<bool>(_("OverrideWindow"), false); };
+	virtual void SetWindowOverride( bool value ) {              SetSetting<bool>(_("OverrideWindow"), value); };
+
+	virtual bool GetUpdatesOverride() const { return GetSetting<bool>(_("OverrideUpdates"), false); };
+	virtual void SetUpdatesOverride( bool value ) {              SetSetting<bool>(_("OverrideUpdates"), value); };
+	
+	virtual bool IsConfigGlobal()
+	{
+		return false;
+	}
+	
+protected:
 	class JarModList : public ModList
 	{
 	public:
@@ -150,13 +175,9 @@ protected:
 	wxEvtHandler *evtHandler;
 	
 	void MkDirs();
-	
 	void ExtractLauncher();
 	
 	void OnInstProcExited(wxProcessEvent &event);
-	
-	wxDEPRECATED(void LoadModListFromDir(const wxFileName &dir, bool mlMod = false));
-	
 	DECLARE_EVENT_TABLE()
 };
 
