@@ -44,6 +44,24 @@ wxThread::ExitCode CheckUpdateTask::TaskStart()
 	// Get the main page for the project
 	wxString jobURL = ciURL;
 
+	if (jobURL.EndsWith("/"))
+		jobURL.RemoveLast();
+
+	wxString buildURLSeg;
+	if (settings->GetUseDevBuilds())
+	{
+		buildURLSeg = "lastSuccessfulBuild";
+	}
+	else
+	{
+		buildURLSeg = "Stable";
+	}
+
+	jobURL = jobURL.BeforeLast('/') + "/" + buildURLSeg + "/" + jobURL.AfterLast('/');
+
+	if (!jobURL.EndsWith("/"))
+		jobURL.Append("/");
+
 	wxString mainPageJSON;
 	if (!DownloadString(jobURL + _("api/json"), &mainPageJSON))
 	{
@@ -61,7 +79,11 @@ wxThread::ExitCode CheckUpdateTask::TaskStart()
 	else if (IS_LINUX() || IS_MAC())
 		dlFileName = _("MultiMC");
 
-	wxString dlURL = wxString::Format(_("%s/%i/artifact/%s"), jobURL.c_str(), 
+	wxString newCIURL = ciURL;
+	if (newCIURL.EndsWith("/"))
+		newCIURL.RemoveLast();
+
+	wxString dlURL = wxString::Format(_("%s/%i/artifact/%s"), newCIURL.c_str(), 
 		buildNumber, dlFileName.c_str());
 	
 	SetProgress(75);
@@ -69,7 +91,7 @@ wxThread::ExitCode CheckUpdateTask::TaskStart()
 	return (ExitCode)1;
 }
 
-int CheckUpdateTask::GetBuildNumber(const wxString &mainPageJSON, bool stableOnly)
+int CheckUpdateTask::GetBuildNumber(const wxString &mainPageJSON)
 {
 	using namespace boost::property_tree;
 	
@@ -79,10 +101,7 @@ int CheckUpdateTask::GetBuildNumber(const wxString &mainPageJSON, bool stableOnl
 		std::stringstream inStream(stdStr(mainPageJSON), std::ios::in);
 		read_json(inStream, pt);
 		
-		if (stableOnly)
-			return pt.get<int>("lastStableBuild.number");
-		else
-			return pt.get<int>("lastSuccessfulBuild.number");
+		return pt.get<int>("number");
 	}
 	catch (json_parser_error e)
 	{

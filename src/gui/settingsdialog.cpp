@@ -95,6 +95,8 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 		// Update settings group box
 		{
 			auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _T("Update Settings"));
+			useDevBuildsCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Use development builds."));
+			box->Add(useDevBuildsCheck, itemFlags);
 			autoUpdateCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Check for updates when MultiMC starts?"));
 			box->Add(autoUpdateCheck, itemFlags);
 			forceUpdateToggle = new wxToggleButton(box->GetStaticBox(), -1, _T("Force-update MultiMC"));
@@ -468,6 +470,22 @@ bool SettingsDialog::ApplySettings()
 		currentSettings->SetMCWindowMaximize(winMaxCheckbox->IsChecked());
 		currentSettings->SetMCWindowWidth(winWidthSpin->GetValue());
 		currentSettings->SetMCWindowHeight(winHeightSpin->GetValue());
+
+		if (useDevBuildsCheck->GetValue() && !currentSettings->GetUseDevBuilds())
+		{
+			// Display a warning.
+			if (wxMessageBox(_("Warning: Dev builds contain incomplete, experimental, and possibly unstable features. \
+Some may be extremely buggy, and others may not work at all. Use these at your own risk. \
+Are you sure you want to use dev builds?"), 
+				_("Are you sure?"), wxOK | wxCANCEL) == wxOK)
+			{
+				currentSettings->SetUseDevBuilds(useDevBuildsCheck->GetValue());
+			}
+		}
+		else
+		{
+			currentSettings->SetUseDevBuilds(useDevBuildsCheck->GetValue());
+		}
 	}
 	else
 	{
@@ -541,6 +559,7 @@ void SettingsDialog::LoadSettings()
 		showConsoleCheck->SetValue(currentSettings->GetShowConsole());
 		autoCloseConsoleCheck->SetValue(currentSettings->GetAutoCloseConsole());
 
+		useDevBuildsCheck->SetValue(currentSettings->GetUseDevBuilds());
 		autoUpdateCheck->SetValue(currentSettings->GetAutoUpdate());
 
 		instDirTextBox->SetValue(currentSettings->GetInstDir().GetFullPath());
