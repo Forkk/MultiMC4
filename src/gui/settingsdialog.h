@@ -62,21 +62,21 @@ protected:
 	
 
 	// java tab stuff
-	wxToggleButton *overrideJava;
+	wxCheckBox *javaUseDefs;
 	wxTextCtrl *javaPathTextBox;
 	wxTextCtrl *jvmArgsTextBox;
 	wxButton *autoDetectButton;
 	wxStaticText *jvmArgsLabel;
 	wxStaticText *javaPathLabel;
 	
-	wxToggleButton *overrideMemory;
+	wxCheckBox *memoryUseDefs;
 	wxSpinCtrl *minMemorySpin;
 	wxSpinCtrl *maxMemorySpin;
 	wxStaticText *minMemLabel;
 	wxStaticText *maxMemLabel;
 
 	// minecraft tab stuff
-	wxToggleButton *overrideWin;
+	wxCheckBox *winUseDefs;
 	wxCheckBox *compatCheckbox;
 	wxCheckBox *winMaxCheckbox;
 	wxSpinCtrl *winWidthSpin;
@@ -84,7 +84,7 @@ protected:
 	wxStaticText *winHeightLabel;
 	wxStaticText *winWidthLabel;
 	
-	wxToggleButton *overrideUpdate;
+	wxCheckBox *updateUseDefs;
 	wxComboBox *mcUpdateDropDown;
 
 	DECLARE_EVENT_TABLE()
