@@ -206,7 +206,7 @@ and that MultiMC's updater has sufficient permissions to replace the file \n\
 	
 	targetFile.MakeAbsolute();
 	wxProcess proc;
-	wxExecute(targetFile.GetFullPath(), wxEXEC_ASYNC, &proc);
+	wxExecute("\"" + targetFile.GetFullPath() + "\"", wxEXEC_ASYNC, &proc);
 	proc.Detach();
 	progDlg->Destroy();
 }
