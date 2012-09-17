@@ -54,13 +54,15 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		jarModSizer->Add(jarModList, wxSizerFlags(1).Expand().Border(wxALL, 8));
 		
 		wxBoxSizer *jarListBtnBox = new wxBoxSizer(wxVERTICAL);
-		jarModSizer->Add(jarListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
+		jarModSizer->Add(jarListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 		
 		wxButton *addJarModBtn = new wxButton(jarModPanel, ID_ADD_JAR_MOD, _("&Add"));
 		jarListBtnBox->Add(addJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		delJarModBtn = new wxButton(jarModPanel, ID_DEL_JAR_MOD, _("&Remove"));
 		jarListBtnBox->Add(delJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+
+		jarListBtnBox->AddStretchSpacer();
 		
 		jarModUpBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_UP, _("Move &Up"));
 		jarListBtnBox->Add(jarModUpBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
@@ -83,16 +85,18 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		coreModSizer->Add(coreModList, wxSizerFlags(1).Expand().Border(wxALL, 8));
 		
 		auto coreModListBtnBox = new wxBoxSizer(wxVERTICAL);
-		coreModSizer->Add(coreModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
+		coreModSizer->Add(coreModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 		
 		wxButton *addCoreModBtn = new wxButton(coreModPanel, ID_ADD_CORE_MOD, _("&Add"));
 		coreModListBtnBox->Add(addCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		wxButton *delCoreModBtn = new wxButton(coreModPanel, ID_DEL_CORE_MOD, _("&Remove"));
 		coreModListBtnBox->Add(delCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+
+		coreModListBtnBox->AddStretchSpacer();
 		
 		auto exploreCoreModBtn = new wxButton(coreModPanel, ID_EXPLORE_CORE, _("&View Folder"));
-		coreModListBtnBox->Add(exploreCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+		coreModListBtnBox->Add(exploreCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
 	}
 	
 	// Mod folder panel
@@ -109,31 +113,35 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		mlModSizer->Add(mlModList, wxSizerFlags(1).Expand().Border(wxALL, 8));
 		
 		wxBoxSizer *mlModListBtnBox = new wxBoxSizer(wxVERTICAL);
-		mlModSizer->Add(mlModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4));
+		mlModSizer->Add(mlModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 		
 		wxButton *addMLModBtn = new wxButton(mlModPanel, ID_ADD_ML_MOD, _("&Add"));
 		mlModListBtnBox->Add(addMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		wxButton *delMLModBtn = new wxButton(mlModPanel, ID_DEL_ML_MOD, _("&Remove"));
 		mlModListBtnBox->Add(delMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+
+		mlModListBtnBox->AddStretchSpacer();
 		
 		auto exploreMLModBtn = new wxButton(mlModPanel, ID_EXPLORE_ML, _("&View Folder"));
-		mlModListBtnBox->Add(exploreMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+		mlModListBtnBox->Add(exploreMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
 	}
 	
 	// Buttons on the bottom of the dialog
 	{
 		wxBoxSizer *btnBox = new wxBoxSizer(wxHORIZONTAL);
-		mainBox->Add(btnBox, 0, wxALIGN_RIGHT | wxBOTTOM | wxRIGHT | wxLEFT, 8);
+		mainBox->Add(btnBox, 0, wxEXPAND | wxBOTTOM | wxRIGHT | wxLEFT, 8);
 
 		wxButton *btnReload = new wxButton(mainPanel, ID_RELOAD, _("&Reload"));
-		btnBox->Add(btnReload, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxALL, 4));
+		btnBox->Add(btnReload, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxRIGHT | wxTOP | wxBOTTOM, 4));
 
 		wxButton *btnExport = new wxButton(mainPanel, ID_EXPORT, _("&Export"));
-		btnBox->Add(btnExport, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxALL, 4));
+		btnBox->Add(btnExport, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxRIGHT | wxTOP | wxBOTTOM, 4));
+
+		btnBox->AddStretchSpacer();
 
 		wxButton *btnClose = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
-		btnBox->Add(btnClose, wxSizerFlags(0).Align(wxALIGN_RIGHT).Border(wxALL, 4));
+		btnBox->Add(btnClose, wxSizerFlags(0).Align(wxALIGN_RIGHT).Border(wxTOP | wxBOTTOM, 4));
 	}
 
 	// Keyboard accelerators.
