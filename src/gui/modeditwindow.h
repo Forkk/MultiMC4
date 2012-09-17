@@ -115,6 +115,7 @@ protected:
 	
 	void OnAddJarMod(wxCommandEvent &event);
 	void OnDeleteJarMod(wxCommandEvent &event);
+	void OnInstallForgeClicked(wxCommandEvent &event);
 	void OnMoveJarModUp(wxCommandEvent &event);
 	void OnMoveJarModDown(wxCommandEvent &event);
 	void OnJarModSelChanged(wxListEvent &event);
@@ -196,4 +197,5 @@ enum
 
 	ID_EXPORT,
 	ID_RELOAD,
+	ID_INSTALL_FORGE,
 };

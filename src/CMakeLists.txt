@@ -103,6 +103,7 @@ gui/aboutdlg.cpp
 gui/updatepromptdlg.cpp
 gui/taskprogressdialog.cpp
 gui/snapshotdialog.cpp
+gui/installforgedialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -151,6 +152,7 @@ gui/aboutdlg.h
 gui/updatepromptdlg.h
 gui/taskprogressdialog.h
 gui/snapshotdialog.h
+gui/installforgedialog.h
 
 data/appsettings.h
 data/instance.h

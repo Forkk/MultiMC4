@@ -23,6 +23,7 @@
 #include "exportinstwizard.h"
 
 #include "mainwindow.h"
+#include "installforgedialog.h"
 
 ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 	: wxFrame(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))
@@ -61,6 +62,10 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		
 		delJarModBtn = new wxButton(jarModPanel, ID_DEL_JAR_MOD, _("&Remove"));
 		jarListBtnBox->Add(delJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+
+		wxButton *installMCForgeBtn = new wxButton(jarModPanel, ID_INSTALL_FORGE, _("MCForge"));
+		installMCForgeBtn->SetToolTip(_("Download and install Minecraft Forge"));
+		jarListBtnBox->Add(installMCForgeBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 
 		jarListBtnBox->AddStretchSpacer();
 		
@@ -874,10 +879,20 @@ void ModEditWindow::OnCloseClicked(wxCommandEvent &event)
 	Close();
 }
 
+void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
+{
+	InstallForgeDialog *installDlg = new InstallForgeDialog(this);
+	if (installDlg->ShowModal() == wxID_OK)
+	{
+		// Install forge.
+	}
+}
+
 
 BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
 	EVT_BUTTON(ID_ADD_JAR_MOD, ModEditWindow::OnAddJarMod)
 	EVT_BUTTON(ID_DEL_JAR_MOD, ModEditWindow::OnDeleteJarMod)
+	EVT_BUTTON(ID_INSTALL_FORGE, ModEditWindow::OnInstallForgeClicked)
 	EVT_BUTTON(ID_MOVE_JAR_MOD_UP, ModEditWindow::OnMoveJarModUp)
 	EVT_BUTTON(ID_MOVE_JAR_MOD_DOWN, ModEditWindow::OnMoveJarModDown)
 	
