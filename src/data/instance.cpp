@@ -32,6 +32,26 @@ DEFINE_EVENT_TYPE(wxEVT_INST_OUTPUT)
 
 const wxString cfgFileName = _("instance.cfg");
 
+/* HACK HACK HACK HACK HACK HACK HACK HACK*
+ * This is a workaround for a wxWidgets bug
+ * HACK HACK HACK HACK HACK HACK HACK HACK*/
+class MinecraftProcess : public wxProcess
+{
+public:
+	MinecraftProcess ( wxEvtHandler* parent = 0 )
+	:wxProcess(nullptr,wxID_ANY)
+	{
+		myParent = parent;
+	}
+protected:
+	virtual void OnTerminate ( int pid, int status )
+	{
+		wxProcessEvent ev(wxID_ANY,pid, status);
+		myParent->AddPendingEvent(ev);
+	};
+	wxEvtHandler * myParent;
+};
+
 bool IsValidInstance(wxFileName rootDir)
 {
 	return rootDir.DirExists() && wxFileExists(Path::Combine(rootDir, cfgFileName));
@@ -334,15 +354,20 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 		mcDir.c_str(), username.c_str(), sessionID.c_str(), title.c_str(), 
 		winSizeArg.c_str());
 	m_lastLaunchCommand = launchCmd;
-	
-	instProc = new wxProcess(this);
-	
+	instProc = new MinecraftProcess(this);
 	if (redirectOutput)
 		instProc->Redirect();
-	
-	instProc = wxProcess::Open(launchCmd, wxEXEC_ASYNC);
-	if(instProc)
+	int pid = wxExecute(launchCmd,wxEXEC_ASYNC|wxEXEC_HIDE_CONSOLE,instProc);
+	if(pid > 0)
+	{
 		m_running = true;
+	}
+	else
+	{
+		m_running = false;
+		delete instProc;
+		instProc = nullptr;
+	}
 	return instProc;
 }
 

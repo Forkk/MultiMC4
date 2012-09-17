@@ -860,7 +860,7 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 			delete task;
 		}
 		
-		if(inst->Launch(result.username, result.sessionID, true))
+		if(inst->Launch(result.username, result.sessionID, true) != nullptr)
 		{
 			Show(false);
 			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, 

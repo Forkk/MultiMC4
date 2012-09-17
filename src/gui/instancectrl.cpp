@@ -28,11 +28,11 @@ DEFINE_EVENT_TYPE ( wxEVT_COMMAND_INST_RETURN )
 DEFINE_EVENT_TYPE ( wxEVT_COMMAND_INST_DELETE )
 DEFINE_EVENT_TYPE ( wxEVT_COMMAND_INST_RENAME )
 
-IMPLEMENT_CLASS ( wxInstanceCtrl, wxScrolledWindow )
+IMPLEMENT_CLASS ( wxInstanceCtrl, wxScrolledCanvas )
 IMPLEMENT_CLASS ( wxInstanceItem, wxObject )
 IMPLEMENT_CLASS ( wxInstanceCtrlEvent, wxNotifyEvent )
 
-BEGIN_EVENT_TABLE ( wxInstanceCtrl, wxScrolledWindow )
+BEGIN_EVENT_TABLE ( wxInstanceCtrl, wxScrolledCanvas )
 	EVT_PAINT ( wxInstanceCtrl::OnPaint )
 	EVT_ERASE_BACKGROUND ( wxInstanceCtrl::OnEraseBackground )
 	EVT_LEFT_DOWN ( wxInstanceCtrl::OnLeftClick )
@@ -65,16 +65,17 @@ wxInstanceCtrl::wxInstanceCtrl ( wxWindow* parent, wxWindowID id, const wxPoint&
 /// Creation
 bool wxInstanceCtrl::Create ( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style )
 {
-	if ( !wxScrolledWindow::Create ( parent, id, pos, size, style | wxFULL_REPAINT_ON_RESIZE ) )
+	if ( !wxScrolledCanvas::Create ( parent, id, pos, size, style | wxFULL_REPAINT_ON_RESIZE ) )
 		return false;
 	
-	m_needsScrolling = false;
 	SetFont ( wxSystemSettings::GetFont ( wxSYS_DEFAULT_GUI_FONT ) );
 	CalculateOverallItemSize();
 	m_itemsPerRow = CalculateItemsPerRow();
 
 	SetBackgroundColour ( wxSystemSettings::GetColour ( wxSYS_COLOUR_WINDOW ) );
 	SetBackgroundStyle ( wxBG_STYLE_CUSTOM );
+	DisableKeyboardScrolling();
+	ShowScrollbars(wxSHOW_SB_NEVER, wxSHOW_SB_ALWAYS);
 
 	// Tell the sizers to use the given or best size
 	SetInitialSize ( size );
@@ -950,12 +951,7 @@ void wxInstanceCtrl::OnSize ( wxSizeEvent& event )
 		SetItemsPerRow(new_rows);
 		UpdateRows();
 	}
-	bool old_needsScrolling = m_needsScrolling;
 	SetupScrollbars();
-	if(old_needsScrolling != m_needsScrolling)
-	{
-		GetParent()->Layout();
-	}
 	RecreateBuffer();
 	event.Skip();
 }
@@ -988,16 +984,18 @@ void wxInstanceCtrl::SetupScrollbars()
 	int startX, startY;
 	GetViewStart ( & startX, & startY );
 
-	int maxPositionX = 0;
-	int maxPositionY = ( wxMax ( maxHeight - clientSize.y, 0 ) ) /pixelsPerUnit;
+	int maxtop = maxHeight - clientSize.y;
+	if(maxtop % pixelsPerUnit)
+	{
+		maxtop = ((maxtop / pixelsPerUnit) + 1) * pixelsPerUnit;
+	}
+	int maxPositionY = ( wxMax ( maxtop , 0 ) ) /pixelsPerUnit;
 
 	// Move to previous scroll position if
 	// possible
 	SetScrollbars ( 0, pixelsPerUnit,
 	                0, unitsY,
-	                wxMin ( maxPositionX, startX ), wxMin ( maxPositionY, startY ) );
-
-	m_needsScrolling = (unitsY * pixelsPerUnit - clientSize.y) > 0;
+	                0, wxMin ( maxPositionY, startY ));
 }
 
 /// Draws the item. Normally you override function in wxInstanceItem.
@@ -1032,9 +1030,9 @@ void wxInstanceCtrl::DoSelection ( int n, int flags )
 	bool isSelected = IsSelected ( n );
 
 	wxArrayInt stateChanged;
-
+	/*
 	bool multiSelect = ( GetWindowStyle() & wxINST_MULTIPLE_SELECT ) != 0;
-
+	
 	if ( multiSelect && ( flags & wxINST_CTRL_DOWN ) == wxINST_CTRL_DOWN )
 	{
 		Select ( n, !isSelected );
@@ -1093,6 +1091,7 @@ void wxInstanceCtrl::DoSelection ( int n, int flags )
 			m_firstSelection = first;
 	}
 	else
+	*/
 	{
 		size_t i = 0;
 		for ( i = 0; i < m_selections.GetCount(); i++ )
@@ -1137,7 +1136,7 @@ bool wxInstanceCtrl::HitTest ( const wxPoint& pt, int& n )
 	int colPos = ( int ) ( pt.x / ( m_itemWidth + m_spacing ) );
 	int rowPos = 0;
 	int actualY = pt.y + startY * ppuY;
-	if(rowPos >= m_row_ys.size())
+	if(0 == m_row_ys.size())
 		return false;
 	//FIXME: use binary search
 	while ( rowPos < m_row_ys.size() && m_row_ys[rowPos] < actualY )
@@ -1181,10 +1180,6 @@ void wxInstanceCtrl::PaintBackground ( wxDC& dc )
 	dc.SetBrush ( wxBrush ( backgroundColour ) );
 	dc.SetPen ( *wxTRANSPARENT_PEN );
 	wxRect windowRect ( wxPoint ( 0, 0 ), GetClientSize() );
-	windowRect.x -= 2;
-	windowRect.y -= 2;
-	windowRect.width += 4;
-	windowRect.height += 4;
 
 	// We need to shift the rectangle to take into account
 	// scrolling. Converting device to logical coordinates.
@@ -1256,7 +1251,6 @@ void wxInstanceCtrl::UpdateItem ( int n )
 	UpdateRows();
 	SetupScrollbars();
 }
-
 
 /*!
  * wxInstanceItem
@@ -1426,12 +1420,9 @@ bool wxInstanceItem::DrawBackground ( wxDC& dc, wxInstanceCtrl* ctrl, const wxRe
 wxSize wxInstanceCtrl::DoGetBestSize() const
 {
 	wxSize bsz = GetWindowBorderSize();
-	int best_width = m_spacing + (m_itemWidth + m_spacing) * GetItemsPerRow() + bsz.GetWidth() * 2;
-	if(( GetWindowStyle() & wxINST_SINGLE_COLUMN ) != 0 && m_needsScrolling)
-	{
-		best_width += wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
-	}
-	
+	int best_width = m_spacing + (m_itemWidth + m_spacing) * GetItemsPerRow() +
+	                 bsz.GetWidth() * 2 +
+	                 wxSystemSettings::GetMetric(wxSYS_VSCROLL_X);
 	wxSize sz(best_width,0);
 	return sz;
 }
