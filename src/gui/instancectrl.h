@@ -91,7 +91,7 @@ WX_DECLARE_OBJARRAY ( wxInstanceItem, wxInstanceItemArray );
  * wxInstanceCtrl class declaration
  */
 
-class wxInstanceCtrl: public wxScrolledWindow
+class wxInstanceCtrl: public wxScrolledCanvas
 {
 	DECLARE_CLASS ( wxInstanceCtrl )
 	DECLARE_EVENT_TABLE()
@@ -390,9 +390,6 @@ private:
 	
 	/// items per row - cached
 	int                     m_itemsPerRow;
-	
-	/// the control needs a scroll bar
-	bool                    m_needsScrolling;
 };
 
 /*!
