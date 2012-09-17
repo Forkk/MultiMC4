@@ -24,11 +24,8 @@
 
 #include "mainwindow.h"
 #include "installforgedialog.h"
-<<<<<<< HEAD
 #include "taskprogressdialog.h"
 #include "filedownloadtask.h"
-=======
->>>>>>> f98c50a0687e9fb07634b60f2fa9a89aaedc3b15
 
 ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 	: wxFrame(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))
