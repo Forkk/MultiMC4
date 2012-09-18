@@ -78,6 +78,23 @@ public class MCFrame extends Frame implements WindowListener
 	@Override
 	public void windowClosing(WindowEvent e)
 	{
+		new Thread()
+		{
+			public void run()
+			{
+				try
+				{
+					Thread.sleep(30000L);
+				} catch (InterruptedException localInterruptedException)
+				{
+					localInterruptedException.printStackTrace();
+				}
+				System.out.println("FORCING EXIT!");
+				System.exit(0);
+			}
+		}
+		.start();
+
 		if (appletWrap != null)
 		{
 			appletWrap.stop();

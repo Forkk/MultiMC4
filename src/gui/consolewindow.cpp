@@ -371,9 +371,12 @@ void InstConsoleWindow::ConsoleIcon::OnKillMC(wxCommandEvent &event)
 void InstConsoleWindow::KillMinecraft(int tries)
 {
 	wxProcess *instProc = GetInstance()->GetInstProcess();
-
+	
+	// if there is no instance process anymore, it's DEAD. ABORT!
+	if(!instProc)
+		return;
+	
 	int pid = instProc->GetPid();
-
 	if (pid == 0)
 		return;
 

@@ -107,6 +107,11 @@ public class Launcher extends Applet implements AppletStub
 		active = false;
 	}
 
+	public void destroy()
+	{
+		wrappedApplet.destroy();
+	}
+	
 	@Override
 	public URL getCodeBase() {
 		return wrappedApplet.getCodeBase();

@@ -394,6 +394,8 @@ void Instance::OnInstProcExited(wxProcessEvent& event)
 {
 	m_running = false;
 	printf("Instance exited with code %i.\n", event.GetExitCode());
+	delete instProc;
+	instProc = nullptr;
 	if (evtHandler != NULL)
 	{
 		evtHandler->AddPendingEvent(event);
