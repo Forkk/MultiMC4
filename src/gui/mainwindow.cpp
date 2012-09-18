@@ -1,5 +1,5 @@
 // 
-//  Copyright 2012 Andrew Okin
+//  Copyright 2012 MultiMC Contributors
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -751,7 +751,7 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 	info.name = _("MultiMC");
 	info.version = wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str());
 	info.description = _("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once.");
-	info.copyright = _("(C) 2012 Andrew Okin");
+	info.copyright = _("(C) 2012 MultiMC Contributors");
 
 	info.website = _("http://forkk.net/MultiMC4");
 	info.license = licenseText;
