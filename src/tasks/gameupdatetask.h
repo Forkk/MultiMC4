@@ -60,5 +60,5 @@ protected:
 	virtual void DownloadJars();
 	virtual void ExtractNatives();
 	
-	virtual void SetState(UpdateState state);
+	virtual void SetState(UpdateState state, const wxString& msg = wxEmptyString);
 };
