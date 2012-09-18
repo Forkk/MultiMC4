@@ -61,11 +61,13 @@ LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info, bo
 	
 	rememberUsernameCheck = new wxCheckBox(this, -1, _T("&Remember username?"));
 	rememberUsernameCheck->SetValue(info.rememberUsername);
-	mainBox->Add(rememberUsernameCheck, wxGBPosition(2 + offset, 1), wxGBSpan(1, 1), wxALL, padding);
+	mainBox->Add(rememberUsernameCheck, wxGBPosition(2 + offset, 1), wxGBSpan(1, 1), 
+		wxALL | wxALIGN_CENTER_VERTICAL, padding);
 	
 	rememberPasswordCheck = new wxCheckBox(this, -1, _T("R&emember password?"));
 	rememberPasswordCheck->SetValue(info.rememberPassword);
-	mainBox->Add(rememberPasswordCheck, wxGBPosition(2 + offset, 2), wxGBSpan(1, 1), wxALL, padding);
+	mainBox->Add(rememberPasswordCheck, wxGBPosition(2 + offset, 2), wxGBSpan(1, 1),
+		wxALL | wxALIGN_CENTER_VERTICAL, padding);
 	
 	wxBoxSizer *playOfflineSizer = new wxBoxSizer(wxHORIZONTAL);
 	playOfflineButton = new wxButton(this, ID_PLAY_OFFLINE, _("Play &Offline"));
