@@ -663,12 +663,22 @@ bool ModEditWindow::CoreModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const 
 
 void ModEditWindow::OnAddJarMod(wxCommandEvent &event)
 {
-	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."), 
-		wxGetCwd(), wxEmptyString);
+	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."),
+		settings->GetModsDir().GetFullPath(), wxEmptyString,
+		wxFileSelectorDefaultWildcardStr,wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE
+	);
 	if (addModDialog->ShowModal() == wxID_OK)
 	{
-		wxFileName file(addModDialog->GetPath());
-		m_inst->GetModList()->InsertMod(m_inst->GetModList()->size(), file.GetFullPath());
+		wxArrayString allfiles;
+		addModDialog->GetPaths(allfiles);
+		for (auto iter = allfiles.begin(); iter != allfiles.end(); ++iter)
+		{
+			// just skip the dirs here...
+			if(wxFileName::DirExists(*iter))
+				continue;
+			wxFileName modFileName(*iter);
+			m_inst->GetModList()->InsertMod(m_inst->GetModList()->size(), modFileName.GetFullPath());
+		}
 		jarModList->UpdateItems();
 	}
 }
@@ -734,12 +744,17 @@ void ModEditWindow::OnJarModSelChanged(wxListEvent &event)
 
 void ModEditWindow::OnAddMLMod(wxCommandEvent &event)
 {
-	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."), 
-												  wxGetCwd(), wxEmptyString);
+	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."),
+		settings->GetModsDir().GetFullPath(), wxEmptyString,
+		wxFileSelectorDefaultWildcardStr,wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE
+	);
 	if (addModDialog->ShowModal() == wxID_OK)
 	{
-		wxFileName file(addModDialog->GetPath());
-		m_inst->GetMLModList()->InsertMod(0, file.GetFullPath());
+		wxArrayString allfiles;
+		addModDialog->GetPaths(allfiles);
+		fsutils::CopyFileList(allfiles, m_inst->GetMLModsDir());
+		auto mllist = m_inst->GetMLModList();
+		mllist->UpdateModList();
 		mlModList->UpdateItems();
 	}
 }
@@ -751,12 +766,17 @@ void ModEditWindow::OnDeleteMLMod(wxCommandEvent &event)
 
 void ModEditWindow::OnAddCoreMod(wxCommandEvent &event)
 {
-	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."), 
-												  wxGetCwd(), wxEmptyString);
+	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."),
+		settings->GetModsDir().GetFullPath(), wxEmptyString,
+		wxFileSelectorDefaultWildcardStr,wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE
+	);
 	if (addModDialog->ShowModal() == wxID_OK)
 	{
-		wxFileName file(addModDialog->GetPath());
-		m_inst->GetCoreModList()->InsertMod(0, file.GetFullPath());
+		wxArrayString allfiles;
+		addModDialog->GetPaths(allfiles);
+		fsutils::CopyFileList(allfiles, m_inst->GetCoreModsDir());
+		auto corelist = m_inst->GetCoreModList();
+		corelist->UpdateModList();
 		coreModList->UpdateItems();
 	}
 }
