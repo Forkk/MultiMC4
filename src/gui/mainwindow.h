@@ -100,6 +100,8 @@ public:
 	// Other functions
 
 	int StartTask(Task *task);
+	void LoginClicked();
+	void DoLogin(UserInfo info, bool playOffline = false, bool forceUpdate = false);
 	void ShowLoginDlg(wxString errorMsg);
 
 	void DownloadInstallUpdates(const wxString &downloadURL);

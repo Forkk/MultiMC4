@@ -87,6 +87,9 @@ protected:
 	wxCheckBox *updateUseDefs;
 	wxComboBox *mcUpdateDropDown;
 
+	wxCheckBox *loginUseDefs;
+	wxCheckBox *autoLoginCheck;
+
 	DECLARE_EVENT_TABLE()
 };
 
@@ -101,5 +104,6 @@ enum
 	ID_OverrideJava,
 	ID_OverrideWindow,
 	ID_OverrideUpdate,
-	ID_OverrideMemory
+	ID_OverrideMemory,
+	ID_OverrideLogin,
 };

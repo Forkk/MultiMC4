@@ -82,6 +82,13 @@ public:
 	virtual UpdateMode GetUpdateMode() const { return (UpdateMode)GetSetting<int>(_("UpdateMode"), Update_Never); }
 	void SetUpdateMode(UpdateMode value) { SetSetting<int>(_("UpdateMode"), value); }
 	virtual void ResetUpdateMode() {           config->DeleteEntry(_("UpdateMode")); };
+
+	virtual bool GetLoginOverride() const { return false; }
+	virtual void SetLoginOverride( bool ) {};
+
+	virtual bool GetAutoLogin() const { return GetSetting<bool>("AutoLogin", false); }
+	virtual void SetAutoLogin(bool value) { SetSetting<bool>("AutoLogin", value); }
+	virtual void ResetAutoLogin() { config->DeleteEntry("AutoLogin"); }
 	
 	virtual bool GetJavaOverride() const { return false; };
 	virtual void SetJavaOverride( bool ) {};

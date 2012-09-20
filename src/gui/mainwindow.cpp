@@ -784,12 +784,49 @@ void MainWindow::NotImplemented()
 // Instance menu
 void MainWindow::OnPlayClicked(wxCommandEvent& event)
 {
-	ShowLoginDlg(_(""));
+	LoginClicked();
 }
 
 void MainWindow::OnInstActivated(wxInstanceCtrlEvent &event)
 {
-	ShowLoginDlg(_(""));
+	LoginClicked();
+}
+
+void MainWindow::LoginClicked()
+{
+	if (!m_currentInstance)
+	{
+		return;
+	}
+
+	if (m_currentInstance->GetAutoLogin() && wxFileExists(_("lastlogin4")))
+	{
+		UserInfo lastLogin;
+		lastLogin.LoadFromFile("lastlogin4");
+		DoLogin(lastLogin);
+	}
+	else
+	{
+		ShowLoginDlg(_(""));
+	}
+}
+
+void MainWindow::DoLogin(UserInfo info, bool playOffline, bool forceUpdate)
+{
+	info.SaveToFile("lastlogin4");
+
+	if (!playOffline)
+	{
+		LoginTask *task = new LoginTask(info, m_currentInstance, forceUpdate);
+		StartTask(task);
+		OnLoginComplete(task->GetLoginResult());
+		delete task;
+	}
+	else
+	{
+		LoginResult lr = LoginResult::PlayOffline(info.username);
+		OnLoginComplete(lr);
+	}
 }
 
 void MainWindow::ShowLoginDlg(wxString errorMsg)
@@ -800,11 +837,13 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 		//        what does it mean to the state of the GUI
 		return;
 	}
+
 	UserInfo lastLogin;
 	if (wxFileExists(_("lastlogin4")))
 	{
 		lastLogin.LoadFromFile("lastlogin4");
 	}
+
 	bool canPlayOffline = m_currentInstance->HasBinaries();
 	LoginDialog loginDialog(this, errorMsg, lastLogin, canPlayOffline);
 	loginDialog.CenterOnParent();
@@ -814,21 +853,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	if (response == wxID_OK || playOffline)
 	{
 		UserInfo info(loginDialog);
-		
-		info.SaveToFile("lastlogin4");
-		
-		if (!playOffline)
-		{
-			LoginTask *task = new LoginTask(info,m_currentInstance , loginDialog.ShouldForceUpdate());
-			StartTask(task);
-			OnLoginComplete(task->GetLoginResult());
-			delete task;
-		}
-		else
-		{
-			LoginResult lr = LoginResult::PlayOffline(info.username);
-			OnLoginComplete(lr);
-		}
+		DoLogin(info, playOffline, loginDialog.ShouldForceUpdate());
 	}
 	else if (!launchInstance.IsEmpty() && response == wxID_CANCEL)
 	{

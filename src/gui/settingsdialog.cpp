@@ -258,6 +258,24 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			box->Add(sizer, staticBoxInnerFlags);
 			mcBox->Add(box, staticBoxOuterFlags);
 		}
+
+		// Login group box
+		{
+			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Login"));
+
+			if (instanceMode)
+			{
+				loginUseDefs = new wxCheckBox(box->GetStaticBox(), ID_OverrideLogin, 
+					_("Use defaults?"));
+				box->Add(loginUseDefs, itemsFlags);
+			}
+
+			autoLoginCheck = new wxCheckBox(box->GetStaticBox(), -1, 
+				_("Log in automatically when I launch an instance."));
+			box->Add(autoLoginCheck, itemsFlags);
+
+			mcBox->Add(box, staticBoxOuterFlags);
+		}
 	}
 	{
 		auto mcPanel = new wxPanel(tabCtrl, -1);
@@ -458,6 +476,8 @@ bool SettingsDialog::ApplySettings()
 		else if (mcUpdateDropDown->GetValue() == dontUpdate)
 			newUpdateMode = Update_Never;
 		currentSettings->SetUpdateMode(newUpdateMode);
+
+		currentSettings->SetAutoLogin(autoLoginCheck->GetValue());
 		
 		currentSettings->SetMinMemAlloc(minMemorySpin->GetValue());
 		currentSettings->SetMaxMemAlloc(maxMemorySpin->GetValue());
@@ -548,7 +568,18 @@ Are you sure you want to use dev builds?"),
 			currentSettings->ResetUseAppletWrapper();
 		}
 		currentSettings->SetWindowOverride(haveWindow);
+
+		bool haveLogin = !loginUseDefs->GetValue();
+		if (haveLogin)
+		{
+			currentSettings->SetAutoLogin(autoLoginCheck->GetValue());
+		}
+		else
+		{
+			currentSettings->ResetAutoLogin();
+		}
 	}
+
 	return true;
 }
 
@@ -586,6 +617,7 @@ void SettingsDialog::LoadSettings()
 		memoryUseDefs->SetValue(!currentSettings->GetMemoryOverride());
 		updateUseDefs->SetValue(!currentSettings->GetUpdatesOverride());
 		winUseDefs->SetValue(!currentSettings->GetWindowOverride());
+		loginUseDefs->SetValue(!currentSettings->GetLoginOverride());
 	}
 	
 	switch (currentSettings->GetUpdateMode())
@@ -609,6 +641,9 @@ void SettingsDialog::LoadSettings()
 	winMaxCheckbox->SetValue(currentSettings->GetMCWindowMaximize());
 	winWidthSpin->SetValue(currentSettings->GetMCWindowWidth());
 	winHeightSpin->SetValue(currentSettings->GetMCWindowHeight());
+
+	autoLoginCheck->SetValue(currentSettings->GetAutoLogin());
+
 	UpdateCheckboxStuff();
 }
 
@@ -670,6 +705,7 @@ void SettingsDialog::UpdateCheckboxStuff()
 		bool enableJava = !javaUseDefs->GetValue();
 		bool enableMemory = !memoryUseDefs->GetValue();
 		bool enableWindow = !winUseDefs->GetValue();
+		bool enableLogin = !loginUseDefs->GetValue();
 		
 		// java tab stuff
 		javaPathTextBox->Enable(enableJava);
@@ -694,6 +730,8 @@ void SettingsDialog::UpdateCheckboxStuff()
 		winHeightLabel->Enable(enableWindowSize);
 		
 		mcUpdateDropDown->Enable(enableUpdates);
+
+		autoLoginCheck->Enable(enableLogin);
 	}
 	else
 	{
@@ -722,4 +760,5 @@ BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_CHECKBOX(ID_OverrideWindow, SettingsDialog::OnUpdateMCTabCheckboxes)
 	EVT_CHECKBOX(ID_OverrideUpdate, SettingsDialog::OnUpdateMCTabCheckboxes)
 	EVT_CHECKBOX(ID_OverrideMemory, SettingsDialog::OnUpdateMCTabCheckboxes)
+	EVT_CHECKBOX(ID_OverrideLogin, SettingsDialog::OnUpdateMCTabCheckboxes)
 END_EVENT_TABLE()

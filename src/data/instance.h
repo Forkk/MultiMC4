@@ -113,6 +113,7 @@ public:
 	bool GetMCWindowMaximize() const { return GetSetting<bool>("MCWindowMaximize",settings->GetMCWindowMaximize()); };
 	bool GetUseAppletWrapper() const { return GetSetting<bool>("UseAppletWrapper",settings->GetUseAppletWrapper()); };
 	UpdateMode GetUpdateMode() const { return (UpdateMode) GetSetting<int>("UpdateMode",settings->GetUpdateMode()); };
+	virtual bool GetAutoLogin() const { return GetSetting<bool>("AutoLogin", settings->GetAutoLogin()); }
 
 	virtual bool GetJavaOverride() const { return GetSetting<bool>(_("OverrideJava"), false); };
 	virtual void SetJavaOverride( bool value ) {              SetSetting<bool>(_("OverrideJava"), value); };
@@ -125,6 +126,9 @@ public:
 
 	virtual bool GetUpdatesOverride() const { return GetSetting<bool>(_("OverrideUpdates"), false); };
 	virtual void SetUpdatesOverride( bool value ) {              SetSetting<bool>(_("OverrideUpdates"), value); };
+
+	virtual bool GetLoginOverride() const { return GetSetting<bool>("OverrideLogin", false); }
+	virtual void SetLoginOverride(bool value) { SetSetting<bool>("OverrideLogin", value); }
 	
 	virtual bool IsConfigGlobal()
 	{
