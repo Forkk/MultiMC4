@@ -52,7 +52,6 @@ wxThread::ExitCode ModderTask::TaskStart()
 		return (ExitCode)0;
 	}
 	
-	
 	// TODO: good spot for user cancel check? or not...
 	
 	TaskStep(); // STEP 1

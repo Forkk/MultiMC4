@@ -4,17 +4,30 @@ project (MultiMC)
 # Stupid FindOpenSSL fix...
 SET(CMAKE_CROSS_COMPILING ${CMAKE_CROSSCOMPILING})
 
+OPTION(MultiMC_STATIC "Do a static build." OFF)
+
 # Static link!
-IF(WIN32)
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
-ELSE(WIN32)
-    SET(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
-ENDIF(WIN32)
+IF (MultiMC_STATIC)
+	IF(WIN32)
+		SET(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+	ELSE()
+		SET(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+	ENDIF()
+ENDIF()
 
 IF (DEFINED CMAKE_TOOLCHAIN_FILE)
 	include("${CMAKE_TOOLCHAIN_FILE}")
 ENDIF ()
 
+#Check for machine endianness
+INCLUDE(TestBigEndian)
+TEST_BIG_ENDIAN(BIGENDIAN)
+IF(${BIGENDIAN})
+     ADD_DEFINITIONS(-DMULTIMC_BIG_ENDIAN)
+ENDIF(${BIGENDIAN})
+
+# Use or don't use SSL
+OPTION(MultiMC_USE_HTTPS "Use SSL for minecraft login." ON)
 IF (MultiMC_USE_HTTPS)
 	MESSAGE(STATUS "** Using HTTPS for login.")
 	SET(MultiMC_LINK_OPENSSL true)
@@ -25,7 +38,6 @@ ENDIF ()
 
 IF (MSVC)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /D MSVC")
-
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D CURL_STATICLIB /GR")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D CURL_STATICLIB /GR")
 ELSE ()
@@ -171,6 +183,9 @@ tasks/filedownloadtask.h
 tasks/filecopytask.h
 tasks/exportpacktask.h
 tasks/downgradetask.h
+
+java/endian.h
+java/classfile.h
 
 apputils.h
 curlutils.h

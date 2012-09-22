@@ -164,6 +164,7 @@ protected:
 	FolderModList coreModList;
 	
 	wxFileName rootDir;
+	wxString version;
 	
 	wxProcess *instProc;
 	bool m_running;
