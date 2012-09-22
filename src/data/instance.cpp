@@ -82,20 +82,7 @@ Instance::Instance(const wxFileName &rootDir)
 	modloader_list_inited = false;
 	coremod_list_inited = false;
 	jar_list_inited = false;
-	wxFileName jar = GetMCJar();
-	if(jar.FileExists())
-	{
-		auto dt = jar.GetModificationTime();
-		dt.MakeUTC(true);
-		auto time =dt.GetTicks();
-		auto saved_time = GetJarTimestamp();
-		if(time != saved_time)
-		{
-			wxString newversion = javautils::GetMinecraftJarVersion(jar);
-			SetJarTimestamp(time);
-			SetJarVersion(newversion);
-		}
-	}
+	UpdateVersion();
 }
 
 Instance::~Instance(void)
@@ -107,6 +94,34 @@ Instance::~Instance(void)
 	}
 	Save();
 }
+
+void Instance::UpdateVersion ( bool keep_current )
+{
+	wxFileName jar = GetMCJar();
+	if(!jar.FileExists())
+	{
+		SetJarTimestamp(0);
+		SetJarVersion("Unknown");
+		return;
+	}
+	
+	auto dt = jar.GetModificationTime();
+	dt.MakeUTC(true);
+	auto time =dt.GetTicks();
+	if(keep_current)
+	{
+		SetJarTimestamp(time);
+		return;
+	}
+	auto saved_time = GetJarTimestamp();
+	if(time != saved_time)
+	{
+		wxString newversion = javautils::GetMinecraftJarVersion(jar);
+		SetJarTimestamp(time);
+		SetJarVersion(newversion);
+	}
+}
+
 
 // Makes ALL the directories! \o/
 void Instance::MkDirs()

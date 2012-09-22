@@ -133,6 +133,12 @@ public:
 	time_t GetJarTimestamp() const { return GetSetting<time_t>("JarTimestamp",0); };
 	void SetJarTimestamp( time_t value ) { SetSetting<time_t>(_("JarTimestamp"), value); };
 	
+	/**
+	 * Update the jar version and timestamp
+	 * if keep_current is true, only updates the stored timestamp
+	 */
+	void UpdateVersion(bool keep_current = false);
+	
 	virtual bool IsConfigGlobal()
 	{
 		return false;
