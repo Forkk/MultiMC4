@@ -135,6 +135,8 @@ tasks/filecopytask.cpp
 tasks/exportpacktask.cpp
 tasks/downgradetask.cpp
 
+java/javautils.cpp
+
 apputils.cpp
 curlutils.cpp
 datautils.cpp
@@ -186,6 +188,7 @@ tasks/downgradetask.h
 
 java/endian.h
 java/classfile.h
+java/javautils.h
 
 apputils.h
 curlutils.h

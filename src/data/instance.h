@@ -126,6 +126,13 @@ public:
 	virtual bool GetUpdatesOverride() const { return GetSetting<bool>(_("OverrideUpdates"), false); };
 	virtual void SetUpdatesOverride( bool value ) {              SetSetting<bool>(_("OverrideUpdates"), value); };
 	
+	// and these are specific to instances only
+	wxString GetJarVersion() const { return GetSetting<wxString>("JarVersion","Unknown"); };
+	void SetJarVersion( wxString value ) { SetSetting<wxString>(_("JarVersion"), value); };
+	
+	time_t GetJarTimestamp() const { return GetSetting<time_t>("JarTimestamp",0); };
+	void SetJarTimestamp( time_t value ) { SetSetting<time_t>(_("JarTimestamp"), value); };
+	
 	virtual bool IsConfigGlobal()
 	{
 		return false;
