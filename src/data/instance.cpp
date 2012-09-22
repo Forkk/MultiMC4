@@ -133,6 +133,7 @@ Instance::Instance(const wxFileName &rootDir)
 			iter++;
 		}
 	} catch(java::classfile_exception &){}
+	delete[] classdata;
 }
 
 Instance::~Instance(void)
