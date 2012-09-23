@@ -1,18 +1,18 @@
-/*
-    Copyright 2012 Andrew Okin
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-*/
+// 
+//  Copyright 2012 MultiMC Contributors
+// 
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+// 
+//        http://www.apache.org/licenses/LICENSE-2.0
+// 
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+//
 
 #include "gameupdatetask.h"
 #include <apputils.h>
@@ -227,6 +227,9 @@ void GameUpdateTask::DownloadJars()
 		else
 		{
 			wxURL currentFile = jarURLs[i];
+
+			SetState(STATE_DOWNLOADING, wxFileName(currentFile.GetPath()).GetFullName());
+
 			wxFileName dlDest(m_inst->GetBinDir().GetFullPath(), 
 							  wxFileName(currentFile.GetPath()).GetFullName());
 			
@@ -366,6 +369,7 @@ void GameUpdateTask::ExtractNatives()
 	{
 		if (entry->IsDir() || entry->GetInternalName().Contains(_("META-INF")))
 			continue;
+		SetState(STATE_EXTRACTING_PACKAGES, entry->GetName());
 		wxFileName destFile(Path::Combine(nativesDir, entry->GetName()));
 		wxFileOutputStream outStream(destFile.GetFullPath());
 		outStream.Write(zipStream);
@@ -373,28 +377,43 @@ void GameUpdateTask::ExtractNatives()
 }
 
 
-void GameUpdateTask::SetState(UpdateState state)
+void GameUpdateTask::SetState(UpdateState state, const wxString& msg)
 {
 	switch (state)
 	{
 	case STATE_INIT:
-		SetStatus(_T("Initializing..."));
+		if (msg == wxEmptyString)
+			SetStatus(_("Initializing..."));
+		else
+			SetStatus(_("Initializing: ") + msg);
 		break;
 		
 	case STATE_DETERMINING_PACKAGES:
-		SetStatus(_T("Determining packages to load..."));
+		if (msg == wxEmptyString)
+			SetStatus(_("Determining packages to load..."));
+		else
+			SetStatus(_("Determining packages to load: ") + msg);
 		break;
 		
 	case STATE_CHECKING_CACHE:
-		SetStatus(_T("Checking cache for existing files..."));
+		if (msg == wxEmptyString)
+			SetStatus(_("Checking cache for existing files..."));
+		else
+			SetStatus(_("Checking cache for existing files: ") + msg);
 		break;
 		
 	case STATE_DOWNLOADING:
-		SetStatus(_T("Downloading packages..."));
+		if (msg == wxEmptyString)
+			SetStatus(_("Downloading packages..."));
+		else
+			SetStatus(_("Downloading packages: ") + msg);
 		break;
 		
 	case STATE_EXTRACTING_PACKAGES:
-		SetStatus(_T("Extracting downloaded packages..."));
+		if (msg == wxEmptyString)
+			SetStatus(_("Extracting downloaded packages..."));
+		else
+			SetStatus(_("Extracting downloaded packages: ") + msg);
 		break;
 		
 	default:

@@ -1,5 +1,5 @@
 // 
-//  Copyright 2012 Andrew Okin
+//  Copyright 2012 MultiMC Contributors
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -100,6 +100,8 @@ public:
 	// Other functions
 
 	int StartTask(Task *task);
+	void LoginClicked();
+	void DoLogin(UserInfo info, bool playOffline = false, bool forceUpdate = false);
 	void ShowLoginDlg(wxString errorMsg);
 
 	void DownloadInstallUpdates(const wxString &downloadURL);

@@ -1,5 +1,5 @@
 // 
-//  Copyright 2012 Andrew Okin
+//  Copyright 2012 MultiMC Contributors
 // 
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -751,7 +751,7 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 	info.name = _("MultiMC");
 	info.version = wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str());
 	info.description = _("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once.");
-	info.copyright = _("(C) 2012 Andrew Okin");
+	info.copyright = _("(C) 2012 MultiMC Contributors");
 
 	info.website = _("http://forkk.net/MultiMC4");
 	info.license = licenseText;
@@ -784,12 +784,49 @@ void MainWindow::NotImplemented()
 // Instance menu
 void MainWindow::OnPlayClicked(wxCommandEvent& event)
 {
-	ShowLoginDlg(_(""));
+	LoginClicked();
 }
 
 void MainWindow::OnInstActivated(wxInstanceCtrlEvent &event)
 {
-	ShowLoginDlg(_(""));
+	LoginClicked();
+}
+
+void MainWindow::LoginClicked()
+{
+	if (!m_currentInstance)
+	{
+		return;
+	}
+
+	if (m_currentInstance->GetAutoLogin() && wxFileExists(_("lastlogin4")))
+	{
+		UserInfo lastLogin;
+		lastLogin.LoadFromFile("lastlogin4");
+		DoLogin(lastLogin);
+	}
+	else
+	{
+		ShowLoginDlg(_(""));
+	}
+}
+
+void MainWindow::DoLogin(UserInfo info, bool playOffline, bool forceUpdate)
+{
+	info.SaveToFile("lastlogin4");
+
+	if (!playOffline)
+	{
+		LoginTask *task = new LoginTask(info, m_currentInstance, forceUpdate);
+		StartTask(task);
+		OnLoginComplete(task->GetLoginResult());
+		delete task;
+	}
+	else
+	{
+		LoginResult lr = LoginResult::PlayOffline(info.username);
+		OnLoginComplete(lr);
+	}
 }
 
 void MainWindow::ShowLoginDlg(wxString errorMsg)
@@ -800,11 +837,13 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 		//        what does it mean to the state of the GUI
 		return;
 	}
+
 	UserInfo lastLogin;
 	if (wxFileExists(_("lastlogin4")))
 	{
 		lastLogin.LoadFromFile("lastlogin4");
 	}
+
 	bool canPlayOffline = m_currentInstance->HasBinaries();
 	LoginDialog loginDialog(this, errorMsg, lastLogin, canPlayOffline);
 	loginDialog.CenterOnParent();
@@ -814,21 +853,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	if (response == wxID_OK || playOffline)
 	{
 		UserInfo info(loginDialog);
-		
-		info.SaveToFile("lastlogin4");
-		
-		if (!playOffline)
-		{
-			LoginTask *task = new LoginTask(info,m_currentInstance , loginDialog.ShouldForceUpdate());
-			StartTask(task);
-			OnLoginComplete(task->GetLoginResult());
-			delete task;
-		}
-		else
-		{
-			LoginResult lr = LoginResult::PlayOffline(info.username);
-			OnLoginComplete(lr);
-		}
+		DoLogin(info, playOffline, loginDialog.ShouldForceUpdate());
 	}
 	else if (!launchInstance.IsEmpty() && response == wxID_CANCEL)
 	{
