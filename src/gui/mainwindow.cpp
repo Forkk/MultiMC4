@@ -305,7 +305,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	instPanel->SetSizer(instSz);
 	
 	const int cols = 5;
-	const int rows = 3;
+	const int rows = 4;
 	
 	wxFont titleFont(18, wxSWISS, wxNORMAL, wxNORMAL);
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
@@ -328,15 +328,33 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 		wxDefaultPosition, wxDefaultSize);
 	instNameLabel->SetFont(titleFont);
 	instNameSz->Add(instNameLabel, wxSizerFlags(0).Align(wxALIGN_CENTER));
-	
+
+	// Instance info GBSizer
+	{
+		wxGridBagSizer *instInfoSz = new wxGridBagSizer();
+
+		int icols = 2;
+
+		wxStaticText *mcVersionSLabel = new wxStaticText(instPanel, -1, _("Minecraft Version: "));
+		instInfoSz->Add(mcVersionSLabel, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALL, 4);
+
+		mcVersionLabel = new wxStaticText(instPanel, -1, wxEmptyString);
+		instInfoSz->Add(mcVersionLabel, wxGBPosition(0, 1), wxGBSpan(1, 1), wxALL | wxALIGN_RIGHT, 4);
+
+		for (int i = 0; i < icols; i++)
+		{
+			instInfoSz->AddGrowableCol(i);
+		}
+
+		instSz->Add(instInfoSz, wxGBPosition(1, 1), wxGBSpan(1, cols - 2), wxEXPAND);
+	}
 	
 	instNotesEditor = new wxTextCtrl(instPanel, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_RICH);
-	instSz->Add(instNotesEditor, wxGBPosition(1, 1), wxGBSpan(rows - 2, cols - 2), wxEXPAND | wxLEFT | wxTOP | wxRIGHT, 4);
-	
+	instSz->Add(instNotesEditor, wxGBPosition(2, 1), wxGBSpan(rows - 2, cols - 2), wxEXPAND | wxLEFT | wxTOP | wxRIGHT, 4);
 	
 	wxPanel *btnPanel = new wxPanel(instPanel);
 	wxBoxSizer *btnSz = new wxBoxSizer(wxVERTICAL);
-	instSz->Add(btnPanel, wxGBPosition(1, cols - 1), wxGBSpan(rows - 2, 1), wxALIGN_RIGHT | wxLEFT | wxRIGHT, 8);
+	instSz->Add(btnPanel, wxGBPosition(1, cols - 1), wxGBSpan(rows - 1, 1), wxALIGN_RIGHT | wxLEFT | wxRIGHT, 8);
 	btnPanel->SetSizer(btnSz);
 	
 	const int spacerSize = 4;
@@ -368,7 +386,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnSz->Add(btnViewFolder, szflags);
 	
 	instSz->AddGrowableCol(1, 0);
-	instSz->AddGrowableRow(1, 0);
+	instSz->AddGrowableRow(2, 0);
 	SetMinSize(instSz->ComputeFittingWindowSize(this));
 	UpdateInstPanel();
 }
@@ -383,6 +401,15 @@ void MainWindow::UpdateInstPanel()
 	//UpdateInstNameLabel(inst);
 	UpdateNotesBox();
 	CancelRename();
+
+	if (m_currentInstance)
+	{
+		mcVersionLabel->SetLabel(m_currentInstance->GetJarVersion());
+	}
+	else
+	{
+		mcVersionLabel->SetLabel(wxT("Unknown"));
+	}
 
 	instPanel->Layout();
 }
@@ -1162,6 +1189,7 @@ indev and infdev. Are you sure you would like to downgrade to this version?"),
 			auto task = new DowngradeTask (m_currentInstance, downDlg->GetSelectedVersion());
 			StartTask(task);
 			delete task;
+			UpdateInstPanel();
 		}
 	}
 	else
@@ -1199,6 +1227,7 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 					return;
 				}
 			}
+			UpdateInstPanel();
 		}
 	}
 	else
