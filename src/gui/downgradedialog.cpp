@@ -18,6 +18,7 @@
 
 #include <wx/gbsizer.h>
 #include <wx/hyperlink.h>
+#include <wx/regex.h>
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
@@ -90,9 +91,18 @@ void DowngradeDialog::LoadVersionList()
 			ptree pt;
 			std::stringstream jsonStream(stdStr(vlistJSON), std::ios::in);
 			read_json(jsonStream, pt);
-
+			wxRegEx snapshotRegex("^[0-9][0-9]w[0-9][0-9][a-z]$");
+			wxRegEx indevRegex("in(f)?dev");
+			wxRegEx preRegex("pre");
+			wxRegEx rcRegex("rc");
 			BOOST_FOREACH(const ptree::value_type& v, pt.get_child("order"))
-				vList.Insert(wxStr(v.second.data()), 0);
+			{
+				auto str = wxStr(v.second.data());
+				if(snapshotRegex.Matches(str) || indevRegex.Matches(str)
+					|| preRegex.Matches(str) || rcRegex.Matches(str))
+					continue;
+				vList.Insert(str, 0);
+			}
 
 			versionList->Set(vList);
 		}

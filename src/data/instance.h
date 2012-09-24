@@ -16,6 +16,8 @@
 
 #pragma once
 #include <vector>
+#include <sstream>
+#include <stdint.h>
 #include <wx/wx.h>
 #include <wx/filesys.h>
 #include <wx/config.h>
@@ -61,8 +63,8 @@ public:
 	
 	bool IsRunning() const;
 	
-	wxString ReadVersionFile();
-	void WriteVersionFile(const wxString& contents);
+	int64_t ReadVersionFile();
+	void WriteVersionFile(const int64_t contents);
 	
 	wxString GetName() const;
 	void SetName(wxString name);
@@ -116,26 +118,44 @@ public:
 	virtual bool GetAutoLogin() const { return GetSetting<bool>("AutoLogin", settings->GetAutoLogin()); }
 
 	virtual bool GetJavaOverride() const { return GetSetting<bool>(_("OverrideJava"), false); };
-	virtual void SetJavaOverride( bool value ) {              SetSetting<bool>(_("OverrideJava"), value); };
+	virtual void SetJavaOverride( bool value ) {  SetSetting<bool>(_("OverrideJava"), value); };
 
 	virtual bool GetMemoryOverride() const { return GetSetting<bool>(_("OverrideMemory"), false); };
-	virtual void SetMemoryOverride( bool value ) {              SetSetting<bool>(_("OverrideMemory"), value); };
+	virtual void SetMemoryOverride( bool value ) {  SetSetting<bool>(_("OverrideMemory"), value); };
 
 	virtual bool GetWindowOverride() const { return GetSetting<bool>(_("OverrideWindow"), false); };
-	virtual void SetWindowOverride( bool value ) {              SetSetting<bool>(_("OverrideWindow"), value); };
+	virtual void SetWindowOverride( bool value ) {  SetSetting<bool>(_("OverrideWindow"), value); };
 
 	virtual bool GetUpdatesOverride() const { return GetSetting<bool>(_("OverrideUpdates"), false); };
-	virtual void SetUpdatesOverride( bool value ) {              SetSetting<bool>(_("OverrideUpdates"), value); };
+	virtual void SetUpdatesOverride( bool value ) {  SetSetting<bool>(_("OverrideUpdates"), value); };
 
 	virtual bool GetLoginOverride() const { return GetSetting<bool>("OverrideLogin", false); }
-	virtual void SetLoginOverride(bool value) { SetSetting<bool>("OverrideLogin", value); }
+	virtual void SetLoginOverride(bool value) {    SetSetting<bool>("OverrideLogin", value); }
 	
 	// and these are specific to instances only
 	wxString GetJarVersion() const { return GetSetting<wxString>("JarVersion","Unknown"); };
-	void SetJarVersion( wxString value ) { SetSetting<wxString>(_("JarVersion"), value); };
+	void SetJarVersion( wxString value ) {  SetSetting<wxString>("JarVersion", value); };
 	
-	time_t GetJarTimestamp() const { return GetSetting<time_t>("JarTimestamp",0); };
-	void SetJarTimestamp( time_t value ) { SetSetting<time_t>(_("JarTimestamp"), value); };
+	uint64_t GetJarTimestamp() const
+	{
+		// no 64bit type support in wxConfig. This code is very 'meh', but works
+		wxString str = GetSetting<wxString>("JarTimestamp","0");
+		auto buf = str.ToAscii();
+		const char * asciidata = buf.data();
+		std::istringstream reader(asciidata);
+		uint64_t data;
+		reader >> data;
+		return data;
+	};
+	void SetJarTimestamp( uint64_t value )
+	{
+		// same as above.
+		std::ostringstream writer;
+		writer << value;
+		std::string str = writer.str();
+		wxString finalstr = wxString::FromAscii(str.c_str());
+		SetSetting<wxString>("JarTimestamp", finalstr);
+	};
 	
 	/**
 	 * Update the jar version and timestamp

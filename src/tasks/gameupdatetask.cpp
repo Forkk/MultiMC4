@@ -30,22 +30,10 @@
 
 DEFINE_EVENT_TYPE(wxEVT_GAME_UPDATE_COMPLETE)
 
-GameUpdateTask::GameUpdateTask(Instance *inst, 
-							   wxString latestVersion, 
-							   wxString mainGameURL, 
-							   bool forceUpdate)
-	: Task()
-{
-	m_inst = inst;
-	m_latestVersion = latestVersion;
-	m_mainGameURL = mainGameURL;
-	m_forceUpdate = forceUpdate;
-}
+GameUpdateTask::GameUpdateTask(Instance *inst, int64_t latestVersion, bool forceUpdate)
+	: Task(), m_inst(inst), m_latestVersion(latestVersion), m_forceUpdate(forceUpdate) {}
 
-GameUpdateTask::~GameUpdateTask()
-{
-	
-}
+GameUpdateTask::~GameUpdateTask() {}
 
 wxThread::ExitCode GameUpdateTask::TaskStart()
 {
@@ -54,44 +42,36 @@ wxThread::ExitCode GameUpdateTask::TaskStart()
 	
 	SetProgress(5);
 	
-	if (!m_inst->GetBinDir().DirExists())
-		m_inst->GetBinDir().Mkdir();
-	
 	wxFileName binDir = m_inst->GetBinDir();
+	if (!binDir.DirExists())
+		binDir.Mkdir();
 	
-	if (!m_latestVersion.empty())
+	wxFileName versionFile = m_inst->GetVersionFile();
+	bool cacheAvailable = false;
+	
+	if (!m_forceUpdate && versionFile.FileExists() && (m_latestVersion == -1 || m_latestVersion == m_inst->ReadVersionFile()))
 	{
-		wxFileName versionFile = m_inst->GetVersionFile();
-		bool cacheAvailable = false;
-		
-		if (!m_forceUpdate && versionFile.FileExists() && 
-			(m_latestVersion == _("-1") || m_latestVersion == m_inst->ReadVersionFile()))
+		cacheAvailable = true;
+		SetProgress(90);
+	}
+	
+	if (m_forceUpdate || !cacheAvailable)
+	{
+		m_shouldUpdate = true;
+		if (!m_forceUpdate && versionFile.FileExists())
 		{
-			cacheAvailable = true;
-			SetProgress(90);
+			AskToUpdate();
 		}
 		
-		if (m_forceUpdate || !cacheAvailable)
+		// This check is not actually stupid. 
+		// The AskToUpdate method will set m_shouldUpdate to true or false depending 
+		// on whether or not the user wants to update.
+		if (m_shouldUpdate)
 		{
-			m_shouldUpdate = true;
-			if (!m_forceUpdate && versionFile.FileExists())
-			{
-				AskToUpdate();
-			}
-			
-			// This check is not actually stupid. 
-			// The AskToUpdate method will set m_shouldUpdate to true or false depending 
-			// on whether or not the user wants to update.
-			if (m_shouldUpdate)
-			{
-				m_inst->WriteVersionFile(m_latestVersion);
-				//if (CheckUserCancelled()) return;
-				DownloadJars();
-				//if (CheckUserCancelled()) return;
-				ExtractNatives();
-				//if (CheckUserCancelled()) return;
-				wxRemoveFile(Path::Combine(m_inst->GetBinDir(), wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
-			}
+			m_inst->WriteVersionFile(m_latestVersion);
+			DownloadJars();
+			ExtractNatives();
+			wxRemoveFile(Path::Combine(m_inst->GetBinDir(), wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
 		}
 	}
 	return (ExitCode)1;
@@ -102,15 +82,14 @@ bool GameUpdateTask::LoadJarURLs()
 	SetState(STATE_DETERMINING_PACKAGES);
 	wxString jarList[] =
 	{ 
-		m_mainGameURL, _("lwjgl_util.jar"), _("jinput.jar"), _("lwjgl.jar")
+		"minecraft.jar", "lwjgl_util.jar", "jinput.jar", "lwjgl.jar"
 	};
 	
-	wxString mojangURL = _("http://s3.amazonaws.com/MinecraftDownload/");
+	wxString mojangURL ("http://s3.amazonaws.com/MinecraftDownload/");
 	
 	for (size_t i = 0; i < jarURLs.size() - 1; i++)
 	{
-		wxString url = (mojangURL + jarList[i]);
-		this->jarURLs[i] = url;
+		jarURLs[i] = mojangURL + jarList[i];
 	}
 	
 	wxString nativeJar = wxEmptyString;
@@ -271,14 +250,6 @@ void GameUpdateTask::DownloadJars()
 				outStream.Write(buffer, size);
 				MD5Update(&md5ctx, (unsigned char*)buffer, size);
 				
-				/*
-				if (CheckUserCancelled())
-				{
-					cancel = true;
-					return 0;
-				}
-				*/
-				
 				SetProgress(initialProgress + 
 					((double)totalDownloadedSize / (double)totalDownloadSize) * 
 					(100 - initialProgress - 10));
@@ -298,13 +269,6 @@ void GameUpdateTask::DownloadJars()
 			
 			int errorCode = curl_easy_perform(curl);
 			curl_easy_cleanup(curl);
-			
-			/*
-			if (CheckUserCancelled())
-			{
-				return;
-			}
-			*/
 			
 			MD5Final(md5digest, &md5ctx);
 			

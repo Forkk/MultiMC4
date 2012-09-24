@@ -21,6 +21,7 @@
 #include <wx/mstream.h>
 #include <wx/dir.h>
 #include <wx/zipstrm.h>
+#include <wx/txtstrm.h>
 #include <memory>
 
 #include "launcher/launcherdata.h"
@@ -28,6 +29,7 @@
 #include <datautils.h>
 #include <insticonlist.h>
 #include "java/javautils.h"
+#include <sstream>
 
 DEFINE_EVENT_TYPE(wxEVT_INST_OUTPUT)
 
@@ -248,26 +250,26 @@ wxFileName Instance::GetModListFile() const
 }
 
 
-wxString Instance::ReadVersionFile()
+int64_t Instance::ReadVersionFile()
 {
-	if (!GetVersionFile().FileExists())
-		return _("");
+	int64_t number = -1;
+	if (!GetVersionFile().FileExists()) return number;
 	
 	// Open the file for reading
-	wxFSFile *vFile = wxFileSystem().OpenFile(GetVersionFile().GetFullPath(), wxFS_READ);
-	wxString retVal;
-	wxStringOutputStream outStream(&retVal);
-	if(!vFile)
-		return _("");
-	wxInputStream * versionFileStream = vFile->GetStream();
-	if(!versionFileStream)
-		return _("");
-	outStream.Write(*versionFileStream);
-	wxDELETE(vFile);
-	return retVal;
+	wxFFileInputStream input( GetVersionFile().GetFullPath() );
+	if(input.IsOk())
+	{
+		auto len = input.GetLength();
+		char * buf = new char[len];
+		input.Read(buf, len);
+		std::istringstream in(buf);
+		in >> number;
+		delete[] buf;
+	}
+	return number;
 }
 
-void Instance::WriteVersionFile(const wxString &contents)
+void Instance::WriteVersionFile(int64_t number)
 {
 	if (!GetBinDir().DirExists())
 		GetBinDir().Mkdir();
@@ -276,6 +278,8 @@ void Instance::WriteVersionFile(const wxString &contents)
 	if (!vFile.Create(GetVersionFile().GetFullPath(), true))
 		return;
 	wxFileOutputStream outStream(vFile);
+	wxString contents;
+	contents << number;
 	wxStringInputStream inStream(contents);
 	outStream.Write(inStream);
 }

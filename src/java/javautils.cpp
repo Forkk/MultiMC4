@@ -1,7 +1,7 @@
 #include "classfile.h"
 #include "javautils.h"
 #include <wx/zipstrm.h>
-#include <auto_ptr.h>
+#include <memory>
 #include <wx/wfstream.h>
 namespace javautils
 {

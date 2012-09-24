@@ -112,7 +112,7 @@ LoginResult::LoginResult(wxString loginResponse)
 	playOffline = false;
 	errorMessage = wxEmptyString;
 	
-	latestVersion = wxEmptyString;
+	latestVersion = 0;
 	downloadTicket = wxEmptyString;
 	username = wxEmptyString;
 	sessionID = wxEmptyString;
@@ -121,7 +121,9 @@ LoginResult::LoginResult(wxString loginResponse)
 	if (strings.Count() >= 4)
 	{
 		// Login succeeded
-		latestVersion = strings[0];
+		wxString timestampStr = strings[0];
+		std::istringstream str(timestampStr.ToAscii().data());
+		str >> latestVersion;
 		downloadTicket = strings[1];
 		username = strings[2];
 		sessionID = strings[3];
@@ -143,7 +145,7 @@ LoginResult::LoginResult(wxString loginResponse)
 LoginResult::LoginResult(const wxString username, 
 						 const wxString sessionID, 
 						 const wxString downloadTicket, 
-						 const wxString latestVersion,
+						 const int64_t latestVersion,
 						 bool loginFailed,
 						 bool playOffline,
 						 bool forceUpdate)
@@ -171,5 +173,5 @@ LoginResult::LoginResult(const LoginResult *result)
 
 LoginResult LoginResult::PlayOffline(const wxString username)
 {
-	return LoginResult(username, wxEmptyString, wxEmptyString, wxEmptyString, false, true, false);
+	return LoginResult(username, wxEmptyString, wxEmptyString, 0, false, true, false);
 }

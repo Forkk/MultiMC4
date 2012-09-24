@@ -873,7 +873,7 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 		sessionID.Trim();
 		if (!result.playOffline && !sessionID.IsEmpty() && sessionID != _("Offline"))
 		{
-			auto task = new GameUpdateTask(inst, result.latestVersion, _("minecraft.jar"), result.forceUpdate);
+			auto task = new GameUpdateTask(inst, result.latestVersion, result.forceUpdate);
 			StartTask(task);
 			delete task;
 		}

@@ -53,6 +53,9 @@ wxThread::ExitCode DowngradeTask::TaskStart()
 	if (!VerifyPatchedFiles())
 		return (ExitCode)0;
 
+	// if mcbackup.jar exists, we updated that anyway. The version update won't pick that up.
+	if(!wxFileExists(Path::Combine(m_inst->GetBinDir(), _("mcbackup.jar"))))
+		m_inst->UpdateVersion();
 	SetStep(STEP_DONE);
 	return (ExitCode)1;
 }

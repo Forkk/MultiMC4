@@ -38,16 +38,12 @@ enum UpdateState
 class GameUpdateTask : public Task
 {
 public:
-	GameUpdateTask(Instance *inst, 
-				   wxString latestVersion, 
-				   wxString mainGameURL, 
-				   bool forceUpdate);
+	GameUpdateTask(Instance *inst, int64_t latestVersion, bool forceUpdate);
 	virtual ~GameUpdateTask();
 	
 protected:
 	Instance *m_inst;
-	wxString m_latestVersion;
-	wxString m_mainGameURL;
+	int64_t m_latestVersion;
 	bool m_forceUpdate;
 	
 	bool m_shouldUpdate;

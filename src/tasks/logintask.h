@@ -28,7 +28,7 @@ struct LoginResult
 	LoginResult(const wxString username, 
 				const wxString sessionID, 
 				const wxString downloadTicket, 
-				const wxString latestVersion,
+				const int64_t latestVersion,
 				bool loginFailed = false,
 				bool playOffline = false,
 				bool forceUpdate = false
@@ -41,11 +41,16 @@ struct LoginResult
 	bool playOffline;
 	bool forceUpdate;
 	wxString errorMessage;
-	
+	/// User login
 	wxString username;
+	/// ID of this Minecraft session
 	wxString sessionID;
+	/// Deprecated
 	wxString downloadTicket;
-	wxString latestVersion;
+	/// A unix timestamp of the latest Minecraft version from Mojang
+	int64_t latestVersion;
+	/// User ID?
+	wxString UID;
 };
 
 class LoginTask : public Task

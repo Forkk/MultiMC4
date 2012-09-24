@@ -15,27 +15,44 @@
 //
 
 #include "taskprogressdialog.h"
+#include <wx/gbsizer.h>
 const wxString initial_text = _("This text represents the size of the dialog and the area\nreserved for any possible status text.");
 
 TaskProgressDialog::TaskProgressDialog ( wxWindow* parent)
-	: wxDialog ( parent, -1, _("Please wait..."), wxDefaultPosition, wxDefaultSize )
+	: wxDialog ( parent, -1, _("Please wait..."), wxDefaultPosition, wxDefaultSize , wxCAPTION)
 {
-	auto wrapsizer = new wxBoxSizer(wxVERTICAL);
-	auto panel = new wxPanel(this);
-	wrapsizer->Add(panel,wxSizerFlags().Border(wxALL,10).Expand());
+	wxClientDC dc(this);
+	dc.SetFont(wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT));
+	long widthText = 0;
+	long heightText = 0;
+	long lineHeight = 0;
+	dc.GetTextExtent(initial_text, &widthText, &heightText, NULL, NULL, NULL);
+	dc.GetTextExtent("ABEND", NULL, &lineHeight, NULL, NULL, NULL);
 	
-	auto sizer = new wxBoxSizer(wxVERTICAL);
-	panel->SetSizer(sizer);
+	auto wrapsizer = new wxBoxSizer(wxVERTICAL);
+	
+	auto centerizer = new wxGridBagSizer( 0, 0 );
+	centerizer->AddGrowableCol( 0 );
+	centerizer->AddGrowableRow( 0 );
+	centerizer->SetFlexibleDirection( wxBOTH );
+	centerizer->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_ALL );
+	wrapsizer->Add( centerizer, 1, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL);
+	
+	wxSize textSize(widthText, heightText);
+	message = new wxGenericStaticText(this, -1, "" ,wxDefaultPosition, textSize,wxALIGN_CENTRE_HORIZONTAL);
+	message->SetMinSize(textSize);
+	centerizer->Add(message,wxGBPosition( 0, 0 ), wxGBSpan( 1, 1 ), wxALIGN_CENTER_VERTICAL|wxALL, lineHeight/2);
+	
+	gauge = new wxGauge(this,-1,100,wxDefaultPosition,wxDefaultSize,wxGA_HORIZONTAL | wxGA_SMOOTH);
+	wrapsizer->Add(gauge,wxSizerFlags().Expand().Border(wxBOTTOM|wxLEFT|wxRIGHT,lineHeight/2).Proportion(0));
+	
+	EnableCloseButton(false);
+	SetSizerAndFit(wrapsizer);
+	CenterOnParent();
 	
 #ifdef __WXGTK__
 	pulse_timer = new wxTimer(this,ID_PulseTimer);
 #endif
-	message = new wxStaticText(panel, -1, initial_text ,wxDefaultPosition, wxDefaultSize,wxALIGN_CENTRE|wxST_NO_AUTORESIZE);
-	sizer->Add(message,wxSizerFlags().Expand());
-	gauge = new wxGauge(panel,-1,100,wxDefaultPosition,wxDefaultSize,wxGA_HORIZONTAL | wxGA_SMOOTH);
-	sizer->Add(gauge,wxSizerFlags().Expand());
-	SetSizerAndFit(wrapsizer);
-	CenterOnParent();
 }
 
 int TaskProgressDialog::ShowModal ( Task* run_task )

@@ -17,7 +17,7 @@
 #pragma once
 #include <wx/wx.h>
 #include <task.h>
-
+#include <wx/generic/stattextg.h>
 enum
 {
 	ID_PulseTimer = 1,
@@ -32,7 +32,7 @@ public:
 protected:
 	// UI elements
 	wxGauge * gauge;
-	wxStaticText * message;
+	wxGenericStaticText * message;
 	
 	// Stuff used to auto-pulse the progress bar
 #ifdef __WXGTK__

@@ -131,6 +131,7 @@ wxThread::ExitCode ModderTask::TaskStart()
 	SetStatus(_("Installing mods - Recompressing jar..."));
 
 	m_inst->SetNeedsRebuild(false);
+	m_inst->UpdateVersion(true);
 	return (ExitCode)1;
 }
 
