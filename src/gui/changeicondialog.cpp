@@ -107,16 +107,16 @@ void ChangeIconDialog::OnItemActivated(wxListEvent &event)
 
 void ChangeIconDialog::OnAddIcon(wxCommandEvent &event)
 {
-	wxFileDialog *addIconDialog = new wxFileDialog(this, _("Choose an icon to add."), 
+	wxFileDialog addIconDialog (this, _("Choose an icon to add."), 
 		wxGetCwd(), wxEmptyString, wxT("*.png"));
-	if (addIconDialog->ShowModal() == wxID_OK)
+	if (addIconDialog.ShowModal() == wxID_OK)
 	{
 		auto iconList = InstIconList::Instance();
 
 		if (!wxDirExists(settings->GetIconsDir().GetFullPath()))
 			wxMkdir(settings->GetIconsDir().GetFullPath());
 
-		wxFileName src(addIconDialog->GetPath());
+		wxFileName src(addIconDialog.GetPath());
 		wxFileName dest = Path::Combine(settings->GetIconsDir(), src.GetFullName());
 
 		wxCopyFile(src.GetFullPath(), dest.GetFullPath());

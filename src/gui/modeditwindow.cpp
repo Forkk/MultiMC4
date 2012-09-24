@@ -663,14 +663,14 @@ bool ModEditWindow::CoreModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const 
 
 void ModEditWindow::OnAddJarMod(wxCommandEvent &event)
 {
-	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."),
+	wxFileDialog addModDialog(this, "Choose a file to add.",
 		settings->GetModsDir().GetFullPath(), wxEmptyString,
 		wxFileSelectorDefaultWildcardStr,wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE
 	);
-	if (addModDialog->ShowModal() == wxID_OK)
+	if (addModDialog.ShowModal() == wxID_OK)
 	{
 		wxArrayString allfiles;
-		addModDialog->GetPaths(allfiles);
+		addModDialog.GetPaths(allfiles);
 		for (auto iter = allfiles.begin(); iter != allfiles.end(); ++iter)
 		{
 			// just skip the dirs here...
@@ -744,14 +744,14 @@ void ModEditWindow::OnJarModSelChanged(wxListEvent &event)
 
 void ModEditWindow::OnAddMLMod(wxCommandEvent &event)
 {
-	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."),
+	wxFileDialog addModDialog (this, "Choose a file to add.",
 		settings->GetModsDir().GetFullPath(), wxEmptyString,
 		wxFileSelectorDefaultWildcardStr,wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE
 	);
-	if (addModDialog->ShowModal() == wxID_OK)
+	if (addModDialog.ShowModal() == wxID_OK)
 	{
 		wxArrayString allfiles;
-		addModDialog->GetPaths(allfiles);
+		addModDialog.GetPaths(allfiles);
 		fsutils::CopyFileList(allfiles, m_inst->GetMLModsDir());
 		auto mllist = m_inst->GetMLModList();
 		mllist->UpdateModList();
@@ -766,14 +766,14 @@ void ModEditWindow::OnDeleteMLMod(wxCommandEvent &event)
 
 void ModEditWindow::OnAddCoreMod(wxCommandEvent &event)
 {
-	wxFileDialog *addModDialog = new wxFileDialog(this, _("Choose a file to add."),
+	wxFileDialog addModDialog (this, "Choose a file to add.",
 		settings->GetModsDir().GetFullPath(), wxEmptyString,
 		wxFileSelectorDefaultWildcardStr,wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE
 	);
-	if (addModDialog->ShowModal() == wxID_OK)
+	if (addModDialog.ShowModal() == wxID_OK)
 	{
 		wxArrayString allfiles;
-		addModDialog->GetPaths(allfiles);
+		addModDialog.GetPaths(allfiles);
 		fsutils::CopyFileList(allfiles, m_inst->GetCoreModsDir());
 		auto corelist = m_inst->GetCoreModList();
 		corelist->UpdateModList();
@@ -852,15 +852,15 @@ void ModEditWindow::OnExportClicked(wxCommandEvent& event)
 // See: http://trac.wxwidgets.org/ticket/9917
 #ifdef __WXGTK__
 	repeat_filepicker:
-	wxFileDialog *chooseFileDlg = new wxFileDialog(this, _("Save..."), 
-	defaultPath, wxEmptyString, _("*.zip"), wxFD_SAVE);
-	if (chooseFileDlg->ShowModal() == wxID_OK)
+	wxFileDialog chooseFileDlg (this, "Save...", 
+	defaultPath, wxEmptyString, "*.zip", wxFD_SAVE);
+	if (chooseFileDlg.ShowModal() == wxID_OK)
 	{
-		file = chooseFileDlg->GetPath();
+		file = chooseFileDlg.GetPath();
 		file.SetExt(_("zip"));
 		if(file.FileExists())
 		{
-			int res = wxMessageBox(_("Do you want to overwrite the original file?"),_("Overwrite file?"),wxYES_NO|wxICON_QUESTION,this);
+			int res = wxMessageBox("Do you want to overwrite the original file?","Overwrite file?",wxYES_NO|wxICON_QUESTION,this);
 			if(res == wxNO)
 			{
 				defaultPath = file.GetPath();
@@ -873,11 +873,11 @@ void ModEditWindow::OnExportClicked(wxCommandEvent& event)
 		return;
 	}
 #else
-	wxFileDialog *chooseFileDlg = new wxFileDialog(this, _("Save..."), 
-		defaultPath, wxEmptyString, _("*.zip"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-	if (chooseFileDlg->ShowModal() == wxID_OK)
+	wxFileDialog chooseFileDlg(this, "Save...", 
+		defaultPath, wxEmptyString, "*.zip", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+	if (chooseFileDlg.ShowModal() == wxID_OK)
 	{
-		file = chooseFileDlg->GetPath();
+		file = chooseFileDlg.GetPath();
 	}
 	else
 	{
@@ -903,12 +903,12 @@ void ModEditWindow::OnCloseClicked(wxCommandEvent &event)
 
 void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
 {
-	InstallForgeDialog *installDlg = new InstallForgeDialog(this);
-	if (installDlg->ShowModal() == wxID_OK)
+	InstallForgeDialog installDlg (this);
+	if (installDlg.ShowModal() == wxID_OK)
 	{
-		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), installDlg->GetSelectedBuild());
+		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), installDlg.GetSelectedBuild());
 
-		auto dlTask = new FileDownloadTask("http://files.minecraftforge.net/" + installDlg->GetSelectedBuild(), 
+		auto dlTask = new FileDownloadTask("http://files.minecraftforge.net/" + installDlg.GetSelectedBuild(), 
 			forgePath);
 		TaskProgressDialog taskDlg(this);
 		taskDlg.CenterOnParent();

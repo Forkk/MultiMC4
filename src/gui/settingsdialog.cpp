@@ -649,10 +649,10 @@ void SettingsDialog::LoadSettings()
 
 void SettingsDialog::OnBrowseInstDirClicked(wxCommandEvent& event)
 {
-	wxDirDialog *dirDlg = new wxDirDialog(this, _("Select a new instance folder."), instDirTextBox->GetValue());
-	if (dirDlg->ShowModal() == wxID_OK)
+	wxDirDialog dirDlg (this, "Select a new instance folder.", instDirTextBox->GetValue());
+	if (dirDlg.ShowModal() == wxID_OK)
 	{
-		wxFileName a = dirDlg->GetPath();
+		wxFileName a = dirDlg.GetPath();
 		if(fsutils::isSubsetOf(a,wxGetCwd()))
 			a.MakeRelativeTo();
 		if(a.SameAs(wxGetCwd()))
@@ -668,10 +668,10 @@ void SettingsDialog::OnBrowseInstDirClicked(wxCommandEvent& event)
 
 void SettingsDialog::OnBrowseModsDirClicked(wxCommandEvent& event)
 {
-	wxDirDialog *dirDlg = new wxDirDialog(this, _("Select a new central mods folder."), modsDirTextBox->GetValue());
-	if (dirDlg->ShowModal() == wxID_OK)
+	wxDirDialog dirDlg (this, "Select a new central mods folder.", modsDirTextBox->GetValue());
+	if (dirDlg.ShowModal() == wxID_OK)
 	{
-		wxFileName a = dirDlg->GetPath();
+		wxFileName a = dirDlg.GetPath();
 		if(fsutils::isSubsetOf(a,wxGetCwd()))
 			a.MakeRelativeTo();
 		if(a.SameAs(wxGetCwd()))

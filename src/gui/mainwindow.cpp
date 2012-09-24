@@ -213,12 +213,16 @@ MainWindow::MainWindow(void)
 
 	launchInstance = _("");
 
+	// This breaks the windows version and is pretty much alien on linux.
+	// AWAY WITH YOU, FOUL CODE, INTO THE LANDS OF IFDEF AND SPINNING BEACHBALLS!
+#if (!defined __WXMSW__) and  (!defined __WXGTK__)
 	// Keyboard accelerators.
 	wxAcceleratorEntry entries[1];
 	entries[0].Set(wxACCEL_CTRL,	(int) 'Q',	wxID_EXIT);
 	wxAcceleratorTable accel(sizeof(entries), entries);
 	SetAcceleratorTable(accel);
-
+#endif
+	
 	CenterOnScreen();
 }
 
@@ -607,12 +611,12 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 
 void MainWindow::OnImportMCFolder(wxCommandEvent& event)
 {
-	wxDirDialog *dirDlg = new wxDirDialog(this, _("Select a Minecraft folder to import"));
-	dirDlg->CenterOnParent();
-	if (dirDlg->ShowModal() != wxID_OK)
+	wxDirDialog dirDlg(this, _("Select a Minecraft folder to import"));
+	dirDlg.CenterOnParent();
+	if (dirDlg.ShowModal() != wxID_OK)
 		return;
 
-	wxString existingMCDir = dirDlg->GetPath();
+	wxString existingMCDir = dirDlg.GetPath();
 
 	wxString instName;
 	wxString instDirName;
@@ -635,12 +639,12 @@ void MainWindow::OnImportMCFolder(wxCommandEvent& event)
 
 void MainWindow::OnImportCPClicked(wxCommandEvent& event)
 {
-	wxFileDialog *fileDlg = new wxFileDialog(this, _("Choose a pack to import."),
+	wxFileDialog fileDlg(this, _("Choose a pack to import."),
 		wxEmptyString, wxEmptyString, _("*.zip"), wxFD_OPEN);
-	fileDlg->CenterOnParent();
-	if (fileDlg->ShowModal() == wxID_OK)
+	fileDlg.CenterOnParent();
+	if (fileDlg.ShowModal() == wxID_OK)
 	{
-		ConfigPack cp(fileDlg->GetPath());
+		ConfigPack cp(fileDlg.GetPath());
 		if (cp.IsValid())
 		{
 			ImportPackWizard importWiz(this, &cp);
@@ -676,10 +680,10 @@ void MainWindow::OnRefreshClicked(wxCommandEvent& event)
 
 void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 {
-	SettingsDialog *settingsDlg = new SettingsDialog(this, -1);
+	SettingsDialog settingsDlg(this, -1);
 	auto oldInstDir = settings->GetInstDir();
-	settingsDlg->CenterOnParent();
-	int response = settingsDlg->ShowModal();
+	settingsDlg.CenterOnParent();
+	int response = settingsDlg.ShowModal();
 	if (response == wxID_OK)
 	{
 		// if the instance folder changed, reload the instance list
@@ -688,7 +692,7 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 			LoadInstanceList();
 		}
 		
-		if (settingsDlg->GetForceUpdateMultiMC())
+		if (settingsDlg.GetForceUpdateMultiMC())
 		{
 			wxString ciURL(_T(JENKINS_JOB_URL));
 
@@ -725,9 +729,9 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 		wxString updateMsg = wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
 			event.m_latestBuildNumber);
 
-		UpdatePromptDialog *updatePrompt = new UpdatePromptDialog(this, updateMsg);
-		updatePrompt->CenterOnParent();
-		if (updatePrompt->ShowModal() == wxID_OK)
+		UpdatePromptDialog updatePrompt (this, updateMsg);
+		updatePrompt.CenterOnParent();
+		if (updatePrompt.ShowModal() == wxID_OK)
 		{
 			DownloadInstallUpdates(event.m_downloadURL);
 		}
@@ -1015,9 +1019,9 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 
 void MainWindow::OnInstanceSettingsClicked ( wxCommandEvent& event )
 {
-	SettingsDialog *settingsDlg = new SettingsDialog(this, -1, m_currentInstance);
-	settingsDlg->CenterOnParent();
-	int response = settingsDlg->ShowModal();
+	SettingsDialog settingsDlg(this, -1, m_currentInstance);
+	settingsDlg.CenterOnParent();
+	settingsDlg.ShowModal();
 }
 
 void MainWindow::OnNotesClicked(wxCommandEvent& event)
@@ -1171,12 +1175,12 @@ void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
 
 	if (m_currentInstance->GetVersionFile().FileExists())
 	{
-		DowngradeDialog *downDlg = new DowngradeDialog(this);
-		downDlg->CenterOnParent();
-		if (downDlg->ShowModal() == wxID_OK && !downDlg->GetSelectedVersion().IsEmpty())
+		DowngradeDialog downDlg(this);
+		downDlg.CenterOnParent();
+		if (downDlg.ShowModal() == wxID_OK && !downDlg.GetSelectedVersion().IsEmpty())
 		{
-			if (downDlg->GetSelectedVersion().Contains(wxT("indev")) ||
-				downDlg->GetSelectedVersion().Contains(wxT("infdev")))
+			if (downDlg.GetSelectedVersion().Contains(wxT("indev")) ||
+				downDlg.GetSelectedVersion().Contains(wxT("infdev")))
 			{
 				if (wxMessageBox(_("MultiMC is currently incompatible with \
 indev and infdev. Are you sure you would like to downgrade to this version?"), 
@@ -1186,7 +1190,7 @@ indev and infdev. Are you sure you would like to downgrade to this version?"),
 				}
 			}
 
-			auto task = new DowngradeTask (m_currentInstance, downDlg->GetSelectedVersion());
+			auto task = new DowngradeTask (m_currentInstance, downDlg.GetSelectedVersion());
 			StartTask(task);
 			delete task;
 			UpdateInstPanel();
@@ -1205,12 +1209,12 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 
 	if (m_currentInstance->GetVersionFile().FileExists())
 	{
-		SnapshotDialog *snapDlg = new SnapshotDialog(this);
-		snapDlg->CenterOnParent();
-		if (snapDlg->ShowModal() == wxID_OK && !snapDlg->GetSelectedSnapshot().IsEmpty())
+		SnapshotDialog snapDlg(this);
+		snapDlg.CenterOnParent();
+		if (snapDlg.ShowModal() == wxID_OK && !snapDlg.GetSelectedSnapshot().IsEmpty())
 		{
 			wxString snapURL = wxString::Format(wxT("assets.minecraft.net/%s/minecraft.jar"), 
-				snapDlg->GetSelectedSnapshot().c_str());
+				snapDlg.GetSelectedSnapshot().c_str());
 
 			wxString snapshotJar = Path::Combine(m_currentInstance->GetBinDir(), wxT("snapshot.jar"));
 			FileDownloadTask task(snapURL, snapshotJar);
@@ -1257,13 +1261,12 @@ bool MainWindow::DeleteSelectedInstance()
 	if(m_currentInstance == nullptr)
 		return false;
 
-	wxMessageDialog *dlg = new wxMessageDialog(this, 
-		_("Are you sure you want to delete this instance?\n\
-Deleted instances are lost FOREVER! (a really long time)"),
-		_("Confirm deletion."),
-		wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
-	dlg->CenterOnParent();
-	if (dlg->ShowModal() == wxID_YES)
+	wxMessageDialog dlg(this, "Are you sure you want to delete this instance?\n"
+	                          "Deleted instances are lost FOREVER! (a really long time)",
+	                          "Confirm deletion.",
+	                          wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
+	dlg.CenterOnParent();
+	if (dlg.ShowModal() == wxID_YES)
 	{
 		fsutils::RecursiveDelete(m_currentInstance->GetRootDir().GetFullPath());
 		instListCtrl->Delete(m_currentInstanceIdx);
