@@ -258,7 +258,7 @@ void MainWindow::OnStartup()
 		}
 		else
 		{
-			ShowLoginDlg(_(""));
+			LoginClicked();
 		}
 	}
 }

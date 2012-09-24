@@ -69,19 +69,26 @@ ELSE ()
 	message(STATUS "No build tag specified.")
 ENDIF ()
 
-IF (DEFINED MultiMC_JOB_URL)
-	message(STATUS "Job URL: ${MultiMC_JOB_URL}")
-ELSE ()
-	message(STATUS "No job URL specified.")
-ENDIF ()
+if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+	set (MultiMC_ARCH "x64"
+		CACHE STRING "Architecture we're building for.")
+else()
+	set (MultiMC_ARCH "x86"
+		CACHE STRING "Architecture we're building for.")
+endif()
+message (STATUS "Architecture is ${MultiMC_ARCH}")
 
-
-IF (DEFINED MultiMC_ARCH)
-	message (STATUS "Architecture is ${MultiMC_ARCH}")
+IF (WIN32)
+	SET(MultiMC_JOB_NAME "MultiMC4Windows" CACHE STRING "Jenkins job name.")
+ELSEIF(UNIX AND APPLE)
+	SET(MultiMC_JOB_NAME "MultiMC4OSX" CACHE STRING "Jenkins job name.")
 ELSE()
-	set (MultiMC_ARCH "x86")
-	message (STATUS "Architecture not specified. Defaulted to x86.")
-ENDIF ()
+	SET(MultiMC_JOB_NAME "MultiMC4Linux" CACHE STRING "Jenkins job name.")
+ENDIF()
+
+SET(MultiMC_JOB_URL "http://ci.forkk.net/job/${MultiMC_JOB_NAME}/arch=${MultiMC_ARCH}/"
+    CACHE STRING "URL of the jenkins job to pull updates from.")
+message(STATUS "Job URL: ${MultiMC_JOB_URL}")
 
 configure_file("${PROJECT_SOURCE_DIR}/config.h.in"
 			   "${PROJECT_BINARY_DIR}/config.h")

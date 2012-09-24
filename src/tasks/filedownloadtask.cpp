@@ -58,12 +58,13 @@ wxThread::ExitCode FileDownloadTask::TaskStart()
 	curl_easy_setopt(curl, CURLOPT_URL, TOASCII(m_src));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
 	
-	size_t downloadedSize;
+	size_t downloadedSize = 0;
 	wxFFileOutputStream outStream(m_dest.GetFullPath());
 	CurlLambdaCallbackFunction curlWrite = [&] (void *buffer, size_t size) -> size_t
 	{
 		outStream.Write(buffer, size);
-		downloadedSize += outStream.LastWrite();
+		size_t lastwrite = outStream.LastWrite();
+		downloadedSize += lastwrite;
 		int progress = ((double)downloadedSize / (double)downloadSize) * 100;
 		SetProgress(progress);
 
