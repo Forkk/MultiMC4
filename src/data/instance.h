@@ -134,8 +134,14 @@ public:
 	wxString GetJarVersion() const { return GetSetting<wxString>("JarVersion","Unknown"); };
 	void SetJarVersion( wxString value ) { SetSetting<wxString>(_("JarVersion"), value); };
 	
+#ifndef MSVC
 	time_t GetJarTimestamp() const { return GetSetting<time_t>("JarTimestamp",0); };
 	void SetJarTimestamp( time_t value ) { SetSetting<time_t>(_("JarTimestamp"), value); };
+#else
+	// HACK: This is probably a really bad idea...
+	time_t GetJarTimestamp() const { return GetSetting<long>("JarTimestamp",0); };
+	void SetJarTimestamp( time_t value ) { SetSetting<long>(_("JarTimestamp"), value); };
+#endif
 	
 	/**
 	 * Update the jar version and timestamp
