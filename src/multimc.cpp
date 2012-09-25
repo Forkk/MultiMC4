@@ -73,7 +73,7 @@ bool MultiMC::OnInit()
 		wxString cfgFil = Path::Combine(wxGetCwd(), "multimc.cfg");
 		if (!wxFileExists(cfgFil))
 			wxSetWorkingDirectory(mmcDir);
-		else
+		else if (mmcDir != wxGetCwd())
 			isLocalMode = true;
 	}
 
