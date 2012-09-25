@@ -38,7 +38,7 @@ LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info, bo
 	mainBox->Add(usernameLabel, wxGBPosition(0 + offset, 0), wxGBSpan(1, 1), 
 				 wxALL | wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT, padding);
 	
-	usernameTextBox = new wxTextCtrl(this, ID_USERNAME_TEXTCTRL, info.username,
+	usernameTextBox = new wxTextCtrl(this, ID_USERNAME_TEXTCTRL, wxEmptyString,
 		wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
 	mainBox->Add(usernameTextBox, wxGBPosition(0 + offset, 1), wxGBSpan(1, cols - 1), 
 				 wxALL | wxEXPAND, padding);
@@ -49,7 +49,7 @@ LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info, bo
 	mainBox->Add(passwordLabel, wxGBPosition(1 + offset, 0), wxGBSpan(1, 1), 
 		wxALL | wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT, padding);
 	
-	passwordTextBox = new wxTextCtrl(this, ID_PASSWORD_TEXTCTRL, info.password, 
+	passwordTextBox = new wxTextCtrl(this, ID_PASSWORD_TEXTCTRL, wxEmptyString, 
 		wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER | wxTE_PASSWORD);
 	mainBox->Add(passwordTextBox, wxGBPosition(1 + offset, 1), wxGBSpan(1, cols - 1), 
 		wxALL | wxEXPAND, padding);
@@ -86,6 +86,8 @@ LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info, bo
 	
 	SetSizer(mainBox);
 	mainBox->SetSizeHints(this);
+	(*usernameTextBox) << info.username;
+	(*passwordTextBox) << info.password;
 }
 
 LoginDialog::~LoginDialog()
