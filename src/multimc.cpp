@@ -49,6 +49,7 @@ bool MultiMC::OnInit()
 #endif
 	updateOnExit = false;
 	startMode = START_NORMAL;
+	bool isLocalMode = false;
 	
 	// This is necessary for the update system since it calls OnInitCmdLine
 	// to set up the command line arguments that the update system uses.
@@ -68,8 +69,12 @@ bool MultiMC::OnInit()
 	}
 	else
 	{
-		wxFileName mmcDir = wxStandardPaths::Get().GetExecutablePath();
-		wxSetWorkingDirectory(mmcDir.GetPath());
+		wxString mmcDir = wxStandardPaths::Get().GetExecutablePath();
+		wxString cfgFil = Path::Combine(wxGetCwd(), "multimc.cfg");
+		if (!wxFileExists(cfgFil))
+			wxSetWorkingDirectory(mmcDir);
+		else
+			isLocalMode = true;
 	}
 	
 	wxString cwd = wxGetCwd();
@@ -80,6 +85,11 @@ bool MultiMC::OnInit()
 	}
 
 	SetAppName(_("MultiMC"));
+
+	if (isLocalMode && !settings->GetUserIsAwareOfLocal()) {
+		wxLogMessage(_("Found existing multimc.cfg in current (run-in) directory.\nWill run in 'Local Mode', using that config.\nThis message will only be shown once for this multimc.cfg"));
+		settings->SetUserIsAwareOfLocal()
+	}
 	
 	wxInitAllImageHandlers();
 	wxSocketBase::Initialize();
