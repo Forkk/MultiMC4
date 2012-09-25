@@ -76,6 +76,12 @@ bool MultiMC::OnInit()
 		else
 			isLocalMode = true;
 	}
+
+	if (!InitAppSettings())
+	{
+		wxLogError(_("Failed to initialize settings."));
+		return false;
+	}
 	
 	wxString cwd = wxGetCwd();
 	if(cwd.Contains(_("!")))
@@ -113,12 +119,6 @@ This message will only be shown once for this multimc.cfg"));
 	
 	wxFileSystem::AddHandler(new wxArchiveFSHandler);
 	// 	wxFileSystem::AddHandler(new wxMemoryFSHandler);
-	
-	if (!InitAppSettings())
-	{
-		wxLogError(_("Failed to initialize settings->"));
-		return false;
-	}
 	
 	if (!settings->GetInstDir().DirExists())
 		settings->GetInstDir().Mkdir();
