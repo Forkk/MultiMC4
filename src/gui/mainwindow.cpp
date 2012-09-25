@@ -765,7 +765,7 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 	info.SetName(_("MultiMC"));
 	info.SetVersion(wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
 	info.SetDescription(_("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once."));
-	info.SetCopyright(_("(C) 2012 Andrew Okin"));
+	info.SetCopyright(_("(C) 2012 MultiMC Contributors"));
 	
 	info.SetWebSite(_("http://forkk.net/MultiMC4"));
 	info.SetLicense(licenseText);
