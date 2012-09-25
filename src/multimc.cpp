@@ -86,9 +86,12 @@ bool MultiMC::OnInit()
 
 	SetAppName(_("MultiMC"));
 
-	if (isLocalMode && !settings->GetUserIsAwareOfLocal()) {
-		wxLogMessage(_("Found existing multimc.cfg in current (run-in) directory.\nWill run in 'Local Mode', using that config.\nThis message will only be shown once for this multimc.cfg"));
-		settings->SetUserIsAwareOfLocal()
+	if (isLocalMode && !settings->GetUserIsAwareOfLocal())
+	{
+		wxLogMessage(_("Found existing multimc.cfg in current (run-in) directory.\n\
+Will run in 'Local Mode', using that config.\n\
+This message will only be shown once for this multimc.cfg"));
+		settings->SetUserIsAwareOfLocal();
 	}
 	
 	wxInitAllImageHandlers();
