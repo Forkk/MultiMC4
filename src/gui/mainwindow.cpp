@@ -907,6 +907,8 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 			auto task = new GameUpdateTask(inst, result.latestVersion, result.forceUpdate);
 			StartTask(task);
 			delete task;
+			if(GetGUIMode() == GUI_Default)
+				UpdateInstPanel();
 		}
 		
 		if (inst->ShouldRebuild())

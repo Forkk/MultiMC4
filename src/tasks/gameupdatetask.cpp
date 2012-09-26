@@ -70,6 +70,7 @@ wxThread::ExitCode GameUpdateTask::TaskStart()
 		{
 			m_inst->WriteVersionFile(m_latestVersion);
 			DownloadJars();
+			m_inst->UpdateVersion(false);
 			ExtractNatives();
 			wxRemoveFile(Path::Combine(m_inst->GetBinDir(), wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
 		}
