@@ -178,7 +178,6 @@ protected:
 	
 	wxBoxSizer *instNameSz;
 	wxStaticText *instNameLabel;
-	wxStaticText *mcVersionLabel;
 	wxTextCtrl *instNameEditor;
 	
 	void UpdateNotesBox();

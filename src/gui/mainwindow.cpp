@@ -309,7 +309,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	instPanel->SetSizer(instSz);
 	
 	const int cols = 5;
-	const int rows = 4;
+	const int rows = 3;
 	
 	wxFont titleFont(18, wxSWISS, wxNORMAL, wxNORMAL);
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
@@ -332,29 +332,9 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 		wxDefaultPosition, wxDefaultSize);
 	instNameLabel->SetFont(titleFont);
 	instNameSz->Add(instNameLabel, wxSizerFlags(0).Align(wxALIGN_CENTER));
-
-	// Instance info GBSizer
-	{
-		wxGridBagSizer *instInfoSz = new wxGridBagSizer();
-
-		int icols = 2;
-
-		wxStaticText *mcVersionSLabel = new wxStaticText(instPanel, -1, _("Minecraft Version: "));
-		instInfoSz->Add(mcVersionSLabel, wxGBPosition(0, 0), wxGBSpan(1, 1), wxALL, 4);
-
-		mcVersionLabel = new wxStaticText(instPanel, -1, wxEmptyString);
-		instInfoSz->Add(mcVersionLabel, wxGBPosition(0, 1), wxGBSpan(1, 1), wxALL | wxALIGN_RIGHT, 4);
-
-		for (int i = 0; i < icols; i++)
-		{
-			instInfoSz->AddGrowableCol(i);
-		}
-
-		instSz->Add(instInfoSz, wxGBPosition(1, 1), wxGBSpan(1, cols - 2), wxEXPAND);
-	}
 	
 	instNotesEditor = new wxTextCtrl(instPanel, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_RICH);
-	instSz->Add(instNotesEditor, wxGBPosition(2, 1), wxGBSpan(rows - 2, cols - 2), wxEXPAND | wxLEFT | wxTOP | wxRIGHT, 4);
+	instSz->Add(instNotesEditor, wxGBPosition(1, 1), wxGBSpan(rows - 1, cols - 2), wxEXPAND | wxLEFT | wxTOP | wxRIGHT, 4);
 	
 	wxPanel *btnPanel = new wxPanel(instPanel);
 	wxBoxSizer *btnSz = new wxBoxSizer(wxVERTICAL);
@@ -390,7 +370,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnSz->Add(btnViewFolder, szflags);
 	
 	instSz->AddGrowableCol(1, 0);
-	instSz->AddGrowableRow(2, 0);
+	instSz->AddGrowableRow(1, 0);
 	SetMinSize(instSz->ComputeFittingWindowSize(this));
 	UpdateInstPanel();
 }
@@ -405,15 +385,6 @@ void MainWindow::UpdateInstPanel()
 	//UpdateInstNameLabel(inst);
 	UpdateNotesBox();
 	CancelRename();
-
-	if (m_currentInstance)
-	{
-		mcVersionLabel->SetLabel(m_currentInstance->GetJarVersion());
-	}
-	else
-	{
-		mcVersionLabel->SetLabel(wxT("Unknown"));
-	}
 
 	instPanel->Layout();
 }
@@ -443,6 +414,9 @@ void MainWindow::OnInstSelected(wxInstanceCtrlEvent &event)
 		SaveNotesBox();
 	m_currentInstanceIdx = event.GetIndex();
 	m_currentInstance = GetLinkedInst(m_currentInstanceIdx);
+
+	SetStatusText(wxT("Minecraft Version: ") + m_currentInstance->GetJarVersion());
+
 	if(GetGUIMode() == GUI_Default)
 		UpdateInstPanel();
 }
