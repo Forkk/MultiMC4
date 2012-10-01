@@ -32,5 +32,5 @@ protected:
 	wxString m_path;
 	wxOutputStream *m_out;
 
-	bool CompressRecursively(const wxString &path, wxZipOutputStream &zipStream, const wxString &topDir);
+	bool DiscoverFiles(const wxString &path, wxArrayString &fileList);
 };

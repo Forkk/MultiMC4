@@ -30,42 +30,63 @@ ZipTask::ZipTask(wxOutputStream *out, const wxString &path)
 	m_path = path;
 }
 
-bool ZipTask::CompressRecursively(const wxString &path, wxZipOutputStream &zipStream, const wxString &topDir)
+bool ZipTask::DiscoverFiles(const wxString &path, wxArrayString &fileList)
 {
-	wxFileName destPath(path);
-	destPath.MakeRelativeTo(topDir);
-
-	if (wxFileExists(path))
+	if (wxDirExists(path))
 	{
-		zipStream.PutNextEntry(destPath.GetFullPath());
+		wxDir subDir(path);
 
-		SetStatus(wxT("Zipping ") + path);
-		wxFFileInputStream inStream(path);
-		zipStream.Write(inStream);
-	}
-	else if (wxDirExists(path))
-	{
-		zipStream.PutNextDirEntry(destPath.GetFullPath());
-		wxDir dir(path);
-
-		wxString subpath;
-		if (dir.GetFirst(&subpath))
+		if (!subDir.IsOpened())
 		{
-			do
-			{
-				if (!CompressRecursively(Path::Combine(path, subpath), zipStream, topDir))
-					return false;
-			} while (dir.GetNext(&subpath));
+			return false;
 		}
+
+		wxString currentFile;
+		if (subDir.GetFirst(&currentFile))
+		{
+			do 
+			{
+				currentFile = Path::Combine(subDir.GetName(), currentFile);
+
+				if (wxFileExists(currentFile) || wxDirExists(currentFile))
+				{
+					if (!DiscoverFiles(currentFile, fileList))
+						return false;
+				}
+			} while (subDir.GetNext(&currentFile));
+		}
+	}
+	else if (wxFileExists(path))
+	{
+		fileList.Add(path);
 	}
 	return true;
 }
 
 wxThread::ExitCode ZipTask::TaskStart()
 {
-	SetStatus("Zipping...");
+	SetStatus("Searching for files...");
+
+	wxArrayString fileList;
+	if (!DiscoverFiles(m_path, fileList))
+		return (ExitCode)0;
+	
+	int ctr = 0;
 	wxZipOutputStream zipStream(*m_out);
-	if (CompressRecursively(m_path, zipStream, m_path))
-		return (ExitCode)1;
-	return (ExitCode)0;
+	for (wxArrayString::iterator iter = fileList.begin(); iter != fileList.end(); ++iter, ctr++)
+	{
+		wxFileName file(*iter);
+
+		wxFileName destFile(file);
+		destFile.MakeRelativeTo(m_path);
+
+		zipStream.PutNextEntry(destFile.GetFullPath());
+
+		SetStatus(wxT("Zipping ") + destFile.GetFullPath());
+		wxFFileInputStream inStream(file.GetFullPath());
+		zipStream.Write(inStream);
+		SetProgress(((float)ctr / (float)fileList.size()) * 100);
+	}
+
+	return (ExitCode)1;
 }
