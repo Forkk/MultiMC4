@@ -1114,6 +1114,7 @@ void MainWindow::EnableInstActions(bool enabled)
 		btnPlay->Enable(enabled);
 		btnRename->Enable(enabled);
 		btnChangeIcon->Enable(enabled);
+		btnManageSaves->Enable(enabled);
 		btnEditMods->Enable(enabled);
 		btnInstSettings->Enable(enabled);
 		btnRebuildJar->Enable(enabled);

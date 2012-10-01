@@ -25,6 +25,9 @@
 #include "apputils.h"
 #include "fsutils.h"
 
+#include "ziptask.h"
+#include "taskprogressdialog.h"
+
 enum
 {
 	ID_Explore,
@@ -160,7 +163,12 @@ void SaveMgrWindow::OnExportZipClicked(wxCommandEvent& event)
 		wxString fileDest = exportZipDialog.GetPath();
 
 		wxFFileOutputStream outStream(fileDest);
-		fsutils::CompressZipArchive(outStream, world->GetSaveDir());
+		ZipTask *task = new ZipTask(&outStream, world->GetSaveDir());
+
+		TaskProgressDialog dlg(this);
+		dlg.ShowModal(task);
+
+		delete task;
 	}
 }
 
