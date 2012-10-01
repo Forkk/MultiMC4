@@ -260,10 +260,11 @@ int MultiMC::OnExit()
 
 	if (updateOnExit && wxFileExists(updaterFileName))
 	{
-		wxFileName updateFile(Path::Combine(wxGetCwd(), updaterFileName));
+		wxFileName updateFile(updaterFileName);
 		if (IS_LINUX() || IS_MAC())
 		{
 			wxExecute(_("chmod +x ") + updateFile.GetFullPath());
+			updateFile.MakeAbsolute();
 		}
 
 		wxProcess proc;
@@ -272,9 +273,7 @@ int MultiMC::OnExit()
 		wxString thisFilePath = wxStandardPaths::Get().GetExecutablePath();
 
 #if defined __WXMSW__
-		updateFilePath.Replace(wxT(" "), wxT("^ "));
-
-		wxString launchCmd = wxString::Format(_("%s -u \"%s\""),
+		wxString launchCmd = wxString::Format(_("cmd /C %s -u \"%s\""),
 			updateFilePath.c_str(), thisFilePath.c_str());
 #else
 		updateFilePath.Replace(_(" "), _("\\ "));
@@ -284,11 +283,7 @@ int MultiMC::OnExit()
 			updateFilePath.c_str(), thisFilePath.c_str());
 #endif
 
-		if (IS_WINDOWS())
-		{
-			launchCmd = wxString::Format(_("cmd /C %s"), launchCmd.c_str());
-		}
-
+		wxMessageBox(launchCmd);
 		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
 		proc.Detach();
 	}
