@@ -283,7 +283,6 @@ int MultiMC::OnExit()
 			updateFilePath.c_str(), thisFilePath.c_str());
 #endif
 
-		wxMessageBox(launchCmd);
 		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
 		proc.Detach();
 	}
