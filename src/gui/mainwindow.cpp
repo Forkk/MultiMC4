@@ -40,6 +40,7 @@
 #include "updatepromptdlg.h"
 #include "taskprogressdialog.h"
 #include "snapshotdialog.h"
+#include "savemgrwindow.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -360,6 +361,8 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnSz->AddSpacer(spacerSize);
 	btnEditMods = new wxButton(btnPanel, ID_EditMods, _("Edit &Mods"));
 	btnSz->Add(btnEditMods, szflags);
+	btnManageSaves = new wxButton(btnPanel, ID_ManageSaves, _("Manage Saves"));
+	btnSz->Add(btnManageSaves, szflags);
 	btnDowngrade = new wxButton(btnPanel, ID_DowngradeInst, _("Downgrade"));
 	btnSz->Add(btnDowngrade, szflags);
 	btnSnapshot = new wxButton(btnPanel, ID_UseSnapshot, _("Snapshot"));
@@ -1111,6 +1114,7 @@ void MainWindow::EnableInstActions(bool enabled)
 		btnPlay->Enable(enabled);
 		btnRename->Enable(enabled);
 		btnChangeIcon->Enable(enabled);
+		btnManageSaves->Enable(enabled);
 		btnEditMods->Enable(enabled);
 		btnInstSettings->Enable(enabled);
 		btnRebuildJar->Enable(enabled);
@@ -1133,7 +1137,11 @@ void MainWindow::DisableInstActions()
 
 void MainWindow::OnManageSavesClicked(wxCommandEvent& event)
 {
-	NotImplemented();
+	if (!m_currentInstance)
+		return;
+
+	SaveMgrWindow *saveMgr = new SaveMgrWindow(this, m_currentInstance);
+	saveMgr->Show();
 }
 
 void MainWindow::OnEditModsClicked(wxCommandEvent& event)

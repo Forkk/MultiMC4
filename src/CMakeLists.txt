@@ -123,6 +123,7 @@ gui/updatepromptdlg.cpp
 gui/taskprogressdialog.cpp
 gui/snapshotdialog.cpp
 gui/installforgedialog.cpp
+gui/savemgrwindow.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -131,6 +132,8 @@ data/mod.cpp
 data/modlist.cpp
 data/configpack.cpp
 data/snapshotlist.cpp
+data/worldlist.cpp
+data/world.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
@@ -141,6 +144,7 @@ tasks/filedownloadtask.cpp
 tasks/filecopytask.cpp
 tasks/exportpacktask.cpp
 tasks/downgradetask.cpp
+tasks/ziptask.cpp
 
 java/javautils.cpp
 
@@ -174,6 +178,7 @@ gui/updatepromptdlg.h
 gui/taskprogressdialog.h
 gui/snapshotdialog.h
 gui/installforgedialog.h
+gui/savemgrwindow.h
 
 data/appsettings.h
 data/instance.h
@@ -182,6 +187,8 @@ data/mod.h
 data/modlist.h
 data/configpack.h
 data/snapshotlist.h
+data/worldlist.h
+data/world.h
 
 tasks/task.h
 tasks/logintask.h
@@ -192,6 +199,7 @@ tasks/filedownloadtask.h
 tasks/filecopytask.h
 tasks/exportpacktask.h
 tasks/downgradetask.h
+tasks/ziptask.h
 
 java/endian.h
 java/classfile.h

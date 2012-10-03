@@ -27,6 +27,8 @@
 #include "appsettings.h"
 #include "mod.h"
 #include "modlist.h"
+#include "world.h"
+#include "worldlist.h"
 
 bool IsValidInstance(wxFileName rootDir);
 
@@ -90,6 +92,8 @@ public:
 	ModList *GetModList();
 	ModList *GetMLModList();
 	ModList *GetCoreModList();
+
+	WorldList *GetWorldList();
 	
 	void GetPossibleConfigFiles(wxArrayString *array, wxString dir = wxEmptyString);
 	
@@ -199,6 +203,8 @@ protected:
 	};
 	FolderModList mlModList;
 	FolderModList coreModList;
+
+	WorldList worldList;
 	
 	wxFileName rootDir;
 	wxString version;
@@ -208,6 +214,7 @@ protected:
 	bool modloader_list_inited;
 	bool coremod_list_inited;
 	bool jar_list_inited;
+	bool world_list_initialized;
 	wxString m_lastLaunchCommand;
 	
 	wxEvtHandler *evtHandler;

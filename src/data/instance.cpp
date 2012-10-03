@@ -81,9 +81,11 @@ Instance::Instance(const wxFileName &rootDir)
 	modList.SetDir(GetInstModsDir().GetFullPath());
 	mlModList.SetDir(GetMLModsDir().GetFullPath());
 	coreModList.SetDir(GetCoreModsDir().GetFullPath());
+	worldList.SetDir(GetSavesDir().GetFullPath());
 	modloader_list_inited = false;
 	coremod_list_inited = false;
 	jar_list_inited = false;
+	world_list_initialized = false;
 	UpdateVersion();
 }
 
@@ -492,6 +494,16 @@ ModList *Instance::GetCoreModList()
 		coremod_list_inited = true;
 	}
 	return &coreModList;
+}
+
+WorldList *Instance::GetWorldList()
+{
+	if (!world_list_initialized)
+	{
+		worldList.UpdateWorldList();
+		world_list_initialized = true;
+	}
+	return &worldList;
 }
 
 void Instance::GetPossibleConfigFiles(wxArrayString *array, wxString dir)

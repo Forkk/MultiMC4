@@ -167,6 +167,7 @@ protected:
 	wxButton *btnCopyInst;
 	wxButton *btnInstSettings;
 	wxButton *btnEditMods;
+	wxButton *btnManageSaves;
 	wxButton *btnDowngrade;
 	wxButton *btnSnapshot;
 	wxButton *btnRebuildJar;
