@@ -38,18 +38,38 @@ public:
 		void UpdateListItems();
 
 		World *GetSelectedSave();
+		wxArrayInt GetSelectedItems();
+
+		void RefreshList();
 
 	protected:
 		Instance *m_inst;
 
 	} *saveList;
+
+	class SaveListDropTarget : public wxFileDropTarget
+	{
+	public:
+		SaveListDropTarget(SaveListCtrl *owner, Instance *inst);
+
+		virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames);
+
+		virtual wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
+
+	protected:
+		Instance *m_inst;
+		SaveListCtrl *m_owner;
+	};
 	
 protected:	
 	MainWindow *m_mainWin;
 	Instance *m_inst;
 
+	void RefreshList();
+
 	void OnCloseClicked(wxCommandEvent& event);
 	void OnViewFolderClicked(wxCommandEvent& event);
+	void OnRefreshClicked(wxCommandEvent& event);
 
 	// Exports selected save as a zip file.
 	wxButton *exportZip;
@@ -57,6 +77,7 @@ protected:
 	void OnExportZipClicked(wxCommandEvent& event);
 
 	void OnSelChanged(wxListEvent &event);
+	void OnDragSave(wxListEvent &event);
 
 	void EnableSideButtons(bool enable = true);
 	
