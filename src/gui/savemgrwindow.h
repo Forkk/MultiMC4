@@ -42,6 +42,8 @@ public:
 
 		void RefreshList();
 
+		void AddSaveFromPath(wxString path);
+
 	protected:
 		Instance *m_inst;
 
@@ -67,9 +69,15 @@ protected:
 
 	void RefreshList();
 
+	void OnAddClicked(wxCommandEvent& event);
+	void OnRemoveClicked(wxCommandEvent& event);
+
 	void OnCloseClicked(wxCommandEvent& event);
 	void OnViewFolderClicked(wxCommandEvent& event);
 	void OnRefreshClicked(wxCommandEvent& event);
+
+	wxButton *addBtn;
+	wxButton *removeBtn;
 
 	// Exports selected save as a zip file.
 	wxButton *exportZip;
@@ -80,6 +88,6 @@ protected:
 	void OnDragSave(wxListEvent &event);
 
 	void EnableSideButtons(bool enable = true);
-	
+
 	DECLARE_EVENT_TABLE()
 };

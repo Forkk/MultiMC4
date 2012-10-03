@@ -58,12 +58,21 @@ SaveMgrWindow::SaveMgrWindow(MainWindow *parent, Instance *inst)
 	// Buttons in the side panel beside the world list.
 	{
 		wxBoxSizer *sideBtnSz = new wxBoxSizer(wxVERTICAL);
-		mainBox->Add(sideBtnSz, wxGBPosition(0, 1), wxGBSpan(1, 1), wxALL, 4);
+		mainBox->Add(sideBtnSz, wxGBPosition(0, 1), wxGBSpan(1, 1), wxALL | wxEXPAND, 4);
 
-		const wxSizerFlags sideBtnSzFlags = wxSizerFlags().Border(wxBOTTOM, 4);
+		const wxSizerFlags topSideBtnFlags = wxSizerFlags(0).Border(wxBOTTOM, 4).Align(wxALIGN_TOP).Expand();
+		const wxSizerFlags bottomSideBtnFlags = wxSizerFlags(0).Border(wxTOP, 4).Align(wxALIGN_BOTTOM).Expand();
+
+		addBtn = new wxButton(mainPanel, wxID_ADD, _("&Add"));
+		sideBtnSz->Add(addBtn, topSideBtnFlags);
+
+		removeBtn = new wxButton(mainPanel, wxID_REMOVE, _("&Delete"));
+		sideBtnSz->Add(removeBtn, topSideBtnFlags);
+
+		sideBtnSz->AddStretchSpacer();
 
 		exportZip = new wxButton(mainPanel, ID_ExportZip, _("Export to Zip"));
-		sideBtnSz->Add(exportZip, sideBtnSzFlags);
+		sideBtnSz->Add(exportZip, bottomSideBtnFlags);
 
 		EnableSideButtons(false);
 	}
@@ -156,56 +165,7 @@ bool SaveMgrWindow::SaveListDropTarget::OnDropFiles(wxCoord x, wxCoord y, const 
 {
 	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); iter++)
 	{
-		if (wxDirExists(*iter))
-		{
-			wxFileName srcPath(*iter);
-			wxFileName destPath(Path::Combine(m_inst->GetSavesDir(), srcPath.GetFullName()));
-
-			// Skip if the destination is the same as the source.
-			if (srcPath.SameAs(destPath))
-			{
-				continue;
-			}
-
-			if (!wxFileExists(Path::Combine(*iter, "level.dat")) &&
-				wxMessageBox(_("This folder does not contain a level.dat file. Continue?"), 
-				_("Not a valid save."), wxOK | wxCANCEL | wxCENTER, m_owner->GetParent()) == wxID_CANCEL)
-			{
-				continue;
-			}
-
-			if (wxDirExists(destPath.GetFullPath()))
-			{
-				int ctr = 1;
-				wxString dPathName = destPath.GetName();
-				while (wxDirExists(destPath.GetFullPath()) && ctr < 9000)
-				{
-					destPath.SetName(wxString::Format("%s (%i)", dPathName.c_str(), ctr));
-					ctr++;
-				}
-
-				if (wxMessageBox(wxString::Format(
-						_("There's already a save with the filename '%s'. Copy to '%s' instead?"), 
-						dPathName.c_str(), destPath.GetFullName().c_str()), 
-					_("File already exists."), wxOK | wxCANCEL | wxCENTER, m_owner->GetParent()) == wxCANCEL)
-				{
-					continue;
-				}
-			}
-
-			if (wxFileExists(destPath.GetFullPath()))
-			{
-				wxLogError("Failed to copy world. File already exists.");
-				continue;
-			}
-
-			FileCopyTask *task = new FileCopyTask(*iter, destPath.GetFullPath());
-			TaskProgressDialog dlg(m_owner->GetParent());
-			dlg.ShowModal(task);
-			delete task;
-
-			m_owner->RefreshList();
-		}
+		m_owner->AddSaveFromPath(*iter);
 	}
 	return true;
 }
@@ -300,7 +260,92 @@ void SaveMgrWindow::OnRefreshClicked(wxCommandEvent& event)
 	RefreshList();
 }
 
+void SaveMgrWindow::OnAddClicked(wxCommandEvent& event)
+{
+	wxDirDialog dirDlg (this, "Choose a world to add.", wxEmptyString);
+	if (dirDlg.ShowModal() == wxID_OK)
+	{
+		saveList->AddSaveFromPath(dirDlg.GetPath());
+	}
+}
+
+void SaveMgrWindow::OnRemoveClicked(wxCommandEvent& event)
+{
+	if (saveList->GetSelectedSave() == nullptr)
+		return;
+
+	wxMessageDialog dlg(this, "Are you sure you want to delete this world?\n"
+	                          "Deleted worlds are lost FOREVER! (a really long time)",
+	                          "Confirm deletion.",
+	                          wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
+	dlg.CenterOnParent();
+	if (dlg.ShowModal() == wxID_YES)
+	{
+		fsutils::RecursiveDelete(saveList->GetSelectedSave()->GetSaveDir());
+		RefreshList();
+	}
+}
+
+void SaveMgrWindow::SaveListCtrl::AddSaveFromPath(wxString path)
+{
+	if (!wxDirExists(path))
+	{
+		return;
+	}
+
+	wxFileName srcPath(path);
+	wxFileName destPath(Path::Combine(m_inst->GetSavesDir(), srcPath.GetFullName()));
+
+	// Skip if the destination is the same as the source.
+	if (srcPath.SameAs(destPath))
+	{
+		return;
+	}
+
+	if (!wxFileExists(Path::Combine(path, "level.dat")) &&
+		wxMessageBox(_("This folder does not contain a level.dat file. Continue?"), 
+		_("Not a valid save."), wxOK | wxCANCEL | wxCENTER, GetParent()) == wxID_CANCEL)
+	{
+		return;
+	}
+
+	if (wxDirExists(destPath.GetFullPath()))
+	{
+		int ctr = 1;
+		wxString dPathName = destPath.GetName();
+		while (wxDirExists(destPath.GetFullPath()) && ctr < 9000)
+		{
+			destPath.SetName(wxString::Format("%s (%i)", dPathName.c_str(), ctr));
+			ctr++;
+		}
+
+		if (wxMessageBox(wxString::Format(
+			_("There's already a save with the filename '%s'. Copy to '%s' instead?"), 
+			dPathName.c_str(), destPath.GetFullName().c_str()), 
+			_("File already exists."), wxOK | wxCANCEL | wxCENTER, GetParent()) == wxCANCEL)
+		{
+			return;
+		}
+	}
+
+	if (wxFileExists(destPath.GetFullPath()))
+	{
+		wxLogError("Failed to copy world. File already exists.");
+		return;
+	}
+
+	FileCopyTask *task = new FileCopyTask(path, destPath.GetFullPath());
+	TaskProgressDialog dlg(GetParent());
+	dlg.ShowModal(task);
+	delete task;
+
+	RefreshList();
+}
+
 BEGIN_EVENT_TABLE(SaveMgrWindow, wxFrame)
+	EVT_BUTTON(wxID_ADD, SaveMgrWindow::OnAddClicked)
+	EVT_BUTTON(wxID_REMOVE, SaveMgrWindow::OnRemoveClicked)
+
 	EVT_BUTTON(wxID_CLOSE, SaveMgrWindow::OnCloseClicked)
 	EVT_BUTTON(ID_Explore, SaveMgrWindow::OnViewFolderClicked)
 	EVT_BUTTON(ID_ReloadList, SaveMgrWindow::OnRefreshClicked)
