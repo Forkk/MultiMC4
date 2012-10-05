@@ -184,9 +184,6 @@ class AppSettings : public SettingsBase
 public:
 	AppSettings();
 	~AppSettings();
-
-	virtual bool GetUserIsAwareOfLocal() { return GetSetting<bool>("UserIsAwareOfLocal", false); };
-	virtual void SetUserIsAwareOfLocal() { SetSetting<bool>("UserIsAwareOfLocal", true); };
 };
 
 extern AppSettings *settings;
