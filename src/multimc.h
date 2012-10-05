@@ -38,7 +38,8 @@ public:
 	const wxIconBundle &GetAppIcons() const;
 	
 	bool updateOnExit;
-	bool useSystemCwd;
+	bool useProvidedDir;
+	wxFileName providedDir;
 protected:
 	wxIconBundle AppIcons;
 
@@ -73,8 +74,8 @@ const wxCmdLineEntryDesc cmdLineDesc[] =
 	{ wxCMD_LINE_OPTION, _("l"), _("launch"), _("tries to launch the given instance"),
 		wxCMD_LINE_VAL_STRING },
 	
-	{ wxCMD_LINE_SWITCH, _("c"), _("usecwd"), _("use current working directory as multimc root instead of the binary location"),
-		wxCMD_LINE_VAL_NONE },
+	{ wxCMD_LINE_OPTION, _("d"), _("dir"), _("use the supplied directory as MultiMC root instead of the binary location (use '.' for current)"),
+		wxCMD_LINE_VAL_STRING },
 
 	{ wxCMD_LINE_NONE }
 };
