@@ -69,10 +69,10 @@ bool MultiMC::OnInit()
 	}
 	else
 	{
-		wxString mmcDir = wxStandardPaths::Get().GetExecutablePath();
+		wxFileName mmcDir (wxStandardPaths::Get().GetExecutablePath());
 		wxString cfgFil = Path::Combine(wxGetCwd(), "multimc.cfg");
 		if (!wxFileExists(cfgFil))
-			wxSetWorkingDirectory(mmcDir);
+			wxSetWorkingDirectory(mmcDir.GetPath());
 		else if (mmcDir != wxGetCwd())
 			isLocalMode = true;
 	}
