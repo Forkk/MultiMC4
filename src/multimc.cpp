@@ -34,6 +34,7 @@
 
 #ifdef wx29
 #include <wx/persist/toplevel.h>
+#include <wx/dir.h>
 #endif
 
 #include "resources/windowicon.h"
@@ -49,7 +50,7 @@ bool MultiMC::OnInit()
 #endif
 	updateOnExit = false;
 	startMode = START_NORMAL;
-	useSystemCwd = false;
+	useProvidedDir = false;
 	
 	// This is necessary for the update system since it calls OnInitCmdLine
 	// to set up the command line arguments that the update system uses.
@@ -67,10 +68,15 @@ bool MultiMC::OnInit()
 
 		wxSetWorkingDirectory(mmcDir.GetFullPath());
 	}
-	else if(!useSystemCwd)
+	else if(!useProvidedDir)
 	{
 		wxFileName mmcDir (wxStandardPaths::Get().GetExecutablePath());
 		wxSetWorkingDirectory(mmcDir.GetPath());
+	}
+	else
+	{
+		// do use provided directory
+		wxSetWorkingDirectory(providedDir.GetFullPath());
 	}
 
 	if (!InitAppSettings())
@@ -155,9 +161,20 @@ void MultiMC::OnInitCmdLine(wxCmdLineParser &parser)
 bool MultiMC::OnCmdLineParsed(wxCmdLineParser& parser)
 {
 	wxString parsedOption;
-	if(parser.FoundSwitch("c"))
+	if(parser.Found("d", &parsedOption))
 	{
-		useSystemCwd = true;
+		if (!wxDirExists(parsedOption))
+		{
+			std::cerr << "Provided directory doesn't exist!" << std::endl;
+			return false;
+		}
+		providedDir.AssignDir( parsedOption );
+		if(!providedDir.IsDirReadable() || !providedDir.IsDirWritable())
+		{
+			std::cerr << "You don't have read or write rights for the provided directory!" << std::endl;
+			return false;
+		}
+		useProvidedDir = true;
 	}
 	if (parser.Found(_("u"), &parsedOption))
 	{

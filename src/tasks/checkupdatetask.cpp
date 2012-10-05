@@ -72,6 +72,12 @@ wxThread::ExitCode CheckUpdateTask::TaskStart()
 	// Determine the latest stable build.
 	int buildNumber = GetBuildNumber(mainPageJSON);
 
+	if(buildNumber == -1)
+	{
+		wxLogError("Failed to check for updates. The update server is likely down. Please try later.");
+		return (ExitCode)0;
+	}
+	
 	// Figure out where to download the latest update.
 	wxString dlFileName;
 	if (IS_WINDOWS())
@@ -82,9 +88,8 @@ wxThread::ExitCode CheckUpdateTask::TaskStart()
 	wxString newCIURL = ciURL;
 	if (newCIURL.EndsWith("/"))
 		newCIURL.RemoveLast();
-
-	wxString dlURL = wxString::Format(_("%s/%i/artifact/%s"), newCIURL.c_str(), 
-		buildNumber, dlFileName.c_str());
+	
+	wxString dlURL = wxString::Format(_("%s/%i/artifact/%s"), newCIURL.c_str(), buildNumber, dlFileName.c_str());
 	
 	SetProgress(75);
 	OnCheckComplete(buildNumber, dlURL);
@@ -105,9 +110,7 @@ int CheckUpdateTask::GetBuildNumber(const wxString &mainPageJSON)
 	}
 	catch (json_parser_error e)
 	{
-		wxLogError(_("Failed to check for updates.\nJSON parser error at line %i: %s"), 
-			e.line(), wxStr(e.message()).c_str());
-		return 0;
+		return -1;
 	}
 	
 }
