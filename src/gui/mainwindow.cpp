@@ -1207,15 +1207,16 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 				if (wxFileExists(m_currentInstance->GetMCBackup().GetFullPath()) &&
 					!wxRemoveFile(m_currentInstance->GetMCBackup().GetFullPath()))
 				{
+					wxLogError(_("MultiMC was unable to replace the old .jar with the new snapshot."));
 					return;
 				}
 
 				if (wxCopyFile(snapshotJar, m_currentInstance->GetMCJar().GetFullPath()))
 				{
-					return;
+					m_currentInstance->UpdateVersion();
+					UpdateInstPanel();
 				}
 			}
-			UpdateInstPanel();
 		}
 	}
 	else
