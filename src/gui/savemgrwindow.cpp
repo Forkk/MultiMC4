@@ -19,6 +19,7 @@
 #include <wx/sizer.h>
 #include <wx/gbsizer.h>
 #include <wx/wfstream.h>
+#include <wx/clipbrd.h>
 
 #include "mainwindow.h"
 
@@ -109,6 +110,14 @@ SaveMgrWindow::SaveListCtrl::SaveListCtrl(wxWindow *parent, Instance *inst)
 {
 	m_inst = inst;
 	UpdateListItems();
+
+	const int accelCount = 3;
+	wxAcceleratorEntry entries[accelCount];
+	entries[0].Set(wxACCEL_NORMAL,	WXK_DELETE,	wxID_DELETE);
+	entries[1].Set(wxACCEL_CTRL,	(int) 'C',	wxID_COPY);
+	entries[2].Set(wxACCEL_CTRL,	(int) 'V',	wxID_PASTE);
+	wxAcceleratorTable accel(accelCount, entries);
+	SetAcceleratorTable(accel);
 }
 
 void SaveMgrWindow::SaveListCtrl::UpdateListItems()
@@ -271,19 +280,7 @@ void SaveMgrWindow::OnAddClicked(wxCommandEvent& event)
 
 void SaveMgrWindow::OnRemoveClicked(wxCommandEvent& event)
 {
-	if (saveList->GetSelectedSave() == nullptr)
-		return;
-
-	wxMessageDialog dlg(this, "Are you sure you want to delete this world?\n"
-	                          "Deleted worlds are lost FOREVER! (a really long time)",
-	                          "Confirm deletion.",
-	                          wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
-	dlg.CenterOnParent();
-	if (dlg.ShowModal() == wxID_YES)
-	{
-		fsutils::RecursiveDelete(saveList->GetSelectedSave()->GetSaveDir());
-		RefreshList();
-	}
+	saveList->DeleteSelected();
 }
 
 void SaveMgrWindow::SaveListCtrl::AddSaveFromPath(wxString path)
@@ -342,6 +339,74 @@ void SaveMgrWindow::SaveListCtrl::AddSaveFromPath(wxString path)
 	RefreshList();
 }
 
+void SaveMgrWindow::SaveListCtrl::DeleteSelected()
+{
+	if (GetSelectedSave() == nullptr)
+		return;
+
+	wxMessageDialog dlg(GetParent(), "Are you sure you want to delete this world?\n"
+		"Deleted worlds are lost FOREVER! (a really long time)",
+		"Confirm deletion.",
+		wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION | wxCENTRE | wxSTAY_ON_TOP);
+	dlg.CenterOnParent();
+	if (dlg.ShowModal() == wxID_YES)
+	{
+		fsutils::RecursiveDelete(GetSelectedSave()->GetSaveDir());
+		RefreshList();
+	}
+}
+
+void SaveMgrWindow::SaveListCtrl::OnCopy(wxCommandEvent& event)
+{
+	WorldList *worlds = m_inst->GetWorldList();
+	wxFileDataObject *worldFileObj = new wxFileDataObject;
+
+	wxArrayInt indices = GetSelectedItems();
+	for (wxArrayInt::const_iterator iter = indices.begin(); iter != indices.end(); ++iter)
+	{
+		wxFileName worldFile = worlds->at(*iter).GetSaveDir();
+		worldFile.MakeAbsolute();
+		worldFileObj->AddFile(worldFile.GetFullPath());
+	}
+
+	if (wxTheClipboard->Open())
+	{
+		wxTheClipboard->SetData(worldFileObj);
+		wxTheClipboard->Close();
+	}
+}
+
+void SaveMgrWindow::SaveListCtrl::OnPaste(wxCommandEvent& event)
+{
+	wxFileDataObject data;
+
+	// Get data from the clipboard.
+	if (wxTheClipboard->Open())
+	{
+		if (wxTheClipboard->IsSupported(wxDF_FILENAME))
+		{
+			wxTheClipboard->GetData(data);
+		}
+		else
+		{
+			wxTheClipboard->Close();
+			return;
+		}
+		wxTheClipboard->Close();
+	}
+
+	wxArrayString filenames = data.GetFilenames();
+	for (wxArrayString::const_iterator iter = filenames.begin(); iter != filenames.end(); iter++)
+	{
+		AddSaveFromPath(*iter);
+	}
+}
+
+void SaveMgrWindow::SaveListCtrl::OnDelete(wxCommandEvent& event)
+{
+	DeleteSelected();
+}
+
 BEGIN_EVENT_TABLE(SaveMgrWindow, wxFrame)
 	EVT_BUTTON(wxID_ADD, SaveMgrWindow::OnAddClicked)
 	EVT_BUTTON(wxID_REMOVE, SaveMgrWindow::OnRemoveClicked)
@@ -356,4 +421,10 @@ BEGIN_EVENT_TABLE(SaveMgrWindow, wxFrame)
 	EVT_LIST_ITEM_DESELECTED(-1, SaveMgrWindow::OnSelChanged)
 
 	EVT_LIST_BEGIN_DRAG(-1, SaveMgrWindow::OnDragSave)
+END_EVENT_TABLE()
+
+BEGIN_EVENT_TABLE(SaveMgrWindow::SaveListCtrl, wxListCtrl)
+	EVT_MENU(wxID_COPY, SaveMgrWindow::SaveListCtrl::OnCopy)
+	EVT_MENU(wxID_PASTE, SaveMgrWindow::SaveListCtrl::OnPaste)
+	EVT_MENU(wxID_DELETE, SaveMgrWindow::SaveListCtrl::OnDelete)
 END_EVENT_TABLE()

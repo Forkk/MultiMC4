@@ -40,12 +40,20 @@ public:
 		World *GetSelectedSave();
 		wxArrayInt GetSelectedItems();
 
+		void DeleteSelected();
+
 		void RefreshList();
 
 		void AddSaveFromPath(wxString path);
 
 	protected:
 		Instance *m_inst;
+
+		void OnCopy(wxCommandEvent& event);
+		void OnPaste(wxCommandEvent& event);
+		void OnDelete(wxCommandEvent& event);
+
+		DECLARE_EVENT_TABLE()
 
 	} *saveList;
 
