@@ -906,10 +906,10 @@ void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
 	InstallForgeDialog installDlg (this);
 	if (installDlg.ShowModal() == wxID_OK)
 	{
-		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), installDlg.GetSelectedBuild());
-
-		auto dlTask = new FileDownloadTask("http://files.minecraftforge.net/" + installDlg.GetSelectedBuild(), 
-			forgePath);
+		wxString dl = installDlg.GetSelectedBuild();
+		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), dl);
+		
+		auto dlTask = new FileDownloadTask("http://files.minecraftforge.net/" + dl, forgePath);
 		TaskProgressDialog taskDlg(this);
 		taskDlg.CenterOnParent();
 		if (taskDlg.ShowModal(dlTask))

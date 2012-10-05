@@ -57,6 +57,8 @@ wxThread::ExitCode FileDownloadTask::TaskStart()
 	
 	curl_easy_setopt(curl, CURLOPT_URL, TOASCII(m_src));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, true);
+	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 20);
 	
 	size_t downloadedSize = 0;
 	wxFFileOutputStream outStream(m_dest.GetFullPath());
@@ -108,6 +110,8 @@ double FileDownloadTask::GetDownloadSize()
 	curl_easy_setopt(curl, CURLOPT_URL, TOASCII(m_src));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlBlankCallback);
 	curl_easy_setopt(curl, CURLOPT_NOBODY, true);
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, true);
+	curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 20);
 	
 	if (curl_easy_perform(curl) != 0)
 		return -1;
