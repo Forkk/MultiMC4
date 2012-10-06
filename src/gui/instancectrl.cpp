@@ -1318,10 +1318,9 @@ void wxInstanceItem::updateName()
 			{
 				int size = extents[lastspace-1]-accum;
 				
-				name_wrapped.Append(raw_name.SubString(linestart,lastspace-1));
+				name_wrapped.Append(raw_name.SubString(linestart,lastspace-1).Strip());
+				name_wrapped.Append("\n");
 				text_lines++;
-				if(i+1 != extents.size())
-					name_wrapped.Append(_("\n"));
 				
 				if(size > text_width)
 					text_width = size;
