@@ -65,7 +65,7 @@ wxInstanceCtrl::wxInstanceCtrl ( wxWindow* parent, wxWindowID id, const wxPoint&
 /// Creation
 bool wxInstanceCtrl::Create ( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style )
 {
-	if ( !wxScrolledCanvas::Create ( parent, id, pos, size, style | wxFULL_REPAINT_ON_RESIZE ) )
+	if ( !wxScrolledCanvas::Create ( parent, id, pos, size, style | wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS ) )
 		return false;
 	
 	SetFont ( wxSystemSettings::GetFont ( wxSYS_DEFAULT_GUI_FONT ) );
@@ -712,6 +712,26 @@ void wxInstanceCtrl::OnChar ( wxKeyEvent& event )
 		cmdEvent.SetFlags ( flags );
 		GetEventHandler()->ProcessEvent ( cmdEvent );
 	}
+	else if ( event.GetKeyCode() == WXK_TAB)
+	{
+		int focus = m_focusItem;
+		if ( focus == -1 )
+			focus = m_lastSelection;
+		bool next = !event.ShiftDown();
+		
+		if(focus <= 0 && !next)
+		{
+			wxWindow::Navigate(wxNavigationKeyEvent::FromTab | wxNavigationKeyEvent::IsBackward);
+		}
+		else if(m_items.size() && focus == m_items.size() - 1 && next)
+		{
+			wxWindow::Navigate(wxNavigationKeyEvent::FromTab | wxNavigationKeyEvent::IsForward);
+		}
+		else
+		{
+			Navigate ( event.GetKeyCode(), flags );
+		}
+	}
 	else if ( event.GetKeyCode() == WXK_DELETE )
 	{
 		wxInstanceCtrlEvent cmdEvent (
@@ -836,6 +856,20 @@ bool wxInstanceCtrl::Navigate ( int keyCode, int flags )
 	{
 		DoSelection ( GetCount()-1, flags );
 		ScrollIntoView ( GetCount()-1, keyCode );
+	}
+	else if( keyCode == WXK_TAB )
+	{
+		int next = focus;
+		if(flags & wxINST_SHIFT_DOWN)
+			next --;
+		else
+			next ++;
+
+		if ( next >= 0 && next < GetCount() )
+		{
+			DoSelection ( next, flags );
+			ScrollIntoView ( next, keyCode );
+		}
 	}
 	return true;
 }
@@ -1284,10 +1318,9 @@ void wxInstanceItem::updateName()
 			{
 				int size = extents[lastspace-1]-accum;
 				
-				name_wrapped.Append(raw_name.SubString(linestart,lastspace-1));
+				name_wrapped.Append(raw_name.SubString(linestart,lastspace-1).Strip());
+				name_wrapped.Append("\n");
 				text_lines++;
-				if(i+1 != extents.size())
-					name_wrapped.Append(_("\n"));
 				
 				if(size > text_width)
 					text_width = size;

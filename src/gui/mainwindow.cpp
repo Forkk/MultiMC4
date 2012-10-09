@@ -216,12 +216,14 @@ MainWindow::MainWindow(void)
 
 	// This breaks the windows version and is pretty much alien on linux.
 	// AWAY WITH YOU, FOUL CODE, INTO THE LANDS OF IFDEF AND SPINNING BEACHBALLS!
-#if (!defined __WXMSW__) and  (!defined __WXGTK__)
+#ifndef __WXMSW__
+#ifndef __WXGTK__
 	// Keyboard accelerators.
 	wxAcceleratorEntry entries[1];
 	entries[0].Set(wxACCEL_CTRL,	(int) 'Q',	wxID_EXIT);
 	wxAcceleratorTable accel(sizeof(entries), entries);
 	SetAcceleratorTable(accel);
+#endif
 #endif
 	
 	CenterOnScreen();
