@@ -89,6 +89,7 @@ public:
 	// Other events
 	void OnInstMenuOpened(wxInstanceCtrlEvent& event);
 	void OnWindowClosed(wxCloseEvent& event);
+	void OnNotesLostFocus(wxFocusEvent& event);
 
 	void OnExitApp(wxCommandEvent &event);
 	
@@ -242,5 +243,6 @@ enum
 	ID_InstListCtrl,
 	
 	ID_InstNameEditor,
+	ID_NotesCtrl,
 };
 
