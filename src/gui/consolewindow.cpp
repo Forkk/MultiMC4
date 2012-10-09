@@ -21,7 +21,6 @@
 #include <wx/mstream.h>
 #include <wx/wfstream.h>
 #include <wx/msgdlg.h>
-#include <wx/clipbrd.h>
 
 #include <gui/mainwindow.h>
 
@@ -29,11 +28,14 @@
 #include <windows.h>
 #endif
 
+#include "tasks/pastebintask.h"
+
+#include "gui/taskprogressdialog.h"
+
 #include "multimc.h"
 #include "resources/consoleicon.h"
 #include "apputils.h"
 #include "osutils.h"
-#include "curlutils.h"
 #include "version.h"
 #include "buildtag.h"
 
@@ -644,49 +646,21 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 	int response = msgDlg.ShowModal();
 	if (response == wxID_YES) // Pastebin
 	{
-		// Create handle
-		CURL *curl = curl_easy_init();
-		char errBuffer[CURL_ERROR_SIZE];
-
-		// URL encode
-		wxCharBuffer contentBuf = crashReportString.ToUTF8();
-		char *content = curl_easy_escape(curl, contentBuf.data(), strlen(contentBuf));
-
-		wxString postFields;
-		postFields << "poster=MultiMC&syntax=text&content=" << content;
-
-		curl_easy_setopt(curl, CURLOPT_URL, "http://paste.ubuntu.com/");
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, cStr(postFields));
-		curl_easy_setopt(curl, CURLOPT_HEADER, true);
-		curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, &errBuffer);
-
-		wxString outString;
-		wxStringOutputStream outStream(&outString);
-		CurlLambdaCallbackFunction curlWrite = [&] (void *buffer, size_t size) -> size_t
+		PastebinTask *task = new PastebinTask(crashReportString);
+		TaskProgressDialog tDlg(this);
+		if (tDlg.ShowModal(task))
 		{
-			outStream.Write(buffer, size);
-			return outStream.LastWrite();
-		};
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curlWrite);
-
-		int status = curl_easy_perform(curl);
-
-		if (status == 0)
-		{
-			// Parse the response header for the redirect location.
-			wxString redirectURL = outString.Mid(outString.Find("Location: ") + 10);
-			redirectURL = redirectURL.Mid(0, redirectURL.Find('\n'));
-
 			wxTextEntryDialog urlDialog(this, _("Your error report has been"
-				" sent to the URL listed below."), _("Success"), redirectURL,
+				" sent to the URL listed below."), _("Success"), task->GetPasteURL(),
 				wxOK | wxCENTER);
 			urlDialog.ShowModal();
 		}
 		else
 		{
-			wxLogError("Pastebin failed: %s", errBuffer);
+			wxMessageBox(_("Failed to send the crash report to pastebin. "
+				"Please check your internet connection."), _("Error"));
 		}
+		delete task;
 	}
 	else if (response == wxID_NO) // Save to file
 	{
