@@ -33,6 +33,9 @@
 
 DEFINE_EVENT_TYPE(wxEVT_INST_OUTPUT)
 
+// macro for adding "" around strings
+#define DQuote(X) "\"" << X << "\""
+
 const wxString cfgFileName = _("instance.cfg");
 
 /* HACK HACK HACK HACK HACK HACK HACK HACK*
@@ -351,67 +354,11 @@ bool Instance::HasBinaries()
 	return isOK;
 }
 
-wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirectOutput)
-{
-	if (username.IsEmpty())
-		username = _("Offline");
-	
-	if (sessionID.IsEmpty())
-		sessionID = _("Offline");
-	
-	ExtractLauncher();
-	
-	wxString javaPath = GetJavaPath();
-	wxString additionalArgs = GetJvmArgs();
-	int xms = GetMinMemAlloc();
-	int xmx = GetMaxMemAlloc();
-	wxFileName mcDirFN = GetMCDir().GetFullPath();
-	mcDirFN.MakeAbsolute();
-	wxString mcDir = mcDirFN.GetFullPath();
-	wxString wdArg = wxGetCwd();
-	wxString winSizeArg = wxString::Format(_("%ix%i"), 
-		GetMCWindowWidth(), GetMCWindowHeight());
-
-	if (!GetUseAppletWrapper())
-		winSizeArg = _("compatmode");
-	else if (GetMCWindowMaximize())
-		winSizeArg = _("max");
-	
-// 	if (IS_WINDOWS())
-// 	{
-	mcDir.Replace(_("\\"), _("\\\\"));
-	wdArg.Replace(_("\\"), _("\\\\"));
-// 	}
-	
-	wxString title = _("MultiMC: ") + GetName();
-	// FIXME: implement instance icons here (pass a filename of raw bitmap)
-	wxString launchCmd = wxString::Format(_("\"%s\" %s -Xmx%im -Xms%im -cp \"%s\" -jar MultiMCLauncher.jar \"%s\" \"%s\" \"%s\" \"%s\" \"%s\""),
-		javaPath.c_str(), additionalArgs.c_str(), xmx, xms, wdArg.c_str(), 
-		mcDir.c_str(), username.c_str(), sessionID.c_str(), title.c_str(), 
-		winSizeArg.c_str());
-	m_lastLaunchCommand = launchCmd;
-	instProc = new MinecraftProcess(this);
-	if (redirectOutput)
-		instProc->Redirect();
-	int pid = wxExecute(launchCmd,wxEXEC_ASYNC|wxEXEC_HIDE_CONSOLE,instProc);
-	if(pid > 0)
-	{
-		m_running = true;
-	}
-	else
-	{
-		m_running = false;
-		delete instProc;
-		instProc = nullptr;
-	}
-	return instProc;
-}
-
 void Instance::ExtractLauncher()
 {
 	wxMemoryInputStream launcherInputStream(multimclauncher, sizeof(multimclauncher));
 	wxZipInputStream dezipper(launcherInputStream);
-	wxFFileOutputStream launcherOutStream(_("MultiMCLauncher.jar"));
+	wxFFileOutputStream launcherOutStream( Path::Combine(GetMCDir(),"MultiMCLauncher.jar") );
 	wxZipOutputStream zipper(launcherOutStream);
 	std::auto_ptr<wxZipEntry> entry;
 	// copy all files from the old zip file
@@ -424,6 +371,63 @@ void Instance::ExtractLauncher()
 	//FIXME: what if there is no such image?
 	wxImage &img =  iconList->getImageForKey(GetIconKey());
 	img.SaveFile(zipper,wxBITMAP_TYPE_PNG);
+}
+
+wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirectOutput)
+{
+	if (username.IsEmpty())
+		username = _("Offline");
+	
+	if (sessionID.IsEmpty())
+		sessionID = _("Offline");
+	
+	ExtractLauncher();
+	
+	// window size parameter (depends on some flags also)
+	wxString winSizeArg;
+	if (!GetUseAppletWrapper())
+		winSizeArg = "compatmode";
+	else if (GetMCWindowMaximize())
+		winSizeArg = "max";
+	else
+		winSizeArg << GetMCWindowWidth() << "x" << GetMCWindowHeight();
+	
+	// putting together the window title
+	wxString windowTitle;
+	windowTitle << "MultiMC: " << GetName();
+	
+	// now put together the launch command in the form:
+	// "%java%" %extra_args% -Xms%min_memory%m -Xmx%max_memory%m -jar MultiMCLauncher.jar "%user_name%" "%session_id%" "%window_title%" "%window_size%"
+	wxString launchCmd;
+	launchCmd << DQuote(GetJavaPath()) << " " << GetJvmArgs() << " -Xms" << GetMinMemAlloc() << "m" << " -Xmx" << GetMaxMemAlloc() << "m"
+	          << " -jar MultiMCLauncher.jar "
+	          << " " << DQuote(username) << " " << DQuote(sessionID) << " " << DQuote(windowTitle) << " " << DQuote(winSizeArg);
+	m_lastLaunchCommand = launchCmd;
+	
+	// create a (custom) process object!
+	instProc = new MinecraftProcess(this);
+	if (redirectOutput)
+		instProc->Redirect();
+	
+	// set up environment path
+	wxExecuteEnv env;
+	wxFileName mcDir = GetMCDir();
+	mcDir.MakeAbsolute();
+	env.cwd = GetMCDir().GetFullPath();
+	
+	// run minecraft using the stuff above :)
+	int pid = wxExecute(launchCmd,wxEXEC_ASYNC|wxEXEC_HIDE_CONSOLE,instProc,&env);
+	if(pid > 0)
+	{
+		m_running = true;
+	}
+	else
+	{
+		m_running = false;
+		delete instProc;
+		instProc = nullptr;
+	}
+	return instProc;
 }
 
 void Instance::OnInstProcExited(wxProcessEvent& event)
