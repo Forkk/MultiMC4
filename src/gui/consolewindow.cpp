@@ -676,11 +676,6 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 	}
 }
 
-void InstConsoleWindow::OnPastebinClicked(wxCommandEvent& event)
-{
-	
-}
-
 
 BEGIN_EVENT_TABLE(InstConsoleWindow, wxFrame)
 	EVT_END_PROCESS(-1, InstConsoleWindow::OnInstExit)
@@ -689,7 +684,6 @@ BEGIN_EVENT_TABLE(InstConsoleWindow, wxFrame)
 	EVT_INST_OUTPUT(InstConsoleWindow::OnInstOutput)
 
 	EVT_BUTTON(ID_GENREPORT, InstConsoleWindow::OnGenReportClicked)
-	EVT_BUTTON(ID_PASTEBIN, InstConsoleWindow::OnPastebinClicked)
 END_EVENT_TABLE()
 
 BEGIN_EVENT_TABLE(InstConsoleWindow::ConsoleIcon, wxTaskBarIcon)

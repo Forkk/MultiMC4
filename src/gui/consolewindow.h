@@ -138,5 +138,4 @@ enum
 	ID_KILL_MC,
 
 	ID_GENREPORT,
-	ID_PASTEBIN,
 };
