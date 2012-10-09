@@ -40,25 +40,30 @@ public class MultiMCLauncher
 	 */
 	public static void main(String[] args)
 	{
-		if (args.length < 4)
+		if (args.length < 3)
 		{
 			System.out.println("Not enough arguments.");
 			System.exit(-1);
 		}
+		String userName = args[0];
+		String sessionId = args[1];
+		String windowtitle = args[2];
+		String cwd = System.getProperty("user.dir");
 		
 		Dimension winSize = new Dimension(854, 480);
 		boolean maximize = false;
 		boolean compatMode = false;
 		
-		if (args.length >= 5)
+		if (args.length >= 4)
 		{
-			String[] dimStrings = args[4].split("x");
+			String windowParams = args[3];
+			String[] dimStrings = windowParams.split("x");
 			
-			if (args[4].equalsIgnoreCase("compatmode"))
+			if (windowParams.equalsIgnoreCase("compatmode"))
 			{
 				compatMode = true;
 			}
-			else if (args[4].equalsIgnoreCase("max"))
+			else if (windowParams.equalsIgnoreCase("max"))
 			{
 				maximize = true;
 			}
@@ -95,7 +100,7 @@ public class MultiMCLauncher
 			{
 				try
 				{
-					File f = new File(new File(args[0], "bin"), jarFiles[i]);
+					File f = new File(new File(cwd, "bin"), jarFiles[i]);
 					urls[i] = f.toURI().toURL();
 					System.out.println("Loading URL: " + urls[i].toString());
 				} catch (MalformedURLException e)
@@ -107,12 +112,12 @@ public class MultiMCLauncher
 			}
 			
 			System.out.println("Loading natives...");
-			String nativesDir = new File(new File(args[0], "bin"), "natives").toString();
+			String nativesDir = new File(new File(cwd, "bin"), "natives").toString();
 			
 			System.setProperty("org.lwjgl.librarypath", nativesDir);
 			System.setProperty("net.java.games.input.librarypath", nativesDir);
 
-			System.setProperty("user.home", new File(args[0]).getParent());
+			System.setProperty("user.home", new File(cwd).getParent());
 
 			URLClassLoader cl = 
 					new URLClassLoader(urls, MultiMCLauncher.class.getClassLoader());
@@ -132,7 +137,7 @@ public class MultiMCLauncher
 				}
 				
 				f.setAccessible(true);
-				f.set(null, new File(args[0]));
+				f.set(null, new File(cwd));
 				// And set it.
 				System.out.println("Fixed Minecraft Path: Field was " + f.toString());
 			}
@@ -141,7 +146,7 @@ public class MultiMCLauncher
 				System.err.println("Can't find main class. Searching...");
 				
 				// Look for any class that looks like the main class.
-				File mcJar = new File(new File(args[0], "bin"), "minecraft.jar");
+				File mcJar = new File(new File(cwd, "bin"), "minecraft.jar");
 				ZipFile zip = null;
 				try
 				{
@@ -219,11 +224,11 @@ public class MultiMCLauncher
 				}
 			}
 			
-			System.setProperty("minecraft.applet.TargetDirectory", args[0]);
+			System.setProperty("minecraft.applet.TargetDirectory", cwd);
 			
 			String[] mcArgs = new String[2];
-			mcArgs[0] = args[1];
-			mcArgs[1] = args[2];
+			mcArgs[0] = userName;
+			mcArgs[1] = sessionId;
 
 			String mcDir = 	mc.getMethod("a", String.class).invoke(null, (Object) "minecraft").toString();
 
@@ -242,8 +247,8 @@ public class MultiMCLauncher
 					Class<?> MCAppletClass = cl.loadClass(
 							"net.minecraft.client.MinecraftApplet");
 					Applet mcappl = (Applet) MCAppletClass.newInstance();
-					MCFrame mcWindow = new MCFrame(args[3]);
-					mcWindow.start(mcappl, args[1], args[2], winSize, maximize);
+					MCFrame mcWindow = new MCFrame(windowtitle);
+					mcWindow.start(mcappl, userName, sessionId, winSize, maximize);
 				} catch (InstantiationException e)
 				{
 					System.out.println("Applet wrapper failed! Falling back " +
