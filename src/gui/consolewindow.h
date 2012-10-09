@@ -31,8 +31,18 @@ public:
 	
 	Instance *GetInstance();
 	void StopListening();
+
+	// Returns a "crash report" string that contains console logs, FML logs, 
+	// and ML logs as well as other useful info.
+	wxString GetCrashReport();
+
+	// Tells the console the user's username and session ID. This allows 
+	// them to be "masked" in the user's crash report.
+	void SetUserInfo(wxString username, wxString sessID);
 	
 protected:
+	wxString m_username, m_sessID;
+
 	bool m_quitAppOnClose;
 
 	enum MessageType
@@ -98,6 +108,9 @@ protected:
 	void OnCloseClicked(wxCommandEvent &event);
 	void OnWindowClosed(wxCloseEvent &event);
 	void OnInstOutput(InstOutputEvent &event);
+
+	void OnGenReportClicked(wxCommandEvent& event);
+	void OnPastebinClicked(wxCommandEvent& event);
 	
 	void AllowClose(bool allow = true);
 	
@@ -122,5 +135,8 @@ protected:
 enum
 {
 	ID_SHOW_CONSOLE = 1,
-	ID_KILL_MC
+	ID_KILL_MC,
+
+	ID_GENREPORT,
+	ID_PASTEBIN,
 };

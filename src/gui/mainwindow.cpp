@@ -900,6 +900,7 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 			Show(false);
 			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, 
 				!launchInstance.IsEmpty());
+			cwin->SetUserInfo(result.username, result.sessionID);
 			cwin->SetName(wxT("InstConsoleWindow"));
 			if (!wxPersistenceManager::Get().RegisterAndRestore(cwin))
 				cwin->CenterOnScreen();

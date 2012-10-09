@@ -28,3 +28,9 @@
 #else
 #define IS_MAC() ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_MAC)
 #endif
+
+#if defined __WXMSW__
+#define NEWLINE "\r\n"
+#else
+#define NEWLINE "\n"
+#endif

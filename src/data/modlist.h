@@ -63,6 +63,9 @@ public:
 	// Returns true if successful or false if it fails.
 	virtual bool DeleteMod(size_t index, const wxString& saveToFile = wxEmptyString);
 
+	// Returns the list of mods a human readable string (used for error reports).
+	virtual wxString ToString(int indentation = 0);
+
 protected:
 	// Loads the mod list from the given directory.
 	// Returns true if the list changed.

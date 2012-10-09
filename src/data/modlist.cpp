@@ -24,6 +24,7 @@
 #include <functional>
 
 #include "apputils.h"
+#include "osutils.h"
 #include "datautils.h"
 
 ModList::ModList(const wxString &dir)
@@ -235,4 +236,20 @@ wxString ModList::GetDir() const
 void ModList::SetDir(const wxString& dir)
 {
 	modsFolder = dir;
+}
+
+wxString ModList::ToString(int indentation)
+{
+	wxString indent;
+	for (int i = 0; i < indentation; i++)
+		indent << "\t";
+
+	wxString str;
+	for (iterator iter = begin(); iter != end(); ++iter)
+	{
+		str << indent << iter->GetModID() << NEWLINE
+			<< indent << "\tVersion: " << iter->GetModVersion() << NEWLINE
+			<< indent << "\tFilename: " << iter->GetFileName().GetFullName() << NEWLINE << NEWLINE;
+	}
+	return str;
 }
