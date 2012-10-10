@@ -15,22 +15,23 @@
 //
 
 #pragma once
-#include <wx/platform.h>
+#include "task.h"
 
-#include "apputils.h"
+#include <wx/string.h>
 
-#define IS_WINDOWS() ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_WINDOWS_NT)
+// Sends text to pastebin
+class PastebinTask : public Task
+{
+public:
+	PastebinTask(const wxString& content, const wxString& author = "MultiMC");
 
-#define IS_LINUX() ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_UNIX_LINUX)
+	virtual ExitCode TaskStart();
 
-#ifdef __APPLE__
-#define IS_MAC() true
-#else
-#define IS_MAC() ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_MAC)
-#endif
+	wxString GetPasteURL();
 
-#if defined __WXMSW__
-#define NEWLINE "\r\n"
-#else
-#define NEWLINE "\n"
-#endif
+protected:
+	wxString m_content;
+	wxString m_author;
+
+	wxString m_pasteURL;
+};

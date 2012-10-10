@@ -19,14 +19,25 @@
 #include <wx/gbsizer.h>
 #include <wx/sstream.h>
 #include <wx/mstream.h>
+#include <wx/wfstream.h>
+#include <wx/msgdlg.h>
+
 #include <gui/mainwindow.h>
 
 #ifdef WIN32
 #include <windows.h>
 #endif
 
+#include "tasks/pastebintask.h"
+
+#include "gui/taskprogressdialog.h"
+
 #include "multimc.h"
 #include "resources/consoleicon.h"
+#include "apputils.h"
+#include "osutils.h"
+#include "version.h"
+#include "buildtag.h"
 
 InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin, bool quitAppOnClose)
 	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250)),
@@ -50,15 +61,20 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin, bool qui
 	mainSizer->Add(consoleTextCtrl, wxSizerFlags(1).Expand().Border(wxALL, 8));
 	consoleTextCtrl->SetBackgroundColour(*wxWHITE);
 	
+
 	wxBoxSizer *btnBox = new wxBoxSizer(wxHORIZONTAL);
-	mainSizer->Add(btnBox, wxSizerFlags(0).Align(wxALIGN_BOTTOM | wxALIGN_RIGHT).
-				   Border(wxBOTTOM | wxRIGHT, 8));
+	mainSizer->Add(btnBox, 0, wxEXPAND | wxBOTTOM | wxRIGHT | wxLEFT, 8);
+
+	wxButton *crashReportBtn = new wxButton(mainPanel, ID_GENREPORT, _("Generate Crash &Report"));
+	btnBox->Add(crashReportBtn, wxSizerFlags(0).Align(wxALIGN_LEFT));
+
+	btnBox->AddStretchSpacer();
 	
 	closeButton = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
+	btnBox->Add(closeButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
 	
 	// disable close button and the X button provided by the window manager
 	AllowClose(false);
-	btnBox->Add(closeButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
 	
 	consoleIcons = new wxIconArray();
 	wxMemoryInputStream iconInput1(console, sizeof(console));
@@ -514,12 +530,160 @@ KillSuccess:
 	//OnInstExit(fakeEvent);
 }
 
+void InstConsoleWindow::SetUserInfo(wxString username, wxString sessID)
+{
+	m_username = username;
+	m_sessID = sessID;
+}
+
+wxString InstConsoleWindow::GetCrashReport()
+{
+	wxString mlLogPath = Path::Combine(m_inst->GetMCDir(), "ModLoader.txt");
+	wxString fmlLogPath = Path::Combine(m_inst->GetMCDir(), "ForgeModLoader-client-0.log");
+	if (!wxFileExists(fmlLogPath))
+		fmlLogPath = Path::Combine(m_inst->GetMCDir(), "ForgeModLoader-0.log");
+
+	wxString consoleLog, modListStr, mlLog, fmlLog;
+
+	consoleLog = consoleTextCtrl->GetValue();
+
+	// Mask the username and session ID if possible.
+	if (!m_username.IsEmpty())
+	{
+		consoleLog.Replace(m_username, "<username>");
+	}
+
+	if (!m_sessID.IsEmpty())
+	{
+		consoleLog.Replace(m_sessID, "<session ID>");
+	}
+
+	if (wxFileExists(mlLogPath))
+	{
+		wxFFileInputStream in(mlLogPath);
+		wxStringOutputStream out(&mlLog);
+		in.Read(out);
+	}
+
+	if (wxFileExists(fmlLogPath))
+	{
+		wxFFileInputStream in(fmlLogPath);
+		wxStringOutputStream out(&fmlLog);
+		in.Read(out);
+	}
+
+	{
+		wxString jModList = m_inst->GetModList()->ToString(1);
+		wxString mlModList = m_inst->GetMLModList()->ToString(1);
+		wxString cModList = m_inst->GetCoreModList()->ToString(1);
+		if (!jModList.IsEmpty())
+			modListStr << "Jar Mods: " << NEWLINE << jModList << NEWLINE;
+		if (!mlModList.IsEmpty())
+			modListStr << "ModLoader Mods: " << NEWLINE << mlModList << NEWLINE;
+		if (!cModList.IsEmpty())
+			modListStr << "Core Mods: " << NEWLINE << cModList << NEWLINE;
+	}
+
+	// Fix newline chars in the logs.
+	// First, convert all CRLF into LF so we don't screw things up.
+	consoleLog.Replace("\r\n", "\n");
+	mlLog.Replace("\r\n", "\n");
+	fmlLog.Replace("\r\n", "\n");
+
+	// Next, convert everything from LF to the correct newline.
+	consoleLog.Replace("\n", NEWLINE);
+	mlLog.Replace("\n", NEWLINE);
+	fmlLog.Replace("\n", NEWLINE);
+
+
+	wxString versionInfo = wxString::Format("%d.%d.%d %s", 
+		AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision(), 
+		AppBuildTag.ToString().c_str());
+
+	wxString crashReportString;
+	crashReportString << "------------- MultiMC Crash Report -------------" << NEWLINE
+		<< "Information:" << NEWLINE
+		<< "\tDate: " << wxDateTime::Now().Format("%m-%d-%Y %H:%M:%S") << NEWLINE
+		<< "\tOperating System: " << wxGetOsDescription() << NEWLINE
+		<< "\tMultiMC Version: " << versionInfo << NEWLINE
+		<< "\tMinecraft Version: " << m_inst->GetJarVersion() << NEWLINE;
+
+	crashReportString << NEWLINE << "------------------ Mod Lists -------------------" << NEWLINE
+		<< modListStr;
+	
+	crashReportString << NEWLINE << "----------------- Console Log ------------------" << NEWLINE
+		<< consoleLog << NEWLINE;
+
+	if (mlLog != wxEmptyString)
+	{
+		crashReportString << NEWLINE << "---------------- ModLoader Log -----------------" << NEWLINE
+			<< mlLog << NEWLINE;
+	}
+
+	if (fmlLog != wxEmptyString)
+	{
+		crashReportString << NEWLINE << "------------------- FML Log --------------------" << NEWLINE
+			<< fmlLog << NEWLINE;
+	}
+
+	return crashReportString;
+}
+
+void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
+{
+	wxString crashReportString = GetCrashReport();
+
+	wxMessageDialog msgDlg(this, _("A crash report has been generated. "
+		"What would you like to do with it?"), _("Crash Report"), 
+		wxYES | wxNO | wxCANCEL | wxCENTER);
+
+	// This is kinda hacky, but meh.
+	// wxID_YES corresponds to "Send to Pastebin", 
+	// wxID_NO corresponds to "Save to File",
+	// wxID_CANCEL corresponds to "Cancel"
+	msgDlg.SetYesNoCancelLabels(_("Send to Pastebin"), _("Save to File"), wxID_CANCEL);
+
+	int response = msgDlg.ShowModal();
+	if (response == wxID_YES) // Pastebin
+	{
+		PastebinTask *task = new PastebinTask(crashReportString);
+		TaskProgressDialog tDlg(this);
+		if (tDlg.ShowModal(task))
+		{
+			wxTextEntryDialog urlDialog(this, _("Your error report has been"
+				" sent to the URL listed below."), _("Success"), task->GetPasteURL(),
+				wxOK | wxCENTER);
+			urlDialog.ShowModal();
+		}
+		else
+		{
+			wxMessageBox(_("Failed to send the crash report to pastebin. "
+				"Please check your internet connection."), _("Error"));
+		}
+		delete task;
+	}
+	else if (response == wxID_NO) // Save to file
+	{
+		wxFileDialog saveReportDlg(this, _("Save Crash Report"), wxGetCwd(), 
+			wxDateTime::Now().Format("MultiMC_Report_%m-%d-%Y_%H-%M-%S.txt"), 
+			"*.txt", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+		if (saveReportDlg.ShowModal() != wxID_CANCEL)
+		{
+			wxFFileOutputStream outStream(saveReportDlg.GetFilename());
+			wxStringInputStream inStream(crashReportString);
+			outStream.Write(inStream);
+		}
+	}
+}
+
 
 BEGIN_EVENT_TABLE(InstConsoleWindow, wxFrame)
 	EVT_END_PROCESS(-1, InstConsoleWindow::OnInstExit)
 	EVT_BUTTON(wxID_CLOSE, InstConsoleWindow::OnCloseClicked)
 	EVT_CLOSE( InstConsoleWindow::OnWindowClosed )
 	EVT_INST_OUTPUT(InstConsoleWindow::OnInstOutput)
+
+	EVT_BUTTON(ID_GENREPORT, InstConsoleWindow::OnGenReportClicked)
 END_EVENT_TABLE()
 
 BEGIN_EVENT_TABLE(InstConsoleWindow::ConsoleIcon, wxTaskBarIcon)

@@ -145,6 +145,7 @@ tasks/filecopytask.cpp
 tasks/exportpacktask.cpp
 tasks/downgradetask.cpp
 tasks/ziptask.cpp
+tasks/pastebintask.cpp
 
 java/javautils.cpp
 
@@ -200,6 +201,7 @@ tasks/filecopytask.h
 tasks/exportpacktask.h
 tasks/downgradetask.h
 tasks/ziptask.h
+tasks/pastebintask.h
 
 java/endian.h
 java/classfile.h

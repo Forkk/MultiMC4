@@ -60,9 +60,11 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		jarModSizer->Add(jarListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 		
 		wxButton *addJarModBtn = new wxButton(jarModPanel, ID_ADD_JAR_MOD, _("&Add"));
+		addJarModBtn->SetToolTip(_("Add a jar mod."));
 		jarListBtnBox->Add(addJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		delJarModBtn = new wxButton(jarModPanel, ID_DEL_JAR_MOD, _("&Remove"));
+		delJarModBtn->SetToolTip(_("Remove the selected jar mod."));
 		jarListBtnBox->Add(delJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 
 		wxButton *installMCForgeBtn = new wxButton(jarModPanel, ID_INSTALL_FORGE, _("MCForge"));
@@ -72,9 +74,11 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		jarListBtnBox->AddStretchSpacer();
 		
 		jarModUpBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_UP, _("Move &Up"));
+		jarModUpBtn->SetToolTip(_("Move the selected jar mod up."));
 		jarListBtnBox->Add(jarModUpBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
 		
 		jarModDownBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_DOWN, _("Move &Down"));
+		jarModDownBtn->SetToolTip(_("Move the selected jar mod down"));
 		jarListBtnBox->Add(jarModDownBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
 	}
 	
@@ -95,14 +99,17 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		coreModSizer->Add(coreModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 		
 		wxButton *addCoreModBtn = new wxButton(coreModPanel, ID_ADD_CORE_MOD, _("&Add"));
+		addCoreModBtn->SetToolTip(_("Add a new forge core mod."));
 		coreModListBtnBox->Add(addCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		wxButton *delCoreModBtn = new wxButton(coreModPanel, ID_DEL_CORE_MOD, _("&Remove"));
+		delCoreModBtn->SetToolTip(_("Remove the selected core mod"));
 		coreModListBtnBox->Add(delCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 
 		coreModListBtnBox->AddStretchSpacer();
 		
 		auto exploreCoreModBtn = new wxButton(coreModPanel, ID_EXPLORE_CORE, _("&View Folder"));
+		exploreCoreModBtn->SetToolTip(_("Open the core mod folder in your file browser."));
 		coreModListBtnBox->Add(exploreCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
 	}
 	
@@ -123,14 +130,17 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		mlModSizer->Add(mlModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 		
 		wxButton *addMLModBtn = new wxButton(mlModPanel, ID_ADD_ML_MOD, _("&Add"));
+		addMLModBtn->SetToolTip(_("Add a new modloader mod."));
 		mlModListBtnBox->Add(addMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		wxButton *delMLModBtn = new wxButton(mlModPanel, ID_DEL_ML_MOD, _("&Remove"));
+		delMLModBtn->SetToolTip(_("Remove the selected modloader mod."));
 		mlModListBtnBox->Add(delMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 
 		mlModListBtnBox->AddStretchSpacer();
 		
 		auto exploreMLModBtn = new wxButton(mlModPanel, ID_EXPLORE_ML, _("&View Folder"));
+		exploreMLModBtn->SetToolTip(_("Open the modloader mods folder in your file browser."));
 		mlModListBtnBox->Add(exploreMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
 	}
 	
@@ -140,14 +150,17 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		mainBox->Add(btnBox, 0, wxEXPAND | wxBOTTOM | wxRIGHT | wxLEFT, 8);
 
 		wxButton *btnReload = new wxButton(mainPanel, ID_RELOAD, _("&Reload"));
+		btnReload->SetToolTip(_("Reload the mod lists."));
 		btnBox->Add(btnReload, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxRIGHT | wxTOP | wxBOTTOM, 4));
 
 		wxButton *btnExport = new wxButton(mainPanel, ID_EXPORT, _("&Export"));
+		btnExport->SetToolTip(_("Export the instance to a config pack."));
 		btnBox->Add(btnExport, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxRIGHT | wxTOP | wxBOTTOM, 4));
 
 		btnBox->AddStretchSpacer();
 
 		wxButton *btnClose = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
+		btnClose->SetToolTip(_("Close this window."));
 		btnBox->Add(btnClose, wxSizerFlags(0).Align(wxALIGN_RIGHT).Border(wxTOP | wxBOTTOM, 4));
 	}
 

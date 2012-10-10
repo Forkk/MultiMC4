@@ -336,7 +336,9 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	instNameLabel->SetFont(titleFont);
 	instNameSz->Add(instNameLabel, wxSizerFlags(0).Align(wxALIGN_CENTER));
 	
-	instNotesEditor = new wxTextCtrl(instPanel, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_RICH);
+	instNotesEditor = new wxTextCtrl(instPanel, ID_NotesCtrl, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_RICH);
+	instNotesEditor->Bind(wxEVT_KILL_FOCUS, &MainWindow::OnNotesLostFocus, this, ID_NotesCtrl);
+
 	instSz->Add(instNotesEditor, wxGBPosition(1, 1), wxGBSpan(rows - 1, cols - 2), wxEXPAND | wxLEFT | wxTOP | wxRIGHT, 4);
 	
 	wxPanel *btnPanel = new wxPanel(instPanel);
@@ -902,6 +904,7 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 			Show(false);
 			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, 
 				!launchInstance.IsEmpty());
+			cwin->SetUserInfo(result.username, result.sessionID);
 			cwin->SetName(wxT("InstConsoleWindow"));
 			if (!wxPersistenceManager::Get().RegisterAndRestore(cwin))
 				cwin->CenterOnScreen();
@@ -1352,6 +1355,12 @@ ModList* MainWindow::GetCentralModList()
 void MainWindow::OnExitApp(wxCommandEvent &event)
 {
 	Close();
+}
+
+void MainWindow::OnNotesLostFocus(wxFocusEvent& event)
+{
+	SaveNotesBox();
+	event.Skip();
 }
 
 
