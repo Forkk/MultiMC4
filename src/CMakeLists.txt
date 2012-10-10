@@ -124,6 +124,7 @@ gui/taskprogressdialog.cpp
 gui/snapshotdialog.cpp
 gui/installforgedialog.cpp
 gui/savemgrwindow.cpp
+gui/textdisplaydialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -180,6 +181,7 @@ gui/taskprogressdialog.h
 gui/snapshotdialog.h
 gui/installforgedialog.h
 gui/savemgrwindow.h
+gui/textdisplaydialog.h
 
 data/appsettings.h
 data/instance.h
