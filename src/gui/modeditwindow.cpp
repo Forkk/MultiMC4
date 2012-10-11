@@ -26,6 +26,7 @@
 #include "installforgedialog.h"
 #include "taskprogressdialog.h"
 #include "filedownloadtask.h"
+#include "filecopytask.h"
 
 ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 	: wxFrame(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))
@@ -451,7 +452,7 @@ void ModEditWindow::MLModListCtrl::PasteMod()
 
 	// Add the given mods.
 	wxArrayString filenames = data.GetFilenames();
-	fsutils::CopyFileList(filenames,m_inst->GetMLModsDir());
+	CopyFiles(filenames,m_inst->GetMLModsDir().GetFullPath());
 	//FIXME: this looks like lazy code. it can be done better.
 	auto mllist = m_inst->GetMLModList();
 	mllist->UpdateModList();
@@ -526,7 +527,7 @@ void ModEditWindow::CoreModListCtrl::PasteMod()
 	}
 	// Add the given mods.
 	wxArrayString filenames = data.GetFilenames();
-	fsutils::CopyFileList(filenames,m_inst->GetCoreModsDir());
+	CopyFiles(filenames,m_inst->GetCoreModsDir().GetFullPath());
 	//FIXME: this looks like lazy code. it can be done better.
 	auto mllist = m_inst->GetCoreModList();
 	mllist->UpdateModList();
@@ -645,7 +646,7 @@ wxDragResult ModEditWindow::MLModsDropTarget::OnDragOver(wxCoord x, wxCoord y, w
 
 bool ModEditWindow::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
 {
-	fsutils::CopyFileList(filenames,m_inst->GetMLModsDir());
+	m_owner->CopyFiles(filenames,m_inst->GetMLModsDir().GetFullPath());
 	auto mllist = m_inst->GetMLModList();
 	mllist->UpdateModList();
 	m_owner->UpdateItems();
@@ -666,7 +667,7 @@ wxDragResult ModEditWindow::CoreModsDropTarget::OnDragOver(wxCoord x, wxCoord y,
 
 bool ModEditWindow::CoreModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
 {
-	fsutils::CopyFileList(filenames,m_inst->GetCoreModsDir());
+	m_owner->CopyFiles(filenames, m_inst->GetCoreModsDir().GetFullPath());
 	auto mllist = m_inst->GetCoreModList();
 	mllist->UpdateModList();
 	m_owner->UpdateItems();
@@ -765,7 +766,7 @@ void ModEditWindow::OnAddMLMod(wxCommandEvent &event)
 	{
 		wxArrayString allfiles;
 		addModDialog.GetPaths(allfiles);
-		fsutils::CopyFileList(allfiles, m_inst->GetMLModsDir());
+		CopyFiles(allfiles, m_inst->GetMLModsDir().GetFullPath());
 		auto mllist = m_inst->GetMLModList();
 		mllist->UpdateModList();
 		mlModList->UpdateItems();
@@ -787,7 +788,7 @@ void ModEditWindow::OnAddCoreMod(wxCommandEvent &event)
 	{
 		wxArrayString allfiles;
 		addModDialog.GetPaths(allfiles);
-		fsutils::CopyFileList(allfiles, m_inst->GetCoreModsDir());
+		CopyFiles(allfiles, m_inst->GetCoreModsDir().GetFullPath());
 		auto corelist = m_inst->GetCoreModList();
 		corelist->UpdateModList();
 		coreModList->UpdateItems();
@@ -933,6 +934,37 @@ void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
 	}
 }
 
+void ModEditWindow::CopyFiles(wxWindow *window, wxArrayString files, wxString destDir)
+{
+	for (wxArrayString::const_iterator iter = files.begin(); iter != files.end(); ++iter)
+	{
+		wxFileName source (*iter);
+		wxString fileName = source.GetFullName();
+		wxFileName dest(Path::Combine(destDir, fileName));
+		if (wxFileName::DirExists(*iter))
+		{
+			// TODO make the file copy task copy the file list all in one go.
+			FileCopyTask *task = new FileCopyTask(*iter, dest.GetFullPath());
+			TaskProgressDialog dlg(window);
+			dlg.ShowModal(task);
+			delete task;
+		}
+		else
+		{
+			wxCopyFile(*iter, dest.GetFullPath());
+		}
+	}
+}
+
+void ModEditWindow::CopyFiles(wxArrayString files, wxString dest)
+{
+	ModEditWindow::CopyFiles(this, files, dest);
+}
+
+void ModEditWindow::ModListCtrl::CopyFiles(wxArrayString files, wxString dest)
+{
+	ModEditWindow::CopyFiles(GetParent(), files, dest);
+}
 
 BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
 	EVT_BUTTON(ID_ADD_JAR_MOD, ModEditWindow::OnAddJarMod)

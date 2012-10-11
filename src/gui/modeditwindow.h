@@ -50,6 +50,8 @@ public:
 		virtual void CopyMod() = 0;
 		virtual void PasteMod() = 0;
 		virtual void DeleteMod() = 0;
+
+		void CopyFiles(wxArrayString files, wxString dest);
 		
 	protected:
 		Instance *m_inst;
@@ -170,6 +172,9 @@ protected:
 		ModListCtrl *m_owner;
 		Instance *m_inst;
 	};
+
+	void CopyFiles(wxArrayString files, wxString dest);
+	static void CopyFiles(wxWindow *window, wxArrayString files, wxString dest);
 	
 	MainWindow *m_mainWin;
 	
