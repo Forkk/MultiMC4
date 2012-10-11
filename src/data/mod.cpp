@@ -24,6 +24,7 @@
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
 #include <wx/sstream.h>
+#include <wx/dir.h>
 
 #include <string>
 #include <sstream>
@@ -34,61 +35,123 @@
 
 #endif
 
-Mod::Mod(const wxFileName& file)
+Mod::Mod(const wxFileName& file, ModType type)
 {
 	modFile = file;
-	
 	modName = modFile.GetName();
 
-#ifdef READ_MODINFO
-	if (IsZipMod())
+	if (type == MOD_UNKNOWN)
 	{
-		wxFFileInputStream fileIn(modFile.GetFullPath());
-		wxZipInputStream zipIn(fileIn);
-
-		std::auto_ptr<wxZipEntry> entry;
-
-		do 
+		if (wxDirExists(modFile.GetFullPath()))
+			type = MOD_FOLDER;
+		else if (wxFileExists(modFile.GetFullPath()))
 		{
-			entry.reset(zipIn.GetNextEntry());
-		} while (entry.get() != nullptr && !entry->GetInternalName().EndsWith(_(".info")));
-
-		if (entry.get() != nullptr)
-		{
-			// Read the info file into text
-			wxString infoFileData;
-			wxStringOutputStream stringOut(&infoFileData);
-			zipIn.Read(stringOut);
-		
-			using namespace boost::property_tree;
-
-			// Read the data
-			ptree ptRoot;
-
-			wxString entryName = entry->GetInternalName();
-
-			std::stringstream stringIn(cStr(infoFileData));
-			try
-			{
-				read_json(stringIn, ptRoot);
-
-				ptree pt = ptRoot.get_child("").begin()->second;
-
-				modID = wxStr(pt.get<std::string>("modid"));
-				modName = wxStr(pt.get<std::string>("name"));
-				modVersion = wxStr(pt.get<std::string>("version"));
-			}
-			catch (json_parser_error e)
-			{
-				// Silently fail...
-			}
-			catch (ptree_error e)
-			{
-				// Silently fail...
-			}
+			wxString ext = modFile.GetExt().Lower();
+			if (ext == "zip" || ext == "jar")
+				type = MOD_ZIPFILE;
+			else
+				type = MOD_SINGLEFILE;
 		}
 	}
+
+	modType = type;
+
+#ifdef READ_MODINFO
+	switch (modType)
+	{
+	case MOD_ZIPFILE:
+		{
+			wxFFileInputStream fileIn(modFile.GetFullPath());
+			wxZipInputStream zipIn(fileIn);
+
+			std::auto_ptr<wxZipEntry> entry;
+
+			do 
+			{
+				entry.reset(zipIn.GetNextEntry());
+			} while (entry.get() != nullptr && !entry->GetInternalName().EndsWith(_(".info")));
+
+			if (entry.get() != nullptr)
+			{
+				// Read the info file into text
+				wxString infoFileData;
+				wxStringOutputStream stringOut(&infoFileData);
+				zipIn.Read(stringOut);
+
+				ReadModInfoData(infoFileData);
+			}
+		}
+		break;
+
+	case MOD_FOLDER:
+		{
+			wxString infoFile = Path::Combine(modFile, "mcmod.info");
+			if (!wxFileExists(infoFile))
+			{
+				infoFile = wxEmptyString;
+
+				wxDir modDir(modFile.GetFullPath());
+
+				if (!modDir.IsOpened())
+				{
+					wxLogError(_("Can't fine mod info file. Failed to open mod folder."));
+					break;
+				}
+
+				wxString currentFile;
+				if (modDir.GetFirst(&currentFile))
+				{
+					do 
+					{
+						if (currentFile.EndsWith(".info"))
+						{
+							infoFile = currentFile;
+							break;
+						}
+					} while (modDir.GetNext(&currentFile));
+				}
+			}
+
+			if (infoFile != wxEmptyString)
+			{
+				wxString infoStr;
+				wxFFileInputStream fileIn(infoFile);
+				wxStringOutputStream strOut(&infoStr);
+				fileIn.Read(strOut);
+				ReadModInfoData(infoStr);
+			}
+		}
+		break;
+	}
 #endif
+}
+
+void Mod::ReadModInfoData(wxString info)
+{
+	using namespace boost::property_tree;
+
+	// Read the data
+	ptree ptRoot;
+
+	std::stringstream stringIn(cStr(info));
+	try
+	{
+		read_json(stringIn, ptRoot);
+
+		ptree pt = ptRoot.get_child("").begin()->second;
+
+		modID = wxStr(pt.get<std::string>("modid"));
+		modName = wxStr(pt.get<std::string>("name"));
+		modVersion = wxStr(pt.get<std::string>("version"));
+	}
+	catch (json_parser_error e)
+	{
+		// Silently fail...
+	}
+	catch (ptree_error e)
+	{
+		// Silently fail...
+	}
 }
 
 Mod::Mod(const Mod& mod)
@@ -97,6 +160,7 @@ Mod::Mod(const Mod& mod)
 	modName = mod.GetName();
 	modVersion = mod.GetModVersion();
 	mcVersion = mod.GetMCVersion();
+	modType = mod.GetModType();
 }
 
 wxFileName Mod::GetFileName() const
@@ -124,9 +188,14 @@ wxString Mod::GetMCVersion() const
 	return mcVersion;
 }
 
+Mod::ModType Mod::GetModType() const
+{
+	return modType;
+}
+
 bool Mod::IsZipMod() const
 {
-	return GetFileName().GetExt() == _("zip") || GetFileName().GetExt() == _("jar");
+	return GetModType() == MOD_ZIPFILE;
 }
 
 bool Mod::operator ==(const Mod &other) const
