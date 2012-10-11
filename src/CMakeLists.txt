@@ -135,6 +135,8 @@ data/configpack.cpp
 data/snapshotlist.cpp
 data/worldlist.cpp
 data/world.cpp
+data/texturepack.cpp
+data/texturepacklist.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
@@ -192,6 +194,8 @@ data/configpack.h
 data/snapshotlist.h
 data/worldlist.h
 data/world.h
+data/texturepack.h
+data/texturepacklist.h
 
 tasks/task.h
 tasks/logintask.h

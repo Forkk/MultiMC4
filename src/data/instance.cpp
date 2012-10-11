@@ -85,10 +85,12 @@ Instance::Instance(const wxFileName &rootDir)
 	mlModList.SetDir(GetMLModsDir().GetFullPath());
 	coreModList.SetDir(GetCoreModsDir().GetFullPath());
 	worldList.SetDir(GetSavesDir().GetFullPath());
+	tpList.SetDir(GetTexturePacksDir().GetFullPath());
 	modloader_list_inited = false;
 	coremod_list_inited = false;
 	jar_list_inited = false;
 	world_list_initialized = false;
+	tp_list_initialized = false;
 	UpdateVersion();
 }
 
@@ -508,6 +510,16 @@ WorldList *Instance::GetWorldList()
 		world_list_initialized = true;
 	}
 	return &worldList;
+}
+
+TexturePackList *Instance::GetTexturePackList()
+{
+	if (!tp_list_initialized)
+	{
+		tpList.UpdateTexturePackList();
+		tp_list_initialized = true;
+	}
+	return &tpList;
 }
 
 void Instance::GetPossibleConfigFiles(wxArrayString *array, wxString dir)
