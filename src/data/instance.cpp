@@ -615,7 +615,7 @@ bool Instance::FolderModList::LoadModListFromDir(const wxString& loadFrom, bool 
 		{
 			wxFileName modFile(Path::Combine(dir, currentFile));
 
-			if (wxFileExists(modFile.GetFullPath()))
+			if (wxFileExists(modFile.GetFullPath()) || wxDirExists(modFile.GetFullPath()))
 			{
 				if (quickLoad || FindByFilename(modFile.GetFullPath()) == nullptr)
 				{
@@ -629,6 +629,8 @@ bool Instance::FolderModList::LoadModListFromDir(const wxString& loadFrom, bool 
 
 	return listChanged;
 }
+
+
 
 
 BEGIN_EVENT_TABLE(Instance, wxEvtHandler)
