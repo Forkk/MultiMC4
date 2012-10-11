@@ -105,14 +105,14 @@ Mod::Mod(const wxFileName& file, ModType type)
 					{
 						if (currentFile.EndsWith(".info"))
 						{
-							infoFile = currentFile;
+							infoFile = Path::Combine(modFile.GetFullPath(), currentFile);
 							break;
 						}
 					} while (modDir.GetNext(&currentFile));
 				}
 			}
 
-			if (infoFile != wxEmptyString)
+			if (infoFile != wxEmptyString && wxFileExists(infoFile))
 			{
 				wxString infoStr;
 				wxFFileInputStream fileIn(infoFile);
