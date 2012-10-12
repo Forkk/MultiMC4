@@ -85,10 +85,12 @@ Instance::Instance(const wxFileName &rootDir)
 	mlModList.SetDir(GetMLModsDir().GetFullPath());
 	coreModList.SetDir(GetCoreModsDir().GetFullPath());
 	worldList.SetDir(GetSavesDir().GetFullPath());
+	tpList.SetDir(GetTexturePacksDir().GetFullPath());
 	modloader_list_inited = false;
 	coremod_list_inited = false;
 	jar_list_inited = false;
 	world_list_initialized = false;
+	tp_list_initialized = false;
 	UpdateVersion();
 }
 
@@ -510,6 +512,16 @@ WorldList *Instance::GetWorldList()
 	return &worldList;
 }
 
+TexturePackList *Instance::GetTexturePackList()
+{
+	if (!tp_list_initialized)
+	{
+		tpList.UpdateTexturePackList();
+		tp_list_initialized = true;
+	}
+	return &tpList;
+}
+
 void Instance::GetPossibleConfigFiles(wxArrayString *array, wxString dir)
 {
 	if (dir.IsEmpty())
@@ -615,7 +627,7 @@ bool Instance::FolderModList::LoadModListFromDir(const wxString& loadFrom, bool 
 		{
 			wxFileName modFile(Path::Combine(dir, currentFile));
 
-			if (wxFileExists(modFile.GetFullPath()))
+			if (wxFileExists(modFile.GetFullPath()) || wxDirExists(modFile.GetFullPath()))
 			{
 				if (quickLoad || FindByFilename(modFile.GetFullPath()) == nullptr)
 				{
@@ -629,6 +641,8 @@ bool Instance::FolderModList::LoadModListFromDir(const wxString& loadFrom, bool 
 
 	return listChanged;
 }
+
+
 
 
 BEGIN_EVENT_TABLE(Instance, wxEvtHandler)

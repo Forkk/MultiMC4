@@ -21,7 +21,22 @@
 class Mod
 {
 public:
-	Mod(const wxFileName &file);
+	enum ModType
+	{
+		// Indicates an unspecified mod type.
+		MOD_UNKNOWN,
+
+		// The mod is a zip file containing the mod's class files.
+		MOD_ZIPFILE,
+
+		// The mod is a single file (not a zip file).
+		MOD_SINGLEFILE,
+
+		// The mod is in a folder on the filesystem.
+		MOD_FOLDER,
+	};
+
+	Mod(const wxFileName &file, ModType type = MOD_UNKNOWN);
 	Mod(const Mod &mod);
 	
 	wxFileName GetFileName() const;
@@ -30,17 +45,25 @@ public:
 	wxString GetModID() const;
 	wxString GetModVersion() const;
 	wxString GetMCVersion() const;
+
+	ModType GetModType() const;
+
 	
-	// True if this mod is a zip file.
-	bool IsZipMod() const;
+	// True if this mod is a zip file. Deprecated, use 
+	wxDEPRECATED(bool IsZipMod() const);
 
 	bool operator ==(const Mod &other) const;
 	
 protected:
+
+	void ReadModInfoData(wxString info);
+
 	wxFileName modFile;
 	
 	wxString modID;
 	wxString modName;
 	wxString modVersion;
 	wxString mcVersion;
+
+	ModType modType;
 };

@@ -29,6 +29,8 @@
 #include "modlist.h"
 #include "world.h"
 #include "worldlist.h"
+#include "texturepack.h"
+#include "texturepacklist.h"
 
 bool IsValidInstance(wxFileName rootDir);
 
@@ -94,6 +96,8 @@ public:
 	ModList *GetCoreModList();
 
 	WorldList *GetWorldList();
+
+	TexturePackList *GetTexturePackList();
 	
 	void GetPossibleConfigFiles(wxArrayString *array, wxString dir = wxEmptyString);
 	
@@ -205,6 +209,8 @@ protected:
 	FolderModList coreModList;
 
 	WorldList worldList;
+
+	TexturePackList tpList;
 	
 	wxFileName rootDir;
 	wxString version;
@@ -215,6 +221,7 @@ protected:
 	bool coremod_list_inited;
 	bool jar_list_inited;
 	bool world_list_initialized;
+	bool tp_list_initialized;
 	wxString m_lastLaunchCommand;
 	
 	wxEvtHandler *evtHandler;
