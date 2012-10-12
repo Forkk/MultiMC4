@@ -22,30 +22,22 @@
 void Utils::OpenFolder(wxFileName path)
 {
 	wxString cmd;
-	if (IS_WINDOWS())
-	{
-		cmd = _("explorer ");
-	}
-	else if (IS_MAC())
-	{
-		cmd = _("open ");
-	}
-	else if (IS_LINUX())
-	{
-		cmd = _("xdg-open ");
-	}
-	else
-	{
-		wxMessageBox(_T("This feature is not supported by your OS."), _T("Error"));
-		return;
-	}
+	
+#if WINDOWS
+	cmd = _("explorer ");
+#elif OSX
+	cmd = _("open ");
+#elif LINUX
+	cmd = _("xdg-open ");
+#endif
+
 	cmd.Append(wxT("\""));
 	cmd.Append(path.GetFullPath());
 	cmd.Append(wxT("\""));
     wxExecute(cmd);
 }
 
-#ifdef __WXMSW__
+#ifdef WINDOWS
 bool Utils::OpenURL(wxString url)
 {
 	auto r = (int) ShellExecute(NULL, wxT("open"), FNSTR(url), NULL, NULL, SW_SHOWNORMAL);
@@ -117,7 +109,7 @@ wxString Utils::BytesToString(unsigned char *bytes)
 	return wxStr(std::string(asciihash));
 }
 
-#if defined __WXMSW__
+#if WINDOWS
 
 // We can use the registry to find Java on Windows.
 #include <winreg.h>

@@ -79,11 +79,11 @@ wxThread::ExitCode CheckUpdateTask::TaskStart()
 	}
 	
 	// Figure out where to download the latest update.
-	wxString dlFileName;
-	if (IS_WINDOWS())
-		dlFileName = _("MultiMC.exe");
-	else if (IS_LINUX() || IS_MAC())
-		dlFileName = _("MultiMC");
+#if WINDOWS
+	wxString dlFileName = _("MultiMC.exe");
+#else
+	wxString dlFileName = _("MultiMC");
+#endif
 
 	wxString newCIURL = ciURL;
 	if (newCIURL.EndsWith("/"))

@@ -182,14 +182,17 @@ wxFileName Instance::GetConfigPath() const
 wxFileName Instance::GetMCDir() const
 {
 	wxFileName mcDir;
+
+	wxString dotMCDir = Path::Combine(GetRootDir(), ".minecraft");
+	wxString nodotMCDir = Path::Combine(GetRootDir(), "minecraft");
 	
-	if (IS_MAC() || wxFileExists(Path::Combine(GetRootDir(), _("minecraft"))))
+	if (wxDirExists(dotMCDir) && !wxDirExists(nodotMCDir))
 	{
-		mcDir = wxFileName::DirName(Path::Combine(GetRootDir(), _("minecraft")));
+		mcDir = wxFileName::DirName(dotMCDir);
 	}
 	else
 	{
-		mcDir = wxFileName::DirName(Path::Combine(GetRootDir(), _(".minecraft")));
+		mcDir = wxFileName::DirName(nodotMCDir);
 	}
 	
 	return mcDir;

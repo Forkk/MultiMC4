@@ -57,8 +57,7 @@ bool MultiMC::OnInit()
 	if (!wxApp::OnInit())
 		return false;
 
-	// On OS X set the working directory to $HOME/MultiMC
-	if (IS_MAC())
+#if OSX
 	{
 		wxFileName mmcDir = wxFileName::DirName(wxStandardPaths::Get().GetResourcesDir());
 		mmcDir.Normalize();
@@ -68,7 +67,8 @@ bool MultiMC::OnInit()
 
 		wxSetWorkingDirectory(mmcDir.GetFullPath());
 	}
-	else if(!useProvidedDir)
+#else
+	if (!useProvidedDir)
 	{
 		wxFileName mmcDir (wxStandardPaths::Get().GetExecutablePath());
 		wxSetWorkingDirectory(mmcDir.GetPath());
@@ -78,6 +78,7 @@ bool MultiMC::OnInit()
 		// do use provided directory
 		wxSetWorkingDirectory(providedDir.GetFullPath());
 	}
+#endif
 
 	if (!InitAppSettings())
 	{
@@ -261,7 +262,7 @@ void MultiMC::YieldSleep(int secs)
 
 int MultiMC::OnExit()
 {
-#ifdef __WXMSW__
+#ifdef WINDOWS
 	wxString updaterFileName = _("MultiMCUpdate.exe");
 #else
 	wxString updaterFileName = _("MultiMCUpdate");
@@ -270,18 +271,17 @@ int MultiMC::OnExit()
 	if (updateOnExit && wxFileExists(updaterFileName))
 	{
 		wxFileName updateFile(updaterFileName);
-		if (IS_LINUX() || IS_MAC())
-		{
+#if LINUX || OSX
 			wxExecute(_("chmod +x ") + updateFile.GetFullPath());
 			updateFile.MakeAbsolute();
-		}
+#endif
 
 		wxProcess proc;
 		
 		wxString updateFilePath = updateFile.GetFullPath();
 		wxString thisFilePath = wxStandardPaths::Get().GetExecutablePath();
 
-#if defined __WXMSW__
+#if WINDOWS
 		wxString launchCmd = wxString::Format(_("cmd /C %s -u \"%s\""),
 			updateFilePath.c_str(), thisFilePath.c_str());
 #else
