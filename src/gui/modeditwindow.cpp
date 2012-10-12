@@ -883,6 +883,8 @@ void ModEditWindow::OnReloadClicked ( wxCommandEvent& event )
 	mlModList->UpdateItems();
 	m_inst->GetModList()->UpdateModList();
 	jarModList->UpdateItems();
+	m_inst->GetTexturePackList()->UpdateTexturePackList();
+	texturePackList->UpdateItems();
 }
 
 void ModEditWindow::OnExportClicked(wxCommandEvent& event)
