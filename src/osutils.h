@@ -34,3 +34,12 @@
 #else
 #define NEWLINE "\n"
 #endif
+
+// Better OS Detection
+#ifdef _WIN32 | _WIN64
+#define WINDOWS	1
+#elif __APPLE__ & __MACH__
+#define OSX 1
+#elif __linux__
+#define LINUX 1
+#endif
