@@ -74,7 +74,17 @@ wxThread::ExitCode CheckUpdateTask::TaskStart()
 
 	if(buildNumber == -1)
 	{
-		wxLogError("Failed to check for updates. The update server is likely down. Please try later.");
+		wxFileName fname("JsonDUMP.txt");
+		fname.MakeAbsolute();
+		wxFile dump("JsonDUMP.txt",wxFile::write);
+		
+		dump.Write(mainPageJSON,wxMBConvStrictUTF8());
+		wxString err = "Failed to check for updates. The update server is likely down. Please try later.\n\n";
+		err << "If you have good reasons to believe that the problem is not on the server end, please ";
+		err << "report a bug and attach JsonDUMP.txt to it. (it should be in MultiMC's folder)";
+		wxLogError(err);
+		dump.Flush();
+		dump.Close();
 		return (ExitCode)0;
 	}
 	
