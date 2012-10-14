@@ -677,11 +677,11 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 		{
 			wxString ciURL(_T(JENKINS_JOB_URL));
 
-			wxString dlFileName;
-			if (IS_WINDOWS())
-				dlFileName = _("MultiMC.exe");
-			else if (IS_LINUX() || IS_MAC())
-				dlFileName = _("MultiMC");
+#if WINDOWS
+			wxString dlFileName = _("MultiMC.exe");
+#else
+			wxString dlFileName = _("MultiMC");
+#endif
 
 			wxString dlURL = wxString::Format(
 				_("%s/lastStableBuild/artifact/%s"),
@@ -721,7 +721,7 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 
 void MainWindow::DownloadInstallUpdates(const wxString &downloadURL)
 {
-#ifdef __WXMSW__
+#if WINDOWS
 	wxString updaterFileName = _("MultiMCUpdate.exe");
 #else
 	wxString updaterFileName = _("MultiMCUpdate");
