@@ -275,7 +275,13 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		// Read from input
 		wxString temp;
 		wxStringOutputStream tempStream(&temp);
-		
+
+		if (!consoleStream->CanRead())
+		{
+			wxMilliSleep(100);
+			continue;
+		}
+
 		consoleStream->Read(buffer, bufSize);
 		readSize = consoleStream->LastRead();
 		
