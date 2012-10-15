@@ -151,6 +151,7 @@ tasks/exportpacktask.cpp
 tasks/downgradetask.cpp
 tasks/ziptask.cpp
 tasks/pastebintask.cpp
+tasks/lambdatask.cpp
 
 java/javautils.cpp
 
@@ -212,6 +213,7 @@ tasks/exportpacktask.h
 tasks/downgradetask.h
 tasks/ziptask.h
 tasks/pastebintask.h
+tasks/lambdatask.h
 
 java/endian.h
 java/classfile.h

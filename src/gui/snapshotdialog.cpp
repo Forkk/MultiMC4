@@ -27,6 +27,8 @@
 #include "apputils.h"
 #include "httputils.h"
 #include "snapshotlist.h"
+#include "taskprogressdialog.h"
+#include "lambdatask.h"
 
 enum
 {
@@ -77,8 +79,20 @@ SnapshotDialog::SnapshotDialog(wxWindow *parent)
 void SnapshotDialog::LoadSnapshotList()
 {
 	SnapshotList snapList;
-	snapList.LoadFromURL(wxT("assets.minecraft.net"));
-	snapList.Sort(true);
+	LambdaTask::TaskFunc func = [&] (LambdaTask *task) -> wxThread::ExitCode
+	{
+		task->DoSetStatus("Loading snapshot list...");
+
+		snapList.LoadFromURL(wxT("assets.minecraft.net"));
+		snapList.Sort(true);
+		return (wxThread::ExitCode) 0;
+	};
+
+	LambdaTask *lTask = new LambdaTask(func);
+	TaskProgressDialog taskDlg(this);
+	taskDlg.ShowModal(lTask);
+	delete lTask;
+
 	snapshotList->Set(snapList);
 
 	UpdateOKBtn();
