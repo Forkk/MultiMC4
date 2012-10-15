@@ -304,7 +304,7 @@ int MultiMC::OnExit()
 void MultiMC::OnFatalException()
 {
 	wxMessageBox(_("A fatal error has occurred and MultiMC has to exit. Sorry for the inconvenience."), 
-		_("Oh no!"), wxICON_ERROR | wxCENTER);
+		_("Oh no!"), wxICON_ERROR | wxCENTER | wxOK);
 }
 
 void MultiMC::OnUnhandledException()
