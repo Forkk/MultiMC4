@@ -100,6 +100,7 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		InstIconDef(_T("meat"), wxMEMORY_IMAGE(meat)),
 		InstIconDef(_T("chicken"), wxMEMORY_IMAGE(chicken)),
 		InstIconDef(_T("steve"), wxMEMORY_IMAGE(steve)),
+		InstIconDef(_T("derp"), wxMEMORY_IMAGE(derp)),
 	};
 	const int builtInIconCount = sizeof(builtInIcons)/sizeof(InstIconDef);
 
