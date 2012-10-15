@@ -125,6 +125,7 @@ gui/snapshotdialog.cpp
 gui/installforgedialog.cpp
 gui/savemgrwindow.cpp
 gui/textdisplaydialog.cpp
+gui/advancedmsgdlg.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -185,6 +186,7 @@ gui/snapshotdialog.h
 gui/installforgedialog.h
 gui/savemgrwindow.h
 gui/textdisplaydialog.h
+gui/advancedmsgdlg.h
 
 data/appsettings.h
 data/instance.h
