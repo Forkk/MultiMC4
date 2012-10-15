@@ -586,6 +586,10 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 		{
 			inst->SetIconKey(_("enderman"));
 		}
+		else if (lastLogin.username.Lower().Contains("rootbear75"))
+		{
+			inst->SetIconKey("derp");
+		}
 	}
 	inst->SetName(instName);
 	AddInstance(inst);
