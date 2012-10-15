@@ -41,6 +41,7 @@
 #include "taskprogressdialog.h"
 #include "snapshotdialog.h"
 #include "savemgrwindow.h"
+#include "stdinstance.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -576,7 +577,7 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 
 	wxFileName instDir = wxFileName::DirName(Path::Combine(settings->GetInstDir(), instDirName));
 
-	Instance *inst = new Instance(instDir);
+	Instance *inst = new StdInstance(instDir);
 	UserInfo lastLogin;
 	if (wxFileExists(_("lastlogin4")))
 	{
@@ -608,7 +609,7 @@ void MainWindow::OnImportMCFolder(wxCommandEvent& event)
 
 	wxMkdir(instDirName);
 
-	Instance *inst = new Instance(instDirName);
+	Instance *inst = new StdInstance(instDirName);
 	inst->SetName(instName);
 	
 	auto task = new FileCopyTask(existingMCDir, inst->GetMCDir());
@@ -996,7 +997,7 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	StartTask(task);
 	delete task;
 
-	Instance *newInst = new Instance(instDirName);
+	Instance *newInst = new StdInstance(instDirName);
 	newInst->SetName(instName);
 	AddInstance(newInst);
 }

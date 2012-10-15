@@ -15,6 +15,8 @@
 //
 
 #include "instance.h"
+#include "stdinstance.h"
+
 #include <wx/filesys.h>
 #include <wx/sstream.h>
 #include <wx/wfstream.h>
@@ -66,7 +68,25 @@ bool IsValidInstance(wxFileName rootDir)
 Instance *Instance::LoadInstance(wxFileName rootDir)
 {
 	if (IsValidInstance(rootDir))
-		return new Instance(rootDir);
+	{
+		wxFileConfig fcfg(wxEmptyString, wxEmptyString, 
+			Path::Combine(rootDir, "instance.cfg"), wxEmptyString,
+			wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
+
+		int type = 0; 
+		if (!fcfg.Read("type", &type))
+		{
+			type = INST_TYPE_STANDARD;
+		}
+
+		switch (type)
+		{
+		case INST_TYPE_STANDARD:
+		default:
+			return new StdInstance(rootDir);
+			break;
+		}
+	}
 	else
 		return NULL;
 }
@@ -644,7 +664,6 @@ bool Instance::FolderModList::LoadModListFromDir(const wxString& loadFrom, bool 
 
 	return listChanged;
 }
-
 
 
 

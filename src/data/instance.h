@@ -37,6 +37,11 @@ bool IsValidInstance(wxFileName rootDir);
 class Instance : public wxEvtHandler, public SettingsBase
 {
 public:
+	enum Type
+	{
+		INST_TYPE_STANDARD,
+	};
+
 	static Instance *LoadInstance(wxFileName rootDir);
 	Instance(const wxFileName &rootDir);
 	~Instance(void);
@@ -81,6 +86,8 @@ public:
 	
 	bool ShouldRebuild() const;
 	void SetNeedsRebuild(bool value = true);
+
+	virtual Type GetType() const = 0;
 	
 	wxProcess *GetInstProcess() const;
 	

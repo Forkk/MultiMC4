@@ -137,6 +137,7 @@ data/worldlist.cpp
 data/world.cpp
 data/texturepack.cpp
 data/texturepacklist.cpp
+data/stdinstance.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
@@ -196,6 +197,7 @@ data/worldlist.h
 data/world.h
 data/texturepack.h
 data/texturepacklist.h
+data/stdinstance.h
 
 tasks/task.h
 tasks/logintask.h
