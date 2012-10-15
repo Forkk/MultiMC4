@@ -19,6 +19,18 @@ namespace java
 	{
 		return x;
 	};
+	int64_t bigswap(int64_t x)
+	{
+		return x;
+	};
+	int32_t bigswap(int32_t x)
+	{
+		return x;
+	};
+	int16_t bigswap(int16_t x)
+	{
+		return x;
+	};
 	#else
 	uint64_t bigswap(uint64_t x)
 	{
@@ -30,6 +42,19 @@ namespace java
 		return (x>>24) | ((x<<8) & 0x00FF0000) | ((x>>8) & 0x0000FF00) | (x<<24);
 	};
 	uint16_t bigswap(uint16_t x)
+	{
+		return (x>>8) | (x<<8);
+	};
+	int64_t bigswap(int64_t x)
+	{
+		return (x>>56) | ((x<<40) & 0x00FF000000000000) | ((x<<24) & 0x0000FF0000000000) | ((x<<8)  & 0x000000FF00000000) |
+			   ((x>>8)  & 0x00000000FF000000) | ((x>>24) & 0x0000000000FF0000) | ((x>>40) & 0x000000000000FF00) | (x<<56);
+	};
+	int32_t bigswap(int32_t x)
+	{
+		return (x>>24) | ((x<<8) & 0x00FF0000) | ((x>>8) & 0x0000FF00) | (x<<24);
+	};
+	int16_t bigswap(int16_t x)
 	{
 		return (x>>8) | (x<<8);
 	};
