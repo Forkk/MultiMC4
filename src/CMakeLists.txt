@@ -125,6 +125,7 @@ gui/snapshotdialog.cpp
 gui/installforgedialog.cpp
 gui/savemgrwindow.cpp
 gui/textdisplaydialog.cpp
+gui/advancedmsgdlg.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -137,6 +138,7 @@ data/worldlist.cpp
 data/world.cpp
 data/texturepack.cpp
 data/texturepacklist.cpp
+data/stdinstance.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
@@ -149,6 +151,7 @@ tasks/exportpacktask.cpp
 tasks/downgradetask.cpp
 tasks/ziptask.cpp
 tasks/pastebintask.cpp
+tasks/lambdatask.cpp
 
 java/javautils.cpp
 java/annotations.cpp
@@ -185,6 +188,7 @@ gui/snapshotdialog.h
 gui/installforgedialog.h
 gui/savemgrwindow.h
 gui/textdisplaydialog.h
+gui/advancedmsgdlg.h
 
 data/appsettings.h
 data/instance.h
@@ -197,6 +201,7 @@ data/worldlist.h
 data/world.h
 data/texturepack.h
 data/texturepacklist.h
+data/stdinstance.h
 
 tasks/task.h
 tasks/logintask.h
@@ -209,6 +214,7 @@ tasks/exportpacktask.h
 tasks/downgradetask.h
 tasks/ziptask.h
 tasks/pastebintask.h
+tasks/lambdatask.h
 
 java/annotations.h
 java/classfile.h

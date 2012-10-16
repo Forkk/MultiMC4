@@ -24,6 +24,8 @@
 #include "apputils.h"
 #include "fsutils.h"
 
+#include "stdinstance.h"
+
 #include <memory>
 
 ImportPackWizard::ImportPackWizard(MainWindow *parent, ConfigPack *pack)
@@ -91,7 +93,7 @@ bool ImportPackWizard::Start()
 
 		wxFileName instDir = wxFileName::DirName(Path::Combine(settings->GetInstDir(), instDirName));
 
-		Instance *inst = new Instance(instDir);
+		Instance *inst = new StdInstance(instDir);
 		inst->SetName(instName);
 
 		m_mainWin->AddInstance(inst);

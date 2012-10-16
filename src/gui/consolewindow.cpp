@@ -21,6 +21,7 @@
 #include <wx/mstream.h>
 #include <wx/wfstream.h>
 #include <wx/msgdlg.h>
+#include <wx/clipbrd.h>
 
 #include <gui/mainwindow.h>
 
@@ -31,6 +32,7 @@
 #include "tasks/pastebintask.h"
 
 #include "gui/taskprogressdialog.h"
+#include "advancedmsgdlg.h"
 
 #include "multimc.h"
 #include "resources/consoleicon.h"
@@ -273,7 +275,13 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		// Read from input
 		wxString temp;
 		wxStringOutputStream tempStream(&temp);
-		
+
+		if (!consoleStream->CanRead())
+		{
+			wxMilliSleep(100);
+			continue;
+		}
+
 		consoleStream->Read(buffer, bufSize);
 		readSize = consoleStream->LastRead();
 		
@@ -633,18 +641,32 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 {
 	wxString crashReportString = GetCrashReport();
 
-	wxMessageDialog msgDlg(this, _("A crash report has been generated. "
-		"What would you like to do with it?"), _("Crash Report"), 
-		wxYES | wxNO | wxCANCEL | wxCENTER);
+	//wxMessageDialog msgDlg(this, _("A crash report has been generated. "
+	//	"What would you like to do with it?"), _("Crash Report"), 
+	//	wxYES | wxNO | wxCANCEL | wxCENTER);
 
-	// This is kinda hacky, but meh.
-	// wxID_YES corresponds to "Send to Pastebin", 
-	// wxID_NO corresponds to "Save to File",
-	// wxID_CANCEL corresponds to "Cancel"
-	msgDlg.SetYesNoCancelLabels(_("Send to Pastebin"), _("Save to File"), wxID_CANCEL);
+	//// This is kinda hacky, but meh.
+	//// wxID_YES corresponds to "Send to Pastebin", 
+	//// wxID_NO corresponds to "Save to File",
+	//// wxID_CANCEL corresponds to "Cancel"
+	//msgDlg.SetYesNoCancelLabels(_("Send to Pastebin"), _("Save to File"), wxID_CANCEL);
+
+	const int id_pastebin = 1;
+	const int id_file = 2;
+	const int id_clipboard = 3;
+
+	AdvancedMsgDialog::ButtonDefList btns;
+	btns.push_back(AdvancedMsgDialog::ButtonDef(_("Send to Pastebin"), id_pastebin));
+	btns.push_back(AdvancedMsgDialog::ButtonDef(_("Save to File"), id_file));
+	btns.push_back(AdvancedMsgDialog::ButtonDef(_("Copy to Clipboard"), id_clipboard));
+	btns.push_back(AdvancedMsgDialog::ButtonDef(_("&Cancel"), wxID_CANCEL));
+
+	AdvancedMsgDialog msgDlg(this, _("A crash report has been generated. "
+		"What would you like to do with it?"), btns, _("Crash Report"));
+
 
 	int response = msgDlg.ShowModal();
-	if (response == wxID_YES) // Pastebin
+	if (response == id_pastebin) // Pastebin
 	{
 		PastebinTask *task = new PastebinTask(crashReportString);
 		TaskProgressDialog tDlg(this);
@@ -662,7 +684,7 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 		}
 		delete task;
 	}
-	else if (response == wxID_NO) // Save to file
+	else if (response == id_pastebin) // Save to file
 	{
 		wxFileDialog saveReportDlg(this, _("Save Crash Report"), wxGetCwd(), 
 			wxDateTime::Now().Format("MultiMC_Report_%m-%d-%Y_%H-%M-%S.txt"), 
@@ -672,6 +694,14 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 			wxFFileOutputStream outStream(saveReportDlg.GetFilename());
 			wxStringInputStream inStream(crashReportString);
 			outStream.Write(inStream);
+		}
+	}
+	else if (response == id_clipboard)
+	{
+		if (wxTheClipboard->Open())
+		{
+			wxTheClipboard->SetData(new wxTextDataObject(crashReportString));
+			wxTheClipboard->Close();
 		}
 	}
 }

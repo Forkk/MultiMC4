@@ -18,7 +18,6 @@
 #include <wx/wx.h>
 #include <wx/tglbtn.h>
 
-#include "instance.h"
 #include "userinfo.h"
 
 class LoginDialog : public wxDialog
