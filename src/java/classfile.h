@@ -147,7 +147,7 @@ namespace java
 		uint16_t super_class;
 		// interfaces this class implements ? must be. investigate.
 		std::vector<uint16_t> interfaces;
-		
+		// FIXME: doesn't free up memory on delete
 		java::annotation_table visible_class_annotations;
 	};
 }
