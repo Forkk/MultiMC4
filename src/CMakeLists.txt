@@ -151,6 +151,7 @@ tasks/ziptask.cpp
 tasks/pastebintask.cpp
 
 java/javautils.cpp
+java/annotations.cpp
 
 apputils.cpp
 curlutils.cpp
@@ -209,9 +210,13 @@ tasks/downgradetask.h
 tasks/ziptask.h
 tasks/pastebintask.h
 
-java/endian.h
+java/annotations.h
 java/classfile.h
+java/constants.h
+java/endian.h
+java/errors.h
 java/javautils.h
+java/membuffer.h
 
 apputils.h
 curlutils.h
@@ -306,10 +311,8 @@ include_directories(
 )
 
 # Add the executable.
-
 add_executable(MultiMC WIN32 ${SRCS} ${INCS})
 add_dependencies(MultiMC generate_headers generate_launcher)
-
 
 # Link the libraries.
 target_link_libraries(MultiMC
@@ -321,6 +324,25 @@ target_link_libraries(MultiMC
 	patchlib
 	${MULTIMC_ADDITIONAL_LINKS}
 )
+
+OPTION(MultiMC_Build_Annotation_Tool "Build the simple java class annotation dump tool." OFF)
+IF(MultiMC_Build_Annotation_Tool)
+# Set the sources and headers variables.
+set(CLASSTEST_SRCS 
+java/test.cpp
+java/annotations.cpp
+)
+
+set (CLASSTEST_INCS
+java/annotations.h
+java/classfile.h
+java/constants.h
+java/endian.h
+java/errors.h
+java/membuffer.h
+)
+add_executable(classtest ${CLASSTEST_SRCS} ${CLASSTEST_INCS})
+ENDIF()
 
 if (NOT CMAKE_CROSSCOMPILING)
 	EXPORT(TARGETS wxinclude FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake)
