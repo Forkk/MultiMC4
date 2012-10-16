@@ -28,12 +28,15 @@
 
 #include "modlist.h"
 #include "settingsdialog.h"
-#include "instancectrl.h"
+
 
 //const wxString tbarIconPrefix = _T("resources/toolbar/");
 
 class wxListbookEvent;
 class wxListbook;
+
+class wxInstanceCtrl;
+class wxInstanceCtrlEvent;
 
 class MainWindow : public wxFrame
 {
