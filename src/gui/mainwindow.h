@@ -29,6 +29,8 @@
 #include "modlist.h"
 #include "settingsdialog.h"
 
+#include "instlist.h"
+
 
 //const wxString tbarIconPrefix = _T("resources/toolbar/");
 
@@ -139,7 +141,7 @@ protected:
 	bool DeleteSelectedInstance();
 
 	// maps index in the used list control to an instance.
-	std::vector<Instance*> instItems;
+	InstList instItems;
 	
 	GUIMode GetGUIMode() const
 	{

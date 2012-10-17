@@ -35,6 +35,8 @@
  * Forward declarations
  */
 
+class InstList;
+
 class wxInstanceCtrl;
 
 /*!
@@ -54,7 +56,19 @@ class wxInstanceItem: public wxObject
 public:
 // Constructors
 
+	wxInstanceItem()
+	{
+		m_inst = nullptr;
+		updateName();
+	}
+
 	wxInstanceItem(Instance* inst)
+	{
+		m_inst = inst;
+		updateName();
+	}
+
+	void SetInstance(Instance* inst)
 	{
 		m_inst = inst;
 		updateName();
@@ -100,12 +114,12 @@ public:
 // Constructors
 
 	wxInstanceCtrl();
-	wxInstanceCtrl(wxWindow* parent, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
+	wxInstanceCtrl(wxWindow* parent, InstList *instList, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
 	
 // Operations
 
 	/// Creation
-	bool Create(wxWindow* parent, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
+	bool Create(wxWindow* parent, InstList *instList, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
 	
 	/// Member initialisation
 	void Init();
@@ -115,6 +129,9 @@ public:
 	
 	/// Call Thaw to refresh
 	void Thaw();
+
+	/// Reloads the items from the instance list.
+	void UpdateItems();
 	
 	/// Scrolls the item into view if necessary
 	void EnsureVisible(int n);
@@ -128,18 +145,18 @@ public:
 // Adding items
 
 	/// Append a single item
-	virtual int Append(wxInstanceItem* item);
+	//virtual int Append(wxInstanceItem* item);
 	
 	/// Insert a single item
-	virtual int Insert(wxInstanceItem* item, int pos = 0);
+	//virtual int Insert(wxInstanceItem* item, int pos = 0);
 	
 // Deleting items
 
 	/// Clear all items
-	virtual void Clear() ;
+	//virtual void Clear() ;
 	
 	/// Delete this item
-	virtual void Delete(int n) ;
+	//virtual void Delete(int n) ;
 	
 // Accessing items
 
@@ -348,6 +365,9 @@ private:
 
 	/// The items
 	wxInstanceItemArray    m_items;
+
+	/// Instance list pointer
+	InstList*              m_instList;
 	
 	/// The selections
 	wxArrayInt              m_selections;

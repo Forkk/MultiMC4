@@ -275,7 +275,7 @@ void MainWindow::OnStartup()
 
 void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 {
-	instListCtrl = new wxInstanceCtrl(this, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize);
+	instListCtrl = new wxInstanceCtrl(this, &instItems, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize);
 	instListCtrl->SetImageSize(wxSize(32,32));
 	InitInstMenu();
 	
@@ -319,7 +319,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	
 	wxFont titleFont(18, wxSWISS, wxNORMAL, wxNORMAL);
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
-	instListCtrl = new wxInstanceCtrl(instPanel, ID_InstListCtrl, 
+	instListCtrl = new wxInstanceCtrl(instPanel, &instItems, ID_InstListCtrl, 
 		wxDefaultPosition, wxDefaultSize, 
 		wxINST_SINGLE_COLUMN | wxBORDER_SUNKEN);
 	instListCtrl->SetImageSize(wxSize(32,32));
@@ -444,12 +444,13 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		}
 	}
 	
-	instListCtrl->Clear();
 	for(int i = 0; i < instItems.size(); i++)
 	{
 		delete instItems[i];
 	}
 	instItems.clear();
+	instListCtrl->UpdateItems();
+
 	m_currentInstance = nullptr;
 	m_currentInstanceIdx = -1;
 	
@@ -501,8 +502,9 @@ void MainWindow::AddInstance(Instance *inst)
 		instName.Truncate(instNameLengthLimit - 3);
 		instName.Append(_("..."));
 	}
-	instListCtrl->Append(new wxInstanceItem(inst));
+	//instListCtrl->Append(new wxInstanceItem(inst));
 	instItems.push_back(inst);
+	instListCtrl->UpdateItems();
 	wxSizer * sz = GetSizer();
 	if(sz)
 		sz->Layout();
@@ -510,7 +512,9 @@ void MainWindow::AddInstance(Instance *inst)
 
 Instance* MainWindow::GetLinkedInst(int id)
 {
-	if(id == -1)
+	if (id == -1)
+		return nullptr;
+	else if (id >= instItems.GetCount())
 		return nullptr;
 	return instItems[id];
 }
@@ -1266,11 +1270,11 @@ bool MainWindow::DeleteSelectedInstance()
 	if (dlg.ShowModal() == wxID_YES)
 	{
 		fsutils::RecursiveDelete(m_currentInstance->GetRootDir().GetFullPath());
-		instListCtrl->Delete(m_currentInstanceIdx);
 		delete m_currentInstance;
 		
 		m_currentInstance = nullptr;
-		instItems.erase(instItems.begin() + m_currentInstanceIdx);
+		instItems.Erase(instItems.Item(m_currentInstanceIdx));
+		instListCtrl->UpdateItems();
 		
 		if(m_currentInstanceIdx > 0)
 			instListCtrl->Select(m_currentInstanceIdx - 1);
