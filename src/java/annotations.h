@@ -115,7 +115,7 @@ namespace java
 		uint16_t index;
 	public:
 		element_value_simple(element_value_type type, uint16_t index , constant_pool& pool):
-		element_value::element_value(type, pool), index(index)
+		element_value(type, pool), index(index)
 		{
 			// TODO: verify consistency
 		};
@@ -147,7 +147,7 @@ namespace java
 		uint16_t valueIndex;
 	public:
 		element_value_enum(element_value_type type, uint16_t typeIndex, uint16_t valueIndex, constant_pool& pool):
-		element_value::element_value(type, pool), typeIndex(typeIndex), valueIndex(valueIndex)
+		element_value(type, pool), typeIndex(typeIndex), valueIndex(valueIndex)
 		{
 			// TODO: verify consistency
 		}
@@ -181,7 +181,7 @@ namespace java
 		uint16_t classIndex;
 	public:
 		element_value_class(element_value_type type, uint16_t classIndex, constant_pool& pool):
-		element_value::element_value(type, pool), classIndex(classIndex)
+		element_value(type, pool), classIndex(classIndex)
 		{
 			// TODO: verify consistency
 		}
@@ -202,7 +202,7 @@ namespace java
 		annotation * nestedAnnotation;
 	public:
 		element_value_annotation(element_value_type type, annotation * nestedAnnotation, constant_pool& pool):
-		element_value::element_value(type, pool), nestedAnnotation(nestedAnnotation)
+		element_value(type, pool), nestedAnnotation(nestedAnnotation)
 		{};
 		~element_value_annotation()
 		{
@@ -227,7 +227,7 @@ namespace java
 		elem_vec values;
 	public:
 		element_value_array ( element_value_type type, std::vector <element_value *>& values, constant_pool& pool ):
-		element_value::element_value(type, pool), values(values)
+		element_value(type, pool), values(values)
 		{};
 		~element_value_array ()
 		{

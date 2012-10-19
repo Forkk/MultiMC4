@@ -316,6 +316,11 @@ include_directories(
 "${PROJECT_SOURCE_DIR}/tasks"
 )
 
+# Do not generate manifests for the binary. we have our own...
+if (MSVC)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
+endif()
+
 # Add the executable.
 add_executable(MultiMC WIN32 ${SRCS} ${INCS})
 add_dependencies(MultiMC generate_headers generate_launcher)

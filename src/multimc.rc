@@ -14,9 +14,17 @@
 //    limitations under the License.
 //
 
+// tell default wx manifest to kindly ``get lost''
+#define wxUSE_NO_MANIFEST 1
 #include "wx/msw/wx.rc"
 
+// embed our own manifest
+1 24 "resources/MultiMC.exe.manifest"
+
 #include "config.h"
+
+
+
 
 IDI_ICON1	ICON	resources/MultiMC.ico
 
