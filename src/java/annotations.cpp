@@ -1,6 +1,5 @@
 #include "classfile.h"
 #include "annotations.h"
-#include "error.h"
 #include <sstream>
 
 namespace java
