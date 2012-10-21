@@ -429,7 +429,7 @@ void wxInstanceCtrl::OnPaint(wxPaintEvent& WXUNUSED(event))
 		return;
 		
 	wxRegion dirtyRegion = GetUpdateRegion();
-	bool isFocussed = (FindFocus() == this);
+	bool isFocused = (FindFocus() == this);
 	
 	int i;
 	int count = GetCount();
@@ -446,9 +446,9 @@ void wxInstanceCtrl::OnPaint(wxPaintEvent& WXUNUSED(event))
 			style = 0;
 			if (IsSelected(i))
 				style |= wxINST_SELECTED;
-			if (isFocussed)
-				style |= wxINST_FOCUSSED;
-			if (isFocussed && i == m_focusItem)
+			if (isFocused)
+				style |= wxINST_FOCUSED;
+			if (isFocused && i == m_focusItem)
 				style |= wxINST_IS_FOCUS;
 			
 			wxInstanceItem* item = GetItem(i);

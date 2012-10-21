@@ -38,7 +38,7 @@ class wxInstanceCtrl;
 // Drawing styles/states
 #define wxINST_SELECTED    0x01
 // The control is focussed
-#define wxINST_FOCUSSED    0x04
+#define wxINST_FOCUSED    0x04
 // The item itself has the focus
 #define wxINST_IS_FOCUS    0x08
 
