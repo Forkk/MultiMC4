@@ -276,7 +276,6 @@ void MainWindow::OnStartup()
 void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 {
 	instListCtrl = new wxInstanceCtrl(this, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize);
-	instListCtrl->SetImageSize(wxSize(32,32));
 	InitInstMenu();
 	
 	instNotesEditor = nullptr;
@@ -322,7 +321,6 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	instListCtrl = new wxInstanceCtrl(instPanel, ID_InstListCtrl, 
 		wxDefaultPosition, wxDefaultSize, 
 		wxINST_SINGLE_COLUMN | wxBORDER_SUNKEN);
-	instListCtrl->SetImageSize(wxSize(32,32));
 	instSz->Add(instListCtrl,wxGBPosition(0, 0), wxGBSpan(rows, 1),wxEXPAND/* | wxALL, 4*/);
 	
 	instNameSz = new wxBoxSizer(wxVERTICAL);

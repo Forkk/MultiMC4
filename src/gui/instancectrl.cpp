@@ -43,9 +43,6 @@ BEGIN_EVENT_TABLE(wxInstanceCtrl, wxScrolledCanvas)
 	EVT_SIZE(wxInstanceCtrl::OnSize)
 	EVT_SET_FOCUS(wxInstanceCtrl::OnSetFocus)
 	EVT_KILL_FOCUS(wxInstanceCtrl::OnKillFocus)
-	
-	EVT_MENU(wxID_SELECTALL, wxInstanceCtrl::OnSelectAll)
-	EVT_UPDATE_UI(wxID_SELECTALL, wxInstanceCtrl::OnUpdateSelectAll)
 END_EVENT_TABLE()
 
 /*!
@@ -277,20 +274,6 @@ bool wxInstanceCtrl::GetItemRectImage(int n, wxRect& rect, bool view_relative)
 	return true;
 }
 
-/// The size of the image part
-void wxInstanceCtrl::SetImageSize(const wxSize& sz)
-{
-	m_ImageSize = sz;
-	CalculateOverallItemSize();
-	
-	if (GetCount() > 0 && m_freezeCount == 0)
-	{
-		UpdateRows();
-		SetupScrollbars();
-		Refresh();
-	}
-}
-
 /// Calculate the outer item size based
 /// on font used for text and inner size
 void wxInstanceCtrl::CalculateOverallItemSize()
@@ -367,61 +350,6 @@ void wxInstanceCtrl::Select(int n, bool select)
 			RefreshRect(rect);
 		}
 	}
-}
-
-/// Select or deselect a range
-void wxInstanceCtrl::SelectRange(int from, int to, bool select)
-{
-	int first = from;
-	int last = to;
-	if (first < last)
-	{
-		first = to;
-		last = from;
-	}
-	wxASSERT(first >= 0 && first < GetCount());
-	wxASSERT(last >= 0 && last < GetCount());
-	
-	Freeze();
-	int i;
-	for (i = first; i < last; i++)
-	{
-		Select(i, select);
-	}
-	m_focusItem = to;
-	Thaw();
-}
-
-/// Select all
-void wxInstanceCtrl::SelectAll()
-{
-	Freeze();
-	int i;
-	for (i = 0; i < GetCount(); i++)
-	{
-		Select(i, true);
-	}
-	if (GetCount() > 0)
-	{
-		m_focusItem = GetCount() - 1;
-	}
-	else
-	{
-		m_focusItem = -1;
-	}
-	Thaw();
-}
-
-/// Select none
-void wxInstanceCtrl::SelectNone()
-{
-	Freeze();
-	int i;
-	for (i = 0; i < GetCount(); i++)
-	{
-		Select(i, false);
-	}
-	Thaw();
 }
 
 /// Get the index of the single selection, if not multi-select.
@@ -522,12 +450,14 @@ void wxInstanceCtrl::OnPaint(wxPaintEvent& WXUNUSED(event))
 				style |= wxINST_FOCUSSED;
 			if (isFocussed && i == m_focusItem)
 				style |= wxINST_IS_FOCUS;
-				
-			GetItemRect(i, untransformedRect, false);
-			GetItemRectImage(i, untransformedImageRect, false);
 			
-			DrawItemBackground(i, dc, untransformedRect, untransformedImageRect, style);
-			DrawItem(i, dc, untransformedImageRect, style);
+			wxInstanceItem* item = GetItem(i);
+			if(item)
+			{
+				GetItemRect(i, untransformedRect, false);
+				GetItemRectImage(i, untransformedImageRect, false);
+				item->Draw(dc, this, untransformedRect, untransformedImageRect, style);
+			}
 		}
 	}
 }
@@ -585,50 +515,31 @@ void wxInstanceCtrl::OnRightClick(wxMouseEvent& event)
 {
 	SetFocus();
 	int n;
+	int flags = 0;
+	if (event.ControlDown())
+		flags |= wxINST_CTRL_DOWN;
+	if (event.ShiftDown())
+		flags |= wxINST_SHIFT_DOWN;
+	if (event.AltDown())
+		flags |= wxINST_ALT_DOWN;
+	
 	if (HitTest(event.GetPosition(), n))
 	{
-		int flags = 0;
-		if (event.ControlDown())
-			flags |= wxINST_CTRL_DOWN;
-		if (event.ShiftDown())
-			flags |= wxINST_SHIFT_DOWN;
-		if (event.AltDown())
-			flags |= wxINST_ALT_DOWN;
-		/*
-				if ( m_focusItem != n )
-					SetFocusItem ( n );
-				*/
 		EnsureVisible(n);
 		DoSelection(n, flags);
-		
-		wxInstanceCtrlEvent cmdEvent(
-		    wxEVT_COMMAND_INST_RIGHT_CLICK,
-		    GetId());
-		cmdEvent.SetEventObject(this);
-		cmdEvent.SetIndex(n);
-		cmdEvent.SetFlags(flags);
-		cmdEvent.SetPosition(event.GetPosition());
-		GetEventHandler()->ProcessEvent(cmdEvent);
 	}
 	else
 	{
-		int flags = 0;
-		if (event.ControlDown())
-			flags |= wxINST_CTRL_DOWN;
-		if (event.ShiftDown())
-			flags |= wxINST_SHIFT_DOWN;
-		if (event.AltDown())
-			flags |= wxINST_ALT_DOWN;
 		ClearSelections();
-		wxInstanceCtrlEvent cmdEvent(
-		    wxEVT_COMMAND_INST_RIGHT_CLICK,
-		    GetId());
-		cmdEvent.SetEventObject(this);
-		cmdEvent.SetIndex(-1);
-		cmdEvent.SetFlags(flags);
-		cmdEvent.SetPosition(event.GetPosition());
-		GetEventHandler()->ProcessEvent(cmdEvent);
 	}
+	
+	wxInstanceCtrlEvent cmdEvent(wxEVT_COMMAND_INST_RIGHT_CLICK, GetId());
+	cmdEvent.SetEventObject(this);
+	cmdEvent.SetIndex(n);
+	cmdEvent.SetFlags(flags);
+	cmdEvent.SetPosition(event.GetPosition());
+	GetEventHandler()->ProcessEvent(cmdEvent);
+
 }
 
 /// Left-double-click
@@ -1032,100 +943,12 @@ void wxInstanceCtrl::SetupScrollbars()
 	              0, wxMin(maxPositionY, startY));
 }
 
-/// Draws the item. Normally you override function in wxInstanceItem.
-bool wxInstanceCtrl::DrawItem(int n, wxDC& dc, const wxRect& rect, int style)
-{
-	wxInstanceItem* item = GetItem(n);
-	if (item)
-	{
-		return item->Draw(dc, this, rect, style);
-	}
-	else
-		return false;
-}
-
-/// Draws the background for the item, including bevel
-bool wxInstanceCtrl::DrawItemBackground(int n, wxDC& dc, const wxRect& rect, const wxRect& imageRect, int style)
-{
-	wxInstanceItem* item = GetItem(n);
-	if (item)
-	{
-		return item->DrawBackground(dc, this, rect, imageRect, style, n);
-	}
-	else
-	{
-		return false;
-	}
-}
-
 /// Do (de)selection
 void wxInstanceCtrl::DoSelection(int n, int flags)
 {
 	bool isSelected = IsSelected(n);
 	
 	wxArrayInt stateChanged;
-	/*
-	bool multiSelect = ( GetWindowStyle() & wxINST_MULTIPLE_SELECT ) != 0;
-	
-	if ( multiSelect && ( flags & wxINST_CTRL_DOWN ) == wxINST_CTRL_DOWN )
-	{
-		Select ( n, !isSelected );
-		stateChanged.Add ( n );
-	}
-	else if ( multiSelect && ( flags & wxINST_SHIFT_DOWN ) == wxINST_SHIFT_DOWN )
-	{
-		// We need to find the last item selected,
-		// and select all in between.
-	
-		int first = m_firstSelection ;
-	
-		// Want to keep the 'first' selection
-		// if we're extending the selection
-		bool keepFirstSelection = false;
-		wxArrayInt oldSelections = m_selections;
-	
-		m_selections.Clear(); // TODO: need to refresh those that become unselected. Store old selections, compare with new
-	
-		if ( m_firstSelection != -1 && m_firstSelection < GetCount() && m_firstSelection != n )
-		{
-			int step = ( n < m_firstSelection ) ? -1 : 1;
-			int i;
-			for ( i = m_firstSelection; i != n; i += step )
-			{
-				if ( !IsSelected ( i ) )
-				{
-					m_selections.Add ( i );
-					stateChanged.Add ( i );
-	
-					wxRect rect;
-					GetItemRect ( i, rect );
-					RefreshRect ( rect );
-				}
-			}
-			keepFirstSelection = true;
-		}
-	
-		// Refresh all the previously selected items that became unselected
-		size_t i;
-		for ( i = 0; i < oldSelections.GetCount(); i++ )
-		{
-			if ( !IsSelected ( oldSelections[i] ) )
-			{
-				wxRect rect;
-				GetItemRect ( oldSelections[i], rect );
-				RefreshRect ( rect );
-			}
-		}
-	
-		Select ( n, true );
-		if ( stateChanged.Index ( n ) == wxNOT_FOUND )
-			stateChanged.Add ( n );
-	
-		if ( keepFirstSelection )
-			m_firstSelection = first;
-	}
-	else
-	*/
 	{
 		size_t i = 0;
 		for (i = 0; i < m_selections.GetCount(); i++)
@@ -1162,6 +985,7 @@ bool wxInstanceCtrl::HitTest(const wxPoint& pt, int& n)
 	wxSize clientSize = GetClientSize();
 	int startX, startY;
 	int ppuX, ppuY;
+	n = -1;
 	GetViewStart(& startX, & startY);
 	GetScrollPixelsPerUnit(& ppuX, & ppuY);
 	
@@ -1191,16 +1015,6 @@ bool wxInstanceCtrl::HitTest(const wxPoint& pt, int& n)
 		return true;
 	}
 	return false;
-}
-
-void wxInstanceCtrl::OnSelectAll(wxCommandEvent& WXUNUSED(event))
-{
-	SelectAll();
-}
-
-void wxInstanceCtrl::OnUpdateSelectAll(wxUpdateUIEvent& event)
-{
-	event.Enable(GetCount() > 0);
 }
 
 /// Paint the background
@@ -1359,24 +1173,8 @@ void wxInstanceItem::updateName()
 	delete dc;
 }
 
-/// Draw the item
-bool wxInstanceItem::Draw(wxDC& dc, wxInstanceCtrl* WXUNUSED(ctrl), const wxRect& rect, int style)
-{
-	auto list = InstIconList::Instance();
-	wxImage icon;
-	if (style & wxINST_SELECTED)
-		icon = list->getHLImageForKey(m_inst->GetIconKey());
-	else
-		icon = list->getImageForKey(m_inst->GetIconKey());
-	wxBitmap bmap = wxBitmap(icon);
-	int x = rect.x + (rect.width - bmap.GetWidth()) / 2;
-	int y = rect.y + (rect.height - bmap.GetHeight()) / 2;
-	dc.DrawBitmap(bmap , x, y, true);
-	return true;
-}
-
 /// Draw the item background
-bool wxInstanceItem::DrawBackground(wxDC& dc, wxInstanceCtrl* ctrl, const wxRect& rect, const wxRect& imageRect, int style, int WXUNUSED(index))
+bool wxInstanceItem::Draw(wxDC& dc, wxInstanceCtrl* ctrl, const wxRect& rect, const wxRect& imageRect, int style)
 {
 	wxColour backgroundColor = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW);
 	wxColour textColor = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT);
@@ -1399,6 +1197,7 @@ bool wxInstanceItem::DrawBackground(wxDC& dc, wxInstanceCtrl* ctrl, const wxRect
 		dc.SetPen(pen);
 	}
 	
+	// Draw the label
 	wxString name = m_inst->GetName();
 	if (!name.IsEmpty())
 	{
@@ -1431,22 +1230,18 @@ bool wxInstanceItem::DrawBackground(wxDC& dc, wxInstanceCtrl* ctrl, const wxRect
 		dc.DrawLabel(name_wrapped, textRect, wxALIGN_TOP | wxALIGN_CENTER_HORIZONTAL);
 	}
 	
-	// If the item itself is the focus, draw a dotted
-	// rectangle around it
-	/*
-	if ( style & wxINST_IS_FOCUS )
-	{
-		wxPen dottedPen ( focussedSelection, 1, wxDOT );
-		dc.SetPen ( dottedPen );
-		dc.SetBrush ( *wxTRANSPARENT_BRUSH );
-		wxRect focusRect = imageRect;
-		focusRect.x --;
-		focusRect.y --;
-		focusRect.width += 2;
-		focusRect.height += 2;
-		dc.DrawRectangle ( focusRect );
-	}
-	*/
+	// Draw the icon
+	auto list = InstIconList::Instance();
+	wxImage icon;
+	if (style & wxINST_SELECTED)
+		icon = list->getHLImageForKey(m_inst->GetIconKey());
+	else
+		icon = list->getImageForKey(m_inst->GetIconKey());
+	wxBitmap bmap = wxBitmap(icon);
+	int x = imageRect.x + (imageRect.width - bmap.GetWidth()) / 2;
+	int y = imageRect.y + (imageRect.height - bmap.GetHeight()) / 2;
+	dc.DrawBitmap(bmap , x, y, true);
+	
 	return true;
 }
 
