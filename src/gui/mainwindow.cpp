@@ -275,7 +275,7 @@ void MainWindow::OnStartup()
 
 void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 {
-	instListCtrl = new wxInstanceCtrl(this, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize);
+	instListCtrl = new wxInstanceCtrl(this, &instItems, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize);
 	InitInstMenu();
 	
 	instNotesEditor = nullptr;
@@ -290,6 +290,7 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_Play, _T("&Play"), _T("Launch the instance."));
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_Rename, _T("&Rename"), _T("Change the instance's name."));
+	instMenu->Append(ID_SetGroup, _T("Change Group"), _T("Change the instance's group."));
 	instMenu->Append(ID_ChangeIcon, _T("&Change Icon"), _T("Change this instance's icon."));
 	instMenu->Append(ID_EditNotes, _T("&Notes"), _T("View / edit this instance's notes."));
 	instMenu->Append(ID_Configure, _T("&Settings"), _T("Change instance settings."));
@@ -318,7 +319,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	
 	wxFont titleFont(18, wxSWISS, wxNORMAL, wxNORMAL);
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
-	instListCtrl = new wxInstanceCtrl(instPanel, ID_InstListCtrl, 
+	instListCtrl = new wxInstanceCtrl(instPanel, &instItems, ID_InstListCtrl, 
 		wxDefaultPosition, wxDefaultSize, 
 		wxINST_SINGLE_COLUMN | wxBORDER_SUNKEN);
 	instSz->Add(instListCtrl,wxGBPosition(0, 0), wxGBSpan(rows, 1),wxEXPAND/* | wxALL, 4*/);
@@ -444,12 +445,13 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		}
 	}
 	
-	instListCtrl->Clear();
 	for(int i = 0; i < instItems.size(); i++)
 	{
 		delete instItems[i];
 	}
 	instItems.clear();
+	instListCtrl->UpdateItems();
+
 	m_currentInstance = nullptr;
 	m_currentInstanceIdx = -1;
 	
@@ -479,6 +481,9 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		}
 		cont = dir.GetNext(&subFolder);
 	}
+	wxString groupFile = Path::Combine(settings->GetInstDir(), "instgroups.json");
+	if (wxFileExists(groupFile))
+		instItems.LoadGroupInfo(groupFile);
 	instListCtrl->Thaw();
 	GetStatusBar()->SetStatusText(wxString::Format(_("Loaded %i instances..."), ctr), 0);
 	wxGetApp().Yield();
@@ -501,8 +506,9 @@ void MainWindow::AddInstance(Instance *inst)
 		instName.Truncate(instNameLengthLimit - 3);
 		instName.Append(_("..."));
 	}
-	instListCtrl->Append(new wxInstanceItem(inst));
+	//instListCtrl->Append(new wxInstanceItem(inst));
 	instItems.push_back(inst);
+	instListCtrl->UpdateItems();
 	wxSizer * sz = GetSizer();
 	if(sz)
 		sz->Layout();
@@ -510,7 +516,9 @@ void MainWindow::AddInstance(Instance *inst)
 
 Instance* MainWindow::GetLinkedInst(int id)
 {
-	if(id == -1)
+	if (id == -1)
+		return nullptr;
+	else if (id >= instItems.GetCount())
 		return nullptr;
 	return instItems[id];
 }
@@ -973,6 +981,22 @@ void MainWindow::OnRenameClicked(wxCommandEvent& event)
 	RenameEvent();
 }
 
+void MainWindow::OnChangeGroupClicked(wxCommandEvent& event)
+{
+	// instItems.SaveGroupInfo();
+	if (!m_currentInstance)
+		return;
+
+	wxTextEntryDialog textDlg(this, _("Enter a new group for this instance."), 
+		_("Change Group"), instItems.GetGroup(m_currentInstance));
+	textDlg.CenterOnParent();
+	if (textDlg.ShowModal() == wxID_OK)
+	{
+		instItems.SetGroup(m_currentInstance, textDlg.GetValue());
+		instItems.SaveGroupInfo(Path::Combine(settings->GetInstDir(), "instgroups.json"));
+	}
+}
+
 void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 {
 	ChangeIconDialog iconDlg(this);
@@ -1266,11 +1290,11 @@ bool MainWindow::DeleteSelectedInstance()
 	if (dlg.ShowModal() == wxID_YES)
 	{
 		fsutils::RecursiveDelete(m_currentInstance->GetRootDir().GetFullPath());
-		instListCtrl->Delete(m_currentInstanceIdx);
 		delete m_currentInstance;
 		
 		m_currentInstance = nullptr;
-		instItems.erase(instItems.begin() + m_currentInstanceIdx);
+		instItems.Erase(instItems.Item(m_currentInstanceIdx));
+		instListCtrl->UpdateItems();
 		
 		if(m_currentInstanceIdx > 0)
 			instListCtrl->Select(m_currentInstanceIdx - 1);
@@ -1393,6 +1417,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_Play, MainWindow::OnPlayClicked)
 	
 	EVT_MENU(ID_Rename, MainWindow::OnRenameClicked)
+	EVT_MENU(ID_SetGroup, MainWindow::OnChangeGroupClicked)
 	EVT_MENU(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
 	EVT_MENU(ID_EditNotes, MainWindow::OnNotesClicked)
 	EVT_MENU(ID_Configure, MainWindow::OnInstanceSettingsClicked)

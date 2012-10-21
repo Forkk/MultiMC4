@@ -48,6 +48,9 @@ public:
 	
 	bool Save() const;
 	bool Load(bool loadDefaults = false);
+
+	// Returns the instance's ID. (the root directory name)
+	wxString GetInstID() const;
 	
 	// Directories
 	wxFileName GetRootDir() const;

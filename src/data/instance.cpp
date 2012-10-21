@@ -665,6 +665,11 @@ bool Instance::FolderModList::LoadModListFromDir(const wxString& loadFrom, bool 
 	return listChanged;
 }
 
+wxString Instance::GetInstID() const
+{
+	wxString id = GetRootDir().GetFullName();
+	return id;
+}
 
 
 BEGIN_EVENT_TABLE(Instance, wxEvtHandler)

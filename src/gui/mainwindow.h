@@ -29,6 +29,8 @@
 #include "modlist.h"
 #include "settingsdialog.h"
 
+#include "instlist.h"
+
 
 //const wxString tbarIconPrefix = _T("resources/toolbar/");
 
@@ -68,6 +70,7 @@ public:
 	void OnInstRenameKey(wxInstanceCtrlEvent& event);
 	
 	void OnRenameClicked(wxCommandEvent& event);
+	void OnChangeGroupClicked(wxCommandEvent& event);
 	void OnCopyInstClicked(wxCommandEvent &event);
 	void OnChangeIconClicked(wxCommandEvent& event);
 	void OnNotesClicked(wxCommandEvent& event);
@@ -139,7 +142,7 @@ protected:
 	bool DeleteSelectedInstance();
 
 	// maps index in the used list control to an instance.
-	std::vector<Instance*> instItems;
+	InstList instItems;
 	
 	GUIMode GetGUIMode() const
 	{
@@ -227,6 +230,7 @@ enum
 	ID_Play,
 
 	ID_Rename,
+	ID_SetGroup,
 	ID_CopyInst,
 	ID_ChangeIcon,
 	ID_EditNotes,
