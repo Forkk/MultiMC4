@@ -156,7 +156,7 @@ wxString FindJavaPath(const wxString& def)
 	return def;
 }
 
-#elif defined __WXGTK__
+#elif LINUX
 
 wxString FindJavaPath(const wxString& def)
 {
@@ -175,10 +175,23 @@ wxString FindJavaPath(const wxString& def)
     }
 }
 
-#else
+#elif OSX
 
 wxString FindJavaPath(const wxString& def)
 {
+	wxFileName test[4] = {
+		"/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Commands/java",
+		"/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Commands/java",
+		"/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Commands/java",
+		"/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Commands/java",
+	};
+	for(int i = 0; i < 4; i++)
+	{
+		if(test[i].Exists())
+		{
+			return test[i].GetFullPath();
+		}
+	}
 	return def;
 }
 
