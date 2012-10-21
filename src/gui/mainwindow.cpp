@@ -43,6 +43,8 @@
 #include "savemgrwindow.h"
 #include "stdinstance.h"
 
+#include "instancectrl.h"
+
 #include <wx/filesys.h>
 #include <wx/dir.h>
 #include <wx/fs_arc.h>
