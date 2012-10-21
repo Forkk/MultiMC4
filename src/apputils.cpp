@@ -179,7 +179,7 @@ wxString FindJavaPath(const wxString& def)
 
 wxString FindJavaPath(const wxString& def)
 {
-	wxFileName test[4] = {
+	const char * test[] = {
 		"/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Commands/java",
 		"/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Commands/java",
 		"/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Commands/java",
@@ -187,9 +187,10 @@ wxString FindJavaPath(const wxString& def)
 	};
 	for(int i = 0; i < 4; i++)
 	{
-		if(test[i].Exists())
+		wxFileName path (test[i]);
+		if(path.Exists())
 		{
-			return test[i].GetFullPath();
+			return path.GetFullPath();
 		}
 	}
 	return def;
