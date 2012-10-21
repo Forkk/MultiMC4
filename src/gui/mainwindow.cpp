@@ -388,6 +388,8 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 
 void MainWindow::UpdateInstPanel()
 {
+	if(GetGUIMode() != GUI_Default)
+		return;
 	instPanel->Show();
 	if(m_currentInstance && !renamingInst)
 		EnableInstActions();
