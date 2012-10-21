@@ -17,16 +17,28 @@
 #pragma once
 
 #include <wx/list.h>
+#include <map>
 
 class Instance;
 
 WX_DECLARE_LIST(Instance, InstListBase);
+
+typedef std::map<wxString, wxString> GroupMap;
 
 class InstList : public InstListBase
 {
 public:
 	InstList();
 
-protected:
+	// Gets the given instance's group.
+	wxString GetGroup(Instance* inst);
 
+	// Sets the given instance's group.
+	void SetGroup(Instance* inst, const wxString& group);
+
+	bool LoadGroupInfo(const wxString& file);
+	bool SaveGroupInfo(const wxString& file) const;
+
+protected:
+	GroupMap m_groupMap;
 };

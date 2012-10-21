@@ -70,6 +70,7 @@ public:
 	void OnInstRenameKey(wxInstanceCtrlEvent& event);
 	
 	void OnRenameClicked(wxCommandEvent& event);
+	void OnChangeGroupClicked(wxCommandEvent& event);
 	void OnCopyInstClicked(wxCommandEvent &event);
 	void OnChangeIconClicked(wxCommandEvent& event);
 	void OnNotesClicked(wxCommandEvent& event);
@@ -229,6 +230,7 @@ enum
 	ID_Play,
 
 	ID_Rename,
+	ID_SetGroup,
 	ID_CopyInst,
 	ID_ChangeIcon,
 	ID_EditNotes,

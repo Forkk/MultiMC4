@@ -291,6 +291,7 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_Play, _T("&Play"), _T("Launch the instance."));
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_Rename, _T("&Rename"), _T("Change the instance's name."));
+	instMenu->Append(ID_SetGroup, _T("Change Group"), _T("Change the instance's group."));
 	instMenu->Append(ID_ChangeIcon, _T("&Change Icon"), _T("Change this instance's icon."));
 	instMenu->Append(ID_EditNotes, _T("&Notes"), _T("View / edit this instance's notes."));
 	instMenu->Append(ID_Configure, _T("&Settings"), _T("Change instance settings."));
@@ -480,6 +481,9 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		}
 		cont = dir.GetNext(&subFolder);
 	}
+	wxString groupFile = Path::Combine(settings->GetInstDir(), "instgroups.json");
+	if (wxFileExists(groupFile))
+		instItems.LoadGroupInfo(groupFile);
 	instListCtrl->Thaw();
 	GetStatusBar()->SetStatusText(wxString::Format(_("Loaded %i instances..."), ctr), 0);
 	wxGetApp().Yield();
@@ -977,6 +981,22 @@ void MainWindow::OnRenameClicked(wxCommandEvent& event)
 	RenameEvent();
 }
 
+void MainWindow::OnChangeGroupClicked(wxCommandEvent& event)
+{
+	// instItems.SaveGroupInfo();
+	if (!m_currentInstance)
+		return;
+
+	wxTextEntryDialog textDlg(this, _("Enter a new group for this instance."), 
+		_("Change Group"), instItems.GetGroup(m_currentInstance));
+	textDlg.CenterOnParent();
+	if (textDlg.ShowModal() == wxID_OK)
+	{
+		instItems.SetGroup(m_currentInstance, textDlg.GetValue());
+		instItems.SaveGroupInfo(Path::Combine(settings->GetInstDir(), "instgroups.json"));
+	}
+}
+
 void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 {
 	ChangeIconDialog iconDlg(this);
@@ -1397,6 +1417,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_Play, MainWindow::OnPlayClicked)
 	
 	EVT_MENU(ID_Rename, MainWindow::OnRenameClicked)
+	EVT_MENU(ID_SetGroup, MainWindow::OnChangeGroupClicked)
 	EVT_MENU(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
 	EVT_MENU(ID_EditNotes, MainWindow::OnNotesClicked)
 	EVT_MENU(ID_Configure, MainWindow::OnInstanceSettingsClicked)

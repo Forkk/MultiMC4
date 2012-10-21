@@ -18,6 +18,9 @@
 
 #include "data/instance.h"
 
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/foreach.hpp>
+
 int CompareInstances(Instance *first, Instance *second)
 {
 	return wxStricmp(first->GetName(), second->GetName());
@@ -27,6 +30,67 @@ InstList::InstList()
 	//: InstListBase(&CompareInstances)
 {
 
+}
+
+bool InstList::LoadGroupInfo(const wxString& file)
+{
+	m_groupMap.clear();
+
+	using namespace boost::property_tree;
+	ptree pt;
+
+	try
+	{
+		read_json(stdStr(file), pt);
+
+		BOOST_FOREACH(const ptree::value_type& v, pt.get_child("groups"))
+		{
+			m_groupMap[wxStr(v.first.data())] = wxStr(v.second.data());
+		}
+	}
+	catch (json_parser_error e)
+	{
+		wxLogError(_("Failed to read group list.\nJSON parser error at line %i: %s"), 
+			e.line(), wxStr(e.message()).c_str());
+		return false;
+	}
+	return true;
+}
+
+bool InstList::SaveGroupInfo(const wxString& file) const
+{
+	using namespace boost::property_tree;
+	ptree pt;
+
+	try
+	{
+		ptree subPT;
+		for (GroupMap::const_iterator iter = m_groupMap.begin(); iter != m_groupMap.end(); iter++)
+		{
+			subPT.push_back(std::make_pair(stdStr(iter->first), stdStr(iter->second)));
+		}
+		pt.add_child("groups", subPT);
+
+		write_json(stdStr(file), pt);
+	}
+	catch (json_parser_error e)
+	{
+		wxLogError(_("Failed to read group list.\nJSON parser error at line %i: %s"), 
+			e.line(), wxStr(e.message()).c_str());
+		return false;
+	}
+
+	return true;
+}
+
+wxString InstList::GetGroup(Instance* inst)
+{
+	return m_groupMap[inst->GetInstID()];
+}
+
+void InstList::SetGroup(Instance *inst, const wxString& group)
+{
+	m_groupMap[inst->GetInstID()] = group;
 }
 
 #include <wx/listimpl.cpp>
