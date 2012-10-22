@@ -85,6 +85,10 @@ void InstanceModel::SetLinkedControl ( wxInstanceCtrl* ctrl )
 void InstanceModel::Freeze()
 {
 	m_freeze_level ++;
+	if(m_control)
+	{
+		m_control->Freeze();
+	}
 };
 
 void InstanceModel::Thaw()
@@ -92,6 +96,10 @@ void InstanceModel::Thaw()
 	m_freeze_level --;
 	if(m_freeze_level == 0 && m_control)
 		m_control->UpdateItems();
+	if(m_control)
+	{
+		m_control->Thaw();
+	}
 };
 
 bool InstanceModel::LoadGroupInfo(const wxString& file)
