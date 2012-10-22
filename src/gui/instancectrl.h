@@ -21,21 +21,15 @@
 /* Defaults
  */
 
-#define wxINST_DEFAULT_OVERALL_SIZE wxSize(-1, -1)
 #define wxINST_DEFAULT_IMAGE_SIZE wxSize(32, 32)
 #define wxINST_DEFAULT_SPACING 3
 #define wxINST_DEFAULT_MARGIN 3
-#define wxINST_DEFAULT_UNFOCUSSED_BACKGROUND wxColour(175, 175, 175)
-#define wxINST_DEFAULT_FOCUSSED_BACKGROUND wxColour(140, 140, 140)
-#define wxINST_DEFAULT_UNSELECTED_BACKGROUND wxSystemSettings::GetColour(wxSYS_COLOUR_3DFACE)
-#define wxINST_DEFAULT_TYPE_COLOUR wxColour(0, 0, 200)
-#define wxINST_DEFAULT_FOCUS_RECT_COLOUR wxColour(100, 80, 80)
 
 /*!
  * Forward declarations
  */
 
-class InstList;
+class InstanceModel;
 
 class wxInstanceCtrl;
 
@@ -46,11 +40,11 @@ class wxInstanceCtrl;
 // Drawing styles/states
 #define wxINST_SELECTED    0x01
 // The control is focussed
-#define wxINST_FOCUSSED    0x04
+#define wxINST_FOCUSED    0x04
 // The item itself has the focus
 #define wxINST_IS_FOCUS    0x08
 
-class wxInstanceItem: public wxObject
+class wxInstanceItem
 {
 	DECLARE_CLASS(wxInstanceItem)
 public:
@@ -86,11 +80,8 @@ public:
 		return text_lines;
 	};
 	
-	/// Draw the item
-	virtual bool Draw(wxDC& dc, wxInstanceCtrl* ctrl, const wxRect& rect, int style) ;
-	
 	/// Draw the background
-	virtual bool DrawBackground(wxDC& dc, wxInstanceCtrl* ctrl, const wxRect& rect, const wxRect& imageRect, int style, int index) ;
+	bool Draw(wxDC& dc, wxInstanceCtrl* ctrl, const wxRect& rect, const wxRect& imageRect, int style);
 	
 protected:
 	Instance*   m_inst;
@@ -101,10 +92,6 @@ protected:
 
 WX_DECLARE_OBJARRAY(wxInstanceItem, wxInstanceItemArray);
 
-/*!
- * wxInstanceCtrl class declaration
- */
-
 class wxInstanceCtrl: public wxScrolledCanvas
 {
 	DECLARE_CLASS(wxInstanceCtrl)
@@ -114,12 +101,12 @@ public:
 // Constructors
 
 	wxInstanceCtrl();
-	wxInstanceCtrl(wxWindow* parent, InstList *instList, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
+	wxInstanceCtrl(wxWindow* parent, InstanceModel *instList, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
 	
 // Operations
 
 	/// Creation
-	bool Create(wxWindow* parent, InstList *instList, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
+	bool Create(wxWindow* parent, InstanceModel *instList, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
 	
 	/// Member initialisation
 	void Init();
@@ -135,12 +122,6 @@ public:
 	
 	/// Scrolls the item into view if necessary
 	void EnsureVisible(int n);
-	
-	/// Draws the item. Normally you override function in wxInstanceItem.
-	virtual bool DrawItem(int n, wxDC& dc, const wxRect& rect, int style) ;
-	
-	/// Draws the background for the item, including bevel
-	virtual bool DrawItemBackground(int n, wxDC& dc, const wxRect& rect, const wxRect& imageRect, int style) ;
 	
 // Adding items
 
@@ -205,24 +186,9 @@ public:
 	/// Select or deselect an item
 	void Select(int n, bool select = true) ;
 	
-	/// Select or deselect a range
-	void SelectRange(int from, int to, bool select = true) ;
-	
-	/// Select all
-	void SelectAll() ;
-	
-	/// Select none
-	void SelectNone() ;
-	
 	/// Get the index of the single selection, if not multi-select.
 	/// Returns -1 if there is no selection.
 	int GetSelection() const ;
-	
-	/// Get indexes of all selections, if multi-select
-	const wxArrayInt& GetSelections() const
-	{
-		return m_selections;
-	}
 	
 	/// Returns true if the item is selected
 	bool IsSelected(int n) const ;
@@ -232,8 +198,6 @@ public:
 	
 // Visual properties
 
-	/// The size of the image part
-	void SetImageSize(const wxSize& sz);
 	const wxSize& GetImageSize() const
 	{
 		return m_ImageSize;
@@ -265,22 +229,6 @@ public:
 		wxInstanceItem& item = m_items[n];
 		return m_itemMargin * 3 + m_ImageSize.y + item.GetNumLines() * m_itemTextHeight;
 	}
-	
-	/// The height required for text in the item
-	void SetItemTextHeight(int h)
-	{
-		m_itemTextHeight = h;
-	}
-	int GetItemTextHeight() const
-	{
-		return m_itemTextHeight;
-	}
-	
-// Command handlers
-
-	void OnSelectAll(wxCommandEvent& event);
-	void OnUpdateSelectAll(wxUpdateUIEvent& event);
-	
 // Event handlers
 
 	/// Painting
@@ -367,7 +315,7 @@ private:
 	wxInstanceItemArray    m_items;
 
 	/// Instance list pointer
-	InstList*              m_instList;
+	InstanceModel*              m_instList;
 	
 	/// The selections
 	wxArrayInt              m_selections;
