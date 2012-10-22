@@ -276,6 +276,7 @@ void MainWindow::OnStartup()
 void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 {
 	instListCtrl = new wxInstanceCtrl(this, &instItems, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize);
+	instItems.SetLinkedControl(instListCtrl);
 	InitInstMenu();
 	
 	instNotesEditor = nullptr;
@@ -319,9 +320,12 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	
 	wxFont titleFont(18, wxSWISS, wxNORMAL, wxNORMAL);
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
+
+	// create the instance list and link it to the model
 	instListCtrl = new wxInstanceCtrl(instPanel, &instItems, ID_InstListCtrl, 
-		wxDefaultPosition, wxDefaultSize, 
-		wxINST_SINGLE_COLUMN | wxBORDER_SUNKEN);
+		wxDefaultPosition, wxDefaultSize, wxINST_SINGLE_COLUMN | wxBORDER_SUNKEN);
+	instItems.SetLinkedControl(instListCtrl);
+	
 	instSz->Add(instListCtrl,wxGBPosition(0, 0), wxGBSpan(rows, 1),wxEXPAND/* | wxALL, 4*/);
 	
 	instNameSz = new wxBoxSizer(wxVERTICAL);
@@ -445,50 +449,46 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		}
 	}
 	
-	for(int i = 0; i < instItems.size(); i++)
+	instItems.Freeze();
 	{
-		delete instItems[i];
-	}
-	instItems.clear();
-	instListCtrl->UpdateItems();
+		instItems.Clear();
 
-	m_currentInstance = nullptr;
-	m_currentInstanceIdx = -1;
-	
-	wxDir dir(instDir.GetFullPath());
-	if (!dir.IsOpened())
-	{
-		return;
-	}
-	
-	Enable(false);
-	wxString subFolder;
-	int ctr = 0;
-	bool cont = dir.GetFirst(&subFolder, wxEmptyString, wxDIR_DIRS);
-	instListCtrl->Freeze();
-	while (cont)
-	{
-		wxFileName dirName(instDir.GetFullPath(), subFolder);
-		if (IsValidInstance(dirName))
+		m_currentInstance = nullptr;
+		m_currentInstanceIdx = -1;
+		
+		wxDir dir(instDir.GetFullPath());
+		if (!dir.IsOpened())
 		{
-			Instance *inst = Instance::LoadInstance(dirName);
-			if (inst != NULL)
-			{
-				AddInstance(inst);
-			}
-			
-			ctr++;
+			return;
 		}
-		cont = dir.GetNext(&subFolder);
+		
+		Enable(false);
+		wxString subFolder;
+		int ctr = 0;
+		bool cont = dir.GetFirst(&subFolder, wxEmptyString, wxDIR_DIRS);
+		while (cont)
+		{
+			wxFileName dirName(instDir.GetFullPath(), subFolder);
+			if (IsValidInstance(dirName))
+			{
+				Instance *inst = Instance::LoadInstance(dirName);
+				if (inst != NULL)
+				{
+					AddInstance(inst);
+				}
+				
+				ctr++;
+			}
+			cont = dir.GetNext(&subFolder);
+		}
+		wxString groupFile = Path::Combine(settings->GetInstDir(), "instgroups.json");
+		if (wxFileExists(groupFile))
+			instItems.LoadGroupInfo(groupFile);
+		GetStatusBar()->SetStatusText(wxString::Format(_("Loaded %i instances..."), ctr), 0);
+		wxGetApp().Yield();
+		Enable(true);
 	}
-	wxString groupFile = Path::Combine(settings->GetInstDir(), "instgroups.json");
-	if (wxFileExists(groupFile))
-		instItems.LoadGroupInfo(groupFile);
-	instListCtrl->Thaw();
-	GetStatusBar()->SetStatusText(wxString::Format(_("Loaded %i instances..."), ctr), 0);
-	wxGetApp().Yield();
-	Enable(true);
-	
+	instItems.Thaw();
 	
 	if (GetGUIMode() == GUI_Default)
 	{
@@ -506,9 +506,7 @@ void MainWindow::AddInstance(Instance *inst)
 		instName.Truncate(instNameLengthLimit - 3);
 		instName.Append(_("..."));
 	}
-	//instListCtrl->Append(new wxInstanceItem(inst));
-	instItems.push_back(inst);
-	instListCtrl->UpdateItems();
+	instItems.Add(inst);
 	wxSizer * sz = GetSizer();
 	if(sz)
 		sz->Layout();
@@ -516,9 +514,7 @@ void MainWindow::AddInstance(Instance *inst)
 
 Instance* MainWindow::GetLinkedInst(int id)
 {
-	if (id == -1)
-		return nullptr;
-	else if (id >= instItems.GetCount())
+	if (id < 0)
 		return nullptr;
 	return instItems[id];
 }
@@ -1290,11 +1286,9 @@ bool MainWindow::DeleteSelectedInstance()
 	if (dlg.ShowModal() == wxID_YES)
 	{
 		fsutils::RecursiveDelete(m_currentInstance->GetRootDir().GetFullPath());
-		delete m_currentInstance;
 		
 		m_currentInstance = nullptr;
-		instItems.Erase(instItems.Item(m_currentInstanceIdx));
-		instListCtrl->UpdateItems();
+		instItems.Remove(m_currentInstanceIdx);
 		
 		if(m_currentInstanceIdx > 0)
 			instListCtrl->Select(m_currentInstanceIdx - 1);

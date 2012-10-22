@@ -16,7 +16,7 @@
 #include "wx/image.h"
 #include "wx/dcbuffer.h"
 
-#include "instlist.h"
+#include "instancemodel.h"
 
 WX_DEFINE_OBJARRAY(wxInstanceItemArray);
 
@@ -55,14 +55,14 @@ wxInstanceCtrl::wxInstanceCtrl()
 	Init();
 }
 
-wxInstanceCtrl::wxInstanceCtrl(wxWindow* parent, InstList *instList, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
+wxInstanceCtrl::wxInstanceCtrl(wxWindow* parent, InstanceModel *instList, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
 {
 	Init();
 	Create(parent, instList, id, pos, size, style);
 }
 
 /// Creation
-bool wxInstanceCtrl::Create(wxWindow* parent, InstList *instList, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
+bool wxInstanceCtrl::Create(wxWindow* parent, InstanceModel *instList, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
 {
 	m_instList = instList;
 
@@ -118,101 +118,6 @@ void wxInstanceCtrl::Thaw()
 		Refresh();
 	}
 }
-
-/// Append a single item
-//int wxInstanceCtrl::Append(wxInstanceItem* item)
-//{
-//	int sz = (int) GetCount();
-//	m_items.Add(item);
-//	/*
-//	m_firstSelection = -1;
-//	m_lastSelection = -1;
-//	m_focusItem = -1;
-//	*/
-//	
-//	if (m_freezeCount == 0)
-//	{
-//		UpdateRows();
-//		SetupScrollbars();
-//		Refresh();
-//	}
-//	return sz;
-//}
-
-/// Insert a single item
-//int wxInstanceCtrl::Insert(wxInstanceItem* item, int pos)
-//{
-//	m_items.Insert(item, pos);
-//	m_firstSelection = -1;
-//	m_lastSelection = -1;
-//	m_focusItem = -1;
-//	
-//	// Must now change selection indices because
-//	// items above it have moved up
-//	size_t i;
-//	for (i = 0; i < m_selections.GetCount(); i++)
-//	{
-//		if (m_selections[i] >= pos)
-//			m_selections[i] = m_selections[i] + 1;
-//	}
-//	
-//	if (m_freezeCount == 0)
-//	{
-//		UpdateRows();
-//		SetupScrollbars();
-//		Refresh();
-//	}
-//	return pos;
-//}
-
-/// Clear all items
-//void wxInstanceCtrl::Clear()
-//{
-//	m_firstSelection = -1;
-//	m_lastSelection = -1;
-//	m_focusItem = -1;
-//	m_items.Clear();
-//	m_selections.Clear();
-//	
-//	if (m_freezeCount == 0)
-//	{
-//		UpdateRows();
-//		SetupScrollbars();
-//		Refresh();
-//	}
-//}
-
-/// Delete this item
-//void wxInstanceCtrl::Delete(int n)
-//{
-//	if (m_firstSelection == n)
-//		m_firstSelection = -1;
-//	if (m_lastSelection == n)
-//		m_lastSelection = -1;
-//	if (m_focusItem == n)
-//		m_focusItem = -1;
-//		
-//	if (m_selections.Index(n) != wxNOT_FOUND)
-//		m_selections.Remove(n);
-//		
-//	m_items.RemoveAt(n);
-//	
-//	// Must now change selection indices because
-//	// items have moved down
-//	size_t i;
-//	for (i = 0; i < m_selections.GetCount(); i++)
-//	{
-//		if (m_selections[i] > n)
-//			m_selections[i] = m_selections[i] - 1;
-//	}
-//	
-//	if (m_freezeCount == 0)
-//	{
-//		UpdateRows();
-//		SetupScrollbars();
-//		Refresh();
-//	}
-//}
 
 /// Get the nth item
 wxInstanceItem* wxInstanceCtrl::GetItem(int n)
@@ -1266,19 +1171,19 @@ void wxInstanceCtrl::UpdateItems()
 {
 	Freeze();
 
-	while (m_items.GetCount() > m_instList->GetCount())
+	while (m_items.GetCount() > m_instList->size())
 	{
 		m_items.RemoveAt(m_items.GetCount() - 1);
 	}
 
 	{
-		InstList::iterator iter = m_instList->begin();
-		for (int i = 0; iter != m_instList->end(); i++, iter++)
+		for (int i = 0; i < m_instList->size() ; i++)
 		{
+			auto inst = m_instList->operator[](i);
 			if (i >= m_items.GetCount())
-				m_items.Add(wxInstanceItem(*iter));
+				m_items.Add(wxInstanceItem(inst));
 			else
-				m_items[i].SetInstance(*iter);
+				m_items[i].SetInstance(inst);
 		}
 	}
 

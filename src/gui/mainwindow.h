@@ -29,13 +29,7 @@
 #include "modlist.h"
 #include "settingsdialog.h"
 
-#include "instlist.h"
-
-
-//const wxString tbarIconPrefix = _T("resources/toolbar/");
-
-class wxListbookEvent;
-class wxListbook;
+#include "instancemodel.h"
 
 class wxInstanceCtrl;
 class wxInstanceCtrlEvent;
@@ -142,7 +136,7 @@ protected:
 	bool DeleteSelectedInstance();
 
 	// maps index in the used list control to an instance.
-	InstList instItems;
+	InstanceModel instItems;
 	
 	GUIMode GetGUIMode() const
 	{

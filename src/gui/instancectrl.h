@@ -29,7 +29,7 @@
  * Forward declarations
  */
 
-class InstList;
+class InstanceModel;
 
 class wxInstanceCtrl;
 
@@ -101,12 +101,12 @@ public:
 // Constructors
 
 	wxInstanceCtrl();
-	wxInstanceCtrl(wxWindow* parent, InstList *instList, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
+	wxInstanceCtrl(wxWindow* parent, InstanceModel *instList, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
 	
 // Operations
 
 	/// Creation
-	bool Create(wxWindow* parent, InstList *instList, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
+	bool Create(wxWindow* parent, InstanceModel *instList, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
 	
 	/// Member initialisation
 	void Init();
@@ -315,7 +315,7 @@ private:
 	wxInstanceItemArray    m_items;
 
 	/// Instance list pointer
-	InstList*              m_instList;
+	InstanceModel*              m_instList;
 	
 	/// The selections
 	wxArrayInt              m_selections;
