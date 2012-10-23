@@ -49,8 +49,14 @@ public:
 	/// Add a new instance and return its index
 	std::size_t Add (Instance * inst);
 	
-	/// remove instance by index (and destroy it)
+	/// remove instance by index (and destroy the object)
 	void Remove (std::size_t index);
+	
+	/// Delete instance by index (this includes all its files)
+	void Delete (std::size_t index);
+	
+	/// delete the currently selected instance and all its files
+	void DeleteCurrent ();
 	
 	/// Prevent the model from updating the control until thawed again (for batching changes)
 	void Freeze();
@@ -66,11 +72,45 @@ public:
 	bool LoadGroupInfo(const wxString& file);
 	bool SaveGroupInfo(const wxString& file) const;
 
+	Instance *GetSelectedInstance()
+	{
+		if(m_selectedIndex == -1)
+			return nullptr;
+		return m_instances[m_selectedIndex];
+	};
+	
+	Instance *GetPreviousInstance()
+	{
+		if(m_previousIndex == -1)
+			return nullptr;
+		return m_instances[m_previousIndex];
+	};
+	
+	/// Set the selection from the linked control side. We do not notify the originating control.
+	void CtrlSelectInstance ( int clickedID )
+	{
+		m_previousIndex = m_selectedIndex;
+		m_selectedIndex = clickedID;
+	};
+	int GetSelectedIndex()
+	{
+		return m_selectedIndex;
+	};
+	int GetPreviousIndex()
+	{
+		return m_previousIndex;
+	};
+	void InstanceRenamed ( Instance* renamedInstance );
+	
 protected:
 	// mapping between instances and groups...
 	GroupMap m_groupMap;
 	// our list of instances :D
 	std::vector <Instance *> m_instances;
+	// previously selected instance (index)
+	int m_previousIndex;
+	// currently selected instance (index)
+	int m_selectedIndex;
 	// the control to notify about changes
 	wxInstanceCtrl * m_control;
 	// determines if updates to the control should be postponed

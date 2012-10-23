@@ -25,13 +25,14 @@
 #include <wx/zipstrm.h>
 #include <wx/txtstrm.h>
 #include <memory>
+#include <sstream>
 
 #include "launcher/launcherdata.h"
 #include "osutils.h"
-#include <datautils.h>
-#include <insticonlist.h>
+#include "datautils.h"
+#include "insticonlist.h"
 #include "java/javautils.h"
-#include <sstream>
+#include "instancemodel.h"
 
 DEFINE_EVENT_TYPE(wxEVT_INST_OUTPUT)
 
@@ -111,6 +112,7 @@ Instance::Instance(const wxFileName &rootDir)
 	jar_list_inited = false;
 	world_list_initialized = false;
 	tp_list_initialized = false;
+	parentModel = nullptr;
 	UpdateVersion();
 }
 
@@ -123,6 +125,12 @@ Instance::~Instance(void)
 	}
 	Save();
 }
+
+void Instance::SetParentModel ( InstanceModel* parent )
+{
+	parentModel = parent;
+}
+
 
 void Instance::UpdateVersion ( bool keep_current )
 {
@@ -323,6 +331,8 @@ wxString Instance::GetName() const
 void Instance::SetName(wxString name)
 {
 	SetSetting<wxString>(_("name"), name);
+	if(parentModel)
+		parentModel->InstanceRenamed(this);
 }
 
 wxString Instance::GetIconKey() const

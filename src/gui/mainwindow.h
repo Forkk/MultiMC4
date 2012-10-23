@@ -148,9 +148,6 @@ protected:
 	void InitInstMenu();
 	
 	wxInstanceCtrl *instListCtrl;
-	Instance       *m_currentInstance;
-	int             m_currentInstanceIdx;
-	
 	
 	// Advanced GUI
 	void InitAdvancedGUI(wxBoxSizer *mainSz);
@@ -183,7 +180,7 @@ protected:
 	wxTextCtrl *instNameEditor;
 	
 	void UpdateNotesBox();
-	void SaveNotesBox();
+	void SaveNotesBox(bool current = true);
 	
 	void StartRename();
 	void FinishRename();

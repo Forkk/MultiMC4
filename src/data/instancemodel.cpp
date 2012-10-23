@@ -17,7 +17,8 @@
 #include "instancemodel.h"
 
 #include "data/instance.h"
-#include <instancectrl.h>
+#include "instancectrl.h"
+#include "fsutils.h"
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
@@ -25,6 +26,8 @@
 InstanceModel::InstanceModel()
 {
 	m_control = nullptr;
+	m_selectedIndex = -1;
+	m_previousIndex = -1;
 	m_freeze_level = 0;
 }
 
@@ -61,6 +64,7 @@ std::size_t InstanceModel::Add (Instance * inst)
 	if(!m_freeze_level && m_control)
 		m_control->UpdateItems();
 	
+	inst->SetParentModel(this);
 	return idx;
 }
 
@@ -68,9 +72,39 @@ void InstanceModel::Remove (std::size_t index)
 {
 	auto inst = m_instances[index];
 	delete inst;
+	
+	if(index == m_selectedIndex)
+	{
+		m_previousIndex = -1; // we are destroying it after all :)
+		if(m_control)
+			m_selectedIndex = m_control->GetSuggestedPostRemoveID(m_selectedIndex);
+		else
+			m_selectedIndex = -1;
+	}
+	
 	m_instances.erase(m_instances.begin() + index);
 	
 	if(!m_freeze_level && m_control)
+		m_control->UpdateItems();
+}
+
+void InstanceModel::Delete ( std::size_t index )
+{
+	auto inst = m_instances[index];
+	fsutils::RecursiveDelete(inst->GetRootDir().GetFullPath());
+	Remove(index);
+}
+
+void InstanceModel::DeleteCurrent()
+{
+	if(m_selectedIndex != -1)
+		Delete(m_selectedIndex);
+	m_selectedIndex = -1;
+}
+
+void InstanceModel::InstanceRenamed ( Instance* renamedInstance )
+{
+	if(m_freeze_level == 0 && m_control)
 		m_control->UpdateItems();
 }
 
@@ -85,10 +119,6 @@ void InstanceModel::SetLinkedControl ( wxInstanceCtrl* ctrl )
 void InstanceModel::Freeze()
 {
 	m_freeze_level ++;
-	if(m_control)
-	{
-		m_control->Freeze();
-	}
 };
 
 void InstanceModel::Thaw()
@@ -96,10 +126,6 @@ void InstanceModel::Thaw()
 	m_freeze_level --;
 	if(m_freeze_level == 0 && m_control)
 		m_control->UpdateItems();
-	if(m_control)
-	{
-		m_control->Thaw();
-	}
 };
 
 bool InstanceModel::LoadGroupInfo(const wxString& file)
