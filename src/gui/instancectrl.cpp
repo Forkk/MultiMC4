@@ -385,7 +385,7 @@ void wxInstanceCtrl::OnLeftClick(wxMouseEvent& event)
 		    GetId());
 		cmdEvent.SetEventObject(this);
 		cmdEvent.SetItemIndex(clickedIndex);
-		int clickedID = m_items[clickedIndex].GetID();
+		int clickedID = IDFromIndex(clickedIndex);
 		cmdEvent.SetItemID(clickedID);
 		cmdEvent.SetFlags(flags);
 		cmdEvent.SetPosition(event.GetPosition());
@@ -421,7 +421,7 @@ void wxInstanceCtrl::OnRightClick(wxMouseEvent& event)
 	wxInstanceCtrlEvent cmdEvent(wxEVT_COMMAND_INST_RIGHT_CLICK, GetId());
 	cmdEvent.SetEventObject(this);
 	cmdEvent.SetItemIndex(clickedIndex);
-	int clickedID = m_items[clickedIndex].GetID();
+	int clickedID = IDFromIndex(clickedIndex);
 	cmdEvent.SetItemID(clickedID);
 	cmdEvent.SetFlags(flags);
 	cmdEvent.SetPosition(event.GetPosition());
@@ -448,7 +448,7 @@ void wxInstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 		    GetId());
 		cmdEvent.SetEventObject(this);
 		cmdEvent.SetItemIndex(clickedIndex);
-		int clickedID = m_items[clickedIndex].GetID();
+		int clickedID = IDFromIndex(clickedIndex);
 		cmdEvent.SetItemID(clickedID);
 		cmdEvent.SetFlags(flags);
 		cmdEvent.SetPosition(event.GetPosition());
@@ -475,7 +475,7 @@ void wxInstanceCtrl::OnMiddleClick(wxMouseEvent& event)
 		    GetId());
 		cmdEvent.SetEventObject(this);
 		cmdEvent.SetItemIndex(clickedIndex);
-		int clickedID = m_items[clickedIndex].GetID();
+		int clickedID = IDFromIndex(clickedIndex);
 		cmdEvent.SetItemID(clickedID);
 		cmdEvent.SetFlags(flags);
 		cmdEvent.SetPosition(event.GetPosition());
@@ -858,7 +858,7 @@ void wxInstanceCtrl::DoSelection(int n)
 	{
 		wxInstanceCtrlEvent eventDeselect(wxEVT_COMMAND_INST_ITEM_DESELECTED,GetId());
 		eventDeselect.SetEventObject(this);
-		int clickedID = m_items[oldSelected].GetID();
+		int clickedID = IDFromIndex(oldSelected);
 		m_instList->CtrlSelectInstance( clickedID );
 		eventDeselect.SetItemID(clickedID);
 		eventDeselect.SetItemIndex(oldSelected);
@@ -867,12 +867,26 @@ void wxInstanceCtrl::DoSelection(int n)
 	
 	wxInstanceCtrlEvent eventSelect(wxEVT_COMMAND_INST_ITEM_SELECTED,GetId());
 	eventSelect.SetEventObject(this);
-	int clickedID = m_items[m_selectedItem].GetID();
+	int clickedID = IDFromIndex(m_selectedItem);
 	m_instList->CtrlSelectInstance( clickedID );
 	eventSelect.SetItemID(clickedID);
 	eventSelect.SetItemIndex(m_selectedItem);
 	GetEventHandler()->ProcessEvent(eventSelect);
 }
+
+int wxInstanceCtrl::IDFromIndex ( int index ) const
+{
+	if(index == -1)
+		return -1;
+	return m_items[index].GetID();
+}
+int wxInstanceCtrl::IndexFromID ( int ID ) const
+{
+	if(ID == -1)
+		return -1;
+	return m_itemIndexes[ID];
+}
+
 
 /// Find the item under the given point
 bool wxInstanceCtrl::HitTest(const wxPoint& pt, int& n)

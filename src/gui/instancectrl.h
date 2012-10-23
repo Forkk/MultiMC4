@@ -289,6 +289,11 @@ private:
 	/// Recreate buffer bitmap if necessary
 	bool RecreateBuffer(const wxSize& size = wxDefaultSize);
 	
+	/// Get item index from ID
+	int IndexFromID(int ID) const;
+	/// Get item ID from index
+	int IDFromIndex(int index) const;
+	
 // Overrides
 	wxSize DoGetBestSize() const ;
 	

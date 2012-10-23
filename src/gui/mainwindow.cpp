@@ -343,7 +343,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	instNameSz->Add(instNameLabel, wxSizerFlags(0).Align(wxALIGN_CENTER));
 	
 	instNotesEditor = new wxTextCtrl(instPanel, ID_NotesCtrl, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_RICH);
-	instNotesEditor->Bind(wxEVT_KILL_FOCUS, &MainWindow::OnNotesLostFocus, this, ID_NotesCtrl);
+	//instNotesEditor->Bind(wxEVT_KILL_FOCUS, &MainWindow::OnNotesLostFocus, this, ID_NotesCtrl);
 
 	instSz->Add(instNotesEditor, wxGBPosition(1, 1), wxGBSpan(rows - 1, cols - 2), wxEXPAND | wxLEFT | wxTOP | wxRIGHT, 4);
 	
@@ -993,7 +993,6 @@ void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 	iconDlg.CenterOnParent();
 	if (iconDlg.ShowModal() == wxID_OK)
 	{
-		//FIXME: really?
 		auto currentInstance = instItems.GetSelectedInstance();
 		if(!currentInstance)
 			return;
@@ -1383,13 +1382,13 @@ void MainWindow::OnExitApp(wxCommandEvent &event)
 {
 	Close();
 }
-
+/*
 void MainWindow::OnNotesLostFocus(wxFocusEvent& event)
 {
 	SaveNotesBox(true);
 	event.Skip();
 }
-
+*/
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)

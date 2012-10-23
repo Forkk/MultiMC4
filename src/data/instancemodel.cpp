@@ -50,13 +50,15 @@ void InstanceModel::Clear()
 	for(int i = 0; i < size(); i++)
 		delete m_instances[i];
 	m_instances.clear();
+	m_previousIndex = -1;
+	m_selectedIndex = -1;
 	
 	if(!m_freeze_level && m_control)
 		m_control->UpdateItems();
 	
 }
 
-std::size_t InstanceModel::Add (Instance * inst)
+std::size_t InstanceModel::Add (Instance * inst, bool do_select)
 {
 	auto idx = size();
 	m_instances.push_back(inst);
@@ -99,7 +101,6 @@ void InstanceModel::DeleteCurrent()
 {
 	if(m_selectedIndex != -1)
 		Delete(m_selectedIndex);
-	m_selectedIndex = -1;
 }
 
 void InstanceModel::InstanceRenamed ( Instance* renamedInstance )

@@ -46,8 +46,8 @@ public:
 	/// clear all instances
 	void Clear();
 	
-	/// Add a new instance and return its index
-	std::size_t Add (Instance * inst);
+	/// Add a new instance and return its index. if do_select is true, the instance will be selected in the linked control
+	std::size_t Add (Instance * inst, bool do_select = false);
 	
 	/// remove instance by index (and destroy the object)
 	void Remove (std::size_t index);
