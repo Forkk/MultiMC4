@@ -182,6 +182,12 @@ public:
 		SetSetting<wxString>("JarTimestamp", finalstr);
 	};
 	
+	/// Get the instance's group.
+	wxString GetGroup();
+
+	/// Set the instance's group.
+	void SetGroup(const wxString& group);
+	
 	/**
 	 * Update the jar version and timestamp
 	 * if keep_current is true, only updates the stored timestamp
@@ -235,6 +241,7 @@ protected:
 	
 	wxFileName rootDir;
 	wxString version;
+	wxString group;
 	
 	wxProcess *instProc;
 	bool m_running;

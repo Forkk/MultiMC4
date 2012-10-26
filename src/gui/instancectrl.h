@@ -7,9 +7,7 @@
 #include <instance.h>
 #include <insticonlist.h>
 
-#define wxINST_MULTIPLE_SELECT    0x0010
 #define wxINST_SINGLE_COLUMN      0x0020
-#define wxINST_ALWAYS_SELECT      0x0040 // TODO :)
 
 /* Flags
  */
@@ -31,7 +29,7 @@
 
 class InstanceModel;
 
-class wxInstanceCtrl;
+class InstanceCtrl;
 
 /*!
  * wxInstanceItem class declaration
@@ -44,20 +42,20 @@ class wxInstanceCtrl;
 // The item itself has the focus
 #define wxINST_IS_FOCUS    0x08
 
-class wxInstanceItem
+class InstanceVisual
 {
 	DECLARE_CLASS(wxInstanceItem)
 public:
 // Constructors
 
-	wxInstanceItem()
+	InstanceVisual()
 	{
 		m_inst = nullptr;
 		m_id = -1;
 		updateName();
 	}
 
-	wxInstanceItem(Instance* inst, int ID)
+	InstanceVisual(Instance* inst, int ID)
 	{
 		SetInstance(inst, ID);
 	}
@@ -87,7 +85,7 @@ public:
 	};
 	
 	/// Draw the background
-	bool Draw(wxDC& dc, wxInstanceCtrl* ctrl, const wxRect& rect, const wxRect& imageRect, int style);
+	bool Draw(wxDC& dc, InstanceCtrl* ctrl, const wxRect& rect, const wxRect& imageRect, int style);
 	
 protected:
 	Instance*   m_inst;
@@ -97,18 +95,18 @@ protected:
 	int         text_lines;
 };
 
-WX_DECLARE_OBJARRAY(wxInstanceItem, wxInstanceItemArray);
+WX_DECLARE_OBJARRAY(InstanceVisual, InstanceItemArray);
 
-class wxInstanceCtrl: public wxScrolledCanvas
+class InstanceCtrl: public wxScrolledCanvas
 {
-	DECLARE_CLASS(wxInstanceCtrl)
+	DECLARE_CLASS(InstanceCtrl)
 	DECLARE_EVENT_TABLE()
 	
 public:
 // Constructors
 
-	wxInstanceCtrl();
-	wxInstanceCtrl(wxWindow* parent, InstanceModel *instList, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
+	InstanceCtrl();
+	InstanceCtrl(wxWindow* parent, InstanceModel *instList, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
 	
 // Operations
 
@@ -145,7 +143,7 @@ public:
 	}
 	
 	/// Get the nth item
-	wxInstanceItem* GetItem(int n);
+	InstanceVisual* GetItem(int n);
 	
 	/// Get the overall rect of the given item
 	/// If view_relative is true, rect is relative to the scroll viewport
@@ -159,9 +157,6 @@ public:
 	
 	/// Return the row and column given the client size
 	bool GetRowCol(int item, const wxSize& clientSize, int& row, int& col);
-	
-	/// Notify this control that item data changed
-	void UpdateItem(int item);
 	
 // Selection
 
@@ -210,8 +205,20 @@ public:
 	// get height of item n
 	int GetItemHeight(int n) const
 	{
-		wxInstanceItem& item = m_items[n];
+		InstanceVisual& item = m_items[n];
 		return m_itemMargin * 3 + m_ImageSize.y + item.GetNumLines() * m_itemTextHeight;
+	}
+	
+	// get total height of the control
+	int GetTotalHeight() const
+	{
+		int lastrow = m_row_ys.size() - 1;
+		int height = m_row_ys[lastrow] + m_row_heights[lastrow] + m_spacing;
+		if (height % 10 != 0)
+		{
+			height = (height / 10) * 10 + 10;
+		}
+		return height;
 	}
 // Event handlers
 
@@ -245,7 +252,7 @@ public:
 private:
 
 	/// Update the row heights for layouting.
-	void UpdateRows();
+	void UpdateRows( wxArrayInt& row_ys, wxArrayInt& row_heights, InstanceItemArray& items );
 	
 	/// Set up scrollbars, e.g. after a resize
 	void SetupScrollbars();
@@ -301,7 +308,7 @@ private:
 private:
 
 	/// The items
-	wxInstanceItemArray     m_items;
+	InstanceItemArray     m_items;
 	
 	/// Mapping from our sorted indexes to the model indexes
 	wxArrayInt              m_itemIndexes;
@@ -350,15 +357,15 @@ private:
  * wxInstanceCtrlEvent - the event class for wxInstanceCtrl notifications
  */
 
-class wxInstanceCtrlEvent : public wxNotifyEvent
+class InstanceCtrlEvent : public wxNotifyEvent
 {
 public:
-	wxInstanceCtrlEvent(wxEventType commandType = wxEVT_NULL, int winid = 0, wxPoint position = wxPoint(-1, -1))
+	InstanceCtrlEvent(wxEventType commandType = wxEVT_NULL, int winid = 0, wxPoint position = wxPoint(-1, -1))
 		: wxNotifyEvent(commandType, winid),
 		  m_itemIndex(-1), m_itemID(-1), m_flags(0), m_position(position)
 	{ }
 	
-	wxInstanceCtrlEvent(const wxInstanceCtrlEvent& event)
+	InstanceCtrlEvent(const InstanceCtrlEvent& event)
 		: wxNotifyEvent(event),
 		  m_itemIndex(event.m_itemIndex), m_itemID(event.m_itemID), m_flags(event.m_flags), m_position(event.m_position)
 	{ }
@@ -400,7 +407,7 @@ public:
 	};
 	virtual wxEvent* Clone() const
 	{
-		return new wxInstanceCtrlEvent(*this);
+		return new InstanceCtrlEvent(*this);
 	}
 	
 protected:
@@ -410,7 +417,7 @@ protected:
 	wxPoint       m_position;
 	
 private:
-	DECLARE_DYNAMIC_CLASS_NO_ASSIGN(wxInstanceCtrlEvent)
+	DECLARE_DYNAMIC_CLASS_NO_ASSIGN(InstanceCtrlEvent)
 };
 
 /*!
@@ -429,7 +436,7 @@ DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_DELETE, 2607)
 DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_RENAME, 2608)
 END_DECLARE_EVENT_TYPES()
 
-typedef void (wxEvtHandler::*wxInstanceCtrlEventFunction)(wxInstanceCtrlEvent&);
+typedef void (wxEvtHandler::*wxInstanceCtrlEventFunction)(InstanceCtrlEvent&);
 
 #define EVT_INST_ITEM_SELECTED(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_ITEM_SELECTED, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
 #define EVT_INST_ITEM_DESELECTED(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_ITEM_DESELECTED, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),

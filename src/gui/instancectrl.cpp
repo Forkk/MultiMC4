@@ -18,7 +18,7 @@
 
 #include "instancemodel.h"
 
-WX_DEFINE_OBJARRAY(wxInstanceItemArray);
+WX_DEFINE_OBJARRAY(InstanceItemArray);
 
 DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_ITEM_SELECTED)
 DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_ITEM_DESELECTED)
@@ -30,39 +30,39 @@ DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_RETURN)
 DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_DELETE)
 DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_RENAME)
 
-IMPLEMENT_CLASS(wxInstanceCtrl, wxScrolledCanvas)
-IMPLEMENT_CLASS(wxInstanceItem, wxObject)
-IMPLEMENT_CLASS(wxInstanceCtrlEvent, wxNotifyEvent)
+IMPLEMENT_CLASS(InstanceCtrl, wxScrolledCanvas)
+IMPLEMENT_CLASS(InstanceVisual, wxObject)
+IMPLEMENT_CLASS(InstanceCtrlEvent, wxNotifyEvent)
 
-BEGIN_EVENT_TABLE(wxInstanceCtrl, wxScrolledCanvas)
-	EVT_PAINT(wxInstanceCtrl::OnPaint)
-	EVT_ERASE_BACKGROUND(wxInstanceCtrl::OnEraseBackground)
-	EVT_LEFT_DOWN(wxInstanceCtrl::OnLeftClick)
-	EVT_RIGHT_DOWN(wxInstanceCtrl::OnRightClick)
-	EVT_MIDDLE_DOWN(wxInstanceCtrl::OnMiddleClick)
-	EVT_LEFT_DCLICK(wxInstanceCtrl::OnLeftDClick)
-	EVT_CHAR(wxInstanceCtrl::OnChar)
-	EVT_SIZE(wxInstanceCtrl::OnSize)
-	EVT_SET_FOCUS(wxInstanceCtrl::OnSetFocus)
-	EVT_KILL_FOCUS(wxInstanceCtrl::OnKillFocus)
+BEGIN_EVENT_TABLE(InstanceCtrl, wxScrolledCanvas)
+	EVT_PAINT(InstanceCtrl::OnPaint)
+	EVT_ERASE_BACKGROUND(InstanceCtrl::OnEraseBackground)
+	EVT_LEFT_DOWN(InstanceCtrl::OnLeftClick)
+	EVT_RIGHT_DOWN(InstanceCtrl::OnRightClick)
+	EVT_MIDDLE_DOWN(InstanceCtrl::OnMiddleClick)
+	EVT_LEFT_DCLICK(InstanceCtrl::OnLeftDClick)
+	EVT_CHAR(InstanceCtrl::OnChar)
+	EVT_SIZE(InstanceCtrl::OnSize)
+	EVT_SET_FOCUS(InstanceCtrl::OnSetFocus)
+	EVT_KILL_FOCUS(InstanceCtrl::OnKillFocus)
 END_EVENT_TABLE()
 
 /*!
- * wxInstanceCtrl
+ * InstanceCtrl
  */
-wxInstanceCtrl::wxInstanceCtrl()
+InstanceCtrl::InstanceCtrl()
 {
 	Init();
 }
 
-wxInstanceCtrl::wxInstanceCtrl(wxWindow* parent, InstanceModel *instList, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
+InstanceCtrl::InstanceCtrl(wxWindow* parent, InstanceModel *instList, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
 {
 	Init();
 	Create(parent, instList, id, pos, size, style);
 }
 
 /// Creation
-bool wxInstanceCtrl::Create(wxWindow* parent, InstanceModel *instList, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
+bool InstanceCtrl::Create(wxWindow* parent, InstanceModel *instList, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
 {
 	m_instList = instList;
 
@@ -88,7 +88,7 @@ bool wxInstanceCtrl::Create(wxWindow* parent, InstanceModel *instList, wxWindowI
 }
 
 /// Member initialisation
-void wxInstanceCtrl::Init()
+void InstanceCtrl::Init()
 {
 	m_itemWidth = -1;
 	m_ImageSize = wxINST_DEFAULT_IMAGE_SIZE;
@@ -100,26 +100,26 @@ void wxInstanceCtrl::Init()
 }
 
 /// Call Freeze to prevent refresh
-void wxInstanceCtrl::Freeze()
+void InstanceCtrl::Freeze()
 {
 	m_freezeCount ++;
 }
 
 /// Call Thaw to refresh
-void wxInstanceCtrl::Thaw()
+void InstanceCtrl::Thaw()
 {
 	m_freezeCount --;
 	
 	if (m_freezeCount == 0)
 	{
-		UpdateRows();
+		UpdateRows(m_row_ys, m_row_heights, m_items);
 		SetupScrollbars();
 		Refresh();
 	}
 }
 
 /// Get the nth item
-wxInstanceItem* wxInstanceCtrl::GetItem(int n)
+InstanceVisual* InstanceCtrl::GetItem(int n)
 {
 	wxASSERT(n < GetCount());
 	
@@ -132,7 +132,7 @@ wxInstanceItem* wxInstanceCtrl::GetItem(int n)
 }
 
 /// Get the overall rect of the given item
-bool wxInstanceCtrl::GetItemRect(int n, wxRect& rect, bool view_relative)
+bool InstanceCtrl::GetItemRect(int n, wxRect& rect, bool view_relative)
 {
 	//wxASSERT(n < GetCount());
 	if (n < GetCount())
@@ -166,7 +166,7 @@ bool wxInstanceCtrl::GetItemRect(int n, wxRect& rect, bool view_relative)
 }
 
 /// Get the image rect of the given item
-bool wxInstanceCtrl::GetItemRectImage(int n, wxRect& rect, bool view_relative)
+bool InstanceCtrl::GetItemRectImage(int n, wxRect& rect, bool view_relative)
 {
 	wxASSERT(n < GetCount());
 	
@@ -184,7 +184,7 @@ bool wxInstanceCtrl::GetItemRectImage(int n, wxRect& rect, bool view_relative)
 
 /// Calculate the outer item size based
 /// on font used for text and inner size
-void wxInstanceCtrl::CalculateOverallItemSize()
+void InstanceCtrl::CalculateOverallItemSize()
 {
 	wxCoord w;
 	wxClientDC dc(this);
@@ -196,7 +196,7 @@ void wxInstanceCtrl::CalculateOverallItemSize()
 	m_itemWidth = m_ImageSize.x + m_itemMargin * 22;
 }
 
-int wxInstanceCtrl::CalculateItemsPerRow()
+int InstanceCtrl::CalculateItemsPerRow()
 {
 	wxSize clientSize = GetClientSize();
 	int perRow = clientSize.x / (m_itemWidth + m_spacing);
@@ -208,16 +208,13 @@ int wxInstanceCtrl::CalculateItemsPerRow()
 /// Return the row and column given the client
 /// size and a left-to-right, top-to-bottom layout
 /// assumption
-bool wxInstanceCtrl::GetRowCol(int item, const wxSize& clientSize, int& row, int& col)
+bool InstanceCtrl::GetRowCol(int item, const wxSize& clientSize, int& row, int& col)
 {
 	wxASSERT(item < GetCount());
 	if (item >= GetCount())
 		return false;
-		
-	// How many can we fit in a row?
-	
+
 	int perRow = GetItemsPerRow();
-	
 	row = item / perRow;
 	col = item % perRow;
 	
@@ -226,7 +223,7 @@ bool wxInstanceCtrl::GetRowCol(int item, const wxSize& clientSize, int& row, int
 
 
 /// Select or deselect an item
-void wxInstanceCtrl::Select(int n, bool select)
+void InstanceCtrl::Select(int n, bool select)
 {
 	wxASSERT(n < GetCount());
 	int oldFocusItem = m_focusItem;
@@ -248,19 +245,19 @@ void wxInstanceCtrl::Select(int n, bool select)
 }
 
 /// Returns -1 if there is no selection.
-int wxInstanceCtrl::GetSelection() const
+int InstanceCtrl::GetSelection() const
 {
 	return m_selectedItem;
 }
 
 /// Returns true if the item is selected
-bool wxInstanceCtrl::IsSelected(int n) const
+bool InstanceCtrl::IsSelected(int n) const
 {
 	return m_selectedItem == n;
 }
 
 /// Clears all selections
-void wxInstanceCtrl::ClearSelections()
+void InstanceCtrl::ClearSelections()
 {
 	int count = GetCount();
 	
@@ -272,7 +269,7 @@ void wxInstanceCtrl::ClearSelections()
 	}
 }
 
-int wxInstanceCtrl::GetSuggestedPostRemoveID ( int removedID )
+int InstanceCtrl::GetSuggestedPostRemoveID ( int removedID )
 {
 	if(m_items.size() == 1)
 		return -1;
@@ -294,10 +291,8 @@ int wxInstanceCtrl::GetSuggestedPostRemoveID ( int removedID )
 }
 
 /// Painting
-void wxInstanceCtrl::OnPaint(wxPaintEvent& WXUNUSED(event))
+void InstanceCtrl::OnPaint(wxPaintEvent& WXUNUSED(event))
 {
-	// Set this to 0 to compare it with the
-	// unbuffered implementation
 	wxBufferedPaintDC dc(this, m_bufferBitmap);
 	
 	PrepareDC(dc);
@@ -334,7 +329,7 @@ void wxInstanceCtrl::OnPaint(wxPaintEvent& WXUNUSED(event))
 			if (isFocused && i == m_focusItem)
 				style |= wxINST_IS_FOCUS;
 			
-			wxInstanceItem* item = GetItem(i);
+			InstanceVisual* item = GetItem(i);
 			if(item)
 			{
 				GetItemRect(i, untransformedRect, false);
@@ -346,24 +341,24 @@ void wxInstanceCtrl::OnPaint(wxPaintEvent& WXUNUSED(event))
 }
 
 // Empty implementation, to prevent flicker
-void wxInstanceCtrl::OnEraseBackground(wxEraseEvent& WXUNUSED(event))
+void InstanceCtrl::OnEraseBackground(wxEraseEvent& WXUNUSED(event))
 {
 }
 
-void wxInstanceCtrl::OnSetFocus(wxFocusEvent& WXUNUSED(event))
+void InstanceCtrl::OnSetFocus(wxFocusEvent& WXUNUSED(event))
 {
 	if (GetCount() > 0)
 		Refresh();
 }
 
-void wxInstanceCtrl::OnKillFocus(wxFocusEvent& WXUNUSED(event))
+void InstanceCtrl::OnKillFocus(wxFocusEvent& WXUNUSED(event))
 {
 	if (GetCount() > 0)
 		Refresh();
 }
 
 /// Left-click
-void wxInstanceCtrl::OnLeftClick(wxMouseEvent& event)
+void InstanceCtrl::OnLeftClick(wxMouseEvent& event)
 {
 	SetFocus();
 	int clickedIndex;
@@ -380,7 +375,7 @@ void wxInstanceCtrl::OnLeftClick(wxMouseEvent& event)
 		EnsureVisible(clickedIndex);
 		DoSelection(clickedIndex);
 		
-		wxInstanceCtrlEvent cmdEvent(
+		InstanceCtrlEvent cmdEvent(
 		    wxEVT_COMMAND_INST_LEFT_CLICK,
 		    GetId());
 		cmdEvent.SetEventObject(this);
@@ -396,7 +391,7 @@ void wxInstanceCtrl::OnLeftClick(wxMouseEvent& event)
 }
 
 /// Right-click
-void wxInstanceCtrl::OnRightClick(wxMouseEvent& event)
+void InstanceCtrl::OnRightClick(wxMouseEvent& event)
 {
 	SetFocus();
 	int clickedIndex;
@@ -418,7 +413,7 @@ void wxInstanceCtrl::OnRightClick(wxMouseEvent& event)
 		ClearSelections();
 	}
 	
-	wxInstanceCtrlEvent cmdEvent(wxEVT_COMMAND_INST_RIGHT_CLICK, GetId());
+	InstanceCtrlEvent cmdEvent(wxEVT_COMMAND_INST_RIGHT_CLICK, GetId());
 	cmdEvent.SetEventObject(this);
 	cmdEvent.SetItemIndex(clickedIndex);
 	int clickedID = IDFromIndex(clickedIndex);
@@ -430,7 +425,7 @@ void wxInstanceCtrl::OnRightClick(wxMouseEvent& event)
 }
 
 /// Left-double-click
-void wxInstanceCtrl::OnLeftDClick(wxMouseEvent& event)
+void InstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 {
 	int clickedIndex;
 	if (HitTest(event.GetPosition(), clickedIndex))
@@ -443,7 +438,7 @@ void wxInstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 		if (event.AltDown())
 			flags |= wxINST_ALT_DOWN;
 			
-		wxInstanceCtrlEvent cmdEvent(
+		InstanceCtrlEvent cmdEvent(
 		    wxEVT_COMMAND_INST_LEFT_DCLICK,
 		    GetId());
 		cmdEvent.SetEventObject(this);
@@ -457,7 +452,7 @@ void wxInstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 }
 
 /// Middle-click
-void wxInstanceCtrl::OnMiddleClick(wxMouseEvent& event)
+void InstanceCtrl::OnMiddleClick(wxMouseEvent& event)
 {
 	int clickedIndex;
 	if (HitTest(event.GetPosition(), clickedIndex))
@@ -470,7 +465,7 @@ void wxInstanceCtrl::OnMiddleClick(wxMouseEvent& event)
 		if (event.AltDown())
 			flags |= wxINST_ALT_DOWN;
 			
-		wxInstanceCtrlEvent cmdEvent(
+		InstanceCtrlEvent cmdEvent(
 		    wxEVT_COMMAND_INST_MIDDLE_CLICK,
 		    GetId());
 		cmdEvent.SetEventObject(this);
@@ -484,7 +479,7 @@ void wxInstanceCtrl::OnMiddleClick(wxMouseEvent& event)
 }
 
 /// Key press
-void wxInstanceCtrl::OnChar(wxKeyEvent& event)
+void InstanceCtrl::OnChar(wxKeyEvent& event)
 {
 	int flags = 0;
 	if (event.ControlDown())
@@ -507,7 +502,7 @@ void wxInstanceCtrl::OnChar(wxKeyEvent& event)
 	}
 	else if (event.GetKeyCode() == WXK_RETURN)
 	{
-		wxInstanceCtrlEvent cmdEvent(
+		InstanceCtrlEvent cmdEvent(
 		    wxEVT_COMMAND_INST_RETURN,
 		    GetId());
 		cmdEvent.SetEventObject(this);
@@ -536,7 +531,7 @@ void wxInstanceCtrl::OnChar(wxKeyEvent& event)
 	}
 	else if (event.GetKeyCode() == WXK_DELETE)
 	{
-		wxInstanceCtrlEvent cmdEvent(
+		InstanceCtrlEvent cmdEvent(
 		    wxEVT_COMMAND_INST_DELETE,
 		    GetId());
 		cmdEvent.SetEventObject(this);
@@ -545,7 +540,7 @@ void wxInstanceCtrl::OnChar(wxKeyEvent& event)
 	}
 	else if (event.GetKeyCode() == WXK_F2)
 	{
-		wxInstanceCtrlEvent cmdEvent(
+		InstanceCtrlEvent cmdEvent(
 		    wxEVT_COMMAND_INST_RENAME,
 		    GetId());
 		cmdEvent.SetEventObject(this);
@@ -557,8 +552,10 @@ void wxInstanceCtrl::OnChar(wxKeyEvent& event)
 }
 
 /// Keyboard navigation
-bool wxInstanceCtrl::Navigate(int keyCode, int flags)
+bool InstanceCtrl::Navigate(int keyCode, int flags)
 {
+	return false;
+	/*
 	if (GetCount() == 0)
 		return false;
 		
@@ -674,11 +671,13 @@ bool wxInstanceCtrl::Navigate(int keyCode, int flags)
 		}
 	}
 	return true;
+	*/
 }
 
 /// Scroll to see the image
-void wxInstanceCtrl::ScrollIntoView(int n, int keyCode)
+void InstanceCtrl::ScrollIntoView(int n, int keyCode)
 {
+	/*
 	wxRect rect;
 	GetItemRect(n, rect, false);    // _Not_ relative to scroll start
 	
@@ -734,10 +733,11 @@ void wxInstanceCtrl::ScrollIntoView(int n, int keyCode)
 			SetScrollbars(ppuX, ppuY, sx, sy, 0, (int)(0.5 + y / ppuY));
 		}
 	}
+	*/
 }
 
 /// Scrolls the item into view if necessary
-void wxInstanceCtrl::EnsureVisible(int n)
+void InstanceCtrl::EnsureVisible(int n)
 {
 	wxRect rect;
 	GetItemRect(n, rect, false);    // _Not_ relative to scroll start
@@ -778,14 +778,14 @@ void wxInstanceCtrl::EnsureVisible(int n)
 }
 
 /// Sizing
-void wxInstanceCtrl::OnSize(wxSizeEvent& event)
+void InstanceCtrl::OnSize(wxSizeEvent& event)
 {
 	int old_rows = GetItemsPerRow();
 	int new_rows = CalculateItemsPerRow();
 	if (old_rows != new_rows)
 	{
 		SetItemsPerRow(new_rows);
-		UpdateRows();
+		UpdateRows(m_row_ys, m_row_heights, m_items);
 	}
 	SetupScrollbars();
 	RecreateBuffer();
@@ -793,27 +793,21 @@ void wxInstanceCtrl::OnSize(wxSizeEvent& event)
 }
 
 /// Set up scrollbars, e.g. after a resize
-void wxInstanceCtrl::SetupScrollbars()
+void InstanceCtrl::SetupScrollbars()
 {
 	if (m_freezeCount)
 		return;
-		
+	
 	if (GetCount() == 0)
 	{
 		SetScrollbars(0, 0, 0, 0, 0, 0);
 		return;
 	}
 	
-	int lastItem = wxMax(0, GetCount() - 1);
 	int pixelsPerUnit = 10;
 	wxSize clientSize = GetClientSize();
 	
-	int row, col;
-	GetRowCol(lastItem, clientSize, row, col);
-	
-	//int maxHeight = ( row+1 ) * ( m_itemOverallSize.y + m_spacing ) + m_spacing;
-	int lastrow = m_row_ys.size() - 1;
-	int maxHeight = m_row_ys[lastrow] + m_row_heights[lastrow] + m_spacing;
+	int maxHeight = GetTotalHeight();
 	
 	int unitsY = maxHeight / pixelsPerUnit;
 	
@@ -835,7 +829,7 @@ void wxInstanceCtrl::SetupScrollbars()
 }
 
 /// Do (de)selection
-void wxInstanceCtrl::DoSelection(int n)
+void InstanceCtrl::DoSelection(int n)
 {
 	if(n == m_selectedItem)
 		return;
@@ -856,7 +850,7 @@ void wxInstanceCtrl::DoSelection(int n)
 	// Now notify the app of any selection changes
 	if(oldSelected != -1)
 	{
-		wxInstanceCtrlEvent eventDeselect(wxEVT_COMMAND_INST_ITEM_DESELECTED,GetId());
+		InstanceCtrlEvent eventDeselect(wxEVT_COMMAND_INST_ITEM_DESELECTED,GetId());
 		eventDeselect.SetEventObject(this);
 		int clickedID = IDFromIndex(oldSelected);
 		m_instList->CtrlSelectInstance( clickedID );
@@ -865,7 +859,7 @@ void wxInstanceCtrl::DoSelection(int n)
 		GetEventHandler()->ProcessEvent(eventDeselect);
 	}
 	
-	wxInstanceCtrlEvent eventSelect(wxEVT_COMMAND_INST_ITEM_SELECTED,GetId());
+	InstanceCtrlEvent eventSelect(wxEVT_COMMAND_INST_ITEM_SELECTED,GetId());
 	eventSelect.SetEventObject(this);
 	int clickedID = IDFromIndex(m_selectedItem);
 	m_instList->CtrlSelectInstance( clickedID );
@@ -874,13 +868,13 @@ void wxInstanceCtrl::DoSelection(int n)
 	GetEventHandler()->ProcessEvent(eventSelect);
 }
 
-int wxInstanceCtrl::IDFromIndex ( int index ) const
+int InstanceCtrl::IDFromIndex ( int index ) const
 {
 	if(index == -1)
 		return -1;
 	return m_items[index].GetID();
 }
-int wxInstanceCtrl::IndexFromID ( int ID ) const
+int InstanceCtrl::IndexFromID ( int ID ) const
 {
 	if(ID == -1)
 		return -1;
@@ -889,7 +883,7 @@ int wxInstanceCtrl::IndexFromID ( int ID ) const
 
 
 /// Find the item under the given point
-bool wxInstanceCtrl::HitTest(const wxPoint& pt, int& n)
+bool InstanceCtrl::HitTest(const wxPoint& pt, int& n)
 {
 	wxSize clientSize = GetClientSize();
 	int startX, startY;
@@ -927,7 +921,7 @@ bool wxInstanceCtrl::HitTest(const wxPoint& pt, int& n)
 }
 
 /// Paint the background
-void wxInstanceCtrl::PaintBackground(wxDC& dc)
+void InstanceCtrl::PaintBackground(wxDC& dc)
 {
 	wxColour backgroundColour = GetBackgroundColour();
 	if (!backgroundColour.Ok())
@@ -945,7 +939,7 @@ void wxInstanceCtrl::PaintBackground(wxDC& dc)
 }
 
 /// Recreate buffer bitmap if necessary
-bool wxInstanceCtrl::RecreateBuffer(const wxSize& size)
+bool InstanceCtrl::RecreateBuffer(const wxSize& size)
 {
 	wxSize sz = size;
 	if (sz == wxDefaultSize)
@@ -959,33 +953,32 @@ bool wxInstanceCtrl::RecreateBuffer(const wxSize& size)
 	return m_bufferBitmap.Ok();
 }
 
-void wxInstanceCtrl::UpdateRows()
+void InstanceCtrl::UpdateRows(wxArrayInt & row_ys, wxArrayInt & row_heights, InstanceItemArray & items)
 {
-	wxSize clientSize = GetClientSize();
 	int perRow = GetItemsPerRow();
-	int numitems = m_items.size();
+	int numitems = items.size();
 	int numrows = (numitems / perRow) + (numitems % perRow != 0);
-	m_row_ys.clear();
-	m_row_ys.resize(numrows);
-	m_row_heights.clear();
-	m_row_heights.resize(numrows);
+	row_ys.clear();
+	row_ys.resize(numrows);
+	row_heights.clear();
+	row_heights.resize(numrows);
 	
 	int oldrow = 0;
 	int row = 0;
 	int row_y = m_spacing;
 	int rheight = 0;
-	for (int n = 0; n < m_items.size(); n++)
+	for (int n = 0; n < numitems; n++)
 	{
 		row = n / perRow;
 		if (row != oldrow)
 		{
-			m_row_ys[oldrow] = row_y;
+			row_ys[oldrow] = row_y;
 			row_y += rheight + m_spacing;
-			m_row_heights[oldrow] = rheight;
+			row_heights[oldrow] = rheight;
 			rheight = 0;
 			oldrow = row;
 		}
-		wxInstanceItem& item = m_items[n];
+		InstanceVisual& item = items[n];
 		// icon, margin, margin (highlight), text, margin (end highlight)
 		int iheight = m_itemMargin * 3 + m_itemTextHeight * item.GetNumLines() + m_ImageSize.y;
 		if (iheight > rheight)
@@ -993,26 +986,15 @@ void wxInstanceCtrl::UpdateRows()
 	}
 	if (rheight)
 	{
-		m_row_heights[row] = rheight;
-		m_row_ys[row] = row_y;
+		row_heights[row] = rheight;
+		row_ys[row] = row_y;
 	}
-}
-
-void wxInstanceCtrl::UpdateItem(int n)
-{
-	if (n < 0 || n >= GetCount())
-		return;
-	auto& item = m_items[m_itemIndexes[n]];
-	item.updateName();
-	Refresh();
-	UpdateRows();
-	SetupScrollbars();
 }
 
 /*!
  * wxInstanceItem
  */
-void wxInstanceItem::updateName()
+void InstanceVisual::updateName()
 {
 	wxDC* dc = new wxScreenDC();
 	wxString raw_name = wxEmptyString;
@@ -1085,8 +1067,8 @@ void wxInstanceItem::updateName()
 	delete dc;
 }
 
-/// Draw the item background
-bool wxInstanceItem::Draw(wxDC& dc, wxInstanceCtrl* ctrl, const wxRect& rect, const wxRect& imageRect, int style)
+/// Draw the item
+bool InstanceVisual::Draw(wxDC& dc, InstanceCtrl* ctrl, const wxRect& rect, const wxRect& imageRect, int style)
 {
 	wxColour backgroundColor = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW);
 	wxColour textColor = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT);
@@ -1157,7 +1139,7 @@ bool wxInstanceItem::Draw(wxDC& dc, wxInstanceCtrl* ctrl, const wxRect& rect, co
 	return true;
 }
 
-wxSize wxInstanceCtrl::DoGetBestSize() const
+wxSize InstanceCtrl::DoGetBestSize() const
 {
 	wxSize bsz = GetWindowBorderSize();
 	int best_width = m_spacing + (m_itemWidth + m_spacing) * GetItemsPerRow() +
@@ -1167,13 +1149,13 @@ wxSize wxInstanceCtrl::DoGetBestSize() const
 	return sz;
 }
 
-int NameSort(wxInstanceItem **first, wxInstanceItem **second)
+int NameSort(InstanceVisual **first, InstanceVisual **second)
 {
 	return (*first)->GetName().CmpNoCase((*second)->GetName());
 };
 
 //FIXME: doing this for every single change seems like a waste :/
-void wxInstanceCtrl::UpdateItems()
+void InstanceCtrl::UpdateItems()
 {
 	while (m_items.GetCount() > m_instList->size())
 	{
@@ -1184,7 +1166,7 @@ void wxInstanceCtrl::UpdateItems()
 		auto inst = m_instList->operator[](i);
 		if (i >= m_items.GetCount())
 		{
-			m_items.Add(wxInstanceItem(inst, i));
+			m_items.Add(InstanceVisual(inst, i));
 		}
 		else
 		{
@@ -1218,7 +1200,7 @@ void wxInstanceCtrl::UpdateItems()
 	
 	
 	// everything got changed (probably not, but we can't know that). Redo all of the layout stuff.
-	UpdateRows();
+	UpdateRows(m_row_ys, m_row_heights, m_items);
 	SetupScrollbars();
 	Refresh();
 }

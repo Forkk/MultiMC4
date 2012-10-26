@@ -21,7 +21,7 @@
 #include <vector>
 
 class Instance;
-class wxInstanceCtrl;
+class InstanceCtrl;
 
 typedef std::map<wxString, wxString> GroupMap;
 
@@ -41,7 +41,7 @@ public:
 	Instance * operator[](const std::size_t index) const;
 	
 	/// Link an instance control with this model
-	void SetLinkedControl( wxInstanceCtrl * ctrl );
+	void SetLinkedControl( InstanceCtrl * ctrl );
 	
 	/// clear all instances
 	void Clear();
@@ -62,12 +62,6 @@ public:
 	void Freeze();
 	/// Allow updating the control again
 	void Thaw();
-	
-	/// Gets the given instance's group.
-	wxString GetGroup(Instance* inst);
-
-	/// Sets the given instance's group.
-	void SetGroup(Instance* inst, const wxString& group);
 
 	bool LoadGroupInfo(const wxString& file);
 	bool SaveGroupInfo(const wxString& file) const;
@@ -101,6 +95,7 @@ public:
 		return m_previousIndex;
 	};
 	void InstanceRenamed ( Instance* renamedInstance );
+	void InstanceGroupChanged ( Instance* changedInstance );
 	
 protected:
 	// mapping between instances and groups...
@@ -112,7 +107,7 @@ protected:
 	// currently selected instance (index)
 	int m_selectedIndex;
 	// the control to notify about changes
-	wxInstanceCtrl * m_control;
+	InstanceCtrl * m_control;
 	// determines if updates to the control should be postponed
 	unsigned int m_freeze_level;
 };
