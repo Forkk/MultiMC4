@@ -95,8 +95,7 @@ void wxInstanceCtrl::Init()
 	m_freezeCount = 0;
 	m_spacing = wxINST_DEFAULT_SPACING;
 	m_itemMargin = wxINST_DEFAULT_MARGIN;
-	m_firstSelection = -1;
-	m_lastSelection = -1;
+	m_selectedItem = -1;
 	m_focusItem = -1;
 }
 
@@ -230,22 +229,9 @@ bool wxInstanceCtrl::GetRowCol(int item, const wxSize& clientSize, int& row, int
 void wxInstanceCtrl::Select(int n, bool select)
 {
 	wxASSERT(n < GetCount());
-	
-	if (select)
-	{
-		if (m_selections.Index(n) == wxNOT_FOUND)
-			m_selections.Add(n);
-	}
-	else
-	{
-		if (m_selections.Index(n) != wxNOT_FOUND)
-			m_selections.Remove(n);
-	}
-	
-	m_firstSelection = n;
-	m_lastSelection = n;
 	int oldFocusItem = m_focusItem;
 	m_focusItem = n;
+	m_selectedItem = n;
 	
 	if (m_freezeCount == 0)
 	{
@@ -261,20 +247,16 @@ void wxInstanceCtrl::Select(int n, bool select)
 	}
 }
 
-/// Get the index of the single selection, if not multi-select.
 /// Returns -1 if there is no selection.
 int wxInstanceCtrl::GetSelection() const
 {
-	if (m_selections.GetCount() > 0)
-		return m_selections[0u];
-	else
-		return -1;
+	return m_selectedItem;
 }
 
 /// Returns true if the item is selected
 bool wxInstanceCtrl::IsSelected(int n) const
 {
-	return (m_selections.Index(n) != wxNOT_FOUND) ;
+	return m_selectedItem == n;
 }
 
 /// Clears all selections
@@ -282,10 +264,7 @@ void wxInstanceCtrl::ClearSelections()
 {
 	int count = GetCount();
 	
-	m_selections.Clear();
-	m_firstSelection = -1;
-	m_lastSelection = -1;
-	m_focusItem = -1;
+	m_selectedItem = m_focusItem = -1;
 	
 	if (count > 0 && m_freezeCount == 0)
 	{
@@ -293,30 +272,25 @@ void wxInstanceCtrl::ClearSelections()
 	}
 }
 
-/// Set the focus item
-void wxInstanceCtrl::SetFocusItem(int item)
+int wxInstanceCtrl::GetSuggestedPostRemoveID ( int removedID )
 {
-	wxASSERT(item < GetCount());
-	if (item < GetCount())
+	if(m_items.size() == 1)
+		return -1;
+	int deletedIndex = m_itemIndexes[removedID];
+	// deleting last item, go back one
+	if(deletedIndex == m_items.size() - 1)
 	{
-		int oldFocusItem = m_focusItem;
-		m_focusItem = item;
-		
-		if (m_freezeCount == 0)
-		{
-			wxRect rect;
-			if (oldFocusItem != -1)
-			{
-				GetItemRect(oldFocusItem, rect);
-				RefreshRect(rect);
-			}
-			if (m_focusItem != -1)
-			{
-				GetItemRect(m_focusItem, rect);
-				RefreshRect(rect);
-			}
-		}
+		deletedIndex --;
 	}
+	else
+	{
+		// otherwise go forward
+		deletedIndex++;
+	}
+	if(deletedIndex < 0)
+		deletedIndex = 0;
+	// translate back to ID
+	return m_items[deletedIndex].GetID();
 }
 
 /// Painting
@@ -392,8 +366,8 @@ void wxInstanceCtrl::OnKillFocus(wxFocusEvent& WXUNUSED(event))
 void wxInstanceCtrl::OnLeftClick(wxMouseEvent& event)
 {
 	SetFocus();
-	int n;
-	if (HitTest(event.GetPosition(), n))
+	int clickedIndex;
+	if (HitTest(event.GetPosition(), clickedIndex))
 	{
 		int flags = 0;
 		if (event.ControlDown())
@@ -403,14 +377,16 @@ void wxInstanceCtrl::OnLeftClick(wxMouseEvent& event)
 		if (event.AltDown())
 			flags |= wxINST_ALT_DOWN;
 			
-		EnsureVisible(n);
-		DoSelection(n, flags);
+		EnsureVisible(clickedIndex);
+		DoSelection(clickedIndex);
 		
 		wxInstanceCtrlEvent cmdEvent(
 		    wxEVT_COMMAND_INST_LEFT_CLICK,
 		    GetId());
 		cmdEvent.SetEventObject(this);
-		cmdEvent.SetIndex(n);
+		cmdEvent.SetItemIndex(clickedIndex);
+		int clickedID = IDFromIndex(clickedIndex);
+		cmdEvent.SetItemID(clickedID);
 		cmdEvent.SetFlags(flags);
 		cmdEvent.SetPosition(event.GetPosition());
 		GetEventHandler()->ProcessEvent(cmdEvent);
@@ -423,7 +399,7 @@ void wxInstanceCtrl::OnLeftClick(wxMouseEvent& event)
 void wxInstanceCtrl::OnRightClick(wxMouseEvent& event)
 {
 	SetFocus();
-	int n;
+	int clickedIndex;
 	int flags = 0;
 	if (event.ControlDown())
 		flags |= wxINST_CTRL_DOWN;
@@ -432,10 +408,10 @@ void wxInstanceCtrl::OnRightClick(wxMouseEvent& event)
 	if (event.AltDown())
 		flags |= wxINST_ALT_DOWN;
 	
-	if (HitTest(event.GetPosition(), n))
+	if (HitTest(event.GetPosition(), clickedIndex))
 	{
-		EnsureVisible(n);
-		DoSelection(n, flags);
+		EnsureVisible(clickedIndex);
+		DoSelection(clickedIndex);
 	}
 	else
 	{
@@ -444,7 +420,9 @@ void wxInstanceCtrl::OnRightClick(wxMouseEvent& event)
 	
 	wxInstanceCtrlEvent cmdEvent(wxEVT_COMMAND_INST_RIGHT_CLICK, GetId());
 	cmdEvent.SetEventObject(this);
-	cmdEvent.SetIndex(n);
+	cmdEvent.SetItemIndex(clickedIndex);
+	int clickedID = IDFromIndex(clickedIndex);
+	cmdEvent.SetItemID(clickedID);
 	cmdEvent.SetFlags(flags);
 	cmdEvent.SetPosition(event.GetPosition());
 	GetEventHandler()->ProcessEvent(cmdEvent);
@@ -454,8 +432,8 @@ void wxInstanceCtrl::OnRightClick(wxMouseEvent& event)
 /// Left-double-click
 void wxInstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 {
-	int n;
-	if (HitTest(event.GetPosition(), n))
+	int clickedIndex;
+	if (HitTest(event.GetPosition(), clickedIndex))
 	{
 		int flags = 0;
 		if (event.ControlDown())
@@ -469,7 +447,9 @@ void wxInstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 		    wxEVT_COMMAND_INST_LEFT_DCLICK,
 		    GetId());
 		cmdEvent.SetEventObject(this);
-		cmdEvent.SetIndex(n);
+		cmdEvent.SetItemIndex(clickedIndex);
+		int clickedID = IDFromIndex(clickedIndex);
+		cmdEvent.SetItemID(clickedID);
 		cmdEvent.SetFlags(flags);
 		cmdEvent.SetPosition(event.GetPosition());
 		GetEventHandler()->ProcessEvent(cmdEvent);
@@ -479,8 +459,8 @@ void wxInstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 /// Middle-click
 void wxInstanceCtrl::OnMiddleClick(wxMouseEvent& event)
 {
-	int n;
-	if (HitTest(event.GetPosition(), n))
+	int clickedIndex;
+	if (HitTest(event.GetPosition(), clickedIndex))
 	{
 		int flags = 0;
 		if (event.ControlDown())
@@ -494,7 +474,9 @@ void wxInstanceCtrl::OnMiddleClick(wxMouseEvent& event)
 		    wxEVT_COMMAND_INST_MIDDLE_CLICK,
 		    GetId());
 		cmdEvent.SetEventObject(this);
-		cmdEvent.SetIndex(n);
+		cmdEvent.SetItemIndex(clickedIndex);
+		int clickedID = IDFromIndex(clickedIndex);
+		cmdEvent.SetItemID(clickedID);
 		cmdEvent.SetFlags(flags);
 		cmdEvent.SetPosition(event.GetPosition());
 		GetEventHandler()->ProcessEvent(cmdEvent);
@@ -536,7 +518,7 @@ void wxInstanceCtrl::OnChar(wxKeyEvent& event)
 	{
 		int focus = m_focusItem;
 		if (focus == -1)
-			focus = m_lastSelection;
+			focus = m_selectedItem;
 		bool next = !event.ShiftDown();
 		
 		if (focus <= 0 && !next)
@@ -585,13 +567,13 @@ bool wxInstanceCtrl::Navigate(int keyCode, int flags)
 	
 	int focus = m_focusItem;
 	if (focus == -1)
-		focus = m_lastSelection;
+		focus = m_selectedItem;
 		
 	if (focus == -1 || focus >= GetCount())
 	{
-		m_lastSelection = 0;
-		DoSelection(m_lastSelection, flags);
-		ScrollIntoView(m_lastSelection, keyCode);
+		m_selectedItem = 0;
+		DoSelection(m_selectedItem);
+		ScrollIntoView(m_selectedItem, keyCode);
 		return true;
 	}
 	
@@ -600,7 +582,7 @@ bool wxInstanceCtrl::Navigate(int keyCode, int flags)
 		int next = focus + 1;
 		if (next < GetCount())
 		{
-			DoSelection(next, flags);
+			DoSelection(next);
 			ScrollIntoView(next, keyCode);
 		}
 	}
@@ -609,7 +591,7 @@ bool wxInstanceCtrl::Navigate(int keyCode, int flags)
 		int next = focus - 1;
 		if (next >= 0)
 		{
-			DoSelection(next, flags);
+			DoSelection(next);
 			ScrollIntoView(next, keyCode);
 		}
 	}
@@ -618,7 +600,7 @@ bool wxInstanceCtrl::Navigate(int keyCode, int flags)
 		int next = focus - perRow;
 		if (next >= 0)
 		{
-			DoSelection(next, flags);
+			DoSelection(next);
 			ScrollIntoView(next, keyCode);
 		}
 	}
@@ -627,7 +609,7 @@ bool wxInstanceCtrl::Navigate(int keyCode, int flags)
 		int next = focus + perRow;
 		if (next < GetCount())
 		{
-			DoSelection(next, flags);
+			DoSelection(next);
 			ScrollIntoView(next, keyCode);
 		}
 	}
@@ -647,7 +629,7 @@ bool wxInstanceCtrl::Navigate(int keyCode, int flags)
 		}
 		if (next < 0)
 			next += perRow;
-		DoSelection(next, flags);
+		DoSelection(next);
 		ScrollIntoView(next, keyCode);
 	}
 	else if (keyCode == WXK_PAGEDOWN)
@@ -664,17 +646,17 @@ bool wxInstanceCtrl::Navigate(int keyCode, int flags)
 		}
 		if (next >= m_items.size())
 			next -= perRow;
-		DoSelection(next, flags);
+		DoSelection(next);
 		ScrollIntoView(next, keyCode);
 	}
 	else if (keyCode == WXK_HOME)
 	{
-		DoSelection(0, flags);
+		DoSelection(0);
 		ScrollIntoView(0, keyCode);
 	}
 	else if (keyCode == WXK_END)
 	{
-		DoSelection(GetCount() - 1, flags);
+		DoSelection(GetCount() - 1);
 		ScrollIntoView(GetCount() - 1, keyCode);
 	}
 	else if (keyCode == WXK_TAB)
@@ -687,7 +669,7 @@ bool wxInstanceCtrl::Navigate(int keyCode, int flags)
 			
 		if (next >= 0 && next < GetCount())
 		{
-			DoSelection(next, flags);
+			DoSelection(next);
 			ScrollIntoView(next, keyCode);
 		}
 	}
@@ -853,40 +835,58 @@ void wxInstanceCtrl::SetupScrollbars()
 }
 
 /// Do (de)selection
-void wxInstanceCtrl::DoSelection(int n, int flags)
+void wxInstanceCtrl::DoSelection(int n)
 {
-	bool isSelected = IsSelected(n);
+	if(n == m_selectedItem)
+		return;
 	
-	wxArrayInt stateChanged;
+	int oldSelected = m_selectedItem;
+	
+	// refresh the old selection
+	if(oldSelected != -1)
 	{
-		size_t i = 0;
-		for (i = 0; i < m_selections.GetCount(); i++)
-		{
-			wxRect rect;
-			GetItemRect(m_selections[i], rect);
-			RefreshRect(rect);
-			
-			stateChanged.Add(i);
-		}
-		
-		m_selections.Clear();
-		Select(n, true);
-		if (stateChanged.Index(n) == wxNOT_FOUND)
-			stateChanged.Add(n);
+		wxRect rect;
+		GetItemRect(oldSelected, rect);
+		RefreshRect(rect);
 	}
+	
+	m_selectedItem = -1;
+	Select(n, true);
 	
 	// Now notify the app of any selection changes
-	size_t i = 0;
-	for (i = 0; i < stateChanged.GetCount(); i++)
+	if(oldSelected != -1)
 	{
-		wxInstanceCtrlEvent event(
-		    m_selections.Index(stateChanged[i]) != wxNOT_FOUND ? wxEVT_COMMAND_INST_ITEM_SELECTED : wxEVT_COMMAND_INST_ITEM_DESELECTED,
-		    GetId());
-		event.SetEventObject(this);
-		event.SetIndex(stateChanged[i]);
-		GetEventHandler()->ProcessEvent(event);
+		wxInstanceCtrlEvent eventDeselect(wxEVT_COMMAND_INST_ITEM_DESELECTED,GetId());
+		eventDeselect.SetEventObject(this);
+		int clickedID = IDFromIndex(oldSelected);
+		m_instList->CtrlSelectInstance( clickedID );
+		eventDeselect.SetItemID(clickedID);
+		eventDeselect.SetItemIndex(oldSelected);
+		GetEventHandler()->ProcessEvent(eventDeselect);
 	}
+	
+	wxInstanceCtrlEvent eventSelect(wxEVT_COMMAND_INST_ITEM_SELECTED,GetId());
+	eventSelect.SetEventObject(this);
+	int clickedID = IDFromIndex(m_selectedItem);
+	m_instList->CtrlSelectInstance( clickedID );
+	eventSelect.SetItemID(clickedID);
+	eventSelect.SetItemIndex(m_selectedItem);
+	GetEventHandler()->ProcessEvent(eventSelect);
 }
+
+int wxInstanceCtrl::IDFromIndex ( int index ) const
+{
+	if(index == -1)
+		return -1;
+	return m_items[index].GetID();
+}
+int wxInstanceCtrl::IndexFromID ( int ID ) const
+{
+	if(ID == -1)
+		return -1;
+	return m_itemIndexes[ID];
+}
+
 
 /// Find the item under the given point
 bool wxInstanceCtrl::HitTest(const wxPoint& pt, int& n)
@@ -1002,7 +1002,7 @@ void wxInstanceCtrl::UpdateItem(int n)
 {
 	if (n < 0 || n >= GetCount())
 		return;
-	auto& item = m_items[n];
+	auto& item = m_items[m_itemIndexes[n]];
 	item.updateName();
 	Refresh();
 	UpdateRows();
@@ -1167,25 +1167,58 @@ wxSize wxInstanceCtrl::DoGetBestSize() const
 	return sz;
 }
 
+int NameSort(wxInstanceItem **first, wxInstanceItem **second)
+{
+	return (*first)->GetName().CmpNoCase((*second)->GetName());
+};
+
+//FIXME: doing this for every single change seems like a waste :/
 void wxInstanceCtrl::UpdateItems()
 {
-	Freeze();
-
 	while (m_items.GetCount() > m_instList->size())
 	{
 		m_items.RemoveAt(m_items.GetCount() - 1);
 	}
-
+	for (int i = 0; i < m_instList->size() ; i++)
 	{
-		for (int i = 0; i < m_instList->size() ; i++)
+		auto inst = m_instList->operator[](i);
+		if (i >= m_items.GetCount())
 		{
-			auto inst = m_instList->operator[](i);
-			if (i >= m_items.GetCount())
-				m_items.Add(wxInstanceItem(inst));
-			else
-				m_items[i].SetInstance(inst);
+			m_items.Add(wxInstanceItem(inst, i));
+		}
+		else
+		{
+			m_items[i].SetInstance(inst, i);
 		}
 	}
-
-	Thaw();
+	
+	// FIXME: exceptionally stupid. we sort the array, which acts as a function mapping the unsorted array to the sorted one
+	m_items.Sort(NameSort);
+	// and then we have to reconstruct the mapping afterwards, because the sort doesn't provide that
+	m_itemIndexes.resize(m_items.size(),0);
+	for(int i = 0; i < m_items.size(); i++)
+	{
+		m_itemIndexes[m_items[i].GetID()] = i;
+	}
+	
+	int selectedIdx = m_instList->GetSelectedIndex();
+	if(selectedIdx == -1)
+	{
+		if(m_focusItem == m_selectedItem)
+			m_focusItem = -1;
+		m_selectedItem = -1;
+	}
+	else
+	{
+		int selectedIndex = m_itemIndexes[selectedIdx];
+		if(m_focusItem == m_selectedItem)
+			m_focusItem = selectedIndex;
+		m_selectedItem = selectedIndex;
+	}
+	
+	
+	// everything got changed (probably not, but we can't know that). Redo all of the layout stuff.
+	UpdateRows();
+	SetupScrollbars();
+	Refresh();
 }

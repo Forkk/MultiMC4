@@ -53,24 +53,30 @@ public:
 	wxInstanceItem()
 	{
 		m_inst = nullptr;
+		m_id = -1;
 		updateName();
 	}
 
-	wxInstanceItem(Instance* inst)
+	wxInstanceItem(Instance* inst, int ID)
 	{
-		m_inst = inst;
-		updateName();
+		SetInstance(inst, ID);
 	}
 
-	void SetInstance(Instance* inst)
+	void SetInstance(Instance* inst, int ID)
 	{
 		m_inst = inst;
+		m_id = ID;
 		updateName();
 	}
 	
 	const wxString GetName() const
 	{
 		return m_inst->GetName();
+	}
+	
+	int GetID() const
+	{
+		return m_id;
 	}
 	
 	void updateName();
@@ -85,9 +91,10 @@ public:
 	
 protected:
 	Instance*   m_inst;
-	int        text_width;
-	wxString name_wrapped;
-	int        text_lines;
+	int         m_id;
+	int         text_width;
+	wxString    name_wrapped;
+	int         text_lines;
 };
 
 WX_DECLARE_OBJARRAY(wxInstanceItem, wxInstanceItemArray);
@@ -123,22 +130,6 @@ public:
 	/// Scrolls the item into view if necessary
 	void EnsureVisible(int n);
 	
-// Adding items
-
-	/// Append a single item
-	//virtual int Append(wxInstanceItem* item);
-	
-	/// Insert a single item
-	//virtual int Insert(wxInstanceItem* item, int pos = 0);
-	
-// Deleting items
-
-	/// Clear all items
-	//virtual void Clear() ;
-	
-	/// Delete this item
-	//virtual void Delete(int n) ;
-	
 // Accessing items
 
 	/// Get the number of items in the control
@@ -169,15 +160,6 @@ public:
 	/// Return the row and column given the client size
 	bool GetRowCol(int item, const wxSize& clientSize, int& row, int& col);
 	
-	/// Get the focus item, or -1 if there is none
-	int GetFocusItem() const
-	{
-		return m_focusItem;
-	}
-	
-	/// Set the focus item
-	void SetFocusItem(int item);
-	
 	/// Notify this control that item data changed
 	void UpdateItem(int item);
 	
@@ -195,6 +177,8 @@ public:
 	
 	/// Clears all selections
 	void ClearSelections();
+	
+	int GetSuggestedPostRemoveID(int removedID);
 	
 // Visual properties
 
@@ -288,7 +272,7 @@ private:
 	}
 	
 	/// Do (de)selection
-	void DoSelection(int n, int flags);
+	void DoSelection(int n);
 	
 	/// Find the item under the given point
 	bool HitTest(const wxPoint& pt, int& n);
@@ -305,6 +289,11 @@ private:
 	/// Recreate buffer bitmap if necessary
 	bool RecreateBuffer(const wxSize& size = wxDefaultSize);
 	
+	/// Get item index from ID
+	int IndexFromID(int ID) const;
+	/// Get item ID from index
+	int IDFromIndex(int index) const;
+	
 // Overrides
 	wxSize DoGetBestSize() const ;
 	
@@ -312,13 +301,16 @@ private:
 private:
 
 	/// The items
-	wxInstanceItemArray    m_items;
-
-	/// Instance list pointer
-	InstanceModel*              m_instList;
+	wxInstanceItemArray     m_items;
 	
-	/// The selections
-	wxArrayInt              m_selections;
+	/// Mapping from our sorted indexes to the model indexes
+	wxArrayInt              m_itemIndexes;
+	
+	/// The currently selected item
+	int                     m_selectedItem;
+	
+	/// Instance list pointer
+	InstanceModel*          m_instList;
 	
 	/// y positions where each row starts
 	wxArrayInt              m_row_ys;
@@ -344,13 +336,7 @@ private:
 	/// Allows nested Freeze/Thaw
 	int                     m_freezeCount;
 	
-	/// First selection in a range
-	int                     m_firstSelection;
-	
-	/// Last selection
-	int                     m_lastSelection;
-	
-	/// Focus item
+	/// Focus item - doesn't have to be a real item (can be group header, etc.)
 	int                     m_focusItem;
 	
 	/// Buffer bitmap
@@ -369,21 +355,30 @@ class wxInstanceCtrlEvent : public wxNotifyEvent
 public:
 	wxInstanceCtrlEvent(wxEventType commandType = wxEVT_NULL, int winid = 0, wxPoint position = wxPoint(-1, -1))
 		: wxNotifyEvent(commandType, winid),
-		  m_itemIndex(-1), m_flags(0), m_position(position)
+		  m_itemIndex(-1), m_itemID(-1), m_flags(0), m_position(position)
 	{ }
 	
 	wxInstanceCtrlEvent(const wxInstanceCtrlEvent& event)
 		: wxNotifyEvent(event),
-		  m_itemIndex(event.m_itemIndex), m_flags(event.m_flags), m_position(event.m_position)
+		  m_itemIndex(event.m_itemIndex), m_itemID(event.m_itemID), m_flags(event.m_flags), m_position(event.m_position)
 	{ }
 	
-	int GetIndex() const
+	int GetItemIndex() const
 	{
 		return m_itemIndex;
 	}
-	void SetIndex(int n)
+	void SetItemIndex(int n)
 	{
 		m_itemIndex = n;
+	}
+	
+	int GetItemID() const
+	{
+		return m_itemID;
+	}
+	void SetItemID(int n)
+	{
+		m_itemID = n;
 	}
 	
 	int GetFlags() const
@@ -410,6 +405,7 @@ public:
 	
 protected:
 	int           m_itemIndex;
+	int           m_itemID;
 	int           m_flags;
 	wxPoint       m_position;
 	

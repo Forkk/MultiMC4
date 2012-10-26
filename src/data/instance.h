@@ -32,6 +32,9 @@
 #include "texturepack.h"
 #include "texturepacklist.h"
 
+
+class InstanceModel;
+
 bool IsValidInstance(wxFileName rootDir);
 
 class Instance : public wxEvtHandler, public SettingsBase
@@ -186,6 +189,9 @@ public:
 		return false;
 	}
 	
+	/// Make this instance report relevant changes to the model
+	void SetParentModel ( InstanceModel* parent );
+	
 protected:
 	class JarModList : public ModList
 	{
@@ -215,6 +221,7 @@ protected:
 	protected:
 		virtual bool LoadModListFromDir(const wxString& loadFrom, bool quickLoad);
 	};
+	InstanceModel * parentModel;
 	FolderModList mlModList;
 	FolderModList coreModList;
 
