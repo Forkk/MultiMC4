@@ -89,6 +89,10 @@ public:
 	
 	wxString GetNotes() const;
 	void SetNotes(wxString notes);
+
+	wxDateTime GetLastLaunch() const;
+	void SetLastLaunch(wxDateTime time);
+	void SetLastLaunch() { SetLastLaunch(wxDateTime::Now()); }
 	
 	bool ShouldRebuild() const;
 	void SetNeedsRebuild(bool value = true);

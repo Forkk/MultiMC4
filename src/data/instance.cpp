@@ -335,6 +335,23 @@ void Instance::SetName(wxString name)
 		parentModel->InstanceRenamed(this);
 }
 
+wxDateTime Instance::GetLastLaunch() const
+{
+	wxString dtStr = GetSetting<wxString>(_("lastLaunch"), wxEmptyString);
+	wxDateTime dt;
+	if (dt.ParseFormat(dtStr) != NULL)
+		return dt;
+	else
+		return wxDateTime::Now();
+}
+
+void Instance::SetLastLaunch(wxDateTime time)
+{
+	SetSetting<wxString>(_("lastLaunch"), time.Format());
+	if (parentModel)
+		parentModel->Sort();
+}
+
 wxString Instance::GetIconKey() const
 {
 	wxString iconKey = GetSetting<wxString>(_("iconKey"), _("default"));
@@ -410,6 +427,9 @@ void Instance::ExtractLauncher()
 
 wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirectOutput)
 {
+	// Set lastLaunch
+	SetLastLaunch();
+
 	if (username.IsEmpty())
 		username = _("Offline");
 	
