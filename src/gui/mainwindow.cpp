@@ -275,7 +275,7 @@ void MainWindow::OnStartup()
 
 void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 {
-	instListCtrl = new wxInstanceCtrl(this, &instItems, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize);
+	instListCtrl = new InstanceCtrl(this, &instItems, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize);
 	instItems.SetLinkedControl(instListCtrl);
 	InitInstMenu();
 	
@@ -322,7 +322,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
 
 	// create the instance list and link it to the model
-	instListCtrl = new wxInstanceCtrl(instPanel, &instItems, ID_InstListCtrl, 
+	instListCtrl = new InstanceCtrl(instPanel, &instItems, ID_InstListCtrl, 
 		wxDefaultPosition, wxDefaultSize, wxINST_SINGLE_COLUMN | wxBORDER_SUNKEN);
 	instItems.SetLinkedControl(instListCtrl);
 	
@@ -423,7 +423,7 @@ void MainWindow::UpdateInstNameLabel(Instance *inst)
 	}
 }
 
-void MainWindow::OnInstSelected(wxInstanceCtrlEvent &event)
+void MainWindow::OnInstSelected(InstanceCtrlEvent &event)
 {
 	if(GetGUIMode() == GUI_Default)
 		SaveNotesBox(false);
@@ -457,6 +457,9 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		{
 			return;
 		}
+		wxString groupFile = Path::Combine(settings->GetInstDir(), "instgroups.json");
+		if (wxFileExists(groupFile))
+			instItems.LoadGroupInfo(groupFile);
 		
 		Enable(false);
 		wxString subFolder;
@@ -477,9 +480,6 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 			}
 			cont = dir.GetNext(&subFolder);
 		}
-		wxString groupFile = Path::Combine(settings->GetInstDir(), "instgroups.json");
-		if (wxFileExists(groupFile))
-			instItems.LoadGroupInfo(groupFile);
 	}
 	instItems.Thaw();
 	GetStatusBar()->SetStatusText(wxString::Format(_("Loaded %i instances..."), ctr), 0);
@@ -799,7 +799,7 @@ void MainWindow::OnPlayClicked(wxCommandEvent& event)
 	LoginClicked();
 }
 
-void MainWindow::OnInstActivated(wxInstanceCtrlEvent &event)
+void MainWindow::OnInstActivated(InstanceCtrlEvent &event)
 {
 	LoginClicked();
 }
@@ -961,7 +961,7 @@ void MainWindow::RenameEvent()
 	}
 }
 
-void MainWindow::OnInstRenameKey ( wxInstanceCtrlEvent& event )
+void MainWindow::OnInstRenameKey ( InstanceCtrlEvent& event )
 {
 	RenameEvent();
 }
@@ -978,11 +978,11 @@ void MainWindow::OnChangeGroupClicked(wxCommandEvent& event)
 		return;
 
 	wxTextEntryDialog textDlg(this, _("Enter a new group for this instance."), 
-		_("Change Group"), instItems.GetGroup(currentInstance));
+		_("Change Group"), currentInstance->GetGroup());
 	textDlg.CenterOnParent();
 	if (textDlg.ShowModal() == wxID_OK)
 	{
-		instItems.SetGroup(currentInstance, textDlg.GetValue());
+		currentInstance->SetGroup(textDlg.GetValue());
 		instItems.SaveGroupInfo(Path::Combine(settings->GetInstDir(), "instgroups.json"));
 	}
 }
@@ -1308,7 +1308,7 @@ bool MainWindow::DeleteSelectedInstance()
 	return false;
 }
 
-void MainWindow::OnInstDeleteKey ( wxInstanceCtrlEvent& event )
+void MainWindow::OnInstDeleteKey ( InstanceCtrlEvent& event )
 {
 	DeleteSelectedInstance();
 }
@@ -1318,7 +1318,7 @@ void MainWindow::OnDeleteClicked(wxCommandEvent& event)
 	DeleteSelectedInstance();
 }
 
-void MainWindow::OnInstMenuOpened(wxInstanceCtrlEvent& event)
+void MainWindow::OnInstMenuOpened(InstanceCtrlEvent& event)
 {
 	if(event.GetItemIndex() != -1)
 	{

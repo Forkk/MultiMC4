@@ -31,8 +31,8 @@
 
 #include "instancemodel.h"
 
-class wxInstanceCtrl;
-class wxInstanceCtrlEvent;
+class InstanceCtrl;
+class InstanceCtrlEvent;
 
 class MainWindow : public wxFrame
 {
@@ -59,9 +59,9 @@ public:
 
 	// Instance menu
 	void OnPlayClicked(wxCommandEvent& event);
-	void OnInstActivated(wxInstanceCtrlEvent& event);
-	void OnInstDeleteKey(wxInstanceCtrlEvent& event);
-	void OnInstRenameKey(wxInstanceCtrlEvent& event);
+	void OnInstActivated(InstanceCtrlEvent& event);
+	void OnInstDeleteKey(InstanceCtrlEvent& event);
+	void OnInstRenameKey(InstanceCtrlEvent& event);
 	
 	void OnRenameClicked(wxCommandEvent& event);
 	void OnChangeGroupClicked(wxCommandEvent& event);
@@ -87,7 +87,7 @@ public:
 	void OnCheckUpdateComplete(CheckUpdateEvent &event);
 	
 	// Other events
-	void OnInstMenuOpened(wxInstanceCtrlEvent& event);
+	void OnInstMenuOpened(InstanceCtrlEvent& event);
 	void OnWindowClosed(wxCloseEvent& event);
 	void OnNotesLostFocus(wxFocusEvent& event);
 
@@ -147,12 +147,12 @@ protected:
 	void InitBasicGUI(wxBoxSizer *mainSz);
 	void InitInstMenu();
 	
-	wxInstanceCtrl *instListCtrl;
+	InstanceCtrl *instListCtrl;
 	
 	// Advanced GUI
 	void InitAdvancedGUI(wxBoxSizer *mainSz);
 	
-	void OnInstSelected(wxInstanceCtrlEvent &event);
+	void OnInstSelected(InstanceCtrlEvent &event);
 
 	void UpdateInstPanel();
 	void UpdateInstNameLabel(Instance *inst);

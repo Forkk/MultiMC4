@@ -66,6 +66,11 @@ std::size_t InstanceModel::Add (Instance * inst, bool do_select)
 	if(!m_freeze_level && m_control)
 		m_control->UpdateItems();
 	
+	wxString ID = inst->GetInstID();
+	if(m_groupMap.count(ID))
+	{
+		inst->SetGroup(m_groupMap[ID]);
+	}
 	inst->SetParentModel(this);
 	return idx;
 }
@@ -109,7 +114,7 @@ void InstanceModel::InstanceRenamed ( Instance* renamedInstance )
 		m_control->UpdateItems();
 }
 
-void InstanceModel::SetLinkedControl ( wxInstanceCtrl* ctrl )
+void InstanceModel::SetLinkedControl ( InstanceCtrl* ctrl )
 {
 	m_control = ctrl;
 	
@@ -186,16 +191,12 @@ bool InstanceModel::SaveGroupInfo(const wxString& file) const
 	return true;
 }
 
-wxString InstanceModel::GetGroup(Instance* inst)
+void InstanceModel::InstanceGroupChanged ( Instance* changedInstance )
 {
-	return m_groupMap[inst->GetInstID()];
-}
-
-void InstanceModel::SetGroup(Instance *inst, const wxString& group)
-{
+	wxString group = changedInstance->GetGroup();
 	//TODO: notify control of group change
 	if(group.empty())
-		m_groupMap.erase(inst->GetInstID());
+		m_groupMap.erase(changedInstance->GetInstID());
 	else
-		m_groupMap[inst->GetInstID()] = group;
+		m_groupMap[changedInstance->GetInstID()] = group;
 }
