@@ -50,6 +50,8 @@ creeper.png
 squarecreeper.png
 skeleton.png
 enderpearl.png
+ftb-glow.png
+ftb-logo.png
 herobrine.png
 meat.png
 chicken.png
