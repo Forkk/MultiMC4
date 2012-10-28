@@ -54,7 +54,7 @@ void InstanceModel::Clear()
 	m_selectedIndex = -1;
 	
 	if(!m_freeze_level && m_control)
-		m_control->UpdateItems();
+		m_control->ReloadAll();
 	
 }
 
@@ -64,7 +64,7 @@ std::size_t InstanceModel::Add (Instance * inst, bool do_select)
 	m_instances.push_back(inst);
 	
 	if(!m_freeze_level && m_control)
-		m_control->UpdateItems();
+		m_control->ReloadAll();
 	
 	wxString ID = inst->GetInstID();
 	if(m_groupMap.count(ID))
@@ -92,7 +92,7 @@ void InstanceModel::Remove (std::size_t index)
 	m_instances.erase(m_instances.begin() + index);
 	
 	if(!m_freeze_level && m_control)
-		m_control->UpdateItems();
+		m_control->ReloadAll();
 }
 
 void InstanceModel::Delete ( std::size_t index )
@@ -111,7 +111,7 @@ void InstanceModel::DeleteCurrent()
 void InstanceModel::InstanceRenamed ( Instance* renamedInstance )
 {
 	if(m_freeze_level == 0 && m_control)
-		m_control->UpdateItems();
+		m_control->ReloadAll();
 }
 
 void InstanceModel::SetLinkedControl ( InstanceCtrl* ctrl )
@@ -119,7 +119,7 @@ void InstanceModel::SetLinkedControl ( InstanceCtrl* ctrl )
 	m_control = ctrl;
 	
 	if(!m_freeze_level && m_control)
-		m_control->UpdateItems();
+		m_control->ReloadAll();
 }
 
 void InstanceModel::Freeze()
@@ -131,7 +131,7 @@ void InstanceModel::Thaw()
 {
 	m_freeze_level --;
 	if(m_freeze_level == 0 && m_control)
-		m_control->UpdateItems();
+		m_control->ReloadAll();
 };
 
 bool InstanceModel::LoadGroupInfo(const wxString& file)
@@ -199,4 +199,6 @@ void InstanceModel::InstanceGroupChanged ( Instance* changedInstance )
 		m_groupMap.erase(changedInstance->GetInstID());
 	else
 		m_groupMap[changedInstance->GetInstID()] = group;
+	if(m_freeze_level == 0 && m_control)
+		m_control->ReloadAll();
 }
