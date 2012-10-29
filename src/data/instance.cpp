@@ -335,6 +335,21 @@ void Instance::SetName(wxString name)
 		parentModel->InstanceRenamed(this);
 }
 
+wxDateTime Instance::GetLastLaunch() const
+{
+	wxString dtStr = GetSetting<wxString>(_("lastLaunch"), wxEmptyString);
+	wxDateTime dt;
+	if (dt.ParseFormat(dtStr) != NULL)
+		return dt;
+	else
+		return wxDateTime::Now();
+}
+
+void Instance::SetLastLaunch(wxDateTime time)
+{
+	SetSetting<wxString>(_("lastLaunch"), time.Format());
+}
+
 wxString Instance::GetIconKey() const
 {
 	wxString iconKey = GetSetting<wxString>(_("iconKey"), _("default"));
@@ -410,6 +425,9 @@ void Instance::ExtractLauncher()
 
 wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirectOutput)
 {
+	// Set lastLaunch
+	SetLastLaunch();
+
 	if (username.IsEmpty())
 		username = _("Offline");
 	
@@ -683,16 +701,16 @@ wxString Instance::GetInstID() const
 
 wxString Instance::GetGroup()
 {
-	return group;
+	InstanceGroup *group = parentModel->GetInstanceGroup(this);
+	if (group)
+		return group->GetName();
+	else
+		return wxEmptyString;
 }
 
 void Instance::SetGroup ( const wxString& group )
 {
-	this->group = group;
-	// when the instance is added to the model, its group is set before setting parentModel.
-	// So it doesn't send out messsages :)
-	if(parentModel)
-		parentModel->InstanceGroupChanged(this);
+	parentModel->SetInstanceGroup(this, group);
 }
 
 

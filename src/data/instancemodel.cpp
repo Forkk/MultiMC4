@@ -23,6 +23,8 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 
+#define GROUP_FILE_FORMAT_VERSION 1
+
 InstanceModel::InstanceModel()
 {
 	m_control = nullptr;
@@ -52,6 +54,10 @@ void InstanceModel::Clear()
 	m_instances.clear();
 	m_previousIndex = -1;
 	m_selectedIndex = -1;
+
+	for (int i = 0; i < m_groups.size(); i++)
+		delete m_groups[i];
+	m_groups.clear();
 	
 	if(!m_freeze_level && m_control)
 		m_control->ReloadAll();
@@ -66,11 +72,6 @@ std::size_t InstanceModel::Add (Instance * inst, bool do_select)
 	if(!m_freeze_level && m_control)
 		m_control->ReloadAll();
 	
-	wxString ID = inst->GetInstID();
-	if(m_groupMap.count(ID))
-	{
-		inst->SetGroup(m_groupMap[ID]);
-	}
 	inst->SetParentModel(this);
 	return idx;
 }
@@ -134,8 +135,11 @@ void InstanceModel::Thaw()
 		m_control->ReloadAll();
 };
 
-bool InstanceModel::LoadGroupInfo(const wxString& file)
+bool InstanceModel::LoadGroupInfo(wxString file)
 {
+	if (file.IsEmpty())
+		file = m_groupFile;
+
 	m_groupMap.clear();
 
 	using namespace boost::property_tree;
@@ -145,12 +149,30 @@ bool InstanceModel::LoadGroupInfo(const wxString& file)
 	{
 		read_json(stdStr(file), pt);
 
-		BOOST_FOREACH(const ptree::value_type& v, pt.get_child("groups"))
+		if (pt.get_optional<int>("formatVersion") != GROUP_FILE_FORMAT_VERSION)
 		{
-			auto value = v.second.data();
-			auto key = v.first.data();
-			if(!value.empty())
-				m_groupMap[key] = wxStr(value);
+			// Discard old formats.
+			return false;
+		}
+
+		BOOST_FOREACH(const ptree::value_type& vp, pt.get_child("groups"))
+		{
+			ptree gPt = vp.second;
+			wxString groupName = wxStr(vp.first);
+
+			m_groups.push_back(new InstanceGroup(groupName, this));
+
+			wxArrayString groupInstances;
+			BOOST_FOREACH(const ptree::value_type& v, gPt.get_child("instances"))
+			{
+				groupInstances.Add(wxStr(v.second.data()));
+			}
+
+			for (InstVector::iterator iter = m_instances.begin(); iter < m_instances.end(); iter++)
+			{
+				if (groupInstances.Index((*iter)->GetInstID()) != wxNOT_FOUND)
+					SetInstanceGroup(*iter, groupName);
+			}
 		}
 	}
 	catch (json_parser_error e)
@@ -160,24 +182,55 @@ bool InstanceModel::LoadGroupInfo(const wxString& file)
 			e.line(), wxStr(e.message()).c_str());
 		return false;
 	}
+	catch (ptree_error e)
+	{
+		wxLogError(_("Failed to read group list. Unknown ptree error."));
+		return false;
+	}
 	return true;
 }
 
-bool InstanceModel::SaveGroupInfo(const wxString& file) const
+bool InstanceModel::SaveGroupInfo(wxString file) const
 {
+	if (file.IsEmpty())
+		file = m_groupFile;
+
 	using namespace boost::property_tree;
 	ptree pt;
 
+	pt.put<int>("formatVersion", GROUP_FILE_FORMAT_VERSION);
+
 	try
 	{
-		ptree subPT;
-		for (GroupMap::const_iterator iter = m_groupMap.begin(); iter != m_groupMap.end(); iter++)
+		typedef std::map<InstanceGroup *, InstVector> GroupListMap;
+
+		GroupListMap groupLists;
+		for (auto iter = m_instances.begin(); iter != m_instances.end(); iter++)
 		{
-			ptree leaf (stdStr(iter->second));
-			auto pair = std::make_pair(stdStr(iter->first), leaf);
-			subPT.push_back(pair);
+			InstanceGroup *group = GetInstanceGroup(*iter);
+			
+			if (group != nullptr)
+				groupLists[group].push_back(*iter);
 		}
-		pt.add_child("groups", subPT);
+
+		ptree groupsPtree;
+		for (auto iter = groupLists.begin(); iter != groupLists.end(); iter++)
+		{
+			InstanceGroup *group = iter->first;
+			InstVector gList = iter->second;
+
+			ptree groupTree;
+
+			ptree instList;
+			for (auto iter2 = gList.begin(); iter2 != gList.end(); iter2++)
+			{
+				instList.push_back(std::make_pair("", ptree(stdStr((*iter2)->GetInstID()))));
+			}
+			groupTree.put_child("instances", instList);
+
+			groupsPtree.push_back(std::make_pair(stdStr(group->GetName()), groupTree));
+		}
+		pt.put_child("groups", groupsPtree);
 
 		write_json(stdStr(file), pt);
 	}
@@ -187,18 +240,95 @@ bool InstanceModel::SaveGroupInfo(const wxString& file) const
 			e.line(), wxStr(e.message()).c_str());
 		return false;
 	}
+	catch (ptree_error e)
+	{
+		wxLogError(_("Failed to save group list. Unknown ptree error."));
+		return false;
+	}
 
 	return true;
 }
 
 void InstanceModel::InstanceGroupChanged ( Instance* changedInstance )
 {
-	wxString group = changedInstance->GetGroup();
-	if(group.empty())
-		m_groupMap.erase(changedInstance->GetInstID());
-	else
-		m_groupMap[changedInstance->GetInstID()] = group;
-
+	SaveGroupInfo();
 	if(m_freeze_level == 0 && m_control)
 		m_control->ReloadAll();
+}
+
+void InstanceModel::SetGroupFile(const wxString& groupFile)
+{
+	m_groupFile = groupFile;
+}
+
+void InstanceModel::SetInstanceGroup(Instance *inst, wxString groupName)
+{
+	InstanceGroup *prevGroup = GetInstanceGroup(inst);
+
+	if (prevGroup != nullptr)
+	{
+		m_groupMap.erase(inst);
+	}
+
+	if (!groupName.IsEmpty())
+	{
+		InstanceGroup *newGroup = nullptr;
+
+		for (GroupVector::iterator iter = m_groups.begin(); iter != m_groups.end(); iter++)
+		{
+			if ((*iter)->GetName() == groupName)
+			{
+				newGroup = *iter;
+			}
+		}
+
+		if (newGroup == nullptr)
+		{
+			newGroup = new InstanceGroup(groupName, this);
+			m_groups.push_back(newGroup);
+		}
+
+		m_groupMap[inst] = newGroup;
+	}
+
+	InstanceGroupChanged(inst);
+}
+
+InstanceGroup* InstanceModel::GetInstanceGroup(Instance *inst) const
+{
+	if (m_groupMap.count(inst))
+		return m_groupMap.at(inst);
+	else
+		return nullptr;
+}
+
+InstanceGroup* InstanceModel::GetGroupByName(wxString name) const
+{
+	for (GroupVector::const_iterator iter = m_groups.begin(); iter != m_groups.end(); iter++)
+	{
+		if ((*iter)->GetName() == name)
+			return *iter;
+	}
+}
+
+
+InstanceGroup::InstanceGroup(const wxString& name, InstanceModel *parent)
+{
+	m_name = name;
+	m_parent = parent;
+}
+
+wxString InstanceGroup::GetName() const
+{
+	return m_name;
+}
+
+void InstanceGroup::SetName(const wxString& name)
+{
+	m_name = name;
+}
+
+InstanceModel* InstanceGroup::GetParent() const
+{
+	return m_parent;
 }

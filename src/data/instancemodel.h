@@ -24,7 +24,28 @@
 class Instance;
 class InstanceCtrl;
 
-typedef std::map<wxString, wxString> GroupMap;
+class InstanceModel;
+class InstanceGroup;
+
+typedef std::map<Instance*, InstanceGroup*> GroupMap;
+typedef std::vector<Instance *> InstVector;
+
+class InstanceGroup
+{
+public:
+	InstanceGroup(const wxString& name, InstanceModel *parent);
+
+	wxString GetName() const;
+	void SetName(const wxString& name);
+
+	InstanceModel *GetParent() const;
+
+protected:
+	wxString m_name;
+	InstanceModel *m_parent;
+};
+
+typedef std::vector<InstanceGroup*> GroupVector;
 
 class InstanceModel
 {
@@ -64,8 +85,8 @@ public:
 	/// Allow updating the control again
 	void Thaw();
 
-	bool LoadGroupInfo(const wxString& file);
-	bool SaveGroupInfo(const wxString& file) const;
+	bool LoadGroupInfo(wxString file = wxEmptyString);
+	bool SaveGroupInfo(wxString file = wxEmptyString) const;
 
 	Instance *GetSelectedInstance()
 	{
@@ -97,6 +118,7 @@ public:
 	};
 	void InstanceRenamed ( Instance* renamedInstance );
 	void InstanceGroupChanged ( Instance* changedInstance );
+
 	bool IsGroupHidden(wxString group)
 	{
 		return hiddenGroups.count(group);
@@ -112,13 +134,21 @@ public:
 			hiddenGroups.erase(group);
 		}
 	}
-	
+
+	void SetInstanceGroup(Instance *inst, wxString groupName);
+	InstanceGroup* GetInstanceGroup(Instance *inst) const;
+
+	InstanceGroup* GetGroupByName(wxString name) const;
+
+	void SetGroupFile(const wxString& groupFile);
 protected:
 	// mapping between instances and groups...
 	GroupMap m_groupMap;
 	std::set <wxString> hiddenGroups;
 	// our list of instances :D
-	std::vector <Instance *> m_instances;
+	InstVector m_instances;
+	// list of groups
+	GroupVector m_groups;
 	// previously selected instance (index)
 	int m_previousIndex;
 	// currently selected instance (index)
@@ -127,4 +157,6 @@ protected:
 	InstanceCtrl * m_control;
 	// determines if updates to the control should be postponed
 	unsigned int m_freeze_level;
+
+	wxString m_groupFile;
 };

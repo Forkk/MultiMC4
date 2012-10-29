@@ -194,6 +194,7 @@ MainWindow::MainWindow(void)
 	
 	// Create the status bar
 	auto sbar = CreateStatusBar(1);
+	sbar->SetFieldsCount(2);
 	SetStatusBarPane(0);
 	
 	// Set up the main panel and sizers
@@ -429,6 +430,7 @@ void MainWindow::OnInstSelected(InstanceCtrlEvent &event)
 		SaveNotesBox(false);
 	auto currentInstance = instItems.GetSelectedInstance();
 	SetStatusText(wxT("Minecraft Version: ") + currentInstance->GetJarVersion());
+	SetStatusText(wxT("Instance ID: ") + currentInstance->GetInstID(), 1);
 
 	if(GetGUIMode() == GUI_Default)
 		UpdateInstPanel();
@@ -457,9 +459,6 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		{
 			return;
 		}
-		wxString groupFile = Path::Combine(settings->GetInstDir(), "instgroups.json");
-		if (wxFileExists(groupFile))
-			instItems.LoadGroupInfo(groupFile);
 		
 		Enable(false);
 		wxString subFolder;
@@ -480,6 +479,12 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 			}
 			cont = dir.GetNext(&subFolder);
 		}
+
+
+		wxString groupFile = Path::Combine(settings->GetInstDir(), "instgroups.json");
+		instItems.SetGroupFile(groupFile);
+		if (wxFileExists(groupFile))
+			instItems.LoadGroupInfo();
 	}
 	instItems.Thaw();
 	GetStatusBar()->SetStatusText(wxString::Format(_("Loaded %i instances..."), ctr), 0);
@@ -986,7 +991,6 @@ void MainWindow::OnChangeGroupClicked(wxCommandEvent& event)
 	if (textDlg.ShowModal() == wxID_OK)
 	{
 		currentInstance->SetGroup(textDlg.GetValue());
-		instItems.SaveGroupInfo(Path::Combine(settings->GetInstDir(), "instgroups.json"));
 	}
 }
 
