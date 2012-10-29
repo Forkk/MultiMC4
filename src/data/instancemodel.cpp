@@ -23,6 +23,8 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 
+#define GROUP_FILE_FORMAT_VERSION 1
+
 InstanceModel::InstanceModel()
 {
 	m_control = nullptr;
@@ -147,6 +149,12 @@ bool InstanceModel::LoadGroupInfo(wxString file)
 	{
 		read_json(stdStr(file), pt);
 
+		if (pt.get_optional<int>("formatVersion") != GROUP_FILE_FORMAT_VERSION)
+		{
+			// Discard old formats.
+			return false;
+		}
+
 		BOOST_FOREACH(const ptree::value_type& vp, pt.get_child("groups"))
 		{
 			ptree gPt = vp.second;
@@ -184,6 +192,8 @@ bool InstanceModel::SaveGroupInfo(wxString file) const
 
 	using namespace boost::property_tree;
 	ptree pt;
+
+	pt.put<int>("formatVersion", GROUP_FILE_FORMAT_VERSION);
 
 	try
 	{
