@@ -182,6 +182,11 @@ bool InstanceModel::LoadGroupInfo(wxString file)
 			e.line(), wxStr(e.message()).c_str());
 		return false;
 	}
+	catch (ptree_error e)
+	{
+		wxLogError(_("Failed to read group list. Unknown ptree error."));
+		return false;
+	}
 	return true;
 }
 
@@ -233,6 +238,11 @@ bool InstanceModel::SaveGroupInfo(wxString file) const
 	{
 		wxLogError(_("Failed to read group list.\nJSON parser error at line %i: %s"), 
 			e.line(), wxStr(e.message()).c_str());
+		return false;
+	}
+	catch (ptree_error e)
+	{
+		wxLogError(_("Failed to save group list. Unknown ptree error."));
 		return false;
 	}
 
