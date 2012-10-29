@@ -457,10 +457,6 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		{
 			return;
 		}
-		wxString groupFile = Path::Combine(settings->GetInstDir(), "instgroups.json");
-		instItems.SetGroupFile(groupFile);
-		if (wxFileExists(groupFile))
-			instItems.LoadGroupInfo();
 		
 		Enable(false);
 		wxString subFolder;
@@ -481,6 +477,12 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 			}
 			cont = dir.GetNext(&subFolder);
 		}
+
+
+		wxString groupFile = Path::Combine(settings->GetInstDir(), "instgroups.json");
+		instItems.SetGroupFile(groupFile);
+		if (wxFileExists(groupFile))
+			instItems.LoadGroupInfo();
 	}
 	instItems.Thaw();
 	GetStatusBar()->SetStatusText(wxString::Format(_("Loaded %i instances..."), ctr), 0);
@@ -984,7 +986,6 @@ void MainWindow::OnChangeGroupClicked(wxCommandEvent& event)
 	if (textDlg.ShowModal() == wxID_OK)
 	{
 		currentInstance->SetGroup(textDlg.GetValue());
-		instItems.SaveGroupInfo(Path::Combine(settings->GetInstDir(), "instgroups.json"));
 	}
 }
 

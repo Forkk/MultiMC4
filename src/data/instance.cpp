@@ -701,16 +701,16 @@ wxString Instance::GetInstID() const
 
 wxString Instance::GetGroup()
 {
-	return group;
+	InstanceGroup *group = parentModel->GetInstanceGroup(this);
+	if (group)
+		return group->GetName();
+	else
+		return wxEmptyString;
 }
 
 void Instance::SetGroup ( const wxString& group )
 {
-	this->group = group;
-	// when the instance is added to the model, its group is set before setting parentModel.
-	// So it doesn't send out messsages :)
-	if(parentModel)
-		parentModel->InstanceGroupChanged(this);
+	parentModel->SetInstanceGroup(this, group);
 }
 
 

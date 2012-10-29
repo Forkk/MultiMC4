@@ -66,11 +66,6 @@ std::size_t InstanceModel::Add (Instance * inst, bool do_select)
 	if(!m_freeze_level && m_control)
 		m_control->ReloadAll();
 	
-	wxString ID = inst->GetInstID();
-	if(m_groupMap.count(ID))
-	{
-		inst->SetGroup(m_groupMap[ID]);
-	}
 	inst->SetParentModel(this);
 	return idx;
 }
@@ -148,12 +143,24 @@ bool InstanceModel::LoadGroupInfo(wxString file)
 	{
 		read_json(stdStr(file), pt);
 
-		BOOST_FOREACH(const ptree::value_type& v, pt.get_child("groups"))
+		BOOST_FOREACH(const ptree::value_type& vp, pt.get_child("groups"))
 		{
-			auto value = v.second.data();
-			auto key = v.first.data();
-			if(!value.empty())
-				m_groupMap[key] = wxStr(value);
+			ptree gPt = vp.second;
+			wxString groupName = wxStr(vp.first);
+
+			m_groups.push_back(new InstanceGroup(groupName, this));
+
+			wxArrayString groupInstances;
+			BOOST_FOREACH(const ptree::value_type& v, gPt.get_child("instances"))
+			{
+				groupInstances.Add(wxStr(v.second.data()));
+			}
+
+			for (InstVector::iterator iter = m_instances.begin(); iter < m_instances.end(); iter++)
+			{
+				if (groupInstances.Index((*iter)->GetInstID()) != wxNOT_FOUND)
+					SetInstanceGroup(*iter, groupName);
+			}
 		}
 	}
 	catch (json_parser_error e)
@@ -176,14 +183,35 @@ bool InstanceModel::SaveGroupInfo(wxString file) const
 
 	try
 	{
-		ptree subPT;
-		for (GroupMap::const_iterator iter = m_groupMap.begin(); iter != m_groupMap.end(); iter++)
+		typedef std::map<InstanceGroup *, InstVector> GroupListMap;
+
+		GroupListMap groupLists;
+		for (InstVector::const_iterator iter = m_instances.begin(); iter != m_instances.end(); iter++)
 		{
-			ptree leaf (stdStr(iter->second));
-			auto pair = std::make_pair(stdStr(iter->first), leaf);
-			subPT.push_back(pair);
+			InstanceGroup *group = GetInstanceGroup(*iter);
+			
+			if (group != nullptr)
+				groupLists[group].push_back(*iter);
 		}
-		pt.add_child("groups", subPT);
+
+		ptree groupsPtree;
+		for (GroupListMap::iterator iter = groupLists.begin(); iter != groupLists.end(); iter++)
+		{
+			InstanceGroup *group = iter->first;
+			InstVector gList = iter->second;
+
+			ptree groupTree;
+
+			ptree instList;
+			for (InstVector::iterator iter = gList.begin(); iter != gList.end(); iter++)
+			{
+				instList.push_back(std::make_pair("", stdStr((*iter)->GetInstID())));
+			}
+			groupTree.put_child("instances", instList);
+
+			groupsPtree.push_back(std::make_pair(stdStr(group->GetName()), groupTree));
+		}
+		pt.put_child("groups", groupsPtree);
 
 		write_json(stdStr(file), pt);
 	}
@@ -199,12 +227,6 @@ bool InstanceModel::SaveGroupInfo(wxString file) const
 
 void InstanceModel::InstanceGroupChanged ( Instance* changedInstance )
 {
-	wxString group = changedInstance->GetGroup();
-	//TODO: notify control of group change
-	if(group.empty())
-		m_groupMap.erase(changedInstance->GetInstID());
-	else
-		m_groupMap[changedInstance->GetInstID()] = group;
 	SaveGroupInfo();
 	if(m_freeze_level == 0 && m_control)
 		m_control->ReloadAll();
@@ -213,4 +235,67 @@ void InstanceModel::InstanceGroupChanged ( Instance* changedInstance )
 void InstanceModel::SetGroupFile(const wxString& groupFile)
 {
 	m_groupFile = groupFile;
+}
+
+void InstanceModel::SetInstanceGroup(Instance *inst, wxString groupName)
+{
+	InstanceGroup *prevGroup = GetInstanceGroup(inst);
+
+	if (prevGroup != nullptr)
+	{
+		m_groupMap.erase(inst);
+	}
+
+	if (!groupName.IsEmpty())
+	{
+		InstanceGroup *newGroup = nullptr;
+
+		for (GroupVector::iterator iter = m_groups.begin(); iter != m_groups.end(); iter++)
+		{
+			if ((*iter)->GetName() == groupName)
+			{
+				newGroup = *iter;
+			}
+		}
+
+		if (newGroup == nullptr)
+		{
+			newGroup = new InstanceGroup(groupName, this);
+			m_groups.push_back(newGroup);
+		}
+
+		m_groupMap[inst] = newGroup;
+	}
+
+	InstanceGroupChanged(inst);
+}
+
+InstanceGroup *InstanceModel::GetInstanceGroup(Instance *inst) const
+{
+	if (m_groupMap.count(inst))
+		return m_groupMap.at(inst);
+	else
+		return nullptr;
+}
+
+
+InstanceGroup::InstanceGroup(const wxString& name, InstanceModel *parent)
+{
+	m_name = name;
+	m_parent = parent;
+}
+
+wxString InstanceGroup::GetName() const
+{
+	return m_name;
+}
+
+void InstanceGroup::SetName(const wxString& name)
+{
+	m_name = name;
+}
+
+InstanceModel* InstanceGroup::GetParent() const
+{
+	return m_parent;
 }
