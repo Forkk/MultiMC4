@@ -458,8 +458,9 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 			return;
 		}
 		wxString groupFile = Path::Combine(settings->GetInstDir(), "instgroups.json");
+		instItems.SetGroupFile(groupFile);
 		if (wxFileExists(groupFile))
-			instItems.LoadGroupInfo(groupFile);
+			instItems.LoadGroupInfo();
 		
 		Enable(false);
 		wxString subFolder;

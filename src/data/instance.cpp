@@ -348,8 +348,6 @@ wxDateTime Instance::GetLastLaunch() const
 void Instance::SetLastLaunch(wxDateTime time)
 {
 	SetSetting<wxString>(_("lastLaunch"), time.Format());
-	if (parentModel)
-		parentModel->Sort();
 }
 
 wxString Instance::GetIconKey() const

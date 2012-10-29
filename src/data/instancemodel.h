@@ -63,8 +63,8 @@ public:
 	/// Allow updating the control again
 	void Thaw();
 
-	bool LoadGroupInfo(const wxString& file);
-	bool SaveGroupInfo(const wxString& file) const;
+	bool LoadGroupInfo(wxString file = wxEmptyString);
+	bool SaveGroupInfo(wxString file = wxEmptyString) const;
 
 	Instance *GetSelectedInstance()
 	{
@@ -96,6 +96,8 @@ public:
 	};
 	void InstanceRenamed ( Instance* renamedInstance );
 	void InstanceGroupChanged ( Instance* changedInstance );
+
+	void SetGroupFile(const wxString& groupFile);
 	
 protected:
 	// mapping between instances and groups...
@@ -110,4 +112,6 @@ protected:
 	InstanceCtrl * m_control;
 	// determines if updates to the control should be postponed
 	unsigned int m_freeze_level;
+
+	wxString m_groupFile;
 };

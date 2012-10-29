@@ -134,8 +134,11 @@ void InstanceModel::Thaw()
 		m_control->ReloadAll();
 };
 
-bool InstanceModel::LoadGroupInfo(const wxString& file)
+bool InstanceModel::LoadGroupInfo(wxString file)
 {
+	if (file.IsEmpty())
+		file = m_groupFile;
+
 	m_groupMap.clear();
 
 	using namespace boost::property_tree;
@@ -163,8 +166,11 @@ bool InstanceModel::LoadGroupInfo(const wxString& file)
 	return true;
 }
 
-bool InstanceModel::SaveGroupInfo(const wxString& file) const
+bool InstanceModel::SaveGroupInfo(wxString file) const
 {
+	if (file.IsEmpty())
+		file = m_groupFile;
+
 	using namespace boost::property_tree;
 	ptree pt;
 
@@ -199,6 +205,12 @@ void InstanceModel::InstanceGroupChanged ( Instance* changedInstance )
 		m_groupMap.erase(changedInstance->GetInstID());
 	else
 		m_groupMap[changedInstance->GetInstID()] = group;
+	SaveGroupInfo();
 	if(m_freeze_level == 0 && m_control)
 		m_control->ReloadAll();
+}
+
+void InstanceModel::SetGroupFile(const wxString& groupFile)
+{
+	m_groupFile = groupFile;
 }
