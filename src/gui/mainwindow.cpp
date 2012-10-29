@@ -570,8 +570,11 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 	if (!GetNewInstName(&instName, &instDirName))
 		return;
 
-	wxFileName instDir = wxFileName::DirName(Path::Combine(settings->GetInstDir(), instDirName));
-
+	wxString dirPrep = Path::Combine(settings->GetInstDir(), instDirName);
+	wxFileName instDir = wxFileName::DirName(dirPrep);
+	wxString dirPost = instDir.GetFullPath();
+	wxString dirNamePost = instDir.GetFullName();
+	
 	Instance *inst = new StdInstance(instDir);
 	UserInfo lastLogin;
 	if (wxFileExists(_("lastlogin4")))
@@ -1445,11 +1448,10 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_BUTTON(ID_DeleteInst, MainWindow::OnDeleteClicked)
 	
 	
-	EVT_INST_LEFT_DCLICK(ID_InstListCtrl, MainWindow::OnInstActivated)
-	EVT_INST_RETURN(ID_InstListCtrl, MainWindow::OnInstActivated)
+	EVT_INST_ACTIVATE(ID_InstListCtrl, MainWindow::OnInstActivated)
 	EVT_INST_DELETE(ID_InstListCtrl, MainWindow::OnInstDeleteKey)
 	EVT_INST_RENAME(ID_InstListCtrl, MainWindow::OnInstRenameKey)
-	EVT_INST_RIGHT_CLICK(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
+	EVT_INST_MENU(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
 	EVT_INST_ITEM_SELECTED(ID_InstListCtrl, MainWindow::OnInstSelected)
 	
 	EVT_TASK_END(MainWindow::OnTaskEnd)

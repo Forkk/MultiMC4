@@ -194,11 +194,11 @@ bool InstanceModel::SaveGroupInfo(const wxString& file) const
 void InstanceModel::InstanceGroupChanged ( Instance* changedInstance )
 {
 	wxString group = changedInstance->GetGroup();
-	//TODO: notify control of group change
 	if(group.empty())
 		m_groupMap.erase(changedInstance->GetInstID());
 	else
 		m_groupMap[changedInstance->GetInstID()] = group;
+
 	if(m_freeze_level == 0 && m_control)
 		m_control->ReloadAll();
 }

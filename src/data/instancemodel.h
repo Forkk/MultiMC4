@@ -18,6 +18,7 @@
 
 #include <wx/list.h>
 #include <map>
+#include <set>
 #include <vector>
 
 class Instance;
@@ -96,10 +97,26 @@ public:
 	};
 	void InstanceRenamed ( Instance* renamedInstance );
 	void InstanceGroupChanged ( Instance* changedInstance );
+	bool IsGroupHidden(wxString group)
+	{
+		return hiddenGroups.count(group);
+	}
+	void SetGroupHidden(wxString group, bool hidden)
+	{
+		if(hidden)
+		{
+			hiddenGroups.insert(group);
+		}
+		else
+		{
+			hiddenGroups.erase(group);
+		}
+	}
 	
 protected:
 	// mapping between instances and groups...
 	GroupMap m_groupMap;
+	std::set <wxString> hiddenGroups;
 	// our list of instances :D
 	std::vector <Instance *> m_instances;
 	// previously selected instance (index)
