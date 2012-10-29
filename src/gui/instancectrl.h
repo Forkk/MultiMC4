@@ -149,16 +149,11 @@ public:
 	int itemIndex;
 };
 
+class InstanceGroup;
+
 struct GroupVisual
 {
-	GroupVisual(wxString & name, bool no_header = false):name(name),no_header(no_header)
-	{
-		expanded = true;
-		total_height = 0;
-		header_height = 0;
-		y_position = 0;
-		index = -1;
-	};
+	GroupVisual(InstanceGroup *group, bool no_header = false);
 	void Reflow ( int perRow, int spacing, int margin, int lineHeight, int imageSize, int & progressive_y );
 	void Draw ( wxDC & dc, InstanceCtrl* parent, wxRect untransformedRect,
 	            bool hasSelection, int selectionIndex,
@@ -167,12 +162,14 @@ struct GroupVisual
 	{
 		this->index = index;
 	}
-	
-	wxString name;
+
+	bool IsExpanded() const;
+	void SetExpanded(bool expanded);
+
+	wxString GetName() const;
+
+	InstanceGroup *m_group;
 	InstanceItemArray items;
-	
-	/// if the header is enabled, this decides if the rest of the group should be drawn and incluced in the height
-	bool expanded;
 	
 	/// don't draw header and don't include it in height if true
 	bool no_header;
