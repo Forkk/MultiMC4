@@ -18,6 +18,7 @@
 
 #include <wx/list.h>
 #include <map>
+#include <set>
 #include <vector>
 
 class Instance;
@@ -37,11 +38,15 @@ public:
 	wxString GetName() const;
 	void SetName(const wxString& name);
 
+	bool IsHidden() const;
+	void SetHidden(bool hidden);
+
 	InstanceModel *GetParent() const;
 
 protected:
 	wxString m_name;
 	InstanceModel *m_parent;
+	bool m_hidden;
 };
 
 typedef std::vector<InstanceGroup*> GroupVector;
@@ -124,10 +129,15 @@ public:
 	InstanceGroup* GetGroupByName(wxString name) const;
 
 	void SetGroupFile(const wxString& groupFile);
+
+	bool IsGroupHidden(wxString group) const;
+
+	void SetGroupHidden(wxString group, bool hidden);
 	
 protected:
 	// mapping between instances and groups...
 	GroupMap m_groupMap;
+	std::set <wxString> hiddenGroups;
 	// our list of instances :D
 	InstVector m_instances;
 	// list of groups

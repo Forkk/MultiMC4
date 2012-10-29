@@ -122,6 +122,24 @@ public:
 	{
 		return groupIndex == -1 && itemIndex == -1;
 	}
+	bool isHeader() const
+	{
+		return groupIndex >= 0 && itemIndex == -2;
+	}
+	bool isHeaderTicker() const
+	{
+		return groupIndex >= 0 && itemIndex == -3;
+	}
+	void makeHeader(int group)
+	{
+		groupIndex = group;
+		itemIndex = -2;
+	}
+	void makeHeaderTicker(int group)
+	{
+		groupIndex = group;
+		itemIndex = -3;
+	}
 	void makeVoid()
 	{
 		groupIndex = itemIndex = -1;
@@ -305,19 +323,10 @@ public:
 	void OnPaint(wxPaintEvent& event);
 	void OnEraseBackground(wxEraseEvent& event){};
 	
-	/// Left-click
+	/// input event handlers
 	void OnLeftClick(wxMouseEvent& event);
-	
-	/// Left-double-click
 	void OnLeftDClick(wxMouseEvent& event);
-	
-	/// Middle-click
-	void OnMiddleClick(wxMouseEvent& event);
-	
-	/// Right-click
 	void OnRightClick(wxMouseEvent& event);
-	
-	/// Key press
 	void OnChar(wxKeyEvent& event);
 	
 	/// Sizing
@@ -363,6 +372,9 @@ private:
 	
 	/// Find the item under the given point
 	bool HitTest(const wxPoint& pt, VisualCoord& n);
+	
+	/// Toggle the expansion of a group (user input driven)
+	void ToggleGroup(int index);
 	
 	/// Paint the background
 	void PaintBackground(wxDC& dc);
@@ -495,24 +507,66 @@ private:
 BEGIN_DECLARE_EVENT_TYPES()
 DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_ITEM_SELECTED, 2600)
 DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_ITEM_DESELECTED, 2601)
-DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_LEFT_CLICK, 2602)
-DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_RIGHT_CLICK, 2603)
-DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_MIDDLE_CLICK, 2604)
-DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_LEFT_DCLICK, 2605)
-DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_RETURN, 2606)
-DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_DELETE, 2607)
-DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_RENAME, 2608)
+DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_MENU, 2602)
+DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_ACTIVATE, 2603)
+DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_DELETE, 2604)
+DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_RENAME, 2605)
 END_DECLARE_EVENT_TYPES()
 
 typedef void (wxEvtHandler::*wxInstanceCtrlEventFunction)(InstanceCtrlEvent&);
 
-#define EVT_INST_ITEM_SELECTED(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_ITEM_SELECTED, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
-#define EVT_INST_ITEM_DESELECTED(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_ITEM_DESELECTED, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
-#define EVT_INST_LEFT_CLICK(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_LEFT_CLICK, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
-#define EVT_INST_RIGHT_CLICK(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_RIGHT_CLICK, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
-#define EVT_INST_MIDDLE_CLICK(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_MIDDLE_CLICK, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
-#define EVT_INST_LEFT_DCLICK(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_LEFT_DCLICK, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
-#define EVT_INST_RETURN(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_RETURN, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
-#define EVT_INST_DELETE(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_DELETE, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
-#define EVT_INST_RENAME(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_INST_RENAME, id, -1, (wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ), NULL ),
+#define EVT_INST_ITEM_SELECTED(id, fn)\
+	DECLARE_EVENT_TABLE_ENTRY\
+	(\
+		wxEVT_COMMAND_INST_ITEM_SELECTED,\
+		id,\
+		-1,\
+		(wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ),\
+		NULL\
+	),
+#define EVT_INST_ITEM_DESELECTED(id, fn)\
+	DECLARE_EVENT_TABLE_ENTRY\
+	(\
+		wxEVT_COMMAND_INST_ITEM_DESELECTED,\
+		id,\
+		-1,\
+		(wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ),\
+		NULL\
+	),
+#define EVT_INST_ACTIVATE(id, fn)\
+	DECLARE_EVENT_TABLE_ENTRY\
+	(\
+		wxEVT_COMMAND_INST_ACTIVATE,\
+		id,\
+		-1,\
+		(wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ),\
+		NULL\
+	),
+#define EVT_INST_MENU(id, fn)\
+	DECLARE_EVENT_TABLE_ENTRY\
+	(\
+		wxEVT_COMMAND_INST_MENU,\
+		id,\
+		-1,\
+		(wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ),\
+		NULL\
+	),
+#define EVT_INST_DELETE(id, fn)\
+	DECLARE_EVENT_TABLE_ENTRY\
+	(\
+		wxEVT_COMMAND_INST_DELETE,\
+		id,\
+		-1,\
+		(wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ),\
+		NULL\
+	),
+#define EVT_INST_RENAME(id, fn)\
+	DECLARE_EVENT_TABLE_ENTRY\
+	(\
+		wxEVT_COMMAND_INST_RENAME,\
+		id,\
+		-1,\
+		(wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ),\
+		NULL\
+	),
 

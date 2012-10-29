@@ -23,11 +23,8 @@ WX_DEFINE_OBJARRAY(InstanceGroupArray);
 
 DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_ITEM_SELECTED)
 DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_ITEM_DESELECTED)
-DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_LEFT_CLICK)
-DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_MIDDLE_CLICK)
-DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_RIGHT_CLICK)
-DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_LEFT_DCLICK)
-DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_RETURN)
+DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_ACTIVATE)
+DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_MENU)
 DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_DELETE)
 DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_RENAME)
 
@@ -306,11 +303,10 @@ bool InstanceCtrl::IsSelected(VisualCoord n) const
 /// Clears all selections
 void InstanceCtrl::ClearSelections()
 {
-	int count = GetCount();
+	m_selectedItem.makeVoid();
+	m_focusItem.makeVoid();
 	
-	m_selectedItem = m_focusItem = -1;
-	
-	if (count > 0 && m_freezeCount == 0)
+	if (m_freezeCount == 0)
 	{
 		Refresh();
 	}
@@ -385,7 +381,7 @@ void GroupVisual::Draw ( wxDC& dc, InstanceCtrl* parent, wxRect limitingRect, bo
 	int i;
 	int count = items.size();
 	int style = 0;
-	wxRect rect, untransformedRect;
+	wxRect rect;
 	
 	// Draw the header
 	if(!no_header)
@@ -396,14 +392,27 @@ void GroupVisual::Draw ( wxDC& dc, InstanceCtrl* parent, wxRect limitingRect, bo
 		dc.SetBrush(brush);
 		dc.SetPen(pen);
 		wxSize sz = dc.GetTextExtent(name);
-		dc.DrawText( name , 10, y_position + 5 );
+		dc.SetTextForeground(textColor);
+		
+		dc.DrawText( name , 20, y_position + 5 );
 		int atheight = y_position + header_height / 2;
-		dc.DrawLine(sz.x + 20,atheight, limitingRect.width - 10, atheight);
+		if(sz.x + 30 < limitingRect.width - 10)
+			dc.DrawLine(sz.x + 30,atheight, limitingRect.width - 10, atheight);
+		
+		dc.SetBrush(*wxTRANSPARENT_BRUSH);
+		dc.SetPen(textColor);
+		
+		dc.DrawRectangle(5,atheight -5, 10,10);
+		dc.DrawRectangle(7,atheight -1, 6,2);
+		if(!expanded)
+		{
+			dc.DrawRectangle(9,atheight -3, 2,6);
+		}
 	}
 	
-	for (i = 0; i < count; i++)
+	if(expanded) for (i = 0; i < count; i++)
 	{
-		parent->GetItemRect(VisualCoord(index,i), rect);
+		parent->GetItemRect(VisualCoord(index,i), rect, false);
 
 		if (!limitingRect.Intersects(rect))
 			continue;
@@ -414,8 +423,7 @@ void GroupVisual::Draw ( wxDC& dc, InstanceCtrl* parent, wxRect limitingRect, bo
 			style |= wxINST_IS_FOCUS;
 
 		InstanceVisual& item = items[i];
-		parent->GetItemRect(VisualCoord(index,i), untransformedRect, false);
-		item.Draw(dc, parent, untransformedRect, style);
+		item.Draw(dc, parent, rect, style);
 	}
 }
 
@@ -437,7 +445,8 @@ void InstanceCtrl::OnLeftClick(wxMouseEvent& event)
 {
 	SetFocus();
 	VisualCoord clickedIndex;
-	if (HitTest(event.GetPosition(), clickedIndex))
+	HitTest(event.GetPosition(), clickedIndex);
+	if(clickedIndex.isItem())
 	{
 		int flags = 0;
 		if (event.ControlDown())
@@ -449,20 +458,12 @@ void InstanceCtrl::OnLeftClick(wxMouseEvent& event)
 			
 		//EnsureVisible(clickedIndex);
 		DoSelection(clickedIndex);
-		
-		InstanceCtrlEvent cmdEvent(
-		    wxEVT_COMMAND_INST_LEFT_CLICK,
-		    GetId());
-		cmdEvent.SetEventObject(this);
-		cmdEvent.SetItemIndex(clickedIndex);
-		int clickedID = IDFromIndex(clickedIndex);
-		cmdEvent.SetItemID(clickedID);
-		cmdEvent.SetFlags(flags);
-		cmdEvent.SetPosition(event.GetPosition());
-		GetEventHandler()->ProcessEvent(cmdEvent);
 	}
-	else
-		ClearSelections();
+	else if(clickedIndex.isHeaderTicker())
+	{
+		ToggleGroup(clickedIndex.groupIndex);
+	}
+	else ClearSelections();
 }
 
 /// Right-click
@@ -477,8 +478,8 @@ void InstanceCtrl::OnRightClick(wxMouseEvent& event)
 		flags |= wxINST_SHIFT_DOWN;
 	if (event.AltDown())
 		flags |= wxINST_ALT_DOWN;
-	
-	if (HitTest(event.GetPosition(), clickedIndex))
+	HitTest(event.GetPosition(), clickedIndex);
+	if (clickedIndex.isItem())
 	{
 		//EnsureVisible(clickedIndex);
 		DoSelection(clickedIndex);
@@ -488,7 +489,7 @@ void InstanceCtrl::OnRightClick(wxMouseEvent& event)
 		ClearSelections();
 	}
 	
-	InstanceCtrlEvent cmdEvent(wxEVT_COMMAND_INST_RIGHT_CLICK, GetId());
+	InstanceCtrlEvent cmdEvent(wxEVT_COMMAND_INST_MENU, GetId());
 	cmdEvent.SetEventObject(this);
 	cmdEvent.SetItemIndex(clickedIndex);
 	int clickedID = IDFromIndex(clickedIndex);
@@ -496,14 +497,14 @@ void InstanceCtrl::OnRightClick(wxMouseEvent& event)
 	cmdEvent.SetFlags(flags);
 	cmdEvent.SetPosition(event.GetPosition());
 	GetEventHandler()->ProcessEvent(cmdEvent);
-
 }
 
 /// Left-double-click
 void InstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 {
 	VisualCoord clickedIndex;
-	if (HitTest(event.GetPosition(), clickedIndex))
+	HitTest(event.GetPosition(), clickedIndex);
+	if (clickedIndex.isItem())
 	{
 		int flags = 0;
 		if (event.ControlDown())
@@ -514,7 +515,7 @@ void InstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 			flags |= wxINST_ALT_DOWN;
 			
 		InstanceCtrlEvent cmdEvent(
-		    wxEVT_COMMAND_INST_LEFT_DCLICK,
+		    wxEVT_COMMAND_INST_ACTIVATE,
 		    GetId());
 		cmdEvent.SetEventObject(this);
 		cmdEvent.SetItemIndex(clickedIndex);
@@ -524,32 +525,9 @@ void InstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 		cmdEvent.SetPosition(event.GetPosition());
 		GetEventHandler()->ProcessEvent(cmdEvent);
 	}
-}
-
-/// Middle-click
-void InstanceCtrl::OnMiddleClick(wxMouseEvent& event)
-{
-	VisualCoord clickedIndex;
-	if (HitTest(event.GetPosition(), clickedIndex))
+	else if(clickedIndex.isHeader())
 	{
-		int flags = 0;
-		if (event.ControlDown())
-			flags |= wxINST_CTRL_DOWN;
-		if (event.ShiftDown())
-			flags |= wxINST_SHIFT_DOWN;
-		if (event.AltDown())
-			flags |= wxINST_ALT_DOWN;
-			
-		InstanceCtrlEvent cmdEvent(
-		    wxEVT_COMMAND_INST_MIDDLE_CLICK,
-		    GetId());
-		cmdEvent.SetEventObject(this);
-		cmdEvent.SetItemIndex(clickedIndex);
-		int clickedID = IDFromIndex(clickedIndex);
-		cmdEvent.SetItemID(clickedID);
-		cmdEvent.SetFlags(flags);
-		cmdEvent.SetPosition(event.GetPosition());
-		GetEventHandler()->ProcessEvent(cmdEvent);
+		ToggleGroup(clickedIndex.groupIndex);
 	}
 }
 
@@ -567,7 +545,7 @@ void InstanceCtrl::OnChar(wxKeyEvent& event)
 	if (event.GetKeyCode() == WXK_RETURN)
 	{
 		InstanceCtrlEvent cmdEvent(
-		    wxEVT_COMMAND_INST_RETURN,
+		    wxEVT_COMMAND_INST_ACTIVATE,
 		    GetId());
 		cmdEvent.SetEventObject(this);
 		cmdEvent.SetFlags(flags);
@@ -662,6 +640,15 @@ VisualCoord InstanceCtrl::IndexFromID ( int ID ) const
 	return m_itemIndexes[ID];
 }
 
+void InstanceCtrl::ToggleGroup ( int index )
+{
+	GroupVisual & gv = m_groups[index];
+	gv.expanded = !gv.expanded;
+	m_instList->SetGroupHidden(gv.name,!gv.expanded);
+	ReflowAll();
+	SetupScrollbars();
+	Refresh();
+}
 
 /// Find the item under the given point
 bool InstanceCtrl::HitTest(const wxPoint& pt, VisualCoord& n)
@@ -688,6 +675,21 @@ bool InstanceCtrl::HitTest(const wxPoint& pt, VisualCoord& n)
 		if(actualY >= gv.y_position && actualY <= gv.y_position + gv.total_height)
 		{
 			found = &gv;
+			if(actualY <= gv.y_position + gv.header_height)
+			{
+				// it's a header
+				if(pt.x >= 5 && pt.x <= 15)
+				{
+					// it's the ticker thing
+					n.makeHeaderTicker(grpIdx);
+				}
+				else
+				{
+					// it's the header in general
+					n.makeHeader(grpIdx);
+				}
+				return false;
+			}
 			break;
 		}
 	}
@@ -766,30 +768,37 @@ void GroupVisual::Reflow ( int perRow, int spacing, int margin, int lineHeight, 
 	{
 		row_y += header_height;
 	}
-	int rheight = 0;
-	for (int n = 0; n < numitems; n++)
+	if(expanded)
 	{
-		row = n / perRow;
-		if (row != oldrow)
+		int rheight = 0;
+		for (int n = 0; n < numitems; n++)
 		{
-			row_ys[oldrow] = row_y;
-			row_y += rheight + spacing;
-			row_heights[oldrow] = rheight;
-			rheight = 0;
-			oldrow = row;
+			row = n / perRow;
+			if (row != oldrow)
+			{
+				row_ys[oldrow] = row_y;
+				row_y += rheight + spacing;
+				row_heights[oldrow] = rheight;
+				rheight = 0;
+				oldrow = row;
+			}
+			InstanceVisual& item = items[n];
+			// icon, margin, margin (highlight), text, margin (end highlight)
+			int iheight = margin * 3 + lineHeight * item.GetNumLines() + imageSize;
+			if (iheight > rheight)
+				rheight = iheight;
 		}
-		InstanceVisual& item = items[n];
-		// icon, margin, margin (highlight), text, margin (end highlight)
-		int iheight = margin * 3 + lineHeight * item.GetNumLines() + imageSize;
-		if (iheight > rheight)
-			rheight = iheight;
+		if (rheight)
+		{
+			row_heights[row] = rheight;
+			row_ys[row] = row_y;
+		}
+		total_height = row_ys[numrows - 1] + row_heights[numrows - 1];
 	}
-	if (rheight)
+	else
 	{
-		row_heights[row] = rheight;
-		row_ys[row] = row_y;
+		total_height = header_height;
 	}
-	total_height = row_ys[numrows - 1] + row_heights[numrows - 1];
 	progressive_y += total_height;
 }
 
@@ -1010,7 +1019,9 @@ void InstanceCtrl::ReloadAll()
 	while (iter != sorter.end())
 	{
 		auto name =(*iter).first;
+		bool hidden =m_instList->IsGroupHidden(name);
 		GroupVisual grpv(name);
+		grpv.expanded = !hidden;
 		grpv.items = (*iter).second;
 		grpv.items.Sort(NameSort);
 		m_groups.Add(grpv);
