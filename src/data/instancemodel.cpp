@@ -270,12 +270,21 @@ void InstanceModel::SetInstanceGroup(Instance *inst, wxString groupName)
 	InstanceGroupChanged(inst);
 }
 
-InstanceGroup *InstanceModel::GetInstanceGroup(Instance *inst) const
+InstanceGroup* InstanceModel::GetInstanceGroup(Instance *inst) const
 {
 	if (m_groupMap.count(inst))
 		return m_groupMap.at(inst);
 	else
 		return nullptr;
+}
+
+InstanceGroup* InstanceModel::GetGroupByName(wxString name)
+{
+	for (GroupVector::iterator iter = m_groups.begin(); iter != m_groups.end(); iter++)
+	{
+		if (iter->GetName() == name)
+			return *iter;
+	}
 }
 
 
