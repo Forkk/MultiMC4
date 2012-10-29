@@ -52,6 +52,10 @@ void InstanceModel::Clear()
 	m_instances.clear();
 	m_previousIndex = -1;
 	m_selectedIndex = -1;
+
+	for (int i = 0; i < m_groups.size(); i++)
+		delete m_groups[i];
+	m_groups.clear();
 	
 	if(!m_freeze_level && m_control)
 		m_control->ReloadAll();
@@ -278,11 +282,11 @@ InstanceGroup* InstanceModel::GetInstanceGroup(Instance *inst) const
 		return nullptr;
 }
 
-InstanceGroup* InstanceModel::GetGroupByName(wxString name)
+InstanceGroup* InstanceModel::GetGroupByName(wxString name) const
 {
-	for (GroupVector::iterator iter = m_groups.begin(); iter != m_groups.end(); iter++)
+	for (GroupVector::const_iterator iter = m_groups.begin(); iter != m_groups.end(); iter++)
 	{
-		if (iter->GetName() == name)
+		if ((*iter)->GetName() == name)
 			return *iter;
 	}
 }
