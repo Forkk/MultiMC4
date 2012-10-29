@@ -391,10 +391,10 @@ void GroupVisual::Draw ( wxDC& dc, InstanceCtrl* parent, wxRect limitingRect, bo
 		wxPen pen(textColor);
 		dc.SetBrush(brush);
 		dc.SetPen(pen);
-		wxSize sz = dc.GetTextExtent(name);
+		wxSize sz = dc.GetTextExtent(GetName());
 		dc.SetTextForeground(textColor);
 		
-		dc.DrawText( name , 20, y_position + 5 );
+		dc.DrawText( GetName() , 20, y_position + 5 );
 		int atheight = y_position + header_height / 2;
 		if(sz.x + 30 < limitingRect.width - 10)
 			dc.DrawLine(sz.x + 30,atheight, limitingRect.width - 10, atheight);
@@ -402,15 +402,19 @@ void GroupVisual::Draw ( wxDC& dc, InstanceCtrl* parent, wxRect limitingRect, bo
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		dc.SetPen(textColor);
 		
-		dc.DrawRectangle(5,atheight -5, 10,10);
-		dc.DrawRectangle(7,atheight -1, 6,2);
-		if(!expanded)
+		// Ungrouped can't be hidden, so don't draw the box.
+		if (m_group)
 		{
-			dc.DrawRectangle(9,atheight -3, 2,6);
+			dc.DrawRectangle(5,atheight -5, 10,10);
+			dc.DrawRectangle(7,atheight -1, 6,2);
+			if(!IsExpanded())
+			{
+				dc.DrawRectangle(9,atheight -3, 2,6);
+			}
 		}
 	}
 	
-	if(expanded) for (i = 0; i < count; i++)
+	if(IsExpanded()) for (i = 0; i < count; i++)
 	{
 		parent->GetItemRect(VisualCoord(index,i), rect, false);
 
@@ -643,8 +647,7 @@ VisualCoord InstanceCtrl::IndexFromID ( int ID ) const
 void InstanceCtrl::ToggleGroup ( int index )
 {
 	GroupVisual & gv = m_groups[index];
-	gv.expanded = !gv.expanded;
-	m_instList->SetGroupHidden(gv.name,!gv.expanded);
+	gv.SetExpanded(!gv.IsExpanded());
 	ReflowAll();
 	SetupScrollbars();
 	Refresh();
@@ -768,7 +771,7 @@ void GroupVisual::Reflow ( int perRow, int spacing, int margin, int lineHeight, 
 	{
 		row_y += header_height;
 	}
-	if(expanded)
+	if(IsExpanded())
 	{
 		int rheight = 0;
 		for (int n = 0; n < numitems; n++)
@@ -979,7 +982,7 @@ int NameSort(InstanceVisual **first, InstanceVisual **second)
 
 int NameSort(GroupVisual **first, GroupVisual **second)
 {
-	return (*first)->name.CmpNoCase((*second)->name);
+	return (*first)->GetName().CmpNoCase((*second)->GetName());
 };
 
 //FIXME: doing this for every single change seems like a waste :/
@@ -992,14 +995,13 @@ void InstanceCtrl::ReloadAll()
 	int totalitems = m_instList->size();
 	
 	/// sort items into groups
-	std::map<wxString, InstanceItemArray> sorter;
+	std::map<InstanceGroup *, InstanceItemArray> sorter;
 	for (int i = 0; i < totalitems ; i++)
 	{
 		auto inst = m_instList->operator[](i);
-		wxString group =  inst->GetGroup();
-		if(group.empty())
-			group = "Ungrouped";
-		if(sorter.count(group))
+		InstanceGroup *group =  m_instList->GetInstanceGroup(inst);
+
+		if (sorter.count(group))
 		{
 			auto & list = sorter[group];
 			list.Add(InstanceVisual(inst, i));
@@ -1018,10 +1020,9 @@ void InstanceCtrl::ReloadAll()
 	auto iter = sorter.begin();
 	while (iter != sorter.end())
 	{
-		auto name =(*iter).first;
-		bool hidden =m_instList->IsGroupHidden(name);
-		GroupVisual grpv(name);
-		grpv.expanded = !hidden;
+		InstanceGroup* group = (*iter).first;
+		
+		GroupVisual grpv(group);
 		grpv.items = (*iter).second;
 		grpv.items.Sort(NameSort);
 		m_groups.Add(grpv);
@@ -1062,4 +1063,33 @@ void InstanceCtrl::ReloadAll()
 	ReflowAll();
 	SetupScrollbars();
 	Refresh();
+}
+
+GroupVisual::GroupVisual(InstanceGroup *group, bool no_header)
+	: no_header(no_header)
+{
+	m_group = group;
+	total_height = 0;
+	header_height = 0;
+	y_position = 0;
+	index = -1;
+}
+
+wxString GroupVisual::GetName() const
+{
+	if (m_group)
+		return m_group->GetName();
+	else
+		return "Ungrouped";
+}
+
+void GroupVisual::SetExpanded(bool expanded)
+{
+	if (m_group)
+		m_group->SetHidden(!expanded);
+}
+
+bool GroupVisual::IsExpanded() const
+{
+	return !m_group || !m_group->IsHidden();
 }
