@@ -646,6 +646,7 @@ void InstanceCtrl::ToggleGroup ( int index )
 	gv.expanded = !gv.expanded;
 	m_instList->SetGroupHidden(gv.name,!gv.expanded);
 	ReflowAll();
+	SetupScrollbars();
 	Refresh();
 }
 
