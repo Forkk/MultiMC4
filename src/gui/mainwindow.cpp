@@ -1320,7 +1320,7 @@ void MainWindow::OnDeleteClicked(wxCommandEvent& event)
 
 void MainWindow::OnInstMenuOpened(InstanceCtrlEvent& event)
 {
-	if(event.GetItemIndex() != -1)
+	if(event.GetItemIndex().isItem())
 	{
 		if (instActionsEnabled)
 			PopupMenu(instMenu, event.GetPosition());

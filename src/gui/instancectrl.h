@@ -44,7 +44,6 @@ class InstanceCtrl;
 
 class InstanceVisual
 {
-	DECLARE_CLASS(wxInstanceItem)
 public:
 // Constructors
 
@@ -84,8 +83,8 @@ public:
 		return text_lines;
 	};
 	
-	/// Draw the background
-	bool Draw(wxDC& dc, InstanceCtrl* ctrl, const wxRect& rect, const wxRect& imageRect, int style);
+	/// Draw the item
+	bool Draw(wxDC& dc, InstanceCtrl* ctrl, const wxRect& rect, int style);
 	
 protected:
 	Instance*   m_inst;
@@ -96,6 +95,89 @@ protected:
 };
 
 WX_DECLARE_OBJARRAY(InstanceVisual, InstanceItemArray);
+
+struct VisualCoord
+{
+public:
+	VisualCoord(int groupIndex = -1, int itemIndex = -1):itemIndex(itemIndex), groupIndex(groupIndex){};
+	
+	bool operator==(VisualCoord& other) const
+	{
+		return other.groupIndex == groupIndex && other.itemIndex == itemIndex;
+	};
+	bool operator!=(VisualCoord& other) const
+	{
+		return other.groupIndex != groupIndex || other.itemIndex != itemIndex;
+	};
+	
+	bool isGroup() const
+	{
+		return groupIndex >= 0 && itemIndex == -1;
+	};
+	bool isItem() const
+	{
+		return groupIndex >= 0 && itemIndex >= 0;
+	};
+	bool isVoid() const
+	{
+		return groupIndex == -1 && itemIndex == -1;
+	}
+	void makeVoid()
+	{
+		groupIndex = itemIndex = -1;
+	};
+	
+	int groupIndex;
+	int itemIndex;
+};
+
+struct GroupVisual
+{
+	GroupVisual(wxString & name, bool no_header = false):name(name),no_header(no_header)
+	{
+		expanded = true;
+		total_height = 0;
+		header_height = 0;
+		y_position = 0;
+		index = -1;
+	};
+	void Reflow ( int perRow, int spacing, int margin, int lineHeight, int imageSize, int & progressive_y );
+	void Draw ( wxDC & dc, InstanceCtrl* parent, wxRect untransformedRect,
+	            bool hasSelection, int selectionIndex,
+	            bool hasFocus, int focusIndex );
+	void SetIndex (int index)
+	{
+		this->index = index;
+	}
+	
+	wxString name;
+	InstanceItemArray items;
+	
+	/// if the header is enabled, this decides if the rest of the group should be drawn and incluced in the height
+	bool expanded;
+	
+	/// don't draw header and don't include it in height if true
+	bool no_header;
+	
+	/// absolute y-position of the top of the group
+	int y_position;
+	
+	/// total height in pixels
+	int total_height;
+	
+	/// height of the header in pixels
+	int header_height;
+	
+	/// y positions where each row starts
+	wxArrayInt               row_ys;
+	
+	/// height of each row (spacing not included)
+	wxArrayInt               row_heights;
+	
+	/// sorted index of this group
+	int index;
+};
+WX_DECLARE_OBJARRAY(GroupVisual, InstanceGroupArray);
 
 class InstanceCtrl: public wxScrolledCanvas
 {
@@ -122,18 +204,15 @@ public:
 	/// Call Thaw to refresh
 	void Thaw();
 
-	/// Reloads the items from the instance list.
-	void UpdateItems();
-	
-	/// Scrolls the item into view if necessary
-	void EnsureVisible(int n);
+	/// Reloads the items from the instance model
+	void ReloadAll();
 	
 // Accessing items
 
-	/// Get the number of items in the control
+	/// Get the number of groups in the control
 	virtual int GetCount() const
 	{
-		return m_items.GetCount();
+		return m_groups.GetCount();
 	}
 	
 	/// Is the control empty?
@@ -143,32 +222,32 @@ public:
 	}
 	
 	/// Get the nth item
-	InstanceVisual* GetItem(int n);
+	InstanceVisual* GetItem(VisualCoord n) const;
 	
 	/// Get the overall rect of the given item
 	/// If view_relative is true, rect is relative to the scroll viewport
 	/// (i.e. may be negative)
-	bool GetItemRect(int item, wxRect& rect, bool view_relative = true);
+	bool GetItemRect(VisualCoord item, wxRect& rect, bool view_relative = true);
 	
-	/// Get the image rect of the given item
+	/// Get the overall rect of the given group
 	/// If view_relative is true, rect is relative to the scroll viewport
 	/// (i.e. may be negative)
-	bool GetItemRectImage(int item, wxRect& rect, bool view_relative = true);
+	bool GetGroupRect(int group, wxRect& rect, bool view_relative = true);
 	
 	/// Return the row and column given the client size
-	bool GetRowCol(int item, const wxSize& clientSize, int& row, int& col);
+	bool GetRowCol(VisualCoord item, int& row, int& col);
 	
 // Selection
 
 	/// Select or deselect an item
-	void Select(int n, bool select = true) ;
+	void Select(VisualCoord n, bool select = true) ;
 	
 	/// Get the index of the single selection, if not multi-select.
 	/// Returns -1 if there is no selection.
-	int GetSelection() const ;
+	VisualCoord GetSelection() const ;
 	
 	/// Returns true if the item is selected
-	bool IsSelected(int n) const ;
+	bool IsSelected(VisualCoord n) const ;
 	
 	/// Clears all selections
 	void ClearSelections();
@@ -202,29 +281,29 @@ public:
 		return m_itemMargin;
 	}
 	
-	// get height of item n
-	int GetItemHeight(int n) const
+	/// get height of item n
+	int GetItemHeight(VisualCoord n) const
 	{
-		InstanceVisual& item = m_items[n];
-		return m_itemMargin * 3 + m_ImageSize.y + item.GetNumLines() * m_itemTextHeight;
+		InstanceVisual* item = GetItem(n);
+		return m_itemMargin * 3 + m_ImageSize.y + item->GetNumLines() * m_itemTextHeight;
 	}
 	
-	// get total height of the control
+	/// get total height of the control
 	int GetTotalHeight() const
 	{
-		int lastrow = m_row_ys.size() - 1;
-		int height = m_row_ys[lastrow] + m_row_heights[lastrow] + m_spacing;
-		if (height % 10 != 0)
+		int total = 0;
+		for(int i = 0; i < m_groups.size(); i++)
 		{
-			height = (height / 10) * 10 + 10;
+			GroupVisual & grp = m_groups[i];
+			total += grp.total_height;
 		}
-		return height;
+		return total;
 	}
 // Event handlers
 
 	/// Painting
 	void OnPaint(wxPaintEvent& event);
-	void OnEraseBackground(wxEraseEvent& event);
+	void OnEraseBackground(wxEraseEvent& event){};
 	
 	/// Left-click
 	void OnLeftClick(wxMouseEvent& event);
@@ -252,7 +331,8 @@ public:
 private:
 
 	/// Update the row heights for layouting.
-	void UpdateRows( wxArrayInt& row_ys, wxArrayInt& row_heights, InstanceItemArray& items );
+	void ReflowAll( );
+	void ReflowGroup( GroupVisual & group );
 	
 	/// Set up scrollbars, e.g. after a resize
 	void SetupScrollbars();
@@ -279,16 +359,10 @@ private:
 	}
 	
 	/// Do (de)selection
-	void DoSelection(int n);
+	void DoSelection(VisualCoord n);
 	
 	/// Find the item under the given point
-	bool HitTest(const wxPoint& pt, int& n);
-	
-	/// Keyboard navigation
-	virtual bool Navigate(int keyCode, int flags);
-	
-	/// Scroll to see the image (used from Navigate)
-	void ScrollIntoView(int n, int keyCode);
+	bool HitTest(const wxPoint& pt, VisualCoord& n);
 	
 	/// Paint the background
 	void PaintBackground(wxDC& dc);
@@ -297,60 +371,54 @@ private:
 	bool RecreateBuffer(const wxSize& size = wxDefaultSize);
 	
 	/// Get item index from ID
-	int IndexFromID(int ID) const;
+	VisualCoord IndexFromID(int ID) const;
 	/// Get item ID from index
-	int IDFromIndex(int index) const;
+	int IDFromIndex(VisualCoord index) const;
 	
 // Overrides
 	wxSize DoGetBestSize() const ;
 	
 // Data members
 private:
-
 	/// The items
-	InstanceItemArray     m_items;
+	//InstanceItemArray        m_items;
+	InstanceGroupArray       m_groups;
 	
-	/// Mapping from our sorted indexes to the model indexes
-	wxArrayInt              m_itemIndexes;
+	/// Mapping from IDs to indexes
+	std::vector<VisualCoord> m_itemIndexes;
 	
 	/// The currently selected item
-	int                     m_selectedItem;
-	
-	/// Instance list pointer
-	InstanceModel*          m_instList;
-	
-	/// y positions where each row starts
-	wxArrayInt              m_row_ys;
-	
-	/// height of each row (spacing not included)
-	wxArrayInt              m_row_heights;
-	
-	/// Outer size of the item
-	int                     m_itemWidth;
-	
-	/// Image size of the item
-	wxSize                  m_ImageSize;
-	
-	/// The inter-item spacing
-	int                     m_spacing;
-	
-	/// The margin between the image/text and the edge of the item
-	int                     m_itemMargin;
-	
-	/// The height of item text in the current font
-	int                     m_itemTextHeight;
-	
-	/// Allows nested Freeze/Thaw
-	int                     m_freezeCount;
+	VisualCoord              m_selectedItem;
 	
 	/// Focus item - doesn't have to be a real item (can be group header, etc.)
-	int                     m_focusItem;
+	VisualCoord              m_focusItem;
+	
+	/// Instance list pointer
+	InstanceModel*           m_instList;
+	
+	/// Outer size of the item
+	int                      m_itemWidth;
+	
+	/// Image size of the item
+	wxSize                   m_ImageSize;
+	
+	/// The inter-item spacing
+	int                      m_spacing;
+	
+	/// The margin between the image/text and the edge of the item
+	int                      m_itemMargin;
+	
+	/// The height of item text in the current font
+	int                      m_itemTextHeight;
+	
+	/// Allows nested Freeze/Thaw
+	int                      m_freezeCount;
 	
 	/// Buffer bitmap
-	wxBitmap                m_bufferBitmap;
+	wxBitmap                 m_bufferBitmap;
 	
 	/// items per row - cached
-	int                     m_itemsPerRow;
+	int                      m_itemsPerRow;
 };
 
 /*!
@@ -370,11 +438,11 @@ public:
 		  m_itemIndex(event.m_itemIndex), m_itemID(event.m_itemID), m_flags(event.m_flags), m_position(event.m_position)
 	{ }
 	
-	int GetItemIndex() const
+	VisualCoord GetItemIndex() const
 	{
 		return m_itemIndex;
 	}
-	void SetItemIndex(int n)
+	void SetItemIndex(VisualCoord n)
 	{
 		m_itemIndex = n;
 	}
@@ -411,7 +479,7 @@ public:
 	}
 	
 protected:
-	int           m_itemIndex;
+	VisualCoord   m_itemIndex;
 	int           m_itemID;
 	int           m_flags;
 	wxPoint       m_position;
