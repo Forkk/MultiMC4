@@ -38,11 +38,15 @@ public:
 	wxString GetName() const;
 	void SetName(const wxString& name);
 
+	bool IsHidden() const;
+	void SetHidden(bool hidden);
+
 	InstanceModel *GetParent() const;
 
 protected:
 	wxString m_name;
 	InstanceModel *m_parent;
+	bool m_hidden;
 };
 
 typedef std::vector<InstanceGroup*> GroupVector;
@@ -119,28 +123,15 @@ public:
 	void InstanceRenamed ( Instance* renamedInstance );
 	void InstanceGroupChanged ( Instance* changedInstance );
 
-	bool IsGroupHidden(wxString group)
-	{
-		return hiddenGroups.count(group);
-	}
-	void SetGroupHidden(wxString group, bool hidden)
-	{
-		if(hidden)
-		{
-			hiddenGroups.insert(group);
-		}
-		else
-		{
-			hiddenGroups.erase(group);
-		}
-	}
-
 	void SetInstanceGroup(Instance *inst, wxString groupName);
 	InstanceGroup* GetInstanceGroup(Instance *inst) const;
-
 	InstanceGroup* GetGroupByName(wxString name) const;
 
 	void SetGroupFile(const wxString& groupFile);
+
+	bool IsGroupHidden(wxString group) const;
+	void SetGroupHidden(wxString group, bool hidden);
+	
 protected:
 	// mapping between instances and groups...
 	GroupMap m_groupMap;

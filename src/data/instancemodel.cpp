@@ -160,7 +160,11 @@ bool InstanceModel::LoadGroupInfo(wxString file)
 			ptree gPt = vp.second;
 			wxString groupName = wxStr(vp.first);
 
-			m_groups.push_back(new InstanceGroup(groupName, this));
+			InstanceGroup *group = new InstanceGroup(groupName, this);
+			m_groups.push_back(group);
+
+			if (gPt.get_child_optional("hidden"))
+				group->SetHidden(gPt.get<bool>("hidden"));
 
 			wxArrayString groupInstances;
 			BOOST_FOREACH(const ptree::value_type& v, gPt.get_child("instances"))
@@ -220,6 +224,8 @@ bool InstanceModel::SaveGroupInfo(wxString file) const
 			InstVector gList = iter->second;
 
 			ptree groupTree;
+
+			groupTree.put<bool>("hidden", group->IsHidden());
 
 			ptree instList;
 			for (auto iter2 = gList.begin(); iter2 != gList.end(); iter2++)
@@ -311,11 +317,22 @@ InstanceGroup* InstanceModel::GetGroupByName(wxString name) const
 	}
 }
 
+bool InstanceModel::IsGroupHidden(wxString group) const
+{
+	return GetGroupByName(group)->IsHidden();
+}
+
+void InstanceModel::SetGroupHidden(wxString group, bool hidden)
+{
+	GetGroupByName(group)->SetHidden(hidden);
+}
+
 
 InstanceGroup::InstanceGroup(const wxString& name, InstanceModel *parent)
 {
 	m_name = name;
 	m_parent = parent;
+	m_hidden = false;
 }
 
 wxString InstanceGroup::GetName() const
@@ -331,4 +348,15 @@ void InstanceGroup::SetName(const wxString& name)
 InstanceModel* InstanceGroup::GetParent() const
 {
 	return m_parent;
+}
+
+bool InstanceGroup::IsHidden() const
+{
+	return m_hidden;
+}
+
+void InstanceGroup::SetHidden(bool hidden)
+{
+	m_hidden = hidden;
+	m_parent->SaveGroupInfo();
 }
