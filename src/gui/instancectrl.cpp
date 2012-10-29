@@ -487,20 +487,19 @@ void InstanceCtrl::OnRightClick(wxMouseEvent& event)
 	{
 		//EnsureVisible(clickedIndex);
 		DoSelection(clickedIndex);
+		InstanceCtrlEvent cmdEvent(wxEVT_COMMAND_INST_MENU, GetId());
+		cmdEvent.SetEventObject(this);
+		cmdEvent.SetItemIndex(clickedIndex);
+		int clickedID = IDFromIndex(clickedIndex);
+		cmdEvent.SetItemID(clickedID);
+		cmdEvent.SetFlags(flags);
+		cmdEvent.SetPosition(event.GetPosition());
+		GetEventHandler()->ProcessEvent(cmdEvent);
 	}
 	else
 	{
 		ClearSelections();
 	}
-	
-	InstanceCtrlEvent cmdEvent(wxEVT_COMMAND_INST_MENU, GetId());
-	cmdEvent.SetEventObject(this);
-	cmdEvent.SetItemIndex(clickedIndex);
-	int clickedID = IDFromIndex(clickedIndex);
-	cmdEvent.SetItemID(clickedID);
-	cmdEvent.SetFlags(flags);
-	cmdEvent.SetPosition(event.GetPosition());
-	GetEventHandler()->ProcessEvent(cmdEvent);
 }
 
 /// Left-double-click
