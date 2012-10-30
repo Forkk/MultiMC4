@@ -78,6 +78,11 @@ public:
 	void OnViewInstFolderClicked(wxCommandEvent& event);
 	
 	void OnDeleteClicked(wxCommandEvent& event);
+
+
+	// Group menu
+	void OnRenameGroupClicked(wxCommandEvent& event);
+	void OnDeleteGroupClicked(wxCommandEvent& event);
 	
 	
 	// Task Events
@@ -128,6 +133,7 @@ public:
 
 protected:
 	wxMenu *instMenu;
+	wxMenu *groupMenu;
 	
 	GUIMode m_guiMode;
 
@@ -193,6 +199,8 @@ protected:
 	bool instActionsEnabled;
 
 	ModList centralModList;
+
+	InstanceGroup *lastClickedGroup;
 	
 private:
 	void NotImplemented();
@@ -236,6 +244,10 @@ enum
 	ID_ViewInstFolder,
 
 	ID_DeleteInst,
+
+	// Group menu
+	ID_RenameGroup,
+	ID_DeleteGroup,
 
 	// Other
 	ID_InstListCtrl,

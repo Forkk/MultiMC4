@@ -317,6 +317,11 @@ InstanceGroup* InstanceModel::GetGroupByName(wxString name) const
 	}
 }
 
+InstanceGroup* InstanceModel::GetGroupByIndex(int index) const
+{
+	return m_groups.at(index);
+}
+
 bool InstanceModel::IsGroupHidden(wxString group) const
 {
 	return GetGroupByName(group)->IsHidden();
@@ -325,6 +330,36 @@ bool InstanceModel::IsGroupHidden(wxString group) const
 void InstanceModel::SetGroupHidden(wxString group, bool hidden)
 {
 	GetGroupByName(group)->SetHidden(hidden);
+}
+
+void InstanceModel::DeleteGroup(InstanceGroup* group)
+{
+	Freeze();
+	bool foundGroup = false;
+	for (auto iter = m_groups.begin(); iter != m_groups.end(); iter++)
+	{
+		if (*iter == group)
+		{
+			foundGroup = true;
+			m_groups.erase(iter);
+			break;
+		}
+	}
+
+	if (!foundGroup)
+		return;
+
+	for (auto iter = m_instances.begin(); iter != m_instances.end(); iter++)
+	{
+		if (GetInstanceGroup(*iter) == group)
+		{
+			m_groupMap[*iter] = nullptr;
+		}
+	}
+
+	delete group;
+	Thaw();
+	SaveGroupInfo();
 }
 
 

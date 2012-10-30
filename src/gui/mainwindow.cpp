@@ -305,6 +305,11 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_ViewInstFolder, _T("&View Folder"), _T("Open the instance's folder."));
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_DeleteInst, _T("Delete"), _T("Delete this instance."));
+
+	// Build the group context menu.
+	groupMenu = new wxMenu();
+	groupMenu->Append(ID_RenameGroup, _("&Rename"), _("Rename the group."));
+	groupMenu->Append(ID_DeleteGroup, _("Delete"), _("Delete this group, ungrouping all instances in it."));
 }
 
 void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
@@ -1327,15 +1332,47 @@ void MainWindow::OnDeleteClicked(wxCommandEvent& event)
 
 void MainWindow::OnInstMenuOpened(InstanceCtrlEvent& event)
 {
-	if(event.GetItemIndex().isItem())
+	if (event.GetItemIndex().isItem())
 	{
 		if (instActionsEnabled)
 			PopupMenu(instMenu, event.GetPosition());
+	}
+	else if (event.GetItemIndex().isGroup())
+	{
+		lastClickedGroup = event.GetGroup();
+		if (lastClickedGroup)
+		{
+			PopupMenu(groupMenu, event.GetPosition());
+		}
 	}
 	else
 	{
 		//TODO: A menu for the instance control itself could be spawned there (with stuff like 'create instance', etc.)
 	}
+}
+
+void MainWindow::OnRenameGroupClicked(wxCommandEvent& event)
+{
+	if (!lastClickedGroup)
+		return;
+
+	wxTextEntryDialog textDlg(this, _("Enter a new name for this group."), 
+		_("Rename Group"), lastClickedGroup->GetName());
+	textDlg.CenterOnParent();
+	if (textDlg.ShowModal() == wxID_OK)
+	{
+		lastClickedGroup->SetName(textDlg.GetValue());
+		instListCtrl->ReloadAll();
+		instItems.SaveGroupInfo();
+	}
+}
+
+void MainWindow::OnDeleteGroupClicked(wxCommandEvent& event)
+{
+	if (!lastClickedGroup)
+		return;
+
+	instItems.DeleteGroup(lastClickedGroup);
 }
 
 // this catches background tasks and destroys them
@@ -1430,8 +1467,12 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_UseSnapshot, MainWindow::OnSnapshotClicked)
 	EVT_MENU(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_MENU(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
-	
+
 	EVT_MENU(ID_DeleteInst, MainWindow::OnDeleteClicked)
+
+
+	EVT_MENU(ID_RenameGroup, MainWindow::OnRenameGroupClicked)
+	EVT_MENU(ID_DeleteGroup, MainWindow::OnDeleteGroupClicked)
 	
 	
 	EVT_BUTTON(ID_Play, MainWindow::OnPlayClicked)

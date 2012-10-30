@@ -126,6 +126,9 @@ public:
 	void SetInstanceGroup(Instance *inst, wxString groupName);
 	InstanceGroup* GetInstanceGroup(Instance *inst) const;
 	InstanceGroup* GetGroupByName(wxString name) const;
+	InstanceGroup* GetGroupByIndex(int index) const;
+
+	void DeleteGroup(InstanceGroup* group);
 
 	void SetGroupFile(const wxString& groupFile);
 

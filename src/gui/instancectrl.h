@@ -112,7 +112,7 @@ public:
 	
 	bool isGroup() const
 	{
-		return groupIndex >= 0 && itemIndex == -1;
+		return groupIndex >= 0 && itemIndex <= 0;
 	};
 	bool isItem() const
 	{
@@ -120,7 +120,7 @@ public:
 	};
 	bool isVoid() const
 	{
-		return groupIndex == -1 && itemIndex == -1;
+		return groupIndex <= 0 && itemIndex <= 0;
 	}
 	bool isHeader() const
 	{
@@ -486,12 +486,24 @@ public:
 	{
 		return new InstanceCtrlEvent(*this);
 	}
+
+	InstanceGroup *GetGroup() const
+	{
+		return m_group;
+	}
+
+	void SetGroup(InstanceGroup *group)
+	{
+		m_group = group;
+	}
 	
 protected:
 	VisualCoord   m_itemIndex;
 	int           m_itemID;
 	int           m_flags;
 	wxPoint       m_position;
+
+	InstanceGroup *m_group;
 	
 private:
 	DECLARE_DYNAMIC_CLASS_NO_ASSIGN(InstanceCtrlEvent)

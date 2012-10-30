@@ -487,19 +487,24 @@ void InstanceCtrl::OnRightClick(wxMouseEvent& event)
 	{
 		//EnsureVisible(clickedIndex);
 		DoSelection(clickedIndex);
-		InstanceCtrlEvent cmdEvent(wxEVT_COMMAND_INST_MENU, GetId());
-		cmdEvent.SetEventObject(this);
-		cmdEvent.SetItemIndex(clickedIndex);
-		int clickedID = IDFromIndex(clickedIndex);
-		cmdEvent.SetItemID(clickedID);
-		cmdEvent.SetFlags(flags);
-		cmdEvent.SetPosition(event.GetPosition());
-		GetEventHandler()->ProcessEvent(cmdEvent);
 	}
 	else
 	{
 		ClearSelections();
 	}
+	
+	InstanceCtrlEvent cmdEvent(wxEVT_COMMAND_INST_MENU, GetId());
+	cmdEvent.SetEventObject(this);
+	cmdEvent.SetItemIndex(clickedIndex);
+	int clickedID = IDFromIndex(clickedIndex);
+	cmdEvent.SetItemID(clickedID);
+	cmdEvent.SetFlags(flags);
+	cmdEvent.SetPosition(event.GetPosition());
+	if (clickedIndex.isGroup())
+	{
+		cmdEvent.SetGroup(m_groups[clickedIndex.groupIndex].m_group);
+	}
+	GetEventHandler()->ProcessEvent(cmdEvent);
 }
 
 /// Left-double-click
@@ -629,7 +634,7 @@ void InstanceCtrl::SetupScrollbars()
 
 int InstanceCtrl::IDFromIndex ( VisualCoord index ) const
 {
-	if(index.isVoid())
+	if (!index.isItem())
 		return -1;
 	
 	auto & grp = m_groups[index.groupIndex];
