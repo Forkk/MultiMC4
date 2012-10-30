@@ -103,7 +103,7 @@ Mod::Mod(const wxFileName& file, ModType type)
 				{
 					do 
 					{
-						if (currentFile.EndsWith(".info"))
+						if (currentFile.EndsWith("mcmod.info"))
 						{
 							infoFile = Path::Combine(modFile.GetFullPath(), currentFile);
 							break;

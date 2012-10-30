@@ -179,6 +179,13 @@ std::string GetFileBasename(const std::string& path)
 	else return cropped;
 }
 
+int toUnderscores (int __c)
+{
+	if(__c == '-')
+		return '_';
+	return __c;
+}
+
 int main ( int argc, const char* argv[] )
 {
 	if(argc <= 2)
@@ -239,6 +246,7 @@ int main ( int argc, const char* argv[] )
 				/* Remove extension */
 				file = removeExtension(file);
 				std::transform(file.begin(), file.end(), file.begin(), ::tolower);
+				std::transform(file.begin(), file.end(), file.begin(), toUnderscores);
 
 				/* Process file */
 				definefile ( data, input, file, true );
