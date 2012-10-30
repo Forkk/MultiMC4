@@ -90,7 +90,8 @@ void InstallForgeDialog::LoadBuildList()
 			forgeRegex.GetMatch(&start, &len);
 
 			wxString fileName = buildListText.Mid(start, len);
-			buildArrayStr.push_back(fileName);
+			if(buildArrayStr.empty() || buildArrayStr.Last() != fileName)
+				buildArrayStr.push_back(fileName);
 
 			forgeRegex.ReplaceFirst(&buildListText, wxEmptyString);
 		}
