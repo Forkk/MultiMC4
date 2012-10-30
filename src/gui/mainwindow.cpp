@@ -111,9 +111,6 @@ MainWindow::MainWindow(void)
 	instNameSz = nullptr;
 	instNameLabel = nullptr;
 	instNameEditor = nullptr;
-	m_currentInstance = nullptr;
-	m_currentInstanceIdx = -1;
-	
 	//SetMinSize(minSize);
 	
 	SetIcons(wxGetApp().GetAppIcons());
@@ -197,6 +194,7 @@ MainWindow::MainWindow(void)
 	
 	// Create the status bar
 	auto sbar = CreateStatusBar(1);
+	sbar->SetFieldsCount(2);
 	SetStatusBarPane(0);
 	
 	// Set up the main panel and sizers
@@ -255,11 +253,13 @@ void MainWindow::OnStartup()
 
 	if(!launchInstance.empty())
 	{
+		//FIXME: broken by instance model changes
+		/*
 		wxFileName instanceDir = settings->GetInstDir();
 		instanceDir.AppendDir(launchInstance);
-		m_currentInstance = Instance::LoadInstance(instanceDir);
+		currentInstance = Instance::LoadInstance(instanceDir);
 
-		if(m_currentInstance == nullptr)
+		if(currentInstance == nullptr)
 		{
 			wxString output = _("Couldn't find the instance you tried to load: ");
 			output.append(launchInstance);
@@ -270,13 +270,14 @@ void MainWindow::OnStartup()
 		{
 			LoginClicked();
 		}
+		*/
 	}
 }
 
 void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 {
-	instListCtrl = new wxInstanceCtrl(this, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize);
-	instListCtrl->SetImageSize(wxSize(32,32));
+	instListCtrl = new InstanceCtrl(this, &instItems, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize);
+	instItems.SetLinkedControl(instListCtrl);
 	InitInstMenu();
 	
 	instNotesEditor = nullptr;
@@ -291,6 +292,7 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_Play, _T("&Play"), _T("Launch the instance."));
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_Rename, _T("&Rename"), _T("Change the instance's name."));
+	instMenu->Append(ID_SetGroup, _T("Change Group"), _T("Change the instance's group."));
 	instMenu->Append(ID_ChangeIcon, _T("&Change Icon"), _T("Change this instance's icon."));
 	instMenu->Append(ID_EditNotes, _T("&Notes"), _T("View / edit this instance's notes."));
 	instMenu->Append(ID_Configure, _T("&Settings"), _T("Change instance settings."));
@@ -303,6 +305,11 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_ViewInstFolder, _T("&View Folder"), _T("Open the instance's folder."));
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_DeleteInst, _T("Delete"), _T("Delete this instance."));
+
+	// Build the group context menu.
+	groupMenu = new wxMenu();
+	groupMenu->Append(ID_RenameGroup, _("&Rename"), _("Rename the group."));
+	groupMenu->Append(ID_DeleteGroup, _("Delete"), _("Delete this group, ungrouping all instances in it."));
 }
 
 void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
@@ -319,10 +326,12 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	
 	wxFont titleFont(18, wxSWISS, wxNORMAL, wxNORMAL);
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
-	instListCtrl = new wxInstanceCtrl(instPanel, ID_InstListCtrl, 
-		wxDefaultPosition, wxDefaultSize, 
-		wxINST_SINGLE_COLUMN | wxBORDER_SUNKEN);
-	instListCtrl->SetImageSize(wxSize(32,32));
+
+	// create the instance list and link it to the model
+	instListCtrl = new InstanceCtrl(instPanel, &instItems, ID_InstListCtrl, 
+		wxDefaultPosition, wxDefaultSize, wxINST_SINGLE_COLUMN | wxBORDER_SUNKEN);
+	instItems.SetLinkedControl(instListCtrl);
+	
 	instSz->Add(instListCtrl,wxGBPosition(0, 0), wxGBSpan(rows, 1),wxEXPAND/* | wxALL, 4*/);
 	
 	instNameSz = new wxBoxSizer(wxVERTICAL);
@@ -340,7 +349,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	instNameSz->Add(instNameLabel, wxSizerFlags(0).Align(wxALIGN_CENTER));
 	
 	instNotesEditor = new wxTextCtrl(instPanel, ID_NotesCtrl, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_RICH);
-	instNotesEditor->Bind(wxEVT_KILL_FOCUS, &MainWindow::OnNotesLostFocus, this, ID_NotesCtrl);
+	//instNotesEditor->Bind(wxEVT_KILL_FOCUS, &MainWindow::OnNotesLostFocus, this, ID_NotesCtrl);
 
 	instSz->Add(instNotesEditor, wxGBPosition(1, 1), wxGBSpan(rows - 1, cols - 2), wxEXPAND | wxLEFT | wxTOP | wxRIGHT, 4);
 	
@@ -390,7 +399,7 @@ void MainWindow::UpdateInstPanel()
 	if(GetGUIMode() != GUI_Default)
 		return;
 	instPanel->Show();
-	if(m_currentInstance && !renamingInst)
+	if(instItems.GetSelectedInstance() && !renamingInst)
 		EnableInstActions();
 	else
 		DisableInstActions();
@@ -420,14 +429,13 @@ void MainWindow::UpdateInstNameLabel(Instance *inst)
 	}
 }
 
-void MainWindow::OnInstSelected(wxInstanceCtrlEvent &event)
+void MainWindow::OnInstSelected(InstanceCtrlEvent &event)
 {
 	if(GetGUIMode() == GUI_Default)
-		SaveNotesBox();
-	m_currentInstanceIdx = event.GetIndex();
-	m_currentInstance = GetLinkedInst(m_currentInstanceIdx);
-
-	SetStatusText(wxT("Minecraft Version: ") + m_currentInstance->GetJarVersion());
+		SaveNotesBox(false);
+	auto currentInstance = instItems.GetSelectedInstance();
+	SetStatusText(wxT("Minecraft Version: ") + currentInstance->GetJarVersion());
+	SetStatusText(wxT("Instance ID: ") + currentInstance->GetInstID(), 1);
 
 	if(GetGUIMode() == GUI_Default)
 		UpdateInstPanel();
@@ -446,46 +454,46 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		}
 	}
 	
-	instListCtrl->Clear();
-	for(int i = 0; i < instItems.size(); i++)
-	{
-		delete instItems[i];
-	}
-	instItems.clear();
-	m_currentInstance = nullptr;
-	m_currentInstanceIdx = -1;
-	
-	wxDir dir(instDir.GetFullPath());
-	if (!dir.IsOpened())
-	{
-		return;
-	}
-	
-	Enable(false);
-	wxString subFolder;
 	int ctr = 0;
-	bool cont = dir.GetFirst(&subFolder, wxEmptyString, wxDIR_DIRS);
-	instListCtrl->Freeze();
-	while (cont)
+	instItems.Freeze();
 	{
-		wxFileName dirName(instDir.GetFullPath(), subFolder);
-		if (IsValidInstance(dirName))
+		instItems.Clear();
+		
+		wxDir dir(instDir.GetFullPath());
+		if (!dir.IsOpened())
 		{
-			Instance *inst = Instance::LoadInstance(dirName);
-			if (inst != NULL)
-			{
-				AddInstance(inst);
-			}
-			
-			ctr++;
+			return;
 		}
-		cont = dir.GetNext(&subFolder);
+		
+		Enable(false);
+		wxString subFolder;
+		
+		bool cont = dir.GetFirst(&subFolder, wxEmptyString, wxDIR_DIRS);
+		while (cont)
+		{
+			wxFileName dirName(instDir.GetFullPath(), subFolder);
+			if (IsValidInstance(dirName))
+			{
+				Instance *inst = Instance::LoadInstance(dirName);
+				if (inst != NULL)
+				{
+					AddInstance(inst);
+				}
+				
+				ctr++;
+			}
+			cont = dir.GetNext(&subFolder);
+		}
+
+
+		wxString groupFile = Path::Combine(settings->GetInstDir(), "instgroups.json");
+		instItems.SetGroupFile(groupFile);
+		if (wxFileExists(groupFile))
+			instItems.LoadGroupInfo();
 	}
-	instListCtrl->Thaw();
+	instItems.Thaw();
 	GetStatusBar()->SetStatusText(wxString::Format(_("Loaded %i instances..."), ctr), 0);
-	wxGetApp().Yield();
 	Enable(true);
-	
 	
 	if (GetGUIMode() == GUI_Default)
 	{
@@ -497,14 +505,7 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 
 void MainWindow::AddInstance(Instance *inst)
 {
-	wxString instName = inst->GetName();
-	if (instName.Len() > instNameLengthLimit)
-	{
-		instName.Truncate(instNameLengthLimit - 3);
-		instName.Append(_("..."));
-	}
-	instListCtrl->Append(new wxInstanceItem(inst));
-	instItems.push_back(inst);
+	instItems.Add(inst);
 	wxSizer * sz = GetSizer();
 	if(sz)
 		sz->Layout();
@@ -512,7 +513,7 @@ void MainWindow::AddInstance(Instance *inst)
 
 Instance* MainWindow::GetLinkedInst(int id)
 {
-	if(id == -1)
+	if (id < 0)
 		return nullptr;
 	return instItems[id];
 }
@@ -579,8 +580,11 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 	if (!GetNewInstName(&instName, &instDirName))
 		return;
 
-	wxFileName instDir = wxFileName::DirName(Path::Combine(settings->GetInstDir(), instDirName));
-
+	wxString dirPrep = Path::Combine(settings->GetInstDir(), instDirName);
+	wxFileName instDir = wxFileName::DirName(dirPrep);
+	wxString dirPost = instDir.GetFullPath();
+	wxString dirNamePost = instDir.GetFullName();
+	
 	Instance *inst = new StdInstance(instDir);
 	UserInfo lastLogin;
 	if (wxFileExists(_("lastlogin4")))
@@ -808,19 +812,20 @@ void MainWindow::OnPlayClicked(wxCommandEvent& event)
 	LoginClicked();
 }
 
-void MainWindow::OnInstActivated(wxInstanceCtrlEvent &event)
+void MainWindow::OnInstActivated(InstanceCtrlEvent &event)
 {
 	LoginClicked();
 }
 
 void MainWindow::LoginClicked()
 {
-	if (!m_currentInstance)
+	auto currentInstance = instItems.GetSelectedInstance();
+	if (!currentInstance)
 	{
 		return;
 	}
 
-	if (m_currentInstance->GetAutoLogin() && wxFileExists(_("lastlogin4")))
+	if (currentInstance->GetAutoLogin() && wxFileExists(_("lastlogin4")))
 	{
 		UserInfo lastLogin;
 		lastLogin.LoadFromFile("lastlogin4");
@@ -834,11 +839,12 @@ void MainWindow::LoginClicked()
 
 void MainWindow::DoLogin(UserInfo info, bool playOffline, bool forceUpdate)
 {
+	auto currentInstance = instItems.GetSelectedInstance();
 	info.SaveToFile("lastlogin4");
 
 	if (!playOffline)
 	{
-		LoginTask *task = new LoginTask(info, m_currentInstance, forceUpdate);
+		LoginTask *task = new LoginTask(info, currentInstance, forceUpdate);
 		StartTask(task);
 		OnLoginComplete(task->GetLoginResult());
 		delete task;
@@ -852,7 +858,8 @@ void MainWindow::DoLogin(UserInfo info, bool playOffline, bool forceUpdate)
 
 void MainWindow::ShowLoginDlg(wxString errorMsg)
 {
-	if(!m_currentInstance)
+	auto currentInstance = instItems.GetSelectedInstance();
+	if(!currentInstance)
 	{
 		// FIXME: what if the instance somehow becomes deselected while playing? is that possible?
 		//        what does it mean to the state of the GUI
@@ -865,7 +872,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 		lastLogin.LoadFromFile("lastlogin4");
 	}
 
-	bool canPlayOffline = m_currentInstance->HasBinaries();
+	bool canPlayOffline = currentInstance->HasBinaries();
 	LoginDialog loginDialog(this, errorMsg, lastLogin, canPlayOffline);
 	loginDialog.CenterOnParent();
 	int response = loginDialog.ShowModal();
@@ -884,10 +891,11 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 
 void MainWindow::OnLoginComplete( const LoginResult& result )
 {
+	auto currentInstance = instItems.GetSelectedInstance();
 	if (!result.loginFailed)
 	{
 		// Login success
-		Instance *inst = m_currentInstance;
+		Instance *inst = currentInstance;
 
 		// If the session ID is empty, the game updater will not be run.
 		wxString sessionID = result.sessionID;
@@ -933,6 +941,7 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 
 void MainWindow::RenameEvent()
 {
+	auto currentInstance = instItems.GetSelectedInstance();
 	switch (GetGUIMode())
 	{
 	case GUI_Default:
@@ -941,10 +950,10 @@ void MainWindow::RenameEvent()
 		
 	case GUI_Simple:
 	{
-		if(!m_currentInstance)
+		if(!currentInstance)
 			break;
 		wxTextEntryDialog textDlg(this, _("Enter a new name for this instance."), 
-			_("Rename Instance"), m_currentInstance->GetName());
+			_("Rename Instance"), currentInstance->GetName());
 		textDlg.CenterOnParent();
 		while(1)
 		{
@@ -957,15 +966,15 @@ void MainWindow::RenameEvent()
 				wxMessageBox(_T("Sorry, that name is too long. 25 characters is the limit."), _T("Error"), wxOK | wxCENTER, this);
 				continue;
 			}
-			m_currentInstance->SetName(str);
-			instListCtrl->UpdateItem(m_currentInstanceIdx);
+			//FIXME: this should be handled and passed on by the model
+			currentInstance->SetName(str);
 			break;
 		}
 	}
 	}
 }
 
-void MainWindow::OnInstRenameKey ( wxInstanceCtrlEvent& event )
+void MainWindow::OnInstRenameKey ( InstanceCtrlEvent& event )
 {
 	RenameEvent();
 }
@@ -975,22 +984,39 @@ void MainWindow::OnRenameClicked(wxCommandEvent& event)
 	RenameEvent();
 }
 
+void MainWindow::OnChangeGroupClicked(wxCommandEvent& event)
+{
+	auto currentInstance = instItems.GetSelectedInstance();
+	if (!currentInstance)
+		return;
+
+	wxTextEntryDialog textDlg(this, _("Enter a new group for this instance."), 
+		_("Change Group"), currentInstance->GetGroup());
+	textDlg.CenterOnParent();
+	if (textDlg.ShowModal() == wxID_OK)
+	{
+		currentInstance->SetGroup(textDlg.GetValue());
+	}
+}
+
 void MainWindow::OnChangeIconClicked(wxCommandEvent& event)
 {
 	ChangeIconDialog iconDlg(this);
 	iconDlg.CenterOnParent();
 	if (iconDlg.ShowModal() == wxID_OK)
 	{
-		if(!m_currentInstance)
+		auto currentInstance = instItems.GetSelectedInstance();
+		if(!currentInstance)
 			return;
-		m_currentInstance->SetIconKey(iconDlg.GetSelectedIconKey());
+		currentInstance->SetIconKey(iconDlg.GetSelectedIconKey());
 		instListCtrl->Refresh();
 	}
 }
 
 void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 {
-	if(!m_currentInstance)
+	auto currentInstance = instItems.GetSelectedInstance();
+	if(!currentInstance)
 		return;
 
 	wxString instName;
@@ -1001,10 +1027,11 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName));
 
 	wxMkdir(instDirName);
-	auto task = new FileCopyTask (m_currentInstance->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));
+	auto task = new FileCopyTask (currentInstance->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));
 	StartTask(task);
 	delete task;
 
+	//FIXME: I wouldn't be so sure about *THIS*
 	Instance *newInst = new StdInstance(instDirName);
 	newInst->SetName(instName);
 	AddInstance(newInst);
@@ -1012,47 +1039,53 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 
 void MainWindow::OnInstanceSettingsClicked ( wxCommandEvent& event )
 {
-	SettingsDialog settingsDlg(this, -1, m_currentInstance);
+	auto currentInstance = instItems.GetSelectedInstance();
+	SettingsDialog settingsDlg(this, -1, currentInstance);
 	settingsDlg.CenterOnParent();
 	settingsDlg.ShowModal();
 }
 
 void MainWindow::OnNotesClicked(wxCommandEvent& event)
 {
+	auto currentInstance = instItems.GetSelectedInstance();
 	switch (GetGUIMode())
 	{
 	case GUI_Simple:
 	{
-		if(!m_currentInstance)
+		if(!currentInstance)
 			return;
-		wxTextEntryDialog textDlg(this, _("Instance notes"), _("Notes"), m_currentInstance->GetNotes(), 
+		wxTextEntryDialog textDlg(this, _("Instance notes"), _("Notes"), currentInstance->GetNotes(), 
 			wxOK | wxCANCEL | wxTE_MULTILINE);
 		textDlg.SetSize(600, 400);
 		textDlg.CenterOnParent();
 		if (textDlg.ShowModal() == wxID_OK)
 		{
-			m_currentInstance->SetNotes(textDlg.GetValue());
+			currentInstance->SetNotes(textDlg.GetValue());
 		}
 		break;
 	}
 	}
 }
 
-void MainWindow::SaveNotesBox()
+void MainWindow::SaveNotesBox(bool current)
 {
-	if (m_currentInstance != nullptr)
+	Instance * inst = nullptr;
+	if(current)
+		inst = instItems.GetSelectedInstance();
+	else
+		inst = instItems.GetPreviousInstance();
+	if (inst != nullptr)
 	{
 		wxString notes = instNotesEditor->GetValue();
-		m_currentInstance->SetNotes(notes);
-		//FIXME: is this some some sort of magic?
-		instNotesEditor->SetValue(m_currentInstance->GetNotes());
+		inst->SetNotes(notes);
 	}
 }
 
 void MainWindow::UpdateNotesBox()
 {
-	if (m_currentInstance)
-		instNotesEditor->SetValue(m_currentInstance->GetNotes());
+	auto currentInstance = instItems.GetSelectedInstance();
+	if (currentInstance)
+		instNotesEditor->SetValue(currentInstance->GetNotes());
 	else
 		instNotesEditor->SetValue(wxString());
 }
@@ -1060,16 +1093,17 @@ void MainWindow::UpdateNotesBox()
 
 void MainWindow::StartRename()
 {
-	if(!m_currentInstance)
+	auto currentInstance = instItems.GetSelectedInstance();
+	if(!currentInstance)
 		return;
 	DisableInstActions();
 	renamingInst = true;
 	
 	GetStatusBar()->PushStatusText(wxString::Format(
 		_("Renaming instance '%s'... (Press enter to finish)"), 
-		m_currentInstance->GetName().c_str()), 0);
+		currentInstance->GetName().c_str()), 0);
 	
-	instNameEditor->SetValue(m_currentInstance->GetName());
+	instNameEditor->SetValue(currentInstance->GetName());
 	
 	instNameLabel->Show(false);
 	instNameSz->Hide(instNameLabel);
@@ -1083,12 +1117,12 @@ void MainWindow::StartRename()
 
 void MainWindow::FinishRename()
 {
-	if(m_currentInstance)
+	auto currentInstance = instItems.GetSelectedInstance();
+	if(currentInstance)
 	{
 		if (!instNameEditor->IsEmpty())
 		{
-			m_currentInstance->SetName(instNameEditor->GetValue());
-			instListCtrl->UpdateItem(m_currentInstanceIdx);
+			currentInstance->SetName(instNameEditor->GetValue());
 		}
 	}
 	CancelRename();
@@ -1096,6 +1130,7 @@ void MainWindow::FinishRename()
 
 void MainWindow::CancelRename()
 {
+	auto currentInstance = instItems.GetSelectedInstance();
 	if (renamingInst)
 	{
 		EnableInstActions();
@@ -1103,7 +1138,7 @@ void MainWindow::CancelRename()
 		GetStatusBar()->PopStatusText(0);
 	}
 	
-	UpdateInstNameLabel(m_currentInstance);
+	UpdateInstNameLabel(currentInstance);
 	instNameEditor->Show(false);
 	instNameSz->Hide(instNameEditor);
 	
@@ -1151,27 +1186,30 @@ void MainWindow::DisableInstActions()
 
 void MainWindow::OnManageSavesClicked(wxCommandEvent& event)
 {
-	if (!m_currentInstance)
+	auto currentInstance = instItems.GetSelectedInstance();
+	if (!currentInstance)
 		return;
 
-	SaveMgrWindow *saveMgr = new SaveMgrWindow(this, m_currentInstance);
+	SaveMgrWindow *saveMgr = new SaveMgrWindow(this, currentInstance);
 	saveMgr->Show();
 }
 
 void MainWindow::OnEditModsClicked(wxCommandEvent& event)
 {
-	if(m_currentInstance == nullptr)
+	auto currentInstance = instItems.GetSelectedInstance();
+	if(currentInstance == nullptr)
 		return;
-	ModEditWindow *editDlg = new ModEditWindow(this, m_currentInstance);
+	ModEditWindow *editDlg = new ModEditWindow(this, currentInstance);
 	editDlg->Show();
 }
 
 void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
 {
-	if(m_currentInstance == nullptr)
+	auto currentInstance = instItems.GetSelectedInstance();
+	if(currentInstance == nullptr)
 		return;
 
-	if (m_currentInstance->GetVersionFile().FileExists())
+	if (currentInstance->GetVersionFile().FileExists())
 	{
 		DowngradeDialog downDlg(this);
 		downDlg.CenterOnParent();
@@ -1188,7 +1226,7 @@ indev and infdev. Are you sure you would like to downgrade to this version?"),
 				}
 			}
 
-			auto task = new DowngradeTask (m_currentInstance, downDlg.GetSelectedVersion());
+			auto task = new DowngradeTask (currentInstance, downDlg.GetSelectedVersion());
 			StartTask(task);
 			delete task;
 			UpdateInstPanel();
@@ -1202,10 +1240,11 @@ indev and infdev. Are you sure you would like to downgrade to this version?"),
 
 void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 {
-	if(m_currentInstance == nullptr)
+	auto currentInstance = instItems.GetSelectedInstance();
+	if(currentInstance == nullptr)
 		return;
 
-	if (m_currentInstance->GetVersionFile().FileExists())
+	if (currentInstance->GetVersionFile().FileExists())
 	{
 		SnapshotDialog snapDlg(this);
 		snapDlg.CenterOnParent();
@@ -1214,20 +1253,20 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 			wxString snapURL = wxString::Format(wxT("assets.minecraft.net/%s/minecraft.jar"), 
 				snapDlg.GetSelectedSnapshot().c_str());
 
-			wxString snapshotJar = Path::Combine(m_currentInstance->GetBinDir(), wxT("snapshot.jar"));
+			wxString snapshotJar = Path::Combine(currentInstance->GetBinDir(), wxT("snapshot.jar"));
 			FileDownloadTask task(snapURL, snapshotJar);
 			if (StartTask(&task))
 			{
-				if (wxFileExists(m_currentInstance->GetMCBackup().GetFullPath()) &&
-					!wxRemoveFile(m_currentInstance->GetMCBackup().GetFullPath()))
+				if (wxFileExists(currentInstance->GetMCBackup().GetFullPath()) &&
+					!wxRemoveFile(currentInstance->GetMCBackup().GetFullPath()))
 				{
 					wxLogError(_("MultiMC was unable to replace the old .jar with the new snapshot."));
 					return;
 				}
 
-				if (wxCopyFile(snapshotJar, m_currentInstance->GetMCJar().GetFullPath()))
+				if (wxCopyFile(snapshotJar, currentInstance->GetMCJar().GetFullPath()))
 				{
-					m_currentInstance->UpdateVersion();
+					currentInstance->UpdateVersion();
 					UpdateInstPanel();
 				}
 			}
@@ -1241,23 +1280,26 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 
 void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
 {
-	if(m_currentInstance == nullptr)
+	auto currentInstance = instItems.GetSelectedInstance();
+	if(currentInstance == nullptr)
 		return;
-	auto task = new ModderTask(m_currentInstance);
+	auto task = new ModderTask(currentInstance);
 	StartTask(task);
 	delete task;
 }
 
 void MainWindow::OnViewInstFolderClicked(wxCommandEvent& event)
 {
-	if(m_currentInstance == nullptr)
+	auto currentInstance = instItems.GetSelectedInstance();
+	if(currentInstance == nullptr)
 		return;
-	Utils::OpenFolder(m_currentInstance->GetRootDir());
+	Utils::OpenFolder(currentInstance->GetRootDir());
 }
 
 bool MainWindow::DeleteSelectedInstance()
 {
-	if(m_currentInstance == nullptr)
+	auto currentInstance = instItems.GetSelectedInstance();
+	if(currentInstance == nullptr)
 		return false;
 
 	wxMessageDialog dlg(this, "Are you sure you want to delete this instance?\n"
@@ -1267,20 +1309,7 @@ bool MainWindow::DeleteSelectedInstance()
 	dlg.CenterOnParent();
 	if (dlg.ShowModal() == wxID_YES)
 	{
-		fsutils::RecursiveDelete(m_currentInstance->GetRootDir().GetFullPath());
-		instListCtrl->Delete(m_currentInstanceIdx);
-		delete m_currentInstance;
-		
-		m_currentInstance = nullptr;
-		instItems.erase(instItems.begin() + m_currentInstanceIdx);
-		
-		if(m_currentInstanceIdx > 0)
-			instListCtrl->Select(m_currentInstanceIdx - 1);
-		else if(instListCtrl->GetCount())
-			instListCtrl->Select(0);
-		
-		m_currentInstanceIdx = instListCtrl->GetSelection();
-		m_currentInstance = GetLinkedInst(m_currentInstanceIdx);
+		instItems.DeleteCurrent();
 		
 		if(GetGUIMode() == GUI_Default)
 		{
@@ -1291,7 +1320,7 @@ bool MainWindow::DeleteSelectedInstance()
 	return false;
 }
 
-void MainWindow::OnInstDeleteKey ( wxInstanceCtrlEvent& event )
+void MainWindow::OnInstDeleteKey ( InstanceCtrlEvent& event )
 {
 	DeleteSelectedInstance();
 }
@@ -1301,17 +1330,49 @@ void MainWindow::OnDeleteClicked(wxCommandEvent& event)
 	DeleteSelectedInstance();
 }
 
-void MainWindow::OnInstMenuOpened(wxInstanceCtrlEvent& event)
+void MainWindow::OnInstMenuOpened(InstanceCtrlEvent& event)
 {
-	if(event.GetIndex() != -1)
+	if (event.GetItemIndex().isItem())
 	{
 		if (instActionsEnabled)
 			PopupMenu(instMenu, event.GetPosition());
+	}
+	else if (event.GetItemIndex().isGroup())
+	{
+		lastClickedGroup = event.GetGroup();
+		if (lastClickedGroup)
+		{
+			PopupMenu(groupMenu, event.GetPosition());
+		}
 	}
 	else
 	{
 		//TODO: A menu for the instance control itself could be spawned there (with stuff like 'create instance', etc.)
 	}
+}
+
+void MainWindow::OnRenameGroupClicked(wxCommandEvent& event)
+{
+	if (!lastClickedGroup)
+		return;
+
+	wxTextEntryDialog textDlg(this, _("Enter a new name for this group."), 
+		_("Rename Group"), lastClickedGroup->GetName());
+	textDlg.CenterOnParent();
+	if (textDlg.ShowModal() == wxID_OK)
+	{
+		lastClickedGroup->SetName(textDlg.GetValue());
+		instListCtrl->ReloadAll();
+		instItems.SaveGroupInfo();
+	}
+}
+
+void MainWindow::OnDeleteGroupClicked(wxCommandEvent& event)
+{
+	if (!lastClickedGroup)
+		return;
+
+	instItems.DeleteGroup(lastClickedGroup);
 }
 
 // this catches background tasks and destroys them
@@ -1338,7 +1399,7 @@ void MainWindow::OnWindowClosed(wxCloseEvent& event)
 	if(instNotesEditor)
 	{
 		// Save instance notes on exit.
-		SaveNotesBox();
+		SaveNotesBox(true);
 	}
 	wxTheApp->Exit();
 }
@@ -1365,13 +1426,13 @@ void MainWindow::OnExitApp(wxCommandEvent &event)
 {
 	Close();
 }
-
+/*
 void MainWindow::OnNotesLostFocus(wxFocusEvent& event)
 {
-	SaveNotesBox();
+	SaveNotesBox(true);
 	event.Skip();
 }
-
+*/
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)
@@ -1395,6 +1456,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_Play, MainWindow::OnPlayClicked)
 	
 	EVT_MENU(ID_Rename, MainWindow::OnRenameClicked)
+	EVT_MENU(ID_SetGroup, MainWindow::OnChangeGroupClicked)
 	EVT_MENU(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
 	EVT_MENU(ID_EditNotes, MainWindow::OnNotesClicked)
 	EVT_MENU(ID_Configure, MainWindow::OnInstanceSettingsClicked)
@@ -1405,8 +1467,12 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_UseSnapshot, MainWindow::OnSnapshotClicked)
 	EVT_MENU(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_MENU(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
-	
+
 	EVT_MENU(ID_DeleteInst, MainWindow::OnDeleteClicked)
+
+
+	EVT_MENU(ID_RenameGroup, MainWindow::OnRenameGroupClicked)
+	EVT_MENU(ID_DeleteGroup, MainWindow::OnDeleteGroupClicked)
 	
 	
 	EVT_BUTTON(ID_Play, MainWindow::OnPlayClicked)
@@ -1427,11 +1493,10 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_BUTTON(ID_DeleteInst, MainWindow::OnDeleteClicked)
 	
 	
-	EVT_INST_LEFT_DCLICK(ID_InstListCtrl, MainWindow::OnInstActivated)
-	EVT_INST_RETURN(ID_InstListCtrl, MainWindow::OnInstActivated)
+	EVT_INST_ACTIVATE(ID_InstListCtrl, MainWindow::OnInstActivated)
 	EVT_INST_DELETE(ID_InstListCtrl, MainWindow::OnInstDeleteKey)
 	EVT_INST_RENAME(ID_InstListCtrl, MainWindow::OnInstRenameKey)
-	EVT_INST_RIGHT_CLICK(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
+	EVT_INST_MENU(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
 	EVT_INST_ITEM_SELECTED(ID_InstListCtrl, MainWindow::OnInstSelected)
 	
 	EVT_TASK_END(MainWindow::OnTaskEnd)

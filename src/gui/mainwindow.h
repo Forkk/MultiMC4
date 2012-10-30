@@ -29,14 +29,10 @@
 #include "modlist.h"
 #include "settingsdialog.h"
 
+#include "instancemodel.h"
 
-//const wxString tbarIconPrefix = _T("resources/toolbar/");
-
-class wxListbookEvent;
-class wxListbook;
-
-class wxInstanceCtrl;
-class wxInstanceCtrlEvent;
+class InstanceCtrl;
+class InstanceCtrlEvent;
 
 class MainWindow : public wxFrame
 {
@@ -63,11 +59,12 @@ public:
 
 	// Instance menu
 	void OnPlayClicked(wxCommandEvent& event);
-	void OnInstActivated(wxInstanceCtrlEvent& event);
-	void OnInstDeleteKey(wxInstanceCtrlEvent& event);
-	void OnInstRenameKey(wxInstanceCtrlEvent& event);
+	void OnInstActivated(InstanceCtrlEvent& event);
+	void OnInstDeleteKey(InstanceCtrlEvent& event);
+	void OnInstRenameKey(InstanceCtrlEvent& event);
 	
 	void OnRenameClicked(wxCommandEvent& event);
+	void OnChangeGroupClicked(wxCommandEvent& event);
 	void OnCopyInstClicked(wxCommandEvent &event);
 	void OnChangeIconClicked(wxCommandEvent& event);
 	void OnNotesClicked(wxCommandEvent& event);
@@ -81,6 +78,11 @@ public:
 	void OnViewInstFolderClicked(wxCommandEvent& event);
 	
 	void OnDeleteClicked(wxCommandEvent& event);
+
+
+	// Group menu
+	void OnRenameGroupClicked(wxCommandEvent& event);
+	void OnDeleteGroupClicked(wxCommandEvent& event);
 	
 	
 	// Task Events
@@ -90,7 +92,7 @@ public:
 	void OnCheckUpdateComplete(CheckUpdateEvent &event);
 	
 	// Other events
-	void OnInstMenuOpened(wxInstanceCtrlEvent& event);
+	void OnInstMenuOpened(InstanceCtrlEvent& event);
 	void OnWindowClosed(wxCloseEvent& event);
 	void OnNotesLostFocus(wxFocusEvent& event);
 
@@ -131,6 +133,7 @@ public:
 
 protected:
 	wxMenu *instMenu;
+	wxMenu *groupMenu;
 	
 	GUIMode m_guiMode;
 
@@ -139,7 +142,7 @@ protected:
 	bool DeleteSelectedInstance();
 
 	// maps index in the used list control to an instance.
-	std::vector<Instance*> instItems;
+	InstanceModel instItems;
 	
 	GUIMode GetGUIMode() const
 	{
@@ -150,15 +153,12 @@ protected:
 	void InitBasicGUI(wxBoxSizer *mainSz);
 	void InitInstMenu();
 	
-	wxInstanceCtrl *instListCtrl;
-	Instance       *m_currentInstance;
-	int             m_currentInstanceIdx;
-	
+	InstanceCtrl *instListCtrl;
 	
 	// Advanced GUI
 	void InitAdvancedGUI(wxBoxSizer *mainSz);
 	
-	void OnInstSelected(wxInstanceCtrlEvent &event);
+	void OnInstSelected(InstanceCtrlEvent &event);
 
 	void UpdateInstPanel();
 	void UpdateInstNameLabel(Instance *inst);
@@ -186,7 +186,7 @@ protected:
 	wxTextCtrl *instNameEditor;
 	
 	void UpdateNotesBox();
-	void SaveNotesBox();
+	void SaveNotesBox(bool current = true);
 	
 	void StartRename();
 	void FinishRename();
@@ -199,6 +199,8 @@ protected:
 	bool instActionsEnabled;
 
 	ModList centralModList;
+
+	InstanceGroup *lastClickedGroup;
 	
 private:
 	void NotImplemented();
@@ -227,6 +229,7 @@ enum
 	ID_Play,
 
 	ID_Rename,
+	ID_SetGroup,
 	ID_CopyInst,
 	ID_ChangeIcon,
 	ID_EditNotes,
@@ -241,6 +244,10 @@ enum
 	ID_ViewInstFolder,
 
 	ID_DeleteInst,
+
+	// Group menu
+	ID_RenameGroup,
+	ID_DeleteGroup,
 
 	// Other
 	ID_InstListCtrl,

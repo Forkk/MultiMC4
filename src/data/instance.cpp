@@ -25,13 +25,14 @@
 #include <wx/zipstrm.h>
 #include <wx/txtstrm.h>
 #include <memory>
+#include <sstream>
 
 #include "launcher/launcherdata.h"
 #include "osutils.h"
-#include <datautils.h>
-#include <insticonlist.h>
+#include "datautils.h"
+#include "insticonlist.h"
 #include "java/javautils.h"
-#include <sstream>
+#include "instancemodel.h"
 
 DEFINE_EVENT_TYPE(wxEVT_INST_OUTPUT)
 
@@ -111,6 +112,7 @@ Instance::Instance(const wxFileName &rootDir)
 	jar_list_inited = false;
 	world_list_initialized = false;
 	tp_list_initialized = false;
+	parentModel = nullptr;
 	UpdateVersion();
 }
 
@@ -123,6 +125,12 @@ Instance::~Instance(void)
 	}
 	Save();
 }
+
+void Instance::SetParentModel ( InstanceModel* parent )
+{
+	parentModel = parent;
+}
+
 
 void Instance::UpdateVersion ( bool keep_current )
 {
@@ -323,6 +331,23 @@ wxString Instance::GetName() const
 void Instance::SetName(wxString name)
 {
 	SetSetting<wxString>(_("name"), name);
+	if(parentModel)
+		parentModel->InstanceRenamed(this);
+}
+
+wxDateTime Instance::GetLastLaunch() const
+{
+	wxString dtStr = GetSetting<wxString>(_("lastLaunch"), wxEmptyString);
+	wxDateTime dt;
+	if (dt.ParseFormat(dtStr) != NULL)
+		return dt;
+	else
+		return wxDateTime::Now();
+}
+
+void Instance::SetLastLaunch(wxDateTime time)
+{
+	SetSetting<wxString>(_("lastLaunch"), time.Format());
 }
 
 wxString Instance::GetIconKey() const
@@ -400,6 +425,9 @@ void Instance::ExtractLauncher()
 
 wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirectOutput)
 {
+	// Set lastLaunch
+	SetLastLaunch();
+
 	if (username.IsEmpty())
 		username = _("Offline");
 	
@@ -663,6 +691,26 @@ bool Instance::FolderModList::LoadModListFromDir(const wxString& loadFrom, bool 
 	}
 
 	return listChanged;
+}
+
+wxString Instance::GetInstID() const
+{
+	wxString id = GetRootDir().GetFullName();
+	return id;
+}
+
+wxString Instance::GetGroup()
+{
+	InstanceGroup *group = parentModel->GetInstanceGroup(this);
+	if (group)
+		return group->GetName();
+	else
+		return wxEmptyString;
+}
+
+void Instance::SetGroup ( const wxString& group )
+{
+	parentModel->SetInstanceGroup(this, group);
 }
 
 

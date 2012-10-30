@@ -53,7 +53,7 @@ ENDIF ()
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 
 set(MultiMC_VERSION_MAJOR		4)
-set(MultiMC_VERSION_MINOR		1)
+set(MultiMC_VERSION_MINOR		2)
 set(MultiMC_VERSION_REV			0)
 
 IF (DEFINED MultiMC_VERSION_BUILD)
@@ -139,6 +139,7 @@ data/world.cpp
 data/texturepack.cpp
 data/texturepacklist.cpp
 data/stdinstance.cpp
+data/instancemodel.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
@@ -202,6 +203,7 @@ data/world.h
 data/texturepack.h
 data/texturepacklist.h
 data/stdinstance.h
+data/instancemodel.h
 
 tasks/task.h
 tasks/logintask.h
