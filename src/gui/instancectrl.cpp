@@ -986,6 +986,12 @@ int NameSort(InstanceVisual **first, InstanceVisual **second)
 
 int NameSort(GroupVisual **first, GroupVisual **second)
 {
+	if (!(*first)->m_group)
+		return 1;
+
+	if (!(*second)->m_group)
+		return -1;
+
 	return (*first)->GetName().CmpNoCase((*second)->GetName());
 };
 
