@@ -20,7 +20,7 @@
 class StdInstance : public Instance
 {
 public:
-	StdInstance(wxFileName rootDir);
+	StdInstance(wxString rootDir);
 
 	virtual Type GetType() const;
 };

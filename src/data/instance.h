@@ -45,8 +45,8 @@ public:
 		INST_TYPE_STANDARD,
 	};
 
-	static Instance *LoadInstance(wxFileName rootDir);
-	Instance(const wxFileName &rootDir);
+	static Instance *LoadInstance(wxString rootDir);
+	Instance(const wxString &rootDir);
 	~Instance(void);
 	
 	bool Save() const;

@@ -66,9 +66,9 @@ bool IsValidInstance(wxFileName rootDir)
 	return rootDir.DirExists() && wxFileExists(Path::Combine(rootDir, cfgFileName));
 }
 
-Instance *Instance::LoadInstance(wxFileName rootDir)
+Instance *Instance::LoadInstance(wxString rootDir)
 {
-	if (IsValidInstance(rootDir))
+	if (IsValidInstance(wxFileName::DirName(rootDir)))
 	{
 		wxFileConfig fcfg(wxEmptyString, wxEmptyString, 
 			Path::Combine(rootDir, "instance.cfg"), wxEmptyString,
@@ -92,10 +92,13 @@ Instance *Instance::LoadInstance(wxFileName rootDir)
 		return NULL;
 }
 
-Instance::Instance(const wxFileName &rootDir)
+Instance::Instance(const wxString &rootDir)
 	: modList(this), m_running(false)
 {
-	this->rootDir = rootDir;
+	if (!rootDir.EndsWith("/"))
+		this->rootDir = wxFileName::DirName(rootDir + "/");
+	else
+		this->rootDir = wxFileName::DirName(rootDir);
 	config = new wxFileConfig(wxEmptyString, wxEmptyString, GetConfigPath().GetFullPath(), wxEmptyString,
 		wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
 	evtHandler = NULL;
@@ -695,7 +698,7 @@ bool Instance::FolderModList::LoadModListFromDir(const wxString& loadFrom, bool 
 
 wxString Instance::GetInstID() const
 {
-	wxString id = GetRootDir().GetFullName();
+	wxString id = GetRootDir().GetDirs()[GetRootDir().GetDirCount() - 1];
 	return id;
 }
 

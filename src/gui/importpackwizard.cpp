@@ -91,7 +91,7 @@ bool ImportPackWizard::Start()
 		if (!m_mainWin->GetNewInstName(&instName, &instDirName, _("Import config pack")))
 			return false;
 
-		wxFileName instDir = wxFileName::DirName(Path::Combine(settings->GetInstDir(), instDirName));
+		wxString instDir = Path::Combine(settings->GetInstDir(), instDirName);
 
 		Instance *inst = new StdInstance(instDir);
 		inst->SetName(instName);
@@ -144,7 +144,7 @@ bool ImportPackWizard::Start()
 		
 		// Extract config files
 		wxFFileInputStream fileIn(m_pack->GetFileName());
-		fsutils::ExtractZipArchive(fileIn, instDir.GetFullPath());
+		fsutils::ExtractZipArchive(fileIn, instDir);
 
 		return true;
 	}

@@ -16,7 +16,7 @@
 
 #include "stdinstance.h"
 
-StdInstance::StdInstance(wxFileName rootDir)
+StdInstance::StdInstance(wxString rootDir)
 	: Instance(rootDir)
 {
 

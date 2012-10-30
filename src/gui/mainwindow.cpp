@@ -471,7 +471,7 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 		bool cont = dir.GetFirst(&subFolder, wxEmptyString, wxDIR_DIRS);
 		while (cont)
 		{
-			wxFileName dirName(instDir.GetFullPath(), subFolder);
+			wxString dirName = Path::Combine(instDir, subFolder);
 			if (IsValidInstance(dirName))
 			{
 				Instance *inst = Instance::LoadInstance(dirName);
@@ -580,10 +580,7 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 	if (!GetNewInstName(&instName, &instDirName))
 		return;
 
-	wxString dirPrep = Path::Combine(settings->GetInstDir(), instDirName);
-	wxFileName instDir = wxFileName::DirName(dirPrep);
-	wxString dirPost = instDir.GetFullPath();
-	wxString dirNamePost = instDir.GetFullName();
+	wxString instDir = Path::Combine(settings->GetInstDir(), instDirName);
 	
 	Instance *inst = new StdInstance(instDir);
 	UserInfo lastLogin;
