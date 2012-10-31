@@ -140,6 +140,7 @@ data/texturepack.cpp
 data/texturepacklist.cpp
 data/stdinstance.cpp
 data/instancemodel.cpp
+data/forgeversions.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
@@ -204,6 +205,7 @@ data/texturepack.h
 data/texturepacklist.h
 data/stdinstance.h
 data/instancemodel.h
+data/forgeversions.h
 
 tasks/task.h
 tasks/logintask.h
