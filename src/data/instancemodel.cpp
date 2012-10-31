@@ -38,7 +38,7 @@ InstanceModel::~InstanceModel()
 	Clear();
 }
 
-Instance * InstanceModel::operator[](const std::size_t index) const
+Instance * InstanceModel::at(const std::size_t index) const
 {
 	if(index >= size())
 	{
@@ -46,6 +46,11 @@ Instance * InstanceModel::operator[](const std::size_t index) const
 	}
 	return m_instances[index];
 };
+
+Instance * InstanceModel::operator[](const std::size_t index) const
+{
+	return at(index);
+}
 
 void InstanceModel::Clear()
 {

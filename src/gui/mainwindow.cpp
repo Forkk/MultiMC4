@@ -277,6 +277,7 @@ void MainWindow::OnStartup()
 void MainWindow::InitBasicGUI(wxBoxSizer *mainSz)
 {
 	instListCtrl = new InstanceCtrl(this, &instItems, ID_InstListCtrl,wxDefaultPosition,wxDefaultSize);
+	instListCtrl->SetDropTarget(new InstanceCtrl::InstCtrlDropTarget(instListCtrl));
 	instItems.SetLinkedControl(instListCtrl);
 	InitInstMenu();
 	
@@ -1372,6 +1373,18 @@ void MainWindow::OnDeleteGroupClicked(wxCommandEvent& event)
 	instItems.DeleteGroup(lastClickedGroup);
 }
 
+void MainWindow::OnInstDragged(InstanceCtrlEvent& event)
+{
+	Instance *selectedInst = instItems.GetSelectedInstance();
+	if (!selectedInst)
+		return;
+
+	wxTextDataObject instDataObj(selectedInst->GetInstID());
+
+	wxDropSource dragSource(instDataObj, instListCtrl);
+	dragSource.DoDragDrop(wxDrag_AllowMove);
+}
+
 // this catches background tasks and destroys them
 void MainWindow::OnTaskEnd(TaskEvent& event)
 {
@@ -1494,6 +1507,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_INST_DELETE(ID_InstListCtrl, MainWindow::OnInstDeleteKey)
 	EVT_INST_RENAME(ID_InstListCtrl, MainWindow::OnInstRenameKey)
 	EVT_INST_MENU(ID_InstListCtrl, MainWindow::OnInstMenuOpened)
+	EVT_INST_DRAG(ID_InstListCtrl, MainWindow::OnInstDragged)
 	EVT_INST_ITEM_SELECTED(ID_InstListCtrl, MainWindow::OnInstSelected)
 	
 	EVT_TASK_END(MainWindow::OnTaskEnd)

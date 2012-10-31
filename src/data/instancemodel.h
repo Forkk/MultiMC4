@@ -64,6 +64,7 @@ public:
 	}
 	
 	/// get an instance given its index...
+	Instance *at(const std::size_t index) const;
 	Instance * operator[](const std::size_t index) const;
 	
 	/// Link an instance control with this model

@@ -15,6 +15,7 @@
 #include "wx/arrimpl.cpp"
 #include "wx/image.h"
 #include "wx/dcbuffer.h"
+#include "wx/sstream.h"
 
 #include "instancemodel.h"
 
@@ -27,6 +28,7 @@ DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_ACTIVATE)
 DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_MENU)
 DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_DELETE)
 DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_RENAME)
+DEFINE_EVENT_TYPE(wxEVT_COMMAND_INST_DRAG)
 
 IMPLEMENT_CLASS(InstanceCtrl, wxScrolledCanvas)
 IMPLEMENT_CLASS(InstanceCtrlEvent, wxNotifyEvent)
@@ -38,6 +40,7 @@ BEGIN_EVENT_TABLE(InstanceCtrl, wxScrolledCanvas)
 	EVT_RIGHT_DOWN(InstanceCtrl::OnRightClick)
 	EVT_MIDDLE_DOWN(InstanceCtrl::OnMiddleClick)
 	EVT_LEFT_DCLICK(InstanceCtrl::OnLeftDClick)
+	EVT_MOTION(InstanceCtrl::OnMouseMotion)
 	EVT_CHAR(InstanceCtrl::OnChar)
 	EVT_SIZE(InstanceCtrl::OnSize)
 	EVT_SET_FOCUS(InstanceCtrl::OnSetFocus)
@@ -127,6 +130,20 @@ InstanceVisual* InstanceCtrl::GetItem( VisualCoord n ) const
 			return & gv.items[n.itemIndex];
 	}
 	
+	return nullptr;
+}
+
+/// Get the visual group by coord
+GroupVisual* InstanceCtrl::GetGroup(VisualCoord n) const
+{
+	if(!n.isGroup())
+		return nullptr;
+
+	if (n.groupIndex < GetCount())
+	{
+		return &m_groups[n.groupIndex];
+	}
+
 	return nullptr;
 }
 
@@ -537,6 +554,68 @@ void InstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 	{
 		ToggleGroup(clickedIndex.groupIndex);
 	}
+}
+
+void InstanceCtrl::OnMouseMotion(wxMouseEvent& event)
+{
+	if (event.Dragging() && m_instList->GetSelectedInstance() && !GetSelection().isVoid())
+	{
+		int flags = 0;
+		if (event.ControlDown())
+			flags |= wxINST_CTRL_DOWN;
+		if (event.ShiftDown())
+			flags |= wxINST_SHIFT_DOWN;
+		if (event.AltDown())
+			flags |= wxINST_ALT_DOWN;
+
+		InstanceCtrlEvent cmdEvent(
+			wxEVT_COMMAND_INST_DRAG,
+			GetId());
+		cmdEvent.SetEventObject(this);
+		cmdEvent.SetFlags(flags);
+		GetEventHandler()->ProcessEvent(cmdEvent);
+	}
+	else
+	{
+		event.Skip();
+	}
+}
+
+bool InstanceCtrl::InstCtrlDropTarget::OnDropText(wxCoord x, wxCoord y, const wxString& data)
+{
+	VisualCoord coord;
+	m_parent->HitTest(wxPoint(x, y), coord);
+
+	// If dragging over a group header.
+	if (coord.isGroup())
+	{
+		for (int i = 0; i < m_parent->m_instList->size(); i++)
+		{
+			if (m_parent->m_instList->at(i)->GetInstID() == data)
+			{
+				m_parent->m_instList->at(i)->SetGroup(m_parent->GetGroup(coord)->GetName());
+				m_parent->ReloadAll();
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+wxDragResult InstanceCtrl::InstCtrlDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
+{
+	VisualCoord coord;
+	m_parent->HitTest(wxPoint(x, y), coord);
+
+	// If dragging over a group header.
+	if (coord.isGroup())
+	{
+		return wxDragResult::wxDragMove;
+	}
+
+	return wxDragResult::wxDragNone;
 }
 
 /// Key press
