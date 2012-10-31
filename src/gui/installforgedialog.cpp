@@ -82,34 +82,16 @@ InstallForgeDialog::InstallForgeDialog(wxWindow *parent)
 	dlgSizer->Add(buildList, 1, wxEXPAND | wxALL, 4);
 	
 	wxSizer *btnSz = CreateButtonSizer(wxOK | wxCANCEL);
-	dlgSizer->Add(btnSz, wxSizerFlags(0).Border(wxBOTTOM | wxRIGHT, 8).
-		Align(wxALIGN_RIGHT | wxALIGN_BOTTOM));
+	wxButton *refreshBtn = new wxButton(this, ID_RefreshList, _("&Refresh"));
+	btnSz->Insert(0,refreshBtn);
+	btnSz->InsertStretchSpacer(1);
+	dlgSizer->Add(btnSz, wxSizerFlags(0).Border(wxBOTTOM | wxRIGHT | wxLEFT, 8).Expand());
 /*
-	wxPanel *mainPanel = new wxPanel(this);
-	dlgSizer->Add(mainPanel, wxSizerFlags(1).Expand().Border(wxALL, 8));
-	wxGridBagSizer *mainSz = new wxGridBagSizer();
-	mainSz->AddGrowableCol(0, 0);
-	mainSz->AddGrowableRow(1, 0);
-	mainPanel->SetSizer(mainSz);
-
-	wxStaticText *pageTitle = new wxStaticText(mainPanel, -1, _("Choose a Version"));
-	pageTitle->SetFont(titleFont);
-	mainSz->Add(pageTitle, wxGBPosition(0, 0), wxGBSpan(1, 2), wxALL | wxALIGN_CENTER, 4);
-
-	buildList = new ForgeListCtrl(mainPanel);
-	buildList->AppendColumn("Forge file");
-	buildList->AppendColumn("MC version",wxLIST_FORMAT_RIGHT);
-	mainSz->Add(buildList, wxGBPosition(1, 0), wxGBSpan(1, 2), wxEXPAND | wxALL, 4);
-
-	wxButton *refreshBtn = new wxButton(mainPanel, ID_RefreshList, _("&Refresh"));
+	
 	mainSz->Add(refreshBtn, wxGBPosition(2, 1), wxGBSpan(1, 1), wxALL, 3);
 
-	wxSizer *btnSz = CreateButtonSizer(wxOK | wxCANCEL);
-	dlgSizer->Add(btnSz, wxSizerFlags(0).Border(wxBOTTOM | wxRIGHT, 8).
-		Align(wxALIGN_RIGHT | wxALIGN_BOTTOM));
-
-	SetControlEnable(this, wxID_OK, false);
 */
+	SetControlEnable(this, wxID_OK, false);
 	LoadBuildList();
 	buildList->SetupColumns();
 }
@@ -121,6 +103,7 @@ void InstallForgeDialog::LoadBuildList()
 	wxString buildListText;
 	if (DownloadString(dlURL, &buildListText))
 	{
+		buildList->DeleteAllItems();
 		wxArrayString buildArrayStr;
 		wxRegEx forgeRegex;
 		if (!forgeRegex.Compile("minecraftforge-(universal|client)-([0-9]+.[0-9]+.[0-9]+.[0-9]+).zip"))
@@ -142,7 +125,6 @@ void InstallForgeDialog::LoadBuildList()
 			forgeRegex.ReplaceFirst(&buildListText, wxEmptyString);
 		}
 		int idx = 0;
-		buildList->SetItemCount(buildArrayStr.size());
 		for(auto iter = buildArrayStr.begin(); iter != buildArrayStr.end(); iter++)
 		{
 			wxString & current = (*iter);
