@@ -115,7 +115,7 @@ public:
 	
 	bool isGroup() const
 	{
-		return groupIndex >= 0 && itemIndex <= 0;
+		return groupIndex >= 0 && itemIndex < 0;
 	};
 	bool isItem() const
 	{
@@ -123,7 +123,7 @@ public:
 	};
 	bool isVoid() const
 	{
-		return groupIndex <= 0 && itemIndex <= 0;
+		return groupIndex < 0 && itemIndex < 0;
 	}
 	bool isHeader() const
 	{
