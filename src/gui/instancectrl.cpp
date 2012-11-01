@@ -45,6 +45,8 @@ BEGIN_EVENT_TABLE(InstanceCtrl, wxScrolledCanvas)
 	EVT_SIZE(InstanceCtrl::OnSize)
 	EVT_SET_FOCUS(InstanceCtrl::OnSetFocus)
 	EVT_KILL_FOCUS(InstanceCtrl::OnKillFocus)
+
+	EVT_INST_DRAG(wxID_ANY, InstanceCtrl::OnInstDragged)
 END_EVENT_TABLE()
 
 /*!
@@ -565,7 +567,12 @@ void InstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 
 void InstanceCtrl::OnMouseMotion(wxMouseEvent& event)
 {
-	if (event.Dragging() && m_instList->GetSelectedInstance() && !GetSelection().isVoid())
+	// Only start DnD if the mouse is over the selected instance.
+	VisualCoord coord;
+	HitTest(event.GetPosition(), coord);
+	InstanceVisual *instVisual = GetItem(coord);
+
+	if (event.Dragging() && instVisual && m_instList->GetSelectedInstance() == instVisual->GetInstance())
 	{
 		int flags = 0;
 		if (event.ControlDown())
@@ -1215,6 +1222,21 @@ void InstanceCtrl::HighlightGroup(const VisualCoord& coord)
 		GetGroupRect(prevHighlight.groupIndex, gRect);
 		RefreshRect(gRect);
 	}
+}
+
+void InstanceCtrl::OnInstDragged(InstanceCtrlEvent& event)
+{
+	Instance *selectedInst = m_instList->GetSelectedInstance();
+	if (!selectedInst)
+		return;
+
+	wxTextDataObject instDataObj(selectedInst->GetInstID());
+
+	wxDropSource dragSource(instDataObj, this);
+	dragSource.DoDragDrop(wxDrag_AllowMove);
+	
+	// Make sure we reset the group highlighting when the DnD operation is done.
+	HighlightGroup(VisualCoord());
 }
 
 

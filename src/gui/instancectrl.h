@@ -45,6 +45,8 @@ class InstanceCtrl;
 
 const wxDataFormat DATA_FORMAT_INSTANCE("instance");
 
+class InstanceCtrlEvent;
+
 class InstanceVisual
 {
 public:
@@ -60,6 +62,11 @@ public:
 	InstanceVisual(Instance* inst, int ID)
 	{
 		SetInstance(inst, ID);
+	}
+
+	Instance *GetInstance() const
+	{
+		return m_inst;
 	}
 
 	void SetInstance(Instance* inst, int ID)
@@ -345,6 +352,9 @@ public:
 	void OnRightClick(wxMouseEvent& event);
 	void OnMouseMotion(wxMouseEvent& event);
 	void OnChar(wxKeyEvent& event);
+
+	// Other
+	void OnInstDragged(InstanceCtrlEvent& event);
 
 	class InstCtrlDropTarget : public wxTextDropTarget
 	{
