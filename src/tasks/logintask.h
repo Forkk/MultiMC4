@@ -17,9 +17,10 @@
 #pragma once
 #include "task.h"
 #include "logindialog.h"
-#include "instance.h"
 
-#include <wx/wx.h>
+#include <wx/string.h>
+
+#include "instance.h"
 
 // Stores a response from login.minecraft.net
 struct LoginResult

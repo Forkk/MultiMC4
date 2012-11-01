@@ -24,6 +24,8 @@
 #include <wx/textdlg.h>
 #include <wx/msgdlg.h>
 
+#include "textdisplaydialog.h"
+
 AboutDlg::AboutDlg(wxWindow *parent, const AboutDlgInfo &info)
 	: wxDialog(parent, -1, _("About MultiMC"), wxDefaultPosition, wxSize(600, 180)),
 		m_licenseText(info.license)
@@ -83,7 +85,8 @@ AboutDlg::AboutDlg(wxWindow *parent, const AboutDlgInfo &info)
 
 void AboutDlg::OnViewLicense(wxCommandEvent& event)
 {
-	wxMessageBox(m_licenseText);
+	TextDisplayDialog dlg(this, m_licenseText, _("License"));
+	dlg.ShowModal();
 }
 
 BEGIN_EVENT_TABLE(AboutDlg, wxDialog)

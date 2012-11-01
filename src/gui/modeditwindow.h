@@ -50,6 +50,8 @@ public:
 		virtual void CopyMod() = 0;
 		virtual void PasteMod() = 0;
 		virtual void DeleteMod() = 0;
+
+		void CopyFiles(wxArrayString files, wxString dest);
 		
 	protected:
 		Instance *m_inst;
@@ -59,7 +61,7 @@ public:
 		int m_insMarkIndex;
 
 		DECLARE_EVENT_TABLE()
-	} *jarModList, *mlModList, *coreModList;
+	} *jarModList, *mlModList, *coreModList, *texturePackList;
 	
 protected:
 	class JarModListCtrl : public ModListCtrl
@@ -89,6 +91,24 @@ protected:
 	public:
 		CoreModListCtrl(wxWindow *parent, int id, Instance *inst)
 			: ModListCtrl(parent, id, inst) {}
+
+		virtual void CopyMod();
+		virtual void PasteMod();
+		virtual void DeleteMod();
+	};
+
+	class TexturePackListCtrl : public ModListCtrl
+	{
+	public:
+		TexturePackListCtrl(wxWindow *parent, int id, Instance *inst)
+			: ModListCtrl(parent, id, inst) {}
+
+		virtual wxString OnGetItemText(long int item, long int column) const;
+		virtual wxListItemAttr* OnGetItemAttr ( long int item ) const;
+
+		virtual void UpdateItems();
+
+		virtual TexturePackList *GetTPList() const;
 
 		virtual void CopyMod();
 		virtual void PasteMod();
@@ -128,6 +148,10 @@ protected:
 	void OnAddCoreMod(wxCommandEvent &event);
 	void OnDeleteCoreMod(wxCommandEvent &event);
 	void OnExploreCore(wxCommandEvent &event);
+
+	void OnAddTPack(wxCommandEvent &event);
+	void OnDeleteTPack(wxCommandEvent &event);
+	void OnExploreTPack(wxCommandEvent &event);
 	
 	void OnReloadClicked(wxCommandEvent& event);
 	void OnExportClicked(wxCommandEvent& event);
@@ -170,6 +194,21 @@ protected:
 		ModListCtrl *m_owner;
 		Instance *m_inst;
 	};
+
+	class TexturePackDropTarget : public wxFileDropTarget
+	{
+	public:
+		TexturePackDropTarget(ModListCtrl *owner, Instance *inst);
+
+		virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames);
+		virtual wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
+
+		ModListCtrl *m_owner;
+		Instance *m_inst;
+	};
+
+	void CopyFiles(wxArrayString files, wxString dest);
+	static void CopyFiles(wxWindow *window, wxArrayString files, wxString dest);
 	
 	MainWindow *m_mainWin;
 	
@@ -181,6 +220,7 @@ enum
 	ID_JAR_MOD_LIST,
 	ID_ML_MOD_LIST,
 	ID_CORE_MOD_LIST,
+	ID_TEXTURE_PACK_LIST,
 	
 	ID_ADD_JAR_MOD,
 	ID_DEL_JAR_MOD,
@@ -194,6 +234,10 @@ enum
 	ID_ADD_CORE_MOD,
 	ID_DEL_CORE_MOD,
 	ID_EXPLORE_CORE,
+
+	ID_ADD_TEXTURE_PACK,
+	ID_DEL_TEXTURE_PACK,
+	ID_EXPLORE_TEXTURE_PACK,
 
 	ID_EXPORT,
 	ID_RELOAD,

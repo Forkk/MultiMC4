@@ -22,30 +22,22 @@
 void Utils::OpenFolder(wxFileName path)
 {
 	wxString cmd;
-	if (IS_WINDOWS())
-	{
-		cmd = _("explorer ");
-	}
-	else if (IS_MAC())
-	{
-		cmd = _("open ");
-	}
-	else if (IS_LINUX())
-	{
-		cmd = _("xdg-open ");
-	}
-	else
-	{
-		wxMessageBox(_T("This feature is not supported by your OS."), _T("Error"));
-		return;
-	}
+	
+#if WINDOWS
+	cmd = _("explorer ");
+#elif OSX
+	cmd = _("open ");
+#elif LINUX
+	cmd = _("xdg-open ");
+#endif
+
 	cmd.Append(wxT("\""));
 	cmd.Append(path.GetFullPath());
 	cmd.Append(wxT("\""));
     wxExecute(cmd);
 }
 
-#ifdef __WXMSW__
+#ifdef WINDOWS
 bool Utils::OpenURL(wxString url)
 {
 	auto r = (int) ShellExecute(NULL, wxT("open"), FNSTR(url), NULL, NULL, SW_SHOWNORMAL);
@@ -117,7 +109,7 @@ wxString Utils::BytesToString(unsigned char *bytes)
 	return wxStr(std::string(asciihash));
 }
 
-#if defined __WXMSW__
+#if WINDOWS
 
 // We can use the registry to find Java on Windows.
 #include <winreg.h>
@@ -164,7 +156,7 @@ wxString FindJavaPath(const wxString& def)
 	return def;
 }
 
-#elif defined __WXGTK__
+#elif LINUX
 
 wxString FindJavaPath(const wxString& def)
 {
@@ -183,10 +175,24 @@ wxString FindJavaPath(const wxString& def)
     }
 }
 
-#else
+#elif OSX
 
 wxString FindJavaPath(const wxString& def)
 {
+	const char * test[] = {
+		"/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Commands/java",
+		"/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Commands/java",
+		"/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Commands/java",
+		"/System/Library/Frameworks/JavaVM.framework/Versions/1.5/Commands/java",
+	};
+	for(int i = 0; i < 4; i++)
+	{
+		wxFileName path (test[i]);
+		if(path.Exists())
+		{
+			return path.GetFullPath();
+		}
+	}
 	return def;
 }
 

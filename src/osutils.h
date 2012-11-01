@@ -19,12 +19,25 @@
 
 #include "apputils.h"
 
-#define IS_WINDOWS() ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_WINDOWS_NT)
+// Better OS Detection
+#if defined _WIN32 | defined _WIN64
+#define WINDOWS	1
+#elif __APPLE__ & __MACH__
+#define OSX 1
+#elif __linux__
+#define LINUX 1
+#endif
 
-#define IS_LINUX() ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_UNIX_LINUX)
-
-#ifdef __APPLE__
-#define IS_MAC() true
+#if WINDOWS
+#define NEWLINE "\r\n"
 #else
-#define IS_MAC() ENUM_CONTAINS(wxPlatformInfo::Get().GetOperatingSystemId(), wxOS_MAC)
+#define NEWLINE "\n"
+#endif
+
+#ifdef USE_DEPRECATED_MACROS
+#warning Using deprecated version detection macros.
+
+#define IS_WINDOWS() WINDOWS
+#define IS_LINUX() LINUX
+#define IS_MAC() OSX
 #endif

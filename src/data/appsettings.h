@@ -22,6 +22,16 @@
 #include <wx/fileconf.h>
 #include <wx/confbase.h>
 
+#include "osutils.h"
+
+#if WINDOWS
+#define JPATH_FIELD_NAME "JPathWindows"
+#elif OSX
+#define JPATH_FIELD_NAME "JPathOSX"
+#elif LINUX
+#define JPATH_FIELD_NAME "JPathLinux"
+#endif
+
 const wxFileName iniConfigFile(_("multimc.cfg"));
 
 bool InitAppSettings(void);
@@ -93,9 +103,9 @@ public:
 	virtual bool GetJavaOverride() const { return false; };
 	virtual void SetJavaOverride( bool ) {};
 	
-	virtual wxString GetJavaPath() const { return GetSetting<wxString>(_("JPath"), _("java")); }
-	virtual void SetJavaPath(wxString value) {    SetSetting<wxString>(_("JPath"), value); }
-	virtual void ResetJavaPath() {           config->DeleteEntry(_("JPath")); };
+	virtual wxString GetJavaPath() const { return GetSetting<wxString>(JPATH_FIELD_NAME, _("java")); }
+	virtual void SetJavaPath(wxString value) {    SetSetting<wxString>(JPATH_FIELD_NAME, value); }
+	virtual void ResetJavaPath() {           config->DeleteEntry(JPATH_FIELD_NAME); };
 	
 	virtual void SetJvmArgs(wxString value) { SetSetting<wxString>(_("JvmArgs"), value); }
 	wxString GetJvmArgs() const { return GetSetting<wxString>(_("JvmArgs"), wxEmptyString ); }
@@ -184,9 +194,6 @@ class AppSettings : public SettingsBase
 public:
 	AppSettings();
 	~AppSettings();
-
-	virtual bool GetUserIsAwareOfLocal() { return GetSetting<bool>("UserIsAwareOfLocal", false); };
-	virtual void SetUserIsAwareOfLocal() { SetSetting<bool>("UserIsAwareOfLocal", true); };
 };
 
 extern AppSettings *settings;

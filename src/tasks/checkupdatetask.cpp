@@ -28,8 +28,6 @@
 DEFINE_EVENT_TYPE(wxEVT_CHECK_UPDATE)
 
 const wxString ciURL = _(JENKINS_JOB_URL);
-//const wxString ciURL = _("http://ci.forkk.net/job/MultiMC4/arch=x64,os=Linux/");
-
 
 CheckUpdateTask::CheckUpdateTask()
 	: Task()
@@ -72,19 +70,34 @@ wxThread::ExitCode CheckUpdateTask::TaskStart()
 	// Determine the latest stable build.
 	int buildNumber = GetBuildNumber(mainPageJSON);
 
+	if(buildNumber == -1)
+	{
+		wxFileName fname("JsonDUMP.txt");
+		fname.MakeAbsolute();
+		wxFile dump("JsonDUMP.txt",wxFile::write);
+		
+		dump.Write(mainPageJSON,wxMBConvStrictUTF8());
+		wxString err = "Failed to check for updates. The update server is likely down. Please try later.\n\n";
+		err << "If you have good reasons to believe that the problem is not on the server end, please ";
+		err << "report a bug and attach JsonDUMP.txt to it. (it should be in MultiMC's folder)";
+		wxLogError(err);
+		dump.Flush();
+		dump.Close();
+		return (ExitCode)0;
+	}
+	
 	// Figure out where to download the latest update.
-	wxString dlFileName;
-	if (IS_WINDOWS())
-		dlFileName = _("MultiMC.exe");
-	else if (IS_LINUX() || IS_MAC())
-		dlFileName = _("MultiMC");
+#if WINDOWS
+	wxString dlFileName = _("MultiMC.exe");
+#else
+	wxString dlFileName = _("MultiMC");
+#endif
 
 	wxString newCIURL = ciURL;
 	if (newCIURL.EndsWith("/"))
 		newCIURL.RemoveLast();
-
-	wxString dlURL = wxString::Format(_("%s/%i/artifact/%s"), newCIURL.c_str(), 
-		buildNumber, dlFileName.c_str());
+	
+	wxString dlURL = wxString::Format(_("%s/%i/artifact/%s"), newCIURL.c_str(), buildNumber, dlFileName.c_str());
 	
 	SetProgress(75);
 	OnCheckComplete(buildNumber, dlURL);
@@ -105,9 +118,7 @@ int CheckUpdateTask::GetBuildNumber(const wxString &mainPageJSON)
 	}
 	catch (json_parser_error e)
 	{
-		wxLogError(_("Failed to check for updates.\nJSON parser error at line %i: %s"), 
-			e.line(), wxStr(e.message()).c_str());
-		return 0;
+		return -1;
 	}
 	
 }

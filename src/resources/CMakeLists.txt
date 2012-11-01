@@ -50,10 +50,13 @@ creeper.png
 squarecreeper.png
 skeleton.png
 enderpearl.png
+ftb_glow.png
+ftb_logo.png
 herobrine.png
 meat.png
 chicken.png
 steve.png
+derp.png
 )
 SET(INSTANCE_ICONS_DEP ${INSTANCE_ICONS})
 PREFIXSUFFIX(INSTANCE_ICONS_DEP "insticons/" "")

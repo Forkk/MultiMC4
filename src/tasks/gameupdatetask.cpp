@@ -95,23 +95,15 @@ bool GameUpdateTask::LoadJarURLs()
 	
 	wxString nativeJar = wxEmptyString;
 	wxOperatingSystemId osID = wxPlatformInfo::Get().GetOperatingSystemId();
-	if (IS_WINDOWS())
-	{
+#if WINDOWS
 		nativeJar = _("windows_natives.jar");
-	}
-	else if (IS_MAC())
-	{
+#elif OSX
 		nativeJar = _("macosx_natives.jar");
-	}
-	else if (IS_LINUX())
-	{
+#elif LINUX
 		nativeJar = _("linux_natives.jar");
-	}
-	else
-	{
-		EmitErrorMessage(_("Your operating system does not support minecraft."));
-		return false;
-	}
+#else
+#error Detected unsupported OS.
+#endif
 	
 	jarURLs[jarURLs.size() - 1] = mojangURL + nativeJar;
 	return true;

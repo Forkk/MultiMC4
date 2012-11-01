@@ -91,6 +91,8 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		InstIconDef(_T("diamond"), wxMEMORY_IMAGE(diamond)),
 		InstIconDef(_T("tnt"), wxMEMORY_IMAGE(tnt)),
 		InstIconDef(_T("enderman"), wxMEMORY_IMAGE(enderman)),
+		InstIconDef(_T("ftb-logo"), wxMEMORY_IMAGE(ftb_logo)),
+		InstIconDef(_T("ftb-glow"), wxMEMORY_IMAGE(ftb_glow)),
 		InstIconDef(_T("infinity"), wxMEMORY_IMAGE(infinity)),
 		InstIconDef(_T("creeper"), wxMEMORY_IMAGE(creeper)),
 		InstIconDef(_T("square creeper"), wxMEMORY_IMAGE(squarecreeper)),
@@ -100,6 +102,7 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		InstIconDef(_T("meat"), wxMEMORY_IMAGE(meat)),
 		InstIconDef(_T("chicken"), wxMEMORY_IMAGE(chicken)),
 		InstIconDef(_T("steve"), wxMEMORY_IMAGE(steve)),
+		InstIconDef(_T("derp"), wxMEMORY_IMAGE(derp)),
 	};
 	const int builtInIconCount = sizeof(builtInIcons)/sizeof(InstIconDef);
 

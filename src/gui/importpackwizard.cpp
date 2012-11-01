@@ -24,6 +24,8 @@
 #include "apputils.h"
 #include "fsutils.h"
 
+#include "stdinstance.h"
+
 #include <memory>
 
 ImportPackWizard::ImportPackWizard(MainWindow *parent, ConfigPack *pack)
@@ -89,9 +91,9 @@ bool ImportPackWizard::Start()
 		if (!m_mainWin->GetNewInstName(&instName, &instDirName, _("Import config pack")))
 			return false;
 
-		wxFileName instDir = wxFileName::DirName(Path::Combine(settings->GetInstDir(), instDirName));
+		wxString instDir = Path::Combine(settings->GetInstDir(), instDirName);
 
-		Instance *inst = new Instance(instDir);
+		Instance *inst = new StdInstance(instDir);
 		inst->SetName(instName);
 
 		m_mainWin->AddInstance(inst);
@@ -142,7 +144,7 @@ bool ImportPackWizard::Start()
 		
 		// Extract config files
 		wxFFileInputStream fileIn(m_pack->GetFileName());
-		fsutils::ExtractZipArchive(fileIn, instDir.GetFullPath());
+		fsutils::ExtractZipArchive(fileIn, instDir);
 
 		return true;
 	}

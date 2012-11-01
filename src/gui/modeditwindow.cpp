@@ -26,6 +26,7 @@
 #include "installforgedialog.h"
 #include "taskprogressdialog.h"
 #include "filedownloadtask.h"
+#include "filecopytask.h"
 
 ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 	: wxFrame(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))
@@ -60,9 +61,11 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		jarModSizer->Add(jarListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 		
 		wxButton *addJarModBtn = new wxButton(jarModPanel, ID_ADD_JAR_MOD, _("&Add"));
+		addJarModBtn->SetToolTip(_("Add a jar mod."));
 		jarListBtnBox->Add(addJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		delJarModBtn = new wxButton(jarModPanel, ID_DEL_JAR_MOD, _("&Remove"));
+		delJarModBtn->SetToolTip(_("Remove the selected jar mod."));
 		jarListBtnBox->Add(delJarModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 
 		wxButton *installMCForgeBtn = new wxButton(jarModPanel, ID_INSTALL_FORGE, _("MCForge"));
@@ -72,9 +75,11 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		jarListBtnBox->AddStretchSpacer();
 		
 		jarModUpBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_UP, _("Move &Up"));
+		jarModUpBtn->SetToolTip(_("Move the selected jar mod up."));
 		jarListBtnBox->Add(jarModUpBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
 		
 		jarModDownBtn = new wxButton(jarModPanel, ID_MOVE_JAR_MOD_DOWN, _("Move &Down"));
+		jarModDownBtn->SetToolTip(_("Move the selected jar mod down"));
 		jarListBtnBox->Add(jarModDownBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
 	}
 	
@@ -95,14 +100,17 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		coreModSizer->Add(coreModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 		
 		wxButton *addCoreModBtn = new wxButton(coreModPanel, ID_ADD_CORE_MOD, _("&Add"));
+		addCoreModBtn->SetToolTip(_("Add a new forge core mod."));
 		coreModListBtnBox->Add(addCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		wxButton *delCoreModBtn = new wxButton(coreModPanel, ID_DEL_CORE_MOD, _("&Remove"));
+		delCoreModBtn->SetToolTip(_("Remove the selected core mod"));
 		coreModListBtnBox->Add(delCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 
 		coreModListBtnBox->AddStretchSpacer();
 		
 		auto exploreCoreModBtn = new wxButton(coreModPanel, ID_EXPLORE_CORE, _("&View Folder"));
+		exploreCoreModBtn->SetToolTip(_("Open the core mod folder in your file browser."));
 		coreModListBtnBox->Add(exploreCoreModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
 	}
 	
@@ -123,15 +131,48 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		mlModSizer->Add(mlModListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
 		
 		wxButton *addMLModBtn = new wxButton(mlModPanel, ID_ADD_ML_MOD, _("&Add"));
+		addMLModBtn->SetToolTip(_("Add a new modloader mod."));
 		mlModListBtnBox->Add(addMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 		
 		wxButton *delMLModBtn = new wxButton(mlModPanel, ID_DEL_ML_MOD, _("&Remove"));
+		delMLModBtn->SetToolTip(_("Remove the selected modloader mod."));
 		mlModListBtnBox->Add(delMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
 
 		mlModListBtnBox->AddStretchSpacer();
 		
 		auto exploreMLModBtn = new wxButton(mlModPanel, ID_EXPLORE_ML, _("&View Folder"));
+		exploreMLModBtn->SetToolTip(_("Open the modloader mods folder in your file browser."));
 		mlModListBtnBox->Add(exploreMLModBtn, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
+	}
+
+	// Texture pack tab
+	{
+		wxPanel *tpPanel = new wxPanel(modEditNotebook, -1);
+		wxBoxSizer *tpSizer = new wxBoxSizer(wxHORIZONTAL);
+		tpPanel->SetSizer(tpSizer);
+		modEditNotebook->AddPage(tpPanel, _("Texture Packs"));
+
+		texturePackList = new TexturePackListCtrl(tpPanel, ID_TEXTURE_PACK_LIST, inst);
+		texturePackList->InsertColumn(0, _("Name"));
+		texturePackList->SetDropTarget(new TexturePackDropTarget(texturePackList, inst));
+		tpSizer->Add(texturePackList, wxSizerFlags(1).Expand().Border(wxALL, 8));
+
+		wxBoxSizer *tpackListBtnBox = new wxBoxSizer(wxVERTICAL);
+		tpSizer->Add(tpackListBtnBox, wxSizerFlags(0).Border(wxTOP | wxBOTTOM, 4).Expand());
+
+		wxButton *addTPackButton = new wxButton(tpPanel, ID_ADD_TEXTURE_PACK, _("&Add"));
+		addTPackButton->SetToolTip(_("Add a new texture pack."));
+		tpackListBtnBox->Add(addTPackButton, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+
+		wxButton *delTPackButton = new wxButton(tpPanel, ID_DEL_TEXTURE_PACK, _("&Remove"));
+		delTPackButton->SetToolTip(_("Remove the selected texture pack."));
+		tpackListBtnBox->Add(delTPackButton, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Expand());
+
+		tpackListBtnBox->AddStretchSpacer();
+
+		auto exploreTPackButton = new wxButton(tpPanel, ID_EXPLORE_TEXTURE_PACK, _("&View Folder"));
+		exploreTPackButton->SetToolTip(_("Open the texture packs folder in your file browser."));
+		tpackListBtnBox->Add(exploreTPackButton, wxSizerFlags(0).Border(wxTOP | wxBOTTOM | wxRIGHT, 4).Align(wxALIGN_BOTTOM).Expand());
 	}
 	
 	// Buttons on the bottom of the dialog
@@ -140,14 +181,17 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		mainBox->Add(btnBox, 0, wxEXPAND | wxBOTTOM | wxRIGHT | wxLEFT, 8);
 
 		wxButton *btnReload = new wxButton(mainPanel, ID_RELOAD, _("&Reload"));
+		btnReload->SetToolTip(_("Reload the mod lists."));
 		btnBox->Add(btnReload, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxRIGHT | wxTOP | wxBOTTOM, 4));
 
 		wxButton *btnExport = new wxButton(mainPanel, ID_EXPORT, _("&Export"));
+		btnExport->SetToolTip(_("Export the instance to a config pack."));
 		btnBox->Add(btnExport, wxSizerFlags(0).Align(wxALIGN_LEFT).Border(wxRIGHT | wxTOP | wxBOTTOM, 4));
 
 		btnBox->AddStretchSpacer();
 
 		wxButton *btnClose = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
+		btnClose->SetToolTip(_("Close this window."));
 		btnBox->Add(btnClose, wxSizerFlags(0).Align(wxALIGN_RIGHT).Border(wxTOP | wxBOTTOM, 4));
 	}
 
@@ -261,6 +305,8 @@ void ModEditWindow::UpdateColSizes()
 	
 	coreModList->SetColumnWidth(0, width - versionColumnWidth);
 	coreModList->SetColumnWidth(1, versionColumnWidth);
+
+	texturePackList->SetColumnWidth(0, width);
 }
 
 bool ModEditWindow::Show(bool show)
@@ -438,7 +484,7 @@ void ModEditWindow::MLModListCtrl::PasteMod()
 
 	// Add the given mods.
 	wxArrayString filenames = data.GetFilenames();
-	fsutils::CopyFileList(filenames,m_inst->GetMLModsDir());
+	CopyFiles(filenames,m_inst->GetMLModsDir().GetFullPath());
 	//FIXME: this looks like lazy code. it can be done better.
 	auto mllist = m_inst->GetMLModList();
 	mllist->UpdateModList();
@@ -513,7 +559,7 @@ void ModEditWindow::CoreModListCtrl::PasteMod()
 	}
 	// Add the given mods.
 	wxArrayString filenames = data.GetFilenames();
-	fsutils::CopyFileList(filenames,m_inst->GetCoreModsDir());
+	CopyFiles(filenames,m_inst->GetCoreModsDir().GetFullPath());
 	//FIXME: this looks like lazy code. it can be done better.
 	auto mllist = m_inst->GetCoreModList();
 	mllist->UpdateModList();
@@ -632,7 +678,7 @@ wxDragResult ModEditWindow::MLModsDropTarget::OnDragOver(wxCoord x, wxCoord y, w
 
 bool ModEditWindow::MLModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
 {
-	fsutils::CopyFileList(filenames,m_inst->GetMLModsDir());
+	m_owner->CopyFiles(filenames,m_inst->GetMLModsDir().GetFullPath());
 	auto mllist = m_inst->GetMLModList();
 	mllist->UpdateModList();
 	m_owner->UpdateItems();
@@ -653,7 +699,7 @@ wxDragResult ModEditWindow::CoreModsDropTarget::OnDragOver(wxCoord x, wxCoord y,
 
 bool ModEditWindow::CoreModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
 {
-	fsutils::CopyFileList(filenames,m_inst->GetCoreModsDir());
+	m_owner->CopyFiles(filenames, m_inst->GetCoreModsDir().GetFullPath());
 	auto mllist = m_inst->GetCoreModList();
 	mllist->UpdateModList();
 	m_owner->UpdateItems();
@@ -663,14 +709,14 @@ bool ModEditWindow::CoreModsDropTarget::OnDropFiles(wxCoord x, wxCoord y, const 
 
 void ModEditWindow::OnAddJarMod(wxCommandEvent &event)
 {
-	wxFileDialog addModDialog(this, "Choose a file to add.",
+	wxFileDialog addTPDialog(this, "Choose a file to add.",
 		settings->GetModsDir().GetFullPath(), wxEmptyString,
 		wxFileSelectorDefaultWildcardStr,wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE
 	);
-	if (addModDialog.ShowModal() == wxID_OK)
+	if (addTPDialog.ShowModal() == wxID_OK)
 	{
 		wxArrayString allfiles;
-		addModDialog.GetPaths(allfiles);
+		addTPDialog.GetPaths(allfiles);
 		for (auto iter = allfiles.begin(); iter != allfiles.end(); ++iter)
 		{
 			// just skip the dirs here...
@@ -744,15 +790,15 @@ void ModEditWindow::OnJarModSelChanged(wxListEvent &event)
 
 void ModEditWindow::OnAddMLMod(wxCommandEvent &event)
 {
-	wxFileDialog addModDialog (this, "Choose a file to add.",
+	wxFileDialog addTPDialog (this, "Choose a file to add.",
 		settings->GetModsDir().GetFullPath(), wxEmptyString,
 		wxFileSelectorDefaultWildcardStr,wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE
 	);
-	if (addModDialog.ShowModal() == wxID_OK)
+	if (addTPDialog.ShowModal() == wxID_OK)
 	{
 		wxArrayString allfiles;
-		addModDialog.GetPaths(allfiles);
-		fsutils::CopyFileList(allfiles, m_inst->GetMLModsDir());
+		addTPDialog.GetPaths(allfiles);
+		CopyFiles(allfiles, m_inst->GetMLModsDir().GetFullPath());
 		auto mllist = m_inst->GetMLModList();
 		mllist->UpdateModList();
 		mlModList->UpdateItems();
@@ -766,15 +812,15 @@ void ModEditWindow::OnDeleteMLMod(wxCommandEvent &event)
 
 void ModEditWindow::OnAddCoreMod(wxCommandEvent &event)
 {
-	wxFileDialog addModDialog (this, "Choose a file to add.",
+	wxFileDialog addTPDialog (this, "Choose a file to add.",
 		settings->GetModsDir().GetFullPath(), wxEmptyString,
 		wxFileSelectorDefaultWildcardStr,wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE
 	);
-	if (addModDialog.ShowModal() == wxID_OK)
+	if (addTPDialog.ShowModal() == wxID_OK)
 	{
 		wxArrayString allfiles;
-		addModDialog.GetPaths(allfiles);
-		fsutils::CopyFileList(allfiles, m_inst->GetCoreModsDir());
+		addTPDialog.GetPaths(allfiles);
+		CopyFiles(allfiles, m_inst->GetCoreModsDir().GetFullPath());
 		auto corelist = m_inst->GetCoreModList();
 		corelist->UpdateModList();
 		coreModList->UpdateItems();
@@ -837,6 +883,8 @@ void ModEditWindow::OnReloadClicked ( wxCommandEvent& event )
 	mlModList->UpdateItems();
 	m_inst->GetModList()->UpdateModList();
 	jarModList->UpdateItems();
+	m_inst->GetTexturePackList()->UpdateTexturePackList();
+	texturePackList->UpdateItems();
 }
 
 void ModEditWindow::OnExportClicked(wxCommandEvent& event)
@@ -906,10 +954,10 @@ void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
 	InstallForgeDialog installDlg (this);
 	if (installDlg.ShowModal() == wxID_OK)
 	{
-		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), installDlg.GetSelectedBuild());
-
-		auto dlTask = new FileDownloadTask("http://files.minecraftforge.net/" + installDlg.GetSelectedBuild(), 
-			forgePath);
+		wxString dl = installDlg.GetSelectedBuild();
+		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), dl);
+		
+		auto dlTask = new FileDownloadTask("http://files.minecraftforge.net/" + dl, forgePath);
 		TaskProgressDialog taskDlg(this);
 		taskDlg.CenterOnParent();
 		if (taskDlg.ShowModal(dlTask))
@@ -920,6 +968,198 @@ void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
 	}
 }
 
+void ModEditWindow::CopyFiles(wxWindow *window, wxArrayString files, wxString destDir)
+{
+	for (wxArrayString::const_iterator iter = files.begin(); iter != files.end(); ++iter)
+	{
+		wxFileName source (*iter);
+		wxString fileName = source.GetFullName();
+		wxFileName dest(Path::Combine(destDir, fileName));
+		if (wxFileName::DirExists(*iter))
+		{
+			// TODO make the file copy task copy the file list all in one go.
+			FileCopyTask *task = new FileCopyTask(*iter, dest.GetFullPath());
+			TaskProgressDialog dlg(window);
+			dlg.ShowModal(task);
+			delete task;
+		}
+		else
+		{
+			wxCopyFile(*iter, dest.GetFullPath());
+		}
+	}
+}
+
+void ModEditWindow::CopyFiles(wxArrayString files, wxString dest)
+{
+	ModEditWindow::CopyFiles(this, files, dest);
+}
+
+void ModEditWindow::ModListCtrl::CopyFiles(wxArrayString files, wxString dest)
+{
+	ModEditWindow::CopyFiles(GetParent(), files, dest);
+}
+
+wxDragResult ModEditWindow::TexturePackDropTarget::OnDragOver(wxCoord x, wxCoord y, wxDragResult def)
+{
+	return wxDragCopy;
+}
+
+ModEditWindow::TexturePackDropTarget::TexturePackDropTarget(ModListCtrl *owner, Instance *inst)
+{
+	m_owner = owner;
+	m_inst = inst;
+}
+
+bool ModEditWindow::TexturePackDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
+{
+	m_owner->CopyFiles(filenames, m_inst->GetCoreModsDir().GetFullPath());
+	auto tplist = m_inst->GetTexturePackList();
+	tplist->UpdateTexturePackList();
+	m_owner->UpdateItems();
+	return true;
+}
+
+void ModEditWindow::TexturePackListCtrl::CopyMod()
+{
+	TexturePackList *tpacks = m_inst->GetTexturePackList();
+	wxFileDataObject *tpackFileObj = new wxFileDataObject;
+
+	wxArrayInt indices = GetSelectedItems();
+	for (wxArrayInt::const_iterator iter = indices.begin(); iter != indices.end(); ++iter)
+	{
+		wxFileName tpackFile = tpacks->at(*iter).GetFileName();
+		tpackFile.MakeAbsolute();
+		tpackFileObj->AddFile(tpackFile.GetFullPath());
+	}
+
+	if (wxTheClipboard->Open())
+	{
+		wxTheClipboard->SetData(tpackFileObj);
+		wxTheClipboard->Close();
+	}
+}
+
+void ModEditWindow::TexturePackListCtrl::PasteMod()
+{
+	wxFileDataObject data;
+
+	// Get data from the clipboard.
+	if (wxTheClipboard->Open())
+	{
+		if (wxTheClipboard->IsSupported(wxDF_FILENAME))
+		{
+			wxTheClipboard->GetData(data);
+		}
+		else
+		{
+			wxTheClipboard->Close();
+			return;
+		}
+		wxTheClipboard->Close();
+	}
+
+	// Add the given mods.
+	wxArrayString filenames = data.GetFilenames();
+	CopyFiles(filenames,m_inst->GetTexturePacksDir().GetFullPath());
+	//FIXME: this looks like lazy code. it can be done better.
+	auto tplist = m_inst->GetTexturePackList();
+	tplist->UpdateTexturePackList();
+	UpdateItems();
+}
+
+void ModEditWindow::TexturePackListCtrl::DeleteMod()
+{
+	if (GetItemCount() <= 0)
+		return;
+
+	wxArrayInt indices;
+	long item = -1;
+	while (true)
+	{
+		item = GetNextItem(item, wxLIST_NEXT_ALL, 
+			wxLIST_STATE_SELECTED);
+
+		if (item == -1)
+			break;
+
+		indices.Add(item);
+	}
+
+	//FIXME: this looks like lazy code. it can be done better.
+	for (int i = indices.GetCount() -1; i >= 0; i--)
+	{
+		m_inst->GetTexturePackList()->DeletePack(indices[i]);
+	}
+	auto packlist = m_inst->GetTexturePackList();
+	packlist->UpdateTexturePackList();
+	UpdateItems();
+}
+
+void ModEditWindow::OnAddTPack(wxCommandEvent &event)
+{
+	wxFileDialog addTPDialog (this, "Choose a file to add.",
+		settings->GetModsDir().GetFullPath(), wxEmptyString,
+		wxFileSelectorDefaultWildcardStr,wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE
+		);
+	if (addTPDialog.ShowModal() == wxID_OK)
+	{
+		wxArrayString allfiles;
+		addTPDialog.GetPaths(allfiles);
+		CopyFiles(allfiles, m_inst->GetTexturePacksDir().GetFullPath());
+		auto tplist = m_inst->GetTexturePackList();
+		tplist->UpdateTexturePackList();
+		texturePackList->UpdateItems();
+	}
+}
+
+void ModEditWindow::OnDeleteTPack(wxCommandEvent &event)
+{
+	texturePackList->DeleteMod();
+}
+
+void ModEditWindow::OnExploreTPack(wxCommandEvent &event)
+{
+	Utils::OpenFolder(m_inst->GetTexturePacksDir());
+}
+
+TexturePackList *ModEditWindow::TexturePackListCtrl::GetTPList() const
+{
+	return m_inst->GetTexturePackList();
+}
+
+wxString ModEditWindow::TexturePackListCtrl::OnGetItemText(long int item, long int column) const
+{
+	if(item >= GetTPList()->size())
+	{
+		//BUG: this should never happen!
+		return wxEmptyString;
+	}
+
+	switch (column)
+	{
+	case 0:
+		return (*GetTPList())[item].GetName();
+	default:
+		return wxEmptyString;
+	}
+}
+
+wxListItemAttr *ModEditWindow::TexturePackListCtrl::OnGetItemAttr(long int item) const
+{
+	if(item >= GetTPList()->size())
+	{
+		//BUG: this should never happen! (yet it does)
+	}
+	return nullptr;
+}
+
+void ModEditWindow::TexturePackListCtrl::UpdateItems()
+{
+	SetItemCount(GetTPList()->size());
+	Refresh();
+	Update();
+}
 
 BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
 	EVT_BUTTON(ID_ADD_JAR_MOD, ModEditWindow::OnAddJarMod)
@@ -935,6 +1175,10 @@ BEGIN_EVENT_TABLE(ModEditWindow, wxFrame)
 	EVT_BUTTON(ID_ADD_CORE_MOD, ModEditWindow::OnAddCoreMod)
 	EVT_BUTTON(ID_DEL_CORE_MOD, ModEditWindow::OnDeleteCoreMod)
 	EVT_BUTTON(ID_EXPLORE_CORE, ModEditWindow::OnExploreCore)
+
+	EVT_BUTTON(ID_ADD_TEXTURE_PACK, ModEditWindow::OnAddTPack)
+	EVT_BUTTON(ID_DEL_TEXTURE_PACK, ModEditWindow::OnDeleteTPack)
+	EVT_BUTTON(ID_EXPLORE_TEXTURE_PACK, ModEditWindow::OnExploreTPack)
 	
 	EVT_LIST_ITEM_SELECTED(ID_JAR_MOD_LIST, ModEditWindow::OnJarModSelChanged)
 	EVT_LIST_ITEM_DESELECTED(ID_JAR_MOD_LIST, ModEditWindow::OnJarModSelChanged)

@@ -49,15 +49,14 @@ bool MultiMC::OnInit()
 #endif
 	updateOnExit = false;
 	startMode = START_NORMAL;
-	bool isLocalMode = false;
+	useProvidedDir = false;
 	
 	// This is necessary for the update system since it calls OnInitCmdLine
 	// to set up the command line arguments that the update system uses.
 	if (!wxApp::OnInit())
 		return false;
 
-	// On OS X set the working directory to $HOME/MultiMC
-	if (IS_MAC())
+#if OSX
 	{
 		wxFileName mmcDir = wxFileName::DirName(wxStandardPaths::Get().GetResourcesDir());
 		mmcDir.Normalize();
@@ -67,15 +66,18 @@ bool MultiMC::OnInit()
 
 		wxSetWorkingDirectory(mmcDir.GetFullPath());
 	}
-	else
+#else
+	if (!useProvidedDir)
 	{
 		wxFileName mmcDir (wxStandardPaths::Get().GetExecutablePath());
-		wxString cfgFil = Path::Combine(wxGetCwd(), "multimc.cfg");
-		if (!wxFileExists(cfgFil))
-			wxSetWorkingDirectory(mmcDir.GetPath());
-		else if (mmcDir != wxGetCwd())
-			isLocalMode = true;
+		wxSetWorkingDirectory(mmcDir.GetPath());
 	}
+	else
+	{
+		// do use provided directory
+		wxSetWorkingDirectory(providedDir.GetFullPath());
+	}
+#endif
 
 	if (!InitAppSettings())
 	{
@@ -91,14 +93,6 @@ bool MultiMC::OnInit()
 	}
 
 	SetAppName(_("MultiMC"));
-
-	if (isLocalMode && !settings->GetUserIsAwareOfLocal())
-	{
-		wxMessageBox(_("Found existing multimc.cfg in current (run-in) directory.\n\
-Will run in 'Local Mode', using that config.\n\
-This message will only be shown once for this multimc.cfg"));
-		settings->SetUserIsAwareOfLocal();
-	}
 	
 	wxInitAllImageHandlers();
 	wxSocketBase::Initialize();
@@ -167,6 +161,21 @@ void MultiMC::OnInitCmdLine(wxCmdLineParser &parser)
 bool MultiMC::OnCmdLineParsed(wxCmdLineParser& parser)
 {
 	wxString parsedOption;
+	if(parser.Found("d", &parsedOption))
+	{
+		if (!wxDirExists(parsedOption))
+		{
+			std::cerr << "Provided directory doesn't exist!" << std::endl;
+			return false;
+		}
+		providedDir.AssignDir( parsedOption );
+		if(!providedDir.IsDirReadable() || !providedDir.IsDirWritable())
+		{
+			std::cerr << "You don't have read or write rights for the provided directory!" << std::endl;
+			return false;
+		}
+		useProvidedDir = true;
+	}
 	if (parser.Found(_("u"), &parsedOption))
 	{
 		thisFileName = wxStandardPaths::Get().GetExecutablePath();
@@ -252,7 +261,7 @@ void MultiMC::YieldSleep(int secs)
 
 int MultiMC::OnExit()
 {
-#ifdef __WXMSW__
+#ifdef WINDOWS
 	wxString updaterFileName = _("MultiMCUpdate.exe");
 #else
 	wxString updaterFileName = _("MultiMCUpdate");
@@ -261,18 +270,17 @@ int MultiMC::OnExit()
 	if (updateOnExit && wxFileExists(updaterFileName))
 	{
 		wxFileName updateFile(updaterFileName);
-		if (IS_LINUX() || IS_MAC())
-		{
+#if LINUX || OSX
 			wxExecute(_("chmod +x ") + updateFile.GetFullPath());
 			updateFile.MakeAbsolute();
-		}
+#endif
 
 		wxProcess proc;
 		
 		wxString updateFilePath = updateFile.GetFullPath();
 		wxString thisFilePath = wxStandardPaths::Get().GetExecutablePath();
 
-#if defined __WXMSW__
+#if WINDOWS
 		wxString launchCmd = wxString::Format(_("cmd /C %s -u \"%s\""),
 			updateFilePath.c_str(), thisFilePath.c_str());
 #else
@@ -295,7 +303,7 @@ int MultiMC::OnExit()
 void MultiMC::OnFatalException()
 {
 	wxMessageBox(_("A fatal error has occurred and MultiMC has to exit. Sorry for the inconvenience."), 
-		_("Oh no!"), wxICON_ERROR | wxCENTER);
+		_("Oh no!"), wxICON_ERROR | wxCENTER | wxOK);
 }
 
 void MultiMC::OnUnhandledException()

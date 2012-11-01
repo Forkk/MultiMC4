@@ -53,7 +53,7 @@ ENDIF ()
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 
 set(MultiMC_VERSION_MAJOR		4)
-set(MultiMC_VERSION_MINOR		1)
+set(MultiMC_VERSION_MINOR		2)
 set(MultiMC_VERSION_REV			0)
 
 IF (DEFINED MultiMC_VERSION_BUILD)
@@ -124,6 +124,8 @@ gui/taskprogressdialog.cpp
 gui/snapshotdialog.cpp
 gui/installforgedialog.cpp
 gui/savemgrwindow.cpp
+gui/textdisplaydialog.cpp
+gui/advancedmsgdlg.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -134,6 +136,11 @@ data/configpack.cpp
 data/snapshotlist.cpp
 data/worldlist.cpp
 data/world.cpp
+data/texturepack.cpp
+data/texturepacklist.cpp
+data/stdinstance.cpp
+data/instancemodel.cpp
+data/forgeversions.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
@@ -145,8 +152,11 @@ tasks/filecopytask.cpp
 tasks/exportpacktask.cpp
 tasks/downgradetask.cpp
 tasks/ziptask.cpp
+tasks/pastebintask.cpp
+tasks/lambdatask.cpp
 
 java/javautils.cpp
+java/annotations.cpp
 
 apputils.cpp
 curlutils.cpp
@@ -179,6 +189,8 @@ gui/taskprogressdialog.h
 gui/snapshotdialog.h
 gui/installforgedialog.h
 gui/savemgrwindow.h
+gui/textdisplaydialog.h
+gui/advancedmsgdlg.h
 
 data/appsettings.h
 data/instance.h
@@ -189,6 +201,11 @@ data/configpack.h
 data/snapshotlist.h
 data/worldlist.h
 data/world.h
+data/texturepack.h
+data/texturepacklist.h
+data/stdinstance.h
+data/instancemodel.h
+data/forgeversions.h
 
 tasks/task.h
 tasks/logintask.h
@@ -200,10 +217,16 @@ tasks/filecopytask.h
 tasks/exportpacktask.h
 tasks/downgradetask.h
 tasks/ziptask.h
+tasks/pastebintask.h
+tasks/lambdatask.h
 
-java/endian.h
+java/annotations.h
 java/classfile.h
+java/constants.h
+java/endian.h
+java/errors.h
 java/javautils.h
+java/membuffer.h
 
 apputils.h
 curlutils.h
@@ -297,11 +320,14 @@ include_directories(
 "${PROJECT_SOURCE_DIR}/tasks"
 )
 
-# Add the executable.
+# Do not generate manifests for the binary. we have our own...
+if (MSVC)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
+endif()
 
+# Add the executable.
 add_executable(MultiMC WIN32 ${SRCS} ${INCS})
 add_dependencies(MultiMC generate_headers generate_launcher)
-
 
 # Link the libraries.
 target_link_libraries(MultiMC
@@ -313,6 +339,25 @@ target_link_libraries(MultiMC
 	patchlib
 	${MULTIMC_ADDITIONAL_LINKS}
 )
+
+OPTION(MultiMC_Build_Annotation_Tool "Build the simple java class annotation dump tool." OFF)
+IF(MultiMC_Build_Annotation_Tool)
+# Set the sources and headers variables.
+set(CLASSTEST_SRCS 
+java/test.cpp
+java/annotations.cpp
+)
+
+set (CLASSTEST_INCS
+java/annotations.h
+java/classfile.h
+java/constants.h
+java/endian.h
+java/errors.h
+java/membuffer.h
+)
+add_executable(classtest ${CLASSTEST_SRCS} ${CLASSTEST_INCS})
+ENDIF()
 
 if (NOT CMAKE_CROSSCOMPILING)
 	EXPORT(TARGETS wxinclude FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake)

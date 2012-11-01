@@ -29,18 +29,31 @@
 #include "modlist.h"
 #include "world.h"
 #include "worldlist.h"
+#include "texturepack.h"
+#include "texturepacklist.h"
+
+
+class InstanceModel;
 
 bool IsValidInstance(wxFileName rootDir);
 
 class Instance : public wxEvtHandler, public SettingsBase
 {
 public:
-	static Instance *LoadInstance(wxFileName rootDir);
-	Instance(const wxFileName &rootDir);
+	enum Type
+	{
+		INST_TYPE_STANDARD,
+	};
+
+	static Instance *LoadInstance(wxString rootDir);
+	Instance(const wxString &rootDir);
 	~Instance(void);
 	
 	bool Save() const;
 	bool Load(bool loadDefaults = false);
+
+	// Returns the instance's ID. (the root directory name)
+	wxString GetInstID() const;
 	
 	// Directories
 	wxFileName GetRootDir() const;
@@ -76,9 +89,15 @@ public:
 	
 	wxString GetNotes() const;
 	void SetNotes(wxString notes);
+
+	wxDateTime GetLastLaunch() const;
+	void SetLastLaunch(wxDateTime time);
+	void SetLastLaunch() { SetLastLaunch(wxDateTime::Now()); }
 	
 	bool ShouldRebuild() const;
 	void SetNeedsRebuild(bool value = true);
+
+	virtual Type GetType() const = 0;
 	
 	wxProcess *GetInstProcess() const;
 	
@@ -94,6 +113,8 @@ public:
 	ModList *GetCoreModList();
 
 	WorldList *GetWorldList();
+
+	TexturePackList *GetTexturePackList();
 	
 	void GetPossibleConfigFiles(wxArrayString *array, wxString dir = wxEmptyString);
 	
@@ -161,6 +182,12 @@ public:
 		SetSetting<wxString>("JarTimestamp", finalstr);
 	};
 	
+	/// Get the instance's group.
+	wxString GetGroup();
+
+	/// Set the instance's group.
+	void SetGroup(const wxString& group);
+	
 	/**
 	 * Update the jar version and timestamp
 	 * if keep_current is true, only updates the stored timestamp
@@ -171,6 +198,9 @@ public:
 	{
 		return false;
 	}
+	
+	/// Make this instance report relevant changes to the model
+	void SetParentModel ( InstanceModel* parent );
 	
 protected:
 	class JarModList : public ModList
@@ -201,13 +231,17 @@ protected:
 	protected:
 		virtual bool LoadModListFromDir(const wxString& loadFrom, bool quickLoad);
 	};
+	InstanceModel * parentModel;
 	FolderModList mlModList;
 	FolderModList coreModList;
 
 	WorldList worldList;
+
+	TexturePackList tpList;
 	
 	wxFileName rootDir;
 	wxString version;
+	wxString group;
 	
 	wxProcess *instProc;
 	bool m_running;
@@ -215,6 +249,7 @@ protected:
 	bool coremod_list_inited;
 	bool jar_list_inited;
 	bool world_list_initialized;
+	bool tp_list_initialized;
 	wxString m_lastLaunchCommand;
 	
 	wxEvtHandler *evtHandler;
