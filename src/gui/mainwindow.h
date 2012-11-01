@@ -95,6 +95,7 @@ public:
 	void OnInstMenuOpened(InstanceCtrlEvent& event);
 	void OnWindowClosed(wxCloseEvent& event);
 	void OnNotesLostFocus(wxFocusEvent& event);
+	void OnInstDragged(InstanceCtrlEvent& event);
 
 	void OnExitApp(wxCommandEvent &event);
 	

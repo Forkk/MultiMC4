@@ -4,6 +4,7 @@
 #pragma once
 
 #include "wx/dynarray.h"
+#include "wx/dnd.h"
 #include <instance.h>
 #include <insticonlist.h>
 
@@ -41,6 +42,8 @@ class InstanceCtrl;
 #define wxINST_FOCUSED    0x04
 // The item itself has the focus
 #define wxINST_IS_FOCUS    0x08
+
+const wxDataFormat DATA_FORMAT_INSTANCE("instance");
 
 class InstanceVisual
 {
@@ -238,6 +241,9 @@ public:
 	
 	/// Get the nth item
 	InstanceVisual* GetItem(VisualCoord n) const;
+
+	/// Get the nth group
+	GroupVisual* GetGroup(VisualCoord n) const;
 	
 	/// Get the overall rect of the given item
 	/// If view_relative is true, rect is relative to the scroll viewport
@@ -324,7 +330,24 @@ public:
 	void OnLeftClick(wxMouseEvent& event);
 	void OnLeftDClick(wxMouseEvent& event);
 	void OnRightClick(wxMouseEvent& event);
+	void OnMouseMotion(wxMouseEvent& event);
 	void OnChar(wxKeyEvent& event);
+
+	class InstCtrlDropTarget : public wxTextDropTarget
+	{
+	public:
+		InstCtrlDropTarget(InstanceCtrl* parent)
+			: wxTextDropTarget()
+		{
+			m_parent = parent;
+		}
+
+		virtual bool OnDropText(wxCoord x, wxCoord y, const wxString& data);
+		virtual wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
+
+	protected:
+		InstanceCtrl* m_parent;
+	} *dtarget;
 	
 	/// Sizing
 	void OnSize(wxSizeEvent& event);
@@ -520,6 +543,7 @@ DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_MENU, 2602)
 DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_ACTIVATE, 2603)
 DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_DELETE, 2604)
 DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_RENAME, 2605)
+DECLARE_EVENT_TYPE(wxEVT_COMMAND_INST_DRAG, 2606)
 END_DECLARE_EVENT_TYPES()
 
 typedef void (wxEvtHandler::*wxInstanceCtrlEventFunction)(InstanceCtrlEvent&);
@@ -573,6 +597,16 @@ typedef void (wxEvtHandler::*wxInstanceCtrlEventFunction)(InstanceCtrlEvent&);
 	DECLARE_EVENT_TABLE_ENTRY\
 	(\
 		wxEVT_COMMAND_INST_RENAME,\
+		id,\
+		-1,\
+		(wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ),\
+		NULL\
+	),
+
+#define EVT_INST_DRAG(id, fn)\
+	DECLARE_EVENT_TABLE_ENTRY\
+	(\
+		wxEVT_COMMAND_INST_DRAG,\
 		id,\
 		-1,\
 		(wxObjectEventFunction) (wxEventFunction)  wxStaticCastEvent( wxInstanceCtrlEventFunction, & fn ),\
