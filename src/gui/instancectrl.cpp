@@ -586,14 +586,29 @@ bool InstanceCtrl::InstCtrlDropTarget::OnDropText(wxCoord x, wxCoord y, const wx
 	VisualCoord coord;
 	m_parent->HitTest(wxPoint(x, y), coord);
 
-	// If dragging over a group header.
-	if (coord.isGroup())
+	// Make sure we target a group, always.
+	if(coord.itemIndex >= 0)
+		coord.itemIndex = -1;
+	GroupVisual * gv = m_parent->GetGroup(coord);
+	if (gv)
 	{
 		for (int i = 0; i < m_parent->m_instList->size(); i++)
 		{
-			if (m_parent->m_instList->at(i)->GetInstID() == data)
+			Instance * inst = m_parent->m_instList->at(i);
+			if (inst->GetInstID() == data)
 			{
-				m_parent->m_instList->at(i)->SetGroup(m_parent->GetGroup(coord)->GetName());
+				if(gv->isUngrouped() && inst->GetGroup() == "" && coord.isHeader() || coord.isHeaderTicker())
+				{
+					inst->SetGroup("New Group");
+				}
+				else if(gv->isUngrouped())
+				{
+					inst->SetGroup(wxEmptyString);
+				}
+				else
+				{
+					inst->SetGroup(gv->GetName());
+				}
 				m_parent->ReloadAll();
 
 				return true;
@@ -737,7 +752,7 @@ void InstanceCtrl::ToggleGroup ( int index )
 }
 
 /// Find the item under the given point
-bool InstanceCtrl::HitTest(const wxPoint& pt, VisualCoord& n)
+void InstanceCtrl::HitTest( const wxPoint& pt, VisualCoord& n )
 {
 	wxSize clientSize = GetClientSize();
 	int startX, startY;
@@ -761,6 +776,7 @@ bool InstanceCtrl::HitTest(const wxPoint& pt, VisualCoord& n)
 		if(actualY >= gv.y_position && actualY <= gv.y_position + gv.total_height)
 		{
 			found = &gv;
+			n.makeGroup(grpIdx);
 			if(actualY <= gv.y_position + gv.header_height)
 			{
 				// it's a header
@@ -774,23 +790,22 @@ bool InstanceCtrl::HitTest(const wxPoint& pt, VisualCoord& n)
 					// it's the header in general
 					n.makeHeader(grpIdx);
 				}
-				return false;
+				return;
 			}
 			break;
 		}
 	}
+	// it's not even a group
 	if(!found)
-		return false;
+		return;
 	
 	while (rowPos < found->row_ys.size() && found->y_position + found->row_ys[rowPos] < actualY)
 		rowPos++;
 	rowPos--;
 	
 	int itemN = (rowPos * perRow + colPos);
-	if (itemN >= found->items.size())
-		return false;
-	if (itemN < 0)
-		return false;
+	if (itemN >= found->items.size() || itemN < 0)
+		return;
 		
 	wxRect rect;
 	VisualCoord coord(grpIdx, itemN);
@@ -798,9 +813,7 @@ bool InstanceCtrl::HitTest(const wxPoint& pt, VisualCoord& n)
 	if (rect.Contains(pt))
 	{
 		n = coord;
-		return true;
 	}
-	return false;
 }
 
 /// Paint the background
@@ -1171,6 +1184,12 @@ wxString GroupVisual::GetName() const
 	else
 		return "Ungrouped";
 }
+
+bool GroupVisual::isUngrouped() const
+{
+	return (m_group == nullptr);
+}
+
 
 void GroupVisual::SetExpanded(bool expanded)
 {
