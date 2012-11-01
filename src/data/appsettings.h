@@ -43,7 +43,7 @@ const wxString defModsDir = _("mods");
 
 enum GUIMode
 {
-	GUI_Default,
+	GUI_Fancy,
 	GUI_Simple,
 };
 
@@ -132,7 +132,7 @@ public:
 	virtual bool GetUseDevBuilds() const { return GetSetting<bool>(_("UseDevBuilds"), false); }
 	void SetUseDevBuilds(bool value) { SetSetting<bool>(_("UseDevBuilds"), value); }
 
-	virtual GUIMode GetGUIMode() const { return (GUIMode)GetSetting<int>(_("GUIMode"), GUI_Default); }
+	virtual GUIMode GetGUIMode() const { return (GUIMode)GetSetting<int>(_("GUIMode"), GUI_Simple); }
 	void SetGUIMode(GUIMode value) { SetSetting<int>(_("GUIMode"), value); }
 
 	virtual wxColor GetConsoleSysMsgColor() const { return wxColor(GetSetting<wxString>(_("ConsoleSysMsgColor"), _("#0000FF"))); }

@@ -208,7 +208,7 @@ MainWindow::MainWindow(void)
 	case GUI_Simple:
 		InitBasicGUI(box);
 		break;
-	case GUI_Default:
+	case GUI_Fancy:
 		InitAdvancedGUI(box);
 		break;
 	}
@@ -397,7 +397,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 
 void MainWindow::UpdateInstPanel()
 {
-	if(GetGUIMode() != GUI_Default)
+	if(GetGUIMode() != GUI_Fancy)
 		return;
 	instPanel->Show();
 	if(instItems.GetSelectedInstance() && !renamingInst)
@@ -432,13 +432,13 @@ void MainWindow::UpdateInstNameLabel(Instance *inst)
 
 void MainWindow::OnInstSelected(InstanceCtrlEvent &event)
 {
-	if(GetGUIMode() == GUI_Default)
+	if(GetGUIMode() == GUI_Fancy)
 		SaveNotesBox(false);
 	auto currentInstance = instItems.GetSelectedInstance();
 	SetStatusText(wxT("Minecraft Version: ") + currentInstance->GetJarVersion());
 	SetStatusText(wxT("Instance ID: ") + currentInstance->GetInstID(), 1);
 
-	if(GetGUIMode() == GUI_Default)
+	if(GetGUIMode() == GUI_Fancy)
 		UpdateInstPanel();
 }
 
@@ -496,7 +496,7 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 	GetStatusBar()->SetStatusText(wxString::Format(_("Loaded %i instances..."), ctr), 0);
 	Enable(true);
 	
-	if (GetGUIMode() == GUI_Default)
+	if (GetGUIMode() == GUI_Fancy)
 	{
 		UpdateInstPanel();
 	}
@@ -903,7 +903,7 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 			auto task = new GameUpdateTask(inst, result.latestVersion, result.forceUpdate);
 			StartTask(task);
 			delete task;
-			if(GetGUIMode() == GUI_Default)
+			if(GetGUIMode() == GUI_Fancy)
 				UpdateInstPanel();
 		}
 		
@@ -942,7 +942,7 @@ void MainWindow::RenameEvent()
 	auto currentInstance = instItems.GetSelectedInstance();
 	switch (GetGUIMode())
 	{
-	case GUI_Default:
+	case GUI_Fancy:
 		StartRename();
 		break;
 		
@@ -1157,7 +1157,7 @@ void MainWindow::EnableInstActions(bool enabled)
 	instActionsEnabled = enabled;
 	switch (GetGUIMode())
 	{
-	case GUI_Default:
+	case GUI_Fancy:
 		btnPlay->Enable(enabled);
 		btnRename->Enable(enabled);
 		btnChangeIcon->Enable(enabled);
@@ -1309,7 +1309,7 @@ bool MainWindow::DeleteSelectedInstance()
 	{
 		instItems.DeleteCurrent();
 		
-		if(GetGUIMode() == GUI_Default)
+		if(GetGUIMode() == GUI_Fancy)
 		{
 			UpdateInstPanel();
 		}

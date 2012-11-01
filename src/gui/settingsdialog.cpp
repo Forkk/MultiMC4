@@ -21,7 +21,7 @@
 #include <fsutils.h>
 #include "instance.h"
 
-const wxString guiModeDefault = _("Default");
+const wxString guiModeFancy = _("Fancy");
 const wxString guiModeSimple = _("Simple");
 const wxString dontUpdate = "Never update Minecraft";
 const wxString doUpdate = "Update Minecraft automatically";
@@ -83,8 +83,8 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			styleSz->Add(styleLabel, itemsFlags);
 			
 			wxArrayString choices;
-			choices.Add(guiModeDefault);
 			choices.Add(guiModeSimple);
+			choices.Add(guiModeFancy);
 			guiStyleDropDown = new wxComboBox(box->GetStaticBox(), -1, wxEmptyString,
 				wxDefaultPosition, wxDefaultSize, choices, wxCB_DROPDOWN | wxCB_READONLY);
 			
@@ -448,8 +448,8 @@ bool SettingsDialog::ApplySettings()
 		currentSettings->SetModsDir(newModDir);
 		
 		GUIMode newGUIMode;
-		if (guiStyleDropDown->GetValue() == guiModeDefault)
-			newGUIMode = GUI_Default;
+		if (guiStyleDropDown->GetValue() == guiModeFancy)
+			newGUIMode = GUI_Fancy;
 		else if (guiStyleDropDown->GetValue() == guiModeSimple)
 			newGUIMode = GUI_Simple;
 		
@@ -606,8 +606,8 @@ void SettingsDialog::LoadSettings()
 			guiStyleDropDown->SetValue(guiModeSimple);
 			break;
 			
-		case GUI_Default:
-			guiStyleDropDown->SetValue(guiModeDefault);
+		case GUI_Fancy:
+			guiStyleDropDown->SetValue(guiModeFancy);
 			break;
 		}
 	}
