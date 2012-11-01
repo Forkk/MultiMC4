@@ -45,6 +45,8 @@ BEGIN_EVENT_TABLE(InstanceCtrl, wxScrolledCanvas)
 	EVT_SIZE(InstanceCtrl::OnSize)
 	EVT_SET_FOCUS(InstanceCtrl::OnSetFocus)
 	EVT_KILL_FOCUS(InstanceCtrl::OnKillFocus)
+
+	EVT_INST_DRAG(wxID_ANY, InstanceCtrl::OnInstDragged)
 END_EVENT_TABLE()
 
 /*!
@@ -388,12 +390,13 @@ void InstanceCtrl::OnPaint(wxPaintEvent& WXUNUSED(event))
 			GroupVisual & gv = m_groups[i];
 			gv.Draw(dc, this, untransformedRect,
 			        m_selectedItem.groupIndex == i, m_selectedItem.itemIndex,
-			        m_focusItem.groupIndex == i, m_focusItem.itemIndex);
+			        m_focusItem.groupIndex == i, m_focusItem.itemIndex, 
+					i == highlightedGroup.groupIndex);
 		}
 	}
 }
 
-void GroupVisual::Draw ( wxDC& dc, InstanceCtrl* parent, wxRect limitingRect, bool hasSelection, int selectionIndex, bool hasFocus, int focusIndex )
+void GroupVisual::Draw ( wxDC& dc, InstanceCtrl* parent, wxRect limitingRect, bool hasSelection, int selectionIndex, bool hasFocus, int focusIndex, bool highlight )
 {
 	int i;
 	int count = items.size();
@@ -404,6 +407,12 @@ void GroupVisual::Draw ( wxDC& dc, InstanceCtrl* parent, wxRect limitingRect, bo
 	if(!no_header)
 	{
 		wxColour textColor = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT);
+
+		if (highlight)
+		{
+			textColor = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
+		}
+
 		wxBrush brush(textColor);
 		wxPen pen(textColor);
 		dc.SetBrush(brush);
@@ -558,7 +567,12 @@ void InstanceCtrl::OnLeftDClick(wxMouseEvent& event)
 
 void InstanceCtrl::OnMouseMotion(wxMouseEvent& event)
 {
-	if (event.Dragging() && m_instList->GetSelectedInstance() && !GetSelection().isVoid())
+	// Only start DnD if the mouse is over the selected instance.
+	VisualCoord coord;
+	HitTest(event.GetPosition(), coord);
+	InstanceVisual *instVisual = GetItem(coord);
+
+	if (event.Dragging() && instVisual && m_instList->GetSelectedInstance() == instVisual->GetInstance())
 	{
 		int flags = 0;
 		if (event.ControlDown())
@@ -581,15 +595,23 @@ void InstanceCtrl::OnMouseMotion(wxMouseEvent& event)
 	}
 }
 
+void InstanceCtrl::InstCtrlDropTarget::OnLeave()
+{
+	m_parent->HighlightGroup(VisualCoord());
+}
+
 bool InstanceCtrl::InstCtrlDropTarget::OnDropText(wxCoord x, wxCoord y, const wxString& data)
 {
+	// Unhighlight group.
+	m_parent->HighlightGroup(VisualCoord());
+
 	VisualCoord coord;
 	m_parent->HitTest(wxPoint(x, y), coord);
 
 	// Make sure we target a group, always.
-	if(coord.itemIndex >= 0)
+	if (coord.itemIndex >= 0)
 		coord.itemIndex = -1;
-	GroupVisual * gv = m_parent->GetGroup(coord);
+	GroupVisual *gv = m_parent->GetGroup(coord);
 	if (gv)
 	{
 		for (int i = 0; i < m_parent->m_instList->size(); i++)
@@ -624,10 +646,20 @@ wxDragResult InstanceCtrl::InstCtrlDropTarget::OnDragOver(wxCoord x, wxCoord y, 
 	VisualCoord coord;
 	m_parent->HitTest(wxPoint(x, y), coord);
 
-	// If dragging over a group header.
-	if (coord.isGroup())
+	// Make sure we target a group, always.
+	if (coord.itemIndex >= 0)
+		coord.itemIndex = -1;
+	GroupVisual *gv = m_parent->GetGroup(coord);
+	if (gv)
 	{
+		// Give DnD feedback
+		m_parent->HighlightGroup(coord);
+
 		return wxDragResult::wxDragMove;
+	}
+	else
+	{
+		m_parent->HighlightGroup(VisualCoord());
 	}
 
 	return wxDragResult::wxDragNone;
@@ -1166,6 +1198,47 @@ void InstanceCtrl::ReloadAll()
 	SetupScrollbars();
 	Refresh();
 }
+
+void InstanceCtrl::HighlightGroup(const VisualCoord& coord)
+{
+	VisualCoord prevHighlight = highlightedGroup;
+
+	if (coord.isGroup())
+	{
+		highlightedGroup = coord;
+
+		wxRect gRect;
+		GetGroupRect(coord.groupIndex, gRect);
+		RefreshRect(gRect);
+	}
+	else
+	{
+		highlightedGroup.makeVoid();
+	}
+
+	if (prevHighlight.isGroup())
+	{
+		wxRect gRect;
+		GetGroupRect(prevHighlight.groupIndex, gRect);
+		RefreshRect(gRect);
+	}
+}
+
+void InstanceCtrl::OnInstDragged(InstanceCtrlEvent& event)
+{
+	Instance *selectedInst = m_instList->GetSelectedInstance();
+	if (!selectedInst)
+		return;
+
+	wxTextDataObject instDataObj(selectedInst->GetInstID());
+
+	wxDropSource dragSource(instDataObj, this);
+	dragSource.DoDragDrop(wxDrag_AllowMove);
+	
+	// Make sure we reset the group highlighting when the DnD operation is done.
+	HighlightGroup(VisualCoord());
+}
+
 
 GroupVisual::GroupVisual(InstanceGroup *group, bool no_header)
 	: no_header(no_header)

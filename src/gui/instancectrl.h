@@ -45,6 +45,8 @@ class InstanceCtrl;
 
 const wxDataFormat DATA_FORMAT_INSTANCE("instance");
 
+class InstanceCtrlEvent;
+
 class InstanceVisual
 {
 public:
@@ -60,6 +62,11 @@ public:
 	InstanceVisual(Instance* inst, int ID)
 	{
 		SetInstance(inst, ID);
+	}
+
+	Instance *GetInstance() const
+	{
+		return m_inst;
 	}
 
 	void SetInstance(Instance* inst, int ID)
@@ -108,6 +115,13 @@ public:
 	{
 		return other.groupIndex == groupIndex && other.itemIndex == itemIndex;
 	};
+
+	void operator=(const VisualCoord& other)
+	{
+		groupIndex = other.groupIndex;
+		itemIndex = other.itemIndex;
+	};
+
 	bool operator!=(VisualCoord& other) const
 	{
 		return other.groupIndex != groupIndex || other.itemIndex != itemIndex;
@@ -165,7 +179,7 @@ struct GroupVisual
 	void Reflow ( int perRow, int spacing, int margin, int lineHeight, int imageSize, int & progressive_y );
 	void Draw ( wxDC & dc, InstanceCtrl* parent, wxRect untransformedRect,
 	            bool hasSelection, int selectionIndex,
-	            bool hasFocus, int focusIndex );
+	            bool hasFocus, int focusIndex, bool highlight = false );
 	void SetIndex (int index)
 	{
 		this->index = index;
@@ -339,6 +353,9 @@ public:
 	void OnMouseMotion(wxMouseEvent& event);
 	void OnChar(wxKeyEvent& event);
 
+	// Other
+	void OnInstDragged(InstanceCtrlEvent& event);
+
 	class InstCtrlDropTarget : public wxTextDropTarget
 	{
 	public:
@@ -350,6 +367,7 @@ public:
 
 		virtual bool OnDropText(wxCoord x, wxCoord y, const wxString& data);
 		virtual wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
+		virtual void OnLeave();
 
 	protected:
 		InstanceCtrl* m_parent;
@@ -361,6 +379,10 @@ public:
 	/// Setting/losing focus
 	void OnSetFocus(wxFocusEvent& event);
 	void OnKillFocus(wxFocusEvent& event);
+
+	void HighlightGroup(const VisualCoord& coord);
+
+	VisualCoord highlightedGroup;
 	
 // Implementation
 private:
