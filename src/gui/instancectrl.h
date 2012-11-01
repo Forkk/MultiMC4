@@ -133,6 +133,11 @@ public:
 	{
 		return groupIndex >= 0 && itemIndex == -3;
 	}
+	void makeGroup(int group)
+	{
+		groupIndex = group;
+		itemIndex = -1;
+	}
 	void makeHeader(int group)
 	{
 		groupIndex = group;
@@ -170,6 +175,7 @@ struct GroupVisual
 	void SetExpanded(bool expanded);
 
 	wxString GetName() const;
+	bool isUngrouped() const;
 
 	InstanceGroup *m_group;
 	InstanceItemArray items;
@@ -391,7 +397,7 @@ private:
 	void DoSelection(VisualCoord n);
 	
 	/// Find the item under the given point
-	bool HitTest(const wxPoint& pt, VisualCoord& n);
+	void HitTest(const wxPoint& pt, VisualCoord& n);
 	
 	/// Toggle the expansion of a group (user input driven)
 	void ToggleGroup(int index);
