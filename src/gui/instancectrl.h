@@ -196,6 +196,9 @@ struct GroupVisual
 	
 	/// don't draw header and don't include it in height if true
 	bool no_header;
+
+	/// ignore whether or not the group is marked as hidden
+	bool always_show;
 	
 	/// absolute y-position of the top of the group
 	int y_position;

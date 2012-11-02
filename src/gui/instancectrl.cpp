@@ -805,11 +805,11 @@ void InstanceCtrl::HitTest( const wxPoint& pt, VisualCoord& n )
 	for(; grpIdx < m_groups.size(); grpIdx++)
 	{
 		GroupVisual & gv = m_groups[grpIdx];
-		if(actualY >= gv.y_position && actualY <= gv.y_position + gv.total_height)
+		if (actualY >= gv.y_position && actualY <= gv.y_position + gv.total_height)
 		{
 			found = &gv;
 			n.makeGroup(grpIdx);
-			if(actualY <= gv.y_position + gv.header_height)
+			if (!gv.no_header && actualY <= gv.y_position + gv.header_height)
 			{
 				// it's a header
 				if(pt.x >= 5 && pt.x <= 15)
@@ -1192,6 +1192,15 @@ void InstanceCtrl::ReloadAll()
 		m_selectedItem = selectedIndex;
 	}
 	
+	// Disable group headers in single column mode. Groups are still there, but their existence is hidden.
+	if (GetWindowStyle() & wxINST_SINGLE_COLUMN)
+	{
+		for (int i = 0; i < m_groups.size(); i++)
+		{
+			m_groups[i].no_header = true;
+			m_groups[i].always_show = true;
+		}
+	}
 	
 	// everything got changed (probably not, but we can't know that). Redo all of the layout stuff.
 	ReflowAll();
@@ -1226,6 +1235,10 @@ void InstanceCtrl::HighlightGroup(const VisualCoord& coord)
 
 void InstanceCtrl::OnInstDragged(InstanceCtrlEvent& event)
 {
+	// No DnD in single column mode.
+	if (GetWindowStyle() & wxINST_SINGLE_COLUMN)
+		return;
+
 	Instance *selectedInst = m_instList->GetSelectedInstance();
 	if (!selectedInst)
 		return;
@@ -1248,6 +1261,7 @@ GroupVisual::GroupVisual(InstanceGroup *group, bool no_header)
 	header_height = 0;
 	y_position = 0;
 	index = -1;
+	always_show = false;
 }
 
 wxString GroupVisual::GetName() const
@@ -1272,5 +1286,5 @@ void GroupVisual::SetExpanded(bool expanded)
 
 bool GroupVisual::IsExpanded() const
 {
-	return !m_group || !m_group->IsHidden();
+	return !m_group || !m_group->IsHidden() || always_show;
 }

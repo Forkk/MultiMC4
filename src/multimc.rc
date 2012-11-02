@@ -46,7 +46,7 @@ BEGIN
 		BLOCK "040904E4"
 		BEGIN
 			VALUE "CompanyName",		"MultiMC Contributors"
-			VALUE "FileDescription",	"Custom Minecraft launcher for managing multiple installs."
+			VALUE "FileDescription",	"MultiMC"
 			VALUE "LegalCopyright",		"Copyright 2012 (C) MultiMC Contributors"
 			VALUE "ProductName",		"MultiMC 4"
 			VALUE "ProductVersion",		VER_PRODUCTVERSION_STR
