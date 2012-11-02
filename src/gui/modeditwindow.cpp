@@ -206,6 +206,7 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 	LoadJarMods();
 	LoadMLMods();
 	LoadCoreMods();
+	texturePackList->UpdateItems();
 }
 
 void ModEditWindow::LoadJarMods()
@@ -1013,7 +1014,7 @@ ModEditWindow::TexturePackDropTarget::TexturePackDropTarget(ModListCtrl *owner, 
 
 bool ModEditWindow::TexturePackDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString &filenames)
 {
-	m_owner->CopyFiles(filenames, m_inst->GetCoreModsDir().GetFullPath());
+	m_owner->CopyFiles(filenames, m_inst->GetTexturePacksDir().GetFullPath());
 	auto tplist = m_inst->GetTexturePackList();
 	tplist->UpdateTexturePackList();
 	m_owner->UpdateItems();
