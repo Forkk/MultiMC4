@@ -48,7 +48,7 @@ protected:
 	void LoadBuildList();
 
 	void OnRefreshListClicked(wxCommandEvent& event);
-	void OnListBoxSelChange(wxCommandEvent& event);
+	void OnListBoxSelChange(wxListEvent& event);
 
 	void UpdateOKBtn();
 

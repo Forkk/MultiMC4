@@ -148,7 +148,7 @@ void InstallForgeDialog::OnRefreshListClicked(wxCommandEvent& event)
 	LoadBuildList();
 }
 
-void InstallForgeDialog::OnListBoxSelChange(wxCommandEvent& event)
+void InstallForgeDialog::OnListBoxSelChange(wxListEvent& event)
 {
 	UpdateOKBtn();
 }
@@ -174,5 +174,6 @@ wxString InstallForgeDialog::GetSelectedBuild()
 
 BEGIN_EVENT_TABLE(InstallForgeDialog, wxDialog)
 	EVT_BUTTON(ID_RefreshList, InstallForgeDialog::OnRefreshListClicked)
-	EVT_LISTBOX(-1, InstallForgeDialog::OnListBoxSelChange)
+	EVT_LIST_ITEM_SELECTED(-1, InstallForgeDialog::OnListBoxSelChange)
+	EVT_LIST_ITEM_DESELECTED(-1, InstallForgeDialog::OnListBoxSelChange)
 END_EVENT_TABLE()
