@@ -49,7 +49,7 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		wxPanel *jarModPanel = new wxPanel(modEditNotebook, -1);
 		wxBoxSizer *jarModSizer = new wxBoxSizer(wxHORIZONTAL);
 		jarModPanel->SetSizer(jarModSizer);
-		modEditNotebook->AddPage(jarModPanel, _("Jar Mods"), true);
+		modEditNotebook->AddPage(jarModPanel, _("Minecraft.jar"), true);
 		
 		jarModList = new JarModListCtrl(jarModPanel, ID_JAR_MOD_LIST, inst);
 		jarModList->InsertColumn(0, _("Mod Name"));
