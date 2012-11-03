@@ -486,7 +486,7 @@ void InstanceCtrl::OnLeftClick(wxMouseEvent& event)
 		if (event.AltDown())
 			flags |= wxINST_ALT_DOWN;
 			
-		//EnsureVisible(clickedIndex);
+		EnsureVisible(clickedIndex);
 		DoSelection(clickedIndex);
 	}
 	else if(clickedIndex.isHeaderTicker())
@@ -511,7 +511,7 @@ void InstanceCtrl::OnRightClick(wxMouseEvent& event)
 	HitTest(event.GetPosition(), clickedIndex);
 	if (clickedIndex.isItem())
 	{
-		//EnsureVisible(clickedIndex);
+		EnsureVisible(clickedIndex);
 		DoSelection(clickedIndex);
 	}
 	else
@@ -756,6 +756,43 @@ void InstanceCtrl::SetupScrollbars()
 	SetScrollbars(0, pixelsPerUnit,
 	              0, unitsY,
 	              0, wxMin(maxPositionY, startY));
+}
+
+void InstanceCtrl::EnsureVisible ( VisualCoord coord )
+{
+	if(coord.isItem())
+	{
+		wxRect rect;
+		GetItemRect(coord, rect, false);    // _Not_ relative to scroll start
+		int ppuX, ppuY;
+		GetScrollPixelsPerUnit(& ppuX, & ppuY);
+		if (ppuY == 0)
+			return;
+		int startX, startY;
+		GetViewStart(& startX, & startY);
+		startX = 0;
+		startY = startY * ppuY;
+		int sx, sy;
+		GetVirtualSize(& sx, & sy);
+		sx = 0;
+		if (ppuY != 0)
+			sy = sy / ppuY;
+		wxSize clientSize = GetClientSize();
+		if ((rect.y + rect.height) > (clientSize.y + startY))
+		{
+			// Make it scroll so this item is at the bottom
+			// of the window
+			int y = rect.y - (clientSize.y - rect.height - m_spacing) ;
+			SetScrollbars(ppuX, ppuY, sx, sy, 0, (int)(0.5 + y / ppuY));
+		}
+		else if (rect.y < startY)
+		{
+			// Make it scroll so this item is at the top
+			// of the window
+			int y = rect.y ;
+			SetScrollbars(ppuX, ppuY, sx, sy, 0, (int)(0.5 + y / ppuY));
+		}
+	}
 }
 
 int InstanceCtrl::IDFromIndex ( VisualCoord index ) const

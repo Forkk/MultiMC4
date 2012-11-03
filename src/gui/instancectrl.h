@@ -397,6 +397,9 @@ private:
 	/// Set up scrollbars, e.g. after a resize
 	void SetupScrollbars();
 	
+	/// Scroll an item into the view by VisualCoord
+	void EnsureVisible(VisualCoord coord);
+	
 	/// Calculate the outer item size based
 	/// on font used for text and inner size
 	void CalculateOverallItemSize();
