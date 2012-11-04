@@ -849,8 +849,11 @@ bool InstanceCtrl::Navigate(int keyCode, int flags)
 				{
 					next.itemIndex = num_items - 1;
 				}
-				break;
+				DoSelection(next);
+				EnsureVisible(next);
+				return true;
 			}
+			return false;
 		}
 		else
 		{
@@ -892,8 +895,11 @@ bool InstanceCtrl::Navigate(int keyCode, int flags)
 				{
 					next.itemIndex = num_items - 1;
 				}
-				break;
+				DoSelection(next);
+				EnsureVisible(next);
+				return true;
 			}
+			return false;
 		}
 		else
 		{
@@ -902,53 +908,55 @@ bool InstanceCtrl::Navigate(int keyCode, int flags)
 		DoSelection(next);
 		EnsureVisible(next);
 	}
-	/*
-	// FIXME: this is crap. going one page up or down should be more predictable
-	// this solution kinda jumps around too much
-	else if (keyCode == WXK_PAGEUP)
-	{
-		wxRect orig;
-		GetItemRect(focus, orig, false);
-		int Ynew = orig.y - clientSize.y;
-		int row = focus / perRow;
-		int next = focus;
-		while (next > 0 && (Ynew + m_row_heights[row]) < m_row_ys[row])
-		{
-			next -= perRow;
-			row--;
-		}
-		if (next < 0)
-			next += perRow;
-		DoSelection(next);
-		ScrollIntoView(next, keyCode);
-	}
-	else if (keyCode == WXK_PAGEDOWN)
-	{
-		wxRect orig;
-		GetItemRect(focus, orig, false);
-		int Ynew = orig.y + clientSize.y;
-		int row = focus / perRow;
-		int next = focus;
-		while (next < m_items.size() && Ynew > m_row_ys[row])
-		{
-			next += perRow;
-			row++;
-		}
-		if (next >= m_items.size())
-			next -= perRow;
-		DoSelection(next);
-		ScrollIntoView(next, keyCode);
-	}
 	else if (keyCode == WXK_HOME)
 	{
-		DoSelection(0);
-		ScrollIntoView(0, keyCode);
+		if(next.itemIndex != 0 && gv.IsExpanded())
+		{
+			// go to start of this group
+			next.itemIndex = 0;
+		}
+		else
+		{
+			// go to first item of first visible group
+			for(int i = 0; i < m_groups.size(); i++)
+			{
+				if(m_groups[i].IsExpanded())
+				{
+					next.groupIndex = i;
+					next.itemIndex = 0;
+					break;
+				}
+			}
+		}
+		DoSelection(next);
+		EnsureVisible(next);
+		SetIntendedColumn(next);
 	}
 	else if (keyCode == WXK_END)
 	{
-		DoSelection(GetCount() - 1);
-		ScrollIntoView(GetCount() - 1, keyCode);
+		if(next.itemIndex != gv.items.size() - 1 && gv.IsExpanded())
+		{
+			// go to end of this group
+			next.itemIndex = gv.items.size() - 1;
+		}
+		else
+		{
+			// go to last item of last visible group
+			for(int i = m_groups.size() - 1; i >=0 ; i--)
+			{
+				if(m_groups[i].IsExpanded())
+				{
+					next.groupIndex = i;
+					next.itemIndex = m_groups[i].items.size() - 1;
+					break;
+				}
+			}
+		}
+		DoSelection(next);
+		EnsureVisible(next);
+		SetIntendedColumn(next);
 	}
+	/*
 	else if (keyCode == WXK_TAB)
 	{
 		int next = focus;
