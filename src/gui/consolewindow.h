@@ -128,6 +128,7 @@ protected:
 	bool m_closeAllowed;
 	bool instListenerStarted;
 	bool killedInst;
+	bool crashReportIsOpen;
 	
 	DECLARE_EVENT_TABLE()
 };
