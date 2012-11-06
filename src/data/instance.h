@@ -90,10 +90,6 @@ public:
 	wxString GetNotes() const;
 	void SetNotes(wxString notes);
 
-	wxDateTime GetLastLaunch() const;
-	void SetLastLaunch(wxDateTime time);
-	void SetLastLaunch() { SetLastLaunch(wxDateTime::Now()); }
-	
 	bool ShouldRebuild() const;
 	void SetNeedsRebuild(bool value = true);
 
@@ -129,6 +125,7 @@ public:
 	virtual wxFileName GetInstDir() const { return settings->GetInstDir(); };
 	virtual wxFileName GetModsDir() const { return settings->GetModsDir(); };
 	virtual bool GetShowConsole() const { return settings->GetShowConsole(); };
+	virtual InstSortMode GetSortMode() const { return settings->GetInstSortMode(); }
 	
 	// and these are overrides
 	wxString GetJavaPath() const { return GetSetting<wxString>("JPath",settings->GetJavaPath()); };
@@ -160,6 +157,33 @@ public:
 	// and these are specific to instances only
 	wxString GetJarVersion() const { return GetSetting<wxString>("JarVersion","Unknown"); };
 	void SetJarVersion( wxString value ) {  SetSetting<wxString>("JarVersion", value); };
+
+	uint64_t GetLastLaunch() const
+	{
+		// no 64bit type support in wxConfig. This code is very 'meh', but works
+		wxString str = GetSetting<wxString>("lastLaunch", "0");
+		auto buf = str.ToAscii();
+		const char * asciidata = buf.data();
+		std::istringstream reader(asciidata);
+		uint64_t data;
+		reader >> data;
+		return data;
+	}
+
+	void SetLastLaunch(uint64_t value)
+	{
+		// same as above.
+		std::ostringstream writer;
+		writer << value;
+		std::string str = writer.str();
+		wxString finalstr = wxString::FromAscii(str.c_str());
+		SetSetting<wxString>("lastLaunch", finalstr);
+	}
+
+	void SetLastLaunchNow()
+	{
+		SetLastLaunch(wxDateTime::Now().GetTicks());
+	}
 	
 	uint64_t GetJarTimestamp() const
 	{

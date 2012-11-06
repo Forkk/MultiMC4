@@ -53,6 +53,15 @@ enum UpdateMode
 	Update_Never
 };
 
+enum InstSortMode
+{
+	// Sort alphabetically by name.
+	Sort_Name,
+
+	// Sort by which instance was launched most recently.
+	Sort_LastLaunch,
+};
+
 class SettingsBase
 {
 public:
@@ -134,6 +143,9 @@ public:
 
 	virtual GUIMode GetGUIMode() const { return (GUIMode)GetSetting<int>(_("GUIMode"), GUI_Simple); }
 	void SetGUIMode(GUIMode value) { SetSetting<int>(_("GUIMode"), value); }
+
+	virtual InstSortMode GetInstSortMode() const { return (InstSortMode)GetSetting<int>(_("InstSortMode"), Sort_LastLaunch); }
+	void SetInstSortMode(InstSortMode value) { SetSetting<int>("InstSortMode", value); }
 
 	virtual wxColor GetConsoleSysMsgColor() const { return wxColor(GetSetting<wxString>(_("ConsoleSysMsgColor"), _("#0000FF"))); }
 	void SetConsoleSysMsgColor(wxColor color) { SetSetting<wxString>(_("ConsoleSysMsgColor"), color.GetAsString()); }

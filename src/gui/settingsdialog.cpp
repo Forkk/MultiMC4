@@ -33,6 +33,9 @@ but it will disable certain features such as setting Minecraft's window\
 size and icon."
 );
 
+const wxString sortModeName = _("By Name");
+const wxString sortModeLastLaunch = _("By Last Launched");
+
 SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s /* = settings */)
 	: wxDialog(parent, id, _T("Settings"), wxDefaultPosition, wxSize(500, 450))
 {
@@ -82,16 +85,26 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			auto styleLabel = new wxStaticText(box->GetStaticBox(), -1, _("GUI Style (requires restart): "));
 			styleSz->Add(styleLabel, itemsFlags);
 			
-			wxArrayString choices;
-			choices.Add(guiModeSimple);
-			choices.Add(guiModeFancy);
+			wxArrayString guiModeChoices;
+			guiModeChoices.Add(guiModeSimple);
+			guiModeChoices.Add(guiModeFancy);
 			guiStyleDropDown = new wxComboBox(box->GetStaticBox(), -1, wxEmptyString,
-				wxDefaultPosition, wxDefaultSize, choices, wxCB_DROPDOWN | wxCB_READONLY);
-			
+				wxDefaultPosition, wxDefaultSize, guiModeChoices, wxCB_DROPDOWN | wxCB_READONLY);
 			styleSz->Add(guiStyleDropDown, expandingItemsFlags);
+			
 			box->Add(styleSz, staticBoxInnerFlags);
 			multimcSizer->Add(box, staticBoxOuterFlags);
 		}
+
+		{
+			wxArrayString sortModeChoices;
+			sortModeChoices.Add(sortModeName);
+			sortModeChoices.Add(sortModeLastLaunch);
+			sortModeBox = new wxRadioBox(multimcPanel, -1, _("Sorting Mode"), 
+				wxDefaultPosition, wxDefaultSize, sortModeChoices);
+			multimcSizer->Add(sortModeBox, expandingItemsFlags);
+		}
+
 		// Update settings group box
 		{
 			auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _T("Update Settings"));
@@ -459,6 +472,11 @@ bool SettingsDialog::ApplySettings()
 			wxMessageBox(_("Changing the GUI style requires a restart in order to take effect. Please restart MultiMC."),
 				_("Restart Required"));
 		}
+
+		if (sortModeBox->GetStringSelection() == sortModeName)
+			currentSettings->SetInstSortMode(Sort_Name);
+		else if (sortModeBox->GetStringSelection() == sortModeLastLaunch)
+			currentSettings->SetInstSortMode(Sort_LastLaunch);
 		
 		currentSettings->SetShowConsole(showConsoleCheck->IsChecked());
 		currentSettings->SetAutoCloseConsole(autoCloseConsoleCheck->IsChecked());
@@ -608,6 +626,17 @@ void SettingsDialog::LoadSettings()
 			
 		case GUI_Fancy:
 			guiStyleDropDown->SetValue(guiModeFancy);
+			break;
+		}
+
+		switch (currentSettings->GetInstSortMode())
+		{
+		case Sort_Name:
+			sortModeBox->SetStringSelection(sortModeName);
+			break;
+
+		case Sort_LastLaunch:
+			sortModeBox->SetStringSelection(sortModeLastLaunch);
 			break;
 		}
 	}
