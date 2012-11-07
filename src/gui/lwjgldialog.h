@@ -22,6 +22,11 @@ class ChooseLWJGLDialog : public ListSelectDialog
 public:
 	ChooseLWJGLDialog(wxWindow *parent);
 
+	virtual wxString GetSelectedURL();
+
 protected:
-	virtual void DoLoadList(wxArrayString& list);
+	virtual void LoadList();
+	virtual void DoLoadList(wxArrayString& sList);
+
+	wxArrayString linkList;
 };

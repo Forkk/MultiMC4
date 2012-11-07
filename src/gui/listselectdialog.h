@@ -29,7 +29,7 @@ public:
 
 protected:
 	virtual void LoadList();
-	virtual void DoLoadList(wxArrayString& list) = 0;
+	virtual void DoLoadList(wxArrayString& sList) = 0;
 
 	void OnRefreshListClicked(wxCommandEvent& event);
 	void OnListBoxSelChange(wxCommandEvent& event);
