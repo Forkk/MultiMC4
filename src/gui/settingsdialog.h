@@ -56,7 +56,7 @@ protected:
 	wxCheckBox *autoUpdateCheck;
 	wxCheckBox *useDevBuildsCheck;
 	wxToggleButton *forceUpdateToggle;
-	wxComboBox *guiStyleDropDown;
+	wxRadioBox *guiStyleBox;
 	wxRadioBox *sortModeBox;
 	wxTextCtrl *instDirTextBox;
 	wxTextCtrl *modsDirTextBox;
