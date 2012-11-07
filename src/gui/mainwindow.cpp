@@ -683,6 +683,7 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 		{
 			LoadInstanceList();
 		}
+		instListCtrl->ReloadAll();
 		
 		if (settingsDlg.GetForceUpdateMultiMC())
 		{
@@ -924,6 +925,7 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 			if (!wxPersistenceManager::Get().RegisterAndRestore(cwin))
 				cwin->CenterOnScreen();
 			cwin->Start();
+			instListCtrl->ReloadAll();
 		}
 		else
 		{

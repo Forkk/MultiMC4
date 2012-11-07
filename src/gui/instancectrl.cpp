@@ -1418,6 +1418,18 @@ int NameSort(InstanceVisual **first, InstanceVisual **second)
 	return (*first)->GetName().CmpNoCase((*second)->GetName());
 };
 
+int LastLaunchSort(InstanceVisual **first, InstanceVisual **second)
+{
+	if ((*first)->GetInstance()->GetLastLaunch() < 
+		(*second)->GetInstance()->GetLastLaunch())
+		return 1;
+	else if ((*first)->GetInstance()->GetLastLaunch() > 
+		(*second)->GetInstance()->GetLastLaunch())
+		return -1;
+	else
+		return NameSort(first, second);
+};
+
 int NameSort(GroupVisual **first, GroupVisual **second)
 {
 	if (!(*first)->m_group)
@@ -1468,7 +1480,18 @@ void InstanceCtrl::ReloadAll()
 		
 		GroupVisual grpv(group);
 		grpv.items = (*iter).second;
-		grpv.items.Sort(NameSort);
+
+		switch (settings->GetInstSortMode())
+		{
+		case Sort_Name:
+			grpv.items.Sort(NameSort);
+			break;
+
+		case Sort_LastLaunch:
+			grpv.items.Sort(LastLaunchSort);
+			break;
+		}
+
 		m_groups.Add(grpv);
 		iter++;
 	}

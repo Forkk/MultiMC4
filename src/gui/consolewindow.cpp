@@ -51,6 +51,7 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin, bool qui
 	killedInst = false;
 	m_mainWin = mainWin;
 	m_inst = inst;
+	crashReportIsOpen = false;
 	inst->SetEvtHandler(this);
 	
 	wxPanel *mainPanel = new wxPanel(this, -1);
@@ -158,7 +159,7 @@ void InstConsoleWindow::OnInstExit(wxProcessEvent& event)
 		SetState(STATE_BAD);
 		Show();
 	}
-	else if (settings->GetAutoCloseConsole())
+	else if (settings->GetAutoCloseConsole() && !crashReportIsOpen)
 	{
 		Close();
 	}
@@ -186,6 +187,8 @@ void InstConsoleWindow::AllowClose(bool allow)
 
 void InstConsoleWindow::Close()
 {
+	if(crashReportIsOpen)
+		return;
 	wxFrame::Close();
 	if (trayIcon->IsIconInstalled())
 		trayIcon->RemoveIcon();
@@ -665,7 +668,9 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 		"What would you like to do with it?"), btns, _("Crash Report"));
 
 
+	crashReportIsOpen = true;
 	int response = msgDlg.ShowModal();
+	crashReportIsOpen = false;
 	if (response == id_pastebin) // Pastebin
 	{
 		PastebinTask *task = new PastebinTask(crashReportString);
