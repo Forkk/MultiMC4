@@ -43,8 +43,6 @@ class InstanceCtrl;
 // The item itself has the focus
 #define wxINST_IS_FOCUS    0x08
 
-const wxDataFormat DATA_FORMAT_INSTANCE("instance");
-
 class InstanceCtrlEvent;
 
 class InstanceVisual
