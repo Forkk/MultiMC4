@@ -40,6 +40,7 @@
 #include "updatepromptdlg.h"
 #include "taskprogressdialog.h"
 #include "snapshotdialog.h"
+#include "lwjgldialog.h"
 #include "savemgrwindow.h"
 #include "stdinstance.h"
 
@@ -1281,7 +1282,12 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 
 void MainWindow::OnChangeLWJGLClicked(wxCommandEvent& event)
 {
+	ChooseLWJGLDialog lwjglDlg(this);
+	lwjglDlg.CenterOnParent();
+	if (lwjglDlg.ShowModal() == wxID_OK && !lwjglDlg.GetSelection().IsEmpty())
+	{
 
+	}
 }
 
 void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
