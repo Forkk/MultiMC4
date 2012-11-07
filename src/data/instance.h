@@ -161,8 +161,18 @@ public:
 	uint64_t GetLastLaunch() const
 	{
 		// no 64bit type support in wxConfig. This code is very 'meh', but works
-		wxString str = GetSetting<wxString>("lastLaunch", "0");
+		wxString str = GetSetting<wxString>("lastLaunch", "0").Trim(true).Trim(false);
 		auto buf = str.ToAscii();
+
+		const wxString numbers = "1234567890";
+		for (int i = 0; i < str.Length(); i++)
+		{
+			if (!numbers.Contains(str[i]))
+			{
+				return 0;
+			}
+		}
+
 		const char * asciidata = buf.data();
 		std::istringstream reader(asciidata);
 		uint64_t data;
