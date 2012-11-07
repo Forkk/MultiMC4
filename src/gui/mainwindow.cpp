@@ -302,6 +302,7 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_EditMods, _T("&Edit Mods"), _T("Install or remove mods."));
 	instMenu->Append(ID_DowngradeInst, _T("Downgrade"), _T("Use MCNostalgia to downgrade this instance."));
 	instMenu->Append(ID_UseSnapshot, _T("Snapshot"), _T("Install a snapshot."));
+	instMenu->Append(ID_ChangeLWJGL, _T("Change LWJGL"), _T("Use a different version of LWJGL with this instance."));
 	instMenu->Append(ID_RebuildJar, _T("Re&build Jar"), _T("Reinstall all the instance's jar mods."));
 	instMenu->Append(ID_ViewInstFolder, _T("&View Folder"), _T("Open the instance's folder."));
 	instMenu->AppendSeparator();
@@ -1278,6 +1279,11 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 	}
 }
 
+void MainWindow::OnChangeLWJGLClicked(wxCommandEvent& event)
+{
+
+}
+
 void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
 {
 	auto currentInstance = instItems.GetSelectedInstance();
@@ -1465,6 +1471,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_EditMods, MainWindow::OnEditModsClicked)
 	EVT_MENU(ID_DowngradeInst, MainWindow::OnDowngradeInstClicked)
 	EVT_MENU(ID_UseSnapshot, MainWindow::OnSnapshotClicked)
+	EVT_MENU(ID_ChangeLWJGL, MainWindow::OnChangeLWJGLClicked)
 	EVT_MENU(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_MENU(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
 
