@@ -43,6 +43,7 @@
 #include "lwjgldialog.h"
 #include "savemgrwindow.h"
 #include "stdinstance.h"
+#include "lwjglinstalltask.h"
 
 #include "instancectrl.h"
 
@@ -1286,7 +1287,18 @@ void MainWindow::OnChangeLWJGLClicked(wxCommandEvent& event)
 	lwjglDlg.CenterOnParent();
 	if (lwjglDlg.ShowModal() == wxID_OK && !lwjglDlg.GetSelection().IsEmpty())
 	{
+		// Download LWJGL
+		FileDownloadTask *dlTask = new FileDownloadTask(lwjglDlg.GetSelectedURL(),
+			wxFileName("lwjgl.zip"), _("Downloading LWJGL..."));
+		TaskProgressDialog tDialog(this);
+		if (!tDialog.ShowModal(dlTask))
+			return;
+		delete dlTask;
 
+		LWJGLInstallTask *installTask = new LWJGLInstallTask(
+			instItems.GetSelectedInstance(), "lwjgl.zip");
+		tDialog.ShowModal(installTask);
+		delete installTask;
 	}
 }
 
