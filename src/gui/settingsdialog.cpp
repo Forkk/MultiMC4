@@ -71,84 +71,81 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 	#define GBexpandingItemsFlags wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 4
 	
 	
-	// MultiMC tab
 	if(!instanceMode)
 	{
-		auto multimcPanel = new wxPanel(tabCtrl, -1);
-		auto multimcSizer = new wxBoxSizer(wxVERTICAL);
-		multimcPanel->SetSizer(multimcSizer);
-		tabCtrl->AddPage(multimcPanel, _T("MultiMC"), true);
-		// Visual settings group box
+		// MultiMC tab
 		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _T("Visual Settings"));
-			auto styleSz = new wxBoxSizer(wxHORIZONTAL);
-			auto styleLabel = new wxStaticText(box->GetStaticBox(), -1, _("GUI Style (requires restart): "));
-			styleSz->Add(styleLabel, itemsFlags);
-			
-			wxArrayString guiModeChoices;
-			guiModeChoices.Add(guiModeSimple);
-			guiModeChoices.Add(guiModeFancy);
-			guiStyleDropDown = new wxComboBox(box->GetStaticBox(), -1, wxEmptyString,
-				wxDefaultPosition, wxDefaultSize, guiModeChoices, wxCB_DROPDOWN | wxCB_READONLY);
-			styleSz->Add(guiStyleDropDown, expandingItemsFlags);
-			
-			box->Add(styleSz, staticBoxInnerFlags);
-			multimcSizer->Add(box, staticBoxOuterFlags);
-		}
+			auto multimcPanel = new wxPanel(tabCtrl, -1);
+			auto multimcSizer = new wxBoxSizer(wxVERTICAL);
+			multimcPanel->SetSizer(multimcSizer);
+			tabCtrl->AddPage(multimcPanel, _T("MultiMC"), true);
 
-		{
-			wxArrayString sortModeChoices;
-			sortModeChoices.Add(sortModeName);
-			sortModeChoices.Add(sortModeLastLaunch);
-			sortModeBox = new wxRadioBox(multimcPanel, -1, _("Sorting Mode"), 
-				wxDefaultPosition, wxDefaultSize, sortModeChoices);
-			multimcSizer->Add(sortModeBox, expandingItemsFlags);
-		}
-
-		// Update settings group box
-		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _T("Update Settings"));
-			useDevBuildsCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Use development builds."));
-			box->Add(useDevBuildsCheck, itemFlags);
-			autoUpdateCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Check for updates when MultiMC starts?"));
-			box->Add(autoUpdateCheck, itemFlags);
-			forceUpdateToggle = new wxToggleButton(box->GetStaticBox(), -1, _T("Force-update MultiMC"));
-			box->Add(forceUpdateToggle, itemFlags);
-			multimcSizer->Add(box, staticBoxOuterFlags);
-		}
-		// Directory group box
-		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _T("Folders"));
-			auto dirsSizer = new wxGridBagSizer();
-			int row = 0;
+			// Visual settings group box
 			{
-				auto instDirLabel = new wxStaticText(box->GetStaticBox(), -1, _("Instances: "));
-				dirsSizer->Add(instDirLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
-
-				instDirTextBox = new wxTextCtrl(box->GetStaticBox(), -1);
-				dirsSizer->Add(instDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
-
-				wxButton *instDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseInstDir, _T("Browse..."));
-				dirsSizer->Add(instDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
-			}
-			row++;
-			{
-				auto modsDirLabel = new wxStaticText(box->GetStaticBox(), -1, _("Mods: "));
-				dirsSizer->Add(modsDirLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
-
-				modsDirTextBox = new wxTextCtrl(box->GetStaticBox(), -1);
-				dirsSizer->Add(modsDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
-
-				auto modDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseModDir, _T("Browse..."));
-				dirsSizer->Add(modDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
+				wxArrayString guiModeChoices;
+				guiModeChoices.Add(guiModeSimple);
+				guiModeChoices.Add(guiModeFancy);
+				guiStyleBox = new wxRadioBox(multimcPanel, -1, 
+					_("GUI Style (requires restart)"), wxDefaultPosition, 
+					wxDefaultSize, guiModeChoices);
+				multimcSizer->Add(guiStyleBox, staticBoxOuterFlags);
 			}
 
-			dirsSizer->AddGrowableCol(1);
+			// Sort mode group box
+			{
+				wxArrayString sortModeChoices;
+				sortModeChoices.Add(sortModeName);
+				sortModeChoices.Add(sortModeLastLaunch);
+				sortModeBox = new wxRadioBox(multimcPanel, -1, _("Sorting Mode"), 
+					wxDefaultPosition, wxDefaultSize, sortModeChoices);
+				multimcSizer->Add(sortModeBox, staticBoxOuterFlags);
+			}
 
-			box->Add(dirsSizer, staticBoxInnerFlags);
-			multimcSizer->Add(box, staticBoxOuterFlags);
+			// Update settings group box
+			{
+				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _T("Update Settings"));
+				useDevBuildsCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Use development builds."));
+				box->Add(useDevBuildsCheck, itemFlags);
+				autoUpdateCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Check for updates when MultiMC starts?"));
+				box->Add(autoUpdateCheck, itemFlags);
+				forceUpdateToggle = new wxToggleButton(box->GetStaticBox(), -1, _T("Force-update MultiMC"));
+				box->Add(forceUpdateToggle, itemFlags);
+				multimcSizer->Add(box, staticBoxOuterFlags);
+			}
+			// Directory group box
+			{
+				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _T("Folders"));
+				auto dirsSizer = new wxGridBagSizer();
+				int row = 0;
+				{
+					auto instDirLabel = new wxStaticText(box->GetStaticBox(), -1, _("Instances: "));
+					dirsSizer->Add(instDirLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
+
+					instDirTextBox = new wxTextCtrl(box->GetStaticBox(), -1);
+					dirsSizer->Add(instDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+					wxButton *instDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseInstDir, _T("Browse..."));
+					dirsSizer->Add(instDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
+				}
+				row++;
+				{
+					auto modsDirLabel = new wxStaticText(box->GetStaticBox(), -1, _("Mods: "));
+					dirsSizer->Add(modsDirLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
+
+					modsDirTextBox = new wxTextCtrl(box->GetStaticBox(), -1);
+					dirsSizer->Add(modsDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+					auto modDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseModDir, _T("Browse..."));
+					dirsSizer->Add(modDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
+				}
+
+				dirsSizer->AddGrowableCol(1);
+
+				box->Add(dirsSizer, staticBoxInnerFlags);
+				multimcSizer->Add(box, staticBoxOuterFlags);
+			}
+			multimcSizer->SetSizeHints(multimcPanel);
 		}
-		multimcSizer->SetSizeHints(multimcPanel);
 	}
 
 	// Console tab
@@ -461,9 +458,9 @@ bool SettingsDialog::ApplySettings()
 		currentSettings->SetModsDir(newModDir);
 		
 		GUIMode newGUIMode;
-		if (guiStyleDropDown->GetValue() == guiModeFancy)
+		if (guiStyleBox->GetStringSelection() == guiModeFancy)
 			newGUIMode = GUI_Fancy;
-		else if (guiStyleDropDown->GetValue() == guiModeSimple)
+		else if (guiStyleBox->GetStringSelection() == guiModeSimple)
 			newGUIMode = GUI_Simple;
 		
 		if (newGUIMode != currentSettings->GetGUIMode())
@@ -621,11 +618,11 @@ void SettingsDialog::LoadSettings()
 		switch (currentSettings->GetGUIMode())
 		{
 		case GUI_Simple:
-			guiStyleDropDown->SetValue(guiModeSimple);
+			guiStyleBox->SetStringSelection(guiModeSimple);
 			break;
 			
 		case GUI_Fancy:
-			guiStyleDropDown->SetValue(guiModeFancy);
+			guiStyleBox->SetStringSelection(guiModeFancy);
 			break;
 		}
 

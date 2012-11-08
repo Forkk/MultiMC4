@@ -126,6 +126,8 @@ gui/installforgedialog.cpp
 gui/savemgrwindow.cpp
 gui/textdisplaydialog.cpp
 gui/advancedmsgdlg.cpp
+gui/listselectdialog.cpp
+gui/lwjgldialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -154,6 +156,7 @@ tasks/downgradetask.cpp
 tasks/ziptask.cpp
 tasks/pastebintask.cpp
 tasks/lambdatask.cpp
+tasks/lwjglinstalltask.cpp
 
 java/javautils.cpp
 java/annotations.cpp
@@ -191,6 +194,8 @@ gui/installforgedialog.h
 gui/savemgrwindow.h
 gui/textdisplaydialog.h
 gui/advancedmsgdlg.h
+gui/listselectdialog.h
+gui/lwjgldialog.h
 
 data/appsettings.h
 data/instance.h
@@ -219,6 +224,7 @@ tasks/downgradetask.h
 tasks/ziptask.h
 tasks/pastebintask.h
 tasks/lambdatask.h
+tasks/lwjglinstalltask.h
 
 java/annotations.h
 java/classfile.h
