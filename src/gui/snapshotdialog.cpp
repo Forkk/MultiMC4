@@ -23,10 +23,11 @@
 
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 #include "apputils.h"
 #include "httputils.h"
-#include "snapshotlist.h"
+#include "mcversionlist.h"
 #include "taskprogressdialog.h"
 #include "lambdatask.h"
 
@@ -78,13 +79,13 @@ SnapshotDialog::SnapshotDialog(wxWindow *parent)
 
 void SnapshotDialog::LoadSnapshotList()
 {
-	SnapshotList snapList;
+	MCVersionList snapList;
 	LambdaTask::TaskFunc func = [&] (LambdaTask *task) -> wxThread::ExitCode
 	{
 		task->DoSetStatus("Loading snapshot list...");
 
-		snapList.LoadFromURL(wxT("assets.minecraft.net"));
-		snapList.Sort(true);
+		snapList.Reload();
+		//snapList.Sort(true);
 		return (wxThread::ExitCode) 0;
 	};
 
@@ -93,7 +94,7 @@ void SnapshotDialog::LoadSnapshotList()
 	taskDlg.ShowModal(lTask);
 	delete lTask;
 
-	snapshotList->Set(snapList);
+	//snapshotList->Set(snapList);
 
 	UpdateOKBtn();
 }

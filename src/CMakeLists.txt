@@ -135,7 +135,7 @@ data/userinfo.cpp
 data/mod.cpp
 data/modlist.cpp
 data/configpack.cpp
-data/snapshotlist.cpp
+data/mcversionlist.cpp
 data/worldlist.cpp
 data/world.cpp
 data/texturepack.cpp
@@ -203,7 +203,7 @@ data/userinfo.h
 data/mod.h
 data/modlist.h
 data/configpack.h
-data/snapshotlist.h
+data/mcversionlist.h
 data/worldlist.h
 data/world.h
 data/texturepack.h
