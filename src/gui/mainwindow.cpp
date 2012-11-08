@@ -1216,10 +1216,10 @@ void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
 	{
 		DowngradeDialog downDlg(this);
 		downDlg.CenterOnParent();
-		if (downDlg.ShowModal() == wxID_OK && !downDlg.GetSelectedVersion().IsEmpty())
+		if (downDlg.ShowModal() == wxID_OK && !downDlg.GetSelection().IsEmpty())
 		{
-			if (downDlg.GetSelectedVersion().Contains(wxT("indev")) ||
-				downDlg.GetSelectedVersion().Contains(wxT("infdev")))
+			if (downDlg.GetSelection().Contains(wxT("indev")) ||
+				downDlg.GetSelection().Contains(wxT("infdev")))
 			{
 				if (wxMessageBox(_("MultiMC is currently incompatible with \
 indev and infdev. Are you sure you would like to downgrade to this version?"), 
@@ -1229,7 +1229,7 @@ indev and infdev. Are you sure you would like to downgrade to this version?"),
 				}
 			}
 
-			auto task = new DowngradeTask (currentInstance, downDlg.GetSelectedVersion());
+			auto task = new DowngradeTask (currentInstance, downDlg.GetSelection());
 			StartTask(task);
 			delete task;
 			UpdateInstPanel();

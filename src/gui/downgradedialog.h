@@ -15,32 +15,13 @@
 //
 
 #pragma once
-#include <wx/dialog.h>
+#include "listselectdialog.h"
 
-#include "instance.h"
-#include "task.h"
-
-class DowngradeDialog : public wxDialog
+class DowngradeDialog : public ListSelectDialog
 {
 public:
 	DowngradeDialog(wxWindow *parent);
 
-	wxString GetSelectedVersion();
-
 protected:
-	void LoadVersionList();
-
-	void OnRefreshVListClicked(wxCommandEvent& event);
-	void OnListBoxSelChange(wxCommandEvent& event);
-
-	void UpdateOKBtn();
-
-	wxListBox *versionList;
-
-	DECLARE_EVENT_TABLE()
-};
-
-enum
-{
-	ID_RefreshVersionList,
+	virtual bool DoLoadList(wxArrayString& sList);
 };

@@ -43,12 +43,12 @@ inline void SetControlEnable(wxWindow *parentWin, int id, bool state)
 ListSelectDialog::ListSelectDialog(wxWindow *parent, const wxString& title)
 	: wxDialog(parent, wxID_ANY, title, wxDefaultPosition, wxSize(400, 420))
 {
-	wxBoxSizer *dlgSizer = new wxBoxSizer(wxVERTICAL);
+	dlgSizer = new wxBoxSizer(wxVERTICAL);
 	SetSizer(dlgSizer);
 
-	wxPanel *mainPanel = new wxPanel(this);
+	mainPanel = new wxPanel(this);
 	dlgSizer->Add(mainPanel, wxSizerFlags(1).Expand().Border(wxALL, 8));
-	wxGridBagSizer *mainSz = new wxGridBagSizer();
+	mainSz = new wxGridBagSizer();
 	mainSz->AddGrowableCol(0, 0);
 	mainSz->AddGrowableRow(0, 0);
 	mainPanel->SetSizer(mainSz);
@@ -57,10 +57,10 @@ ListSelectDialog::ListSelectDialog(wxWindow *parent, const wxString& title)
 		wxArrayString(), wxLB_SINGLE);
 	mainSz->Add(list, wxGBPosition(0, 0), wxGBSpan(1, 2), wxEXPAND | wxALL, 4);
 
-	wxButton *refreshButton = new wxButton(mainPanel, ID_RefreshList, _("&Refresh"));
+	refreshButton = new wxButton(mainPanel, ID_RefreshList, _("&Refresh"));
 	mainSz->Add(refreshButton, wxGBPosition(1, 1), wxGBSpan(1, 1), wxALL, 3);
 
-	wxSizer *btnSz = CreateButtonSizer(wxOK | wxCANCEL);
+	btnSz = CreateButtonSizer(wxOK | wxCANCEL);
 	dlgSizer->Add(btnSz, wxSizerFlags(0).Border(wxBOTTOM | wxRIGHT, 8).
 		Align(wxALIGN_RIGHT | wxALIGN_BOTTOM));
 
@@ -79,8 +79,7 @@ void ListSelectDialog::LoadList()
 	LambdaTask::TaskFunc func = [&] (LambdaTask *task) -> wxThread::ExitCode
 	{
 		task->DoSetStatus("Loading list...");
-		DoLoadList(sList);
-		return (wxThread::ExitCode) 0;
+		return (wxThread::ExitCode)DoLoadList(sList);
 	};
 
 	LambdaTask *lTask = new LambdaTask(func);

@@ -18,6 +18,8 @@
 #include <wx/dialog.h>
 #include <wx/listbox.h>
 
+class wxGridBagSizer;
+
 class ListSelectDialog : public wxDialog
 {
 public:
@@ -29,7 +31,7 @@ public:
 
 protected:
 	virtual void LoadList();
-	virtual void DoLoadList(wxArrayString& sList) = 0;
+	virtual bool DoLoadList(wxArrayString& sList) = 0;
 
 	void OnRefreshListClicked(wxCommandEvent& event);
 	void OnListBoxSelChange(wxCommandEvent& event);
@@ -37,6 +39,15 @@ protected:
 	void UpdateOKBtn();
 
 	wxListBox *list;
+
+	// Sizers and other GUI controls. These are used by overriding classes to customize the GUI.
+	wxBoxSizer* dlgSizer;
+
+	wxPanel* mainPanel;
+	wxGridBagSizer* mainSz;
+
+	wxSizer* btnSz;
+	wxButton* refreshButton;
 
 	DECLARE_EVENT_TABLE()
 };
