@@ -117,7 +117,7 @@ LoginResult::LoginResult(wxString loginResponse)
 	username = wxEmptyString;
 	sessionID = wxEmptyString;
 	
-	wxArrayString strings = wxStringTokenize(loginResponse, _(":"));
+	wxArrayString strings = wxStringTokenize(loginResponse, ":");
 	if (strings.Count() >= 4)
 	{
 		// Login succeeded
@@ -133,10 +133,10 @@ LoginResult::LoginResult(wxString loginResponse)
 		// Login failed
 		loginFailed = true;
 		
-		if (loginResponse.Lower() == _("bad login"))
-			errorMessage = _T("Invalid username or password.");
-		else if (loginResponse.Lower() == _("old version"))
-			errorMessage = _T("Launcher outdated, please update.");
+		if (loginResponse.Lower() == "bad login")
+			errorMessage = _("Invalid username or password.");
+		else if (loginResponse.Lower() == "old version")
+			errorMessage = _("Launcher outdated, please update.");
 		else
 			errorMessage = _("Login failed: ") + loginResponse;
 	}

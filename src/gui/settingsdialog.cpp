@@ -37,7 +37,7 @@ const wxString sortModeName = _("By Name");
 const wxString sortModeLastLaunch = _("By Last Launched");
 
 SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s /* = settings */)
-	: wxDialog(parent, id, _T("Settings"), wxDefaultPosition, wxSize(500, 450))
+	: wxDialog(parent, id, _("Settings"), wxDefaultPosition, wxSize(500, 450))
 {
 	currentSettings = s;
 	wxBoxSizer *mainBox = new wxBoxSizer(wxVERTICAL);
@@ -103,18 +103,18 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 
 			// Update settings group box
 			{
-				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _T("Update Settings"));
-				useDevBuildsCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Use development builds."));
+				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _("Update Settings"));
+				useDevBuildsCheck = new wxCheckBox(box->GetStaticBox(), -1, _("Use development builds."));
 				box->Add(useDevBuildsCheck, itemFlags);
-				autoUpdateCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Check for updates when MultiMC starts?"));
+				autoUpdateCheck = new wxCheckBox(box->GetStaticBox(), -1, _("Check for updates when MultiMC starts?"));
 				box->Add(autoUpdateCheck, itemFlags);
-				forceUpdateToggle = new wxToggleButton(box->GetStaticBox(), -1, _T("Force-update MultiMC"));
+				forceUpdateToggle = new wxToggleButton(box->GetStaticBox(), -1, _("Force-update MultiMC"));
 				box->Add(forceUpdateToggle, itemFlags);
 				multimcSizer->Add(box, staticBoxOuterFlags);
 			}
 			// Directory group box
 			{
-				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _T("Folders"));
+				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _("Folders"));
 				auto dirsSizer = new wxGridBagSizer();
 				int row = 0;
 				{
@@ -124,7 +124,7 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 					instDirTextBox = new wxTextCtrl(box->GetStaticBox(), -1);
 					dirsSizer->Add(instDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
 
-					wxButton *instDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseInstDir, _T("Browse..."));
+					wxButton *instDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseInstDir, _("Browse..."));
 					dirsSizer->Add(instDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
 				}
 				row++;
@@ -135,7 +135,7 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 					modsDirTextBox = new wxTextCtrl(box->GetStaticBox(), -1);
 					dirsSizer->Add(modsDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
 
-					auto modDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseModDir, _T("Browse..."));
+					auto modDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseModDir, _("Browse..."));
 					dirsSizer->Add(modDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
 				}
 
@@ -154,13 +154,13 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 		auto consolePanel = new wxPanel(tabCtrl, -1);
 		auto consoleSizer = new wxBoxSizer(wxVERTICAL);
 		consolePanel->SetSizer(consoleSizer);
-		tabCtrl->AddPage(consolePanel, _T("Error console"), false);
+		tabCtrl->AddPage(consolePanel, _("Error console"), false);
 		// Console settings group box
 		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, consolePanel, _T("Console Settings"));
-			showConsoleCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Show console while an instance is running."));
+			auto box = new wxStaticBoxSizer(wxVERTICAL, consolePanel, _("Console Settings"));
+			showConsoleCheck = new wxCheckBox(box->GetStaticBox(), -1, _("Show console while an instance is running."));
 			box->Add(showConsoleCheck, itemFlags);
-			autoCloseConsoleCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Automatically close console when the game quits."));
+			autoCloseConsoleCheck = new wxCheckBox(box->GetStaticBox(), -1, _("Automatically close console when the game quits."));
 			box->Add(autoCloseConsoleCheck, itemFlags);
 			consoleSizer->Add(box, staticBoxOuterFlags);
 		}
@@ -199,11 +199,11 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 		auto mcPanel = new wxPanel(tabCtrl, -1);
 		auto mcBox = new wxBoxSizer(wxVERTICAL);
 		mcPanel->SetSizer(mcBox);
-		tabCtrl->AddPage(mcPanel, _T("Minecraft"), false);
+		tabCtrl->AddPage(mcPanel, _("Minecraft"), false);
 
 		// Updates group box
 		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _T("Updates"));
+			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Updates"));
 			
 			// Override
 			if(instanceMode)
@@ -291,10 +291,10 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 		auto mcPanel = new wxPanel(tabCtrl, -1);
 		auto mcBox = new wxBoxSizer(wxVERTICAL);
 		mcPanel->SetSizer(mcBox);
-		tabCtrl->AddPage(mcPanel, _T("Java"), false);
+		tabCtrl->AddPage(mcPanel, _("Java"), false);
 		// Memory group box
 		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _T("Memory"));
+			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Memory"));
 			auto sizer = new wxGridBagSizer();
 			int row = 0;
 			
@@ -307,7 +307,7 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			}
 			
 			// Min memory
-			minMemLabel = new wxStaticText(mcPanel, -1, _T("Minimum memory allocation: "));
+			minMemLabel = new wxStaticText(mcPanel, -1, _("Minimum memory allocation: "));
 			sizer->Add(minMemLabel, wxGBPosition(row,0), wxGBSpan(1,1),GBitemsFlags);
 			minMemorySpin = new wxSpinCtrl(mcPanel, -1);
 			minMemorySpin->SetRange(256, Utils::GetMaxAllowedMemAlloc());
@@ -316,7 +316,7 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			row++;
 			
 			// Max memory
-			maxMemLabel = new wxStaticText(mcPanel, -1, _T("Maximum memory allocation: "));
+			maxMemLabel = new wxStaticText(mcPanel, -1, _("Maximum memory allocation: "));
 			sizer->Add(maxMemLabel,wxGBPosition(row,0), wxGBSpan(1,1),GBitemsFlags);
 			maxMemorySpin = new wxSpinCtrl(mcPanel, -1);
 			maxMemorySpin->SetRange(512, Utils::GetMaxAllowedMemAlloc());
@@ -330,7 +330,7 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 		
 		// Java path
 		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _T("Java Settings"));
+			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Java Settings"));
 			auto sizer = new wxGridBagSizer();
 
 			int row = 0;
@@ -429,7 +429,7 @@ bool SettingsDialog::ApplySettings()
 		wxFileName test = newInstDir;
 		test.MakeAbsolute();
 		wxString tests = test.GetFullPath();
-		if(tests.Contains(_("!")))
+		if(tests.Contains("!"))
 		{
 			wxLogError(_("The chosen instance path contains a ! character.\nThis would make Minecraft crash. Please change it."), tests.c_str());
 			return false;
@@ -437,8 +437,8 @@ bool SettingsDialog::ApplySettings()
 		if (!oldInstDir.SameAs(newInstDir))
 		{
 			if(!FolderMove(oldInstDir, newInstDir,
-				_T("You've changed your instance directory, would you like to transfer all of your instances?"),
-				_T("Instance directory changed.")))
+				_("You've changed your instance directory, would you like to transfer all of your instances?"),
+				_("Instance directory changed.")))
 			{
 				return false;
 			}
@@ -449,8 +449,8 @@ bool SettingsDialog::ApplySettings()
 		if (!oldModDir.SameAs(newModDir))
 		{
 			if(!FolderMove(oldModDir, newModDir,
-				_T("You've changed your central mods directory, would you like to transfer all of your mods?"),
-				_T("Central mods directory changed.")))
+				_("You've changed your central mods directory, would you like to transfer all of your mods?"),
+				_("Central mods directory changed.")))
 			{
 				return false;
 			}
@@ -683,7 +683,7 @@ void SettingsDialog::OnBrowseInstDirClicked(wxCommandEvent& event)
 			a.MakeRelativeTo();
 		if(a.SameAs(wxGetCwd()))
 		{
-			instDirTextBox->ChangeValue(_("."));
+			instDirTextBox->ChangeValue(".");
 		}
 		else
 		{
@@ -702,7 +702,7 @@ void SettingsDialog::OnBrowseModsDirClicked(wxCommandEvent& event)
 			a.MakeRelativeTo();
 		if(a.SameAs(wxGetCwd()))
 		{
-			modsDirTextBox->ChangeValue(_("."));
+			modsDirTextBox->ChangeValue(".");
 		}
 		else
 		{

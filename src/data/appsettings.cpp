@@ -30,7 +30,7 @@ bool InitAppSettings(void)
 
 AppSettings::AppSettings()
 {
-	config = new wxFileConfig(_("MultiMC"), wxEmptyString, _("multimc.cfg"), wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
+	config = new wxFileConfig(_("MultiMC"), wxEmptyString, "multimc.cfg", wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
 }
 AppSettings::~AppSettings()
 {

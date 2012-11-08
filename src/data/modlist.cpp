@@ -171,7 +171,7 @@ void ModList::SaveToFile(const wxString& file)
 		wxFileName modFile = iter->GetFileName();
 		modFile.MakeRelativeTo(modsFolder);
 		text.Append(modFile.GetFullPath());
-		text.Append(_("\n"));
+		text.Append("\n");
 	}
 
 	wxTempFileOutputStream out(file);

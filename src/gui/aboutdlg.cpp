@@ -43,7 +43,7 @@ AboutDlg::AboutDlg(wxWindow *parent, const AboutDlgInfo &info)
 	int rows = 0;
 
 	wxStaticText *titleLabel = new wxStaticText(mainPanel, -1, 
-		wxString::Format(_("%s %s"), info.name.c_str(), info.version.c_str()));
+		wxString::Format("%s %s", info.name.c_str(), info.version.c_str()));
 	titleLabel->SetFont(titleFont);
 	mainSz->Add(titleLabel, wxGBPosition(rows++, 1), wxGBSpan(1, cols - 1), GB_CenterFlags);
 

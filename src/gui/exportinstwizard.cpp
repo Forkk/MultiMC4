@@ -67,8 +67,8 @@ ExportInstWizard::ExportInstWizard(wxWindow *parent, Instance *inst)
 		wxDefaultPosition, wxDefaultSize, configList);
 	for (int i = 0; i < cfgListCtrl->GetCount(); i++)
 	{
-		if (!cfgListCtrl->GetString(i).Contains(_("options.txt")) &&
-			!cfgListCtrl->GetString(i).Contains(_("optionsof.txt")))
+		if (!cfgListCtrl->GetString(i).Contains("options.txt") &&
+			!cfgListCtrl->GetString(i).Contains("optionsof.txt"))
 				cfgListCtrl->Check(i, true);
 	}
 	configPageSz->Add(cfgListCtrl, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALIGN_CENTER | wxALL | wxEXPAND, 4);

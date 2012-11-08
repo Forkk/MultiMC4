@@ -73,7 +73,7 @@ wxString ChangeIconDialog::GetSelectedIconKey() const
 		
 		return iconListCtrl->GetItemText(item);
 	}
-	return _("default");
+	return "default";
 }
 
 ChangeIconDialog::InstIconListCtrl::InstIconListCtrl(wxWindow *parent)

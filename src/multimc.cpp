@@ -87,7 +87,7 @@ bool MultiMC::OnInit()
 	}
 	
 	wxString cwd = wxGetCwd();
-	if(cwd.Contains(_("!")))
+	if(cwd.Contains("!"))
 	{
 		wxLogError(_("MultiMC has been started from a path that contains '!':\n%s\nThis would break Minecraft. Please move it to a different place."), cwd.c_str());
 		return false;
@@ -156,7 +156,7 @@ bool MultiMC::OnInit()
 void MultiMC::OnInitCmdLine(wxCmdLineParser &parser)
 {
 	parser.SetDesc(cmdLineDesc);
-	parser.SetSwitchChars(_("-"));
+	parser.SetSwitchChars("-");
 }
 
 bool MultiMC::OnCmdLineParsed(wxCmdLineParser& parser)
@@ -177,14 +177,14 @@ bool MultiMC::OnCmdLineParsed(wxCmdLineParser& parser)
 		}
 		useProvidedDir = true;
 	}
-	if (parser.Found(_("u"), &parsedOption))
+	if (parser.Found("u", &parsedOption))
 	{
 		thisFileName = wxStandardPaths::Get().GetExecutablePath();
 		updateTarget = parsedOption;
 		startMode = START_INSTALL_UPDATE;
 		return true;
 	}
-	else if(parser.Found(_("l"), &parsedOption))
+	else if(parser.Found("l", &parsedOption))
 	{
 		launchInstance = parsedOption;
 		startMode = START_LAUNCH_INSTANCE;
@@ -263,16 +263,16 @@ void MultiMC::YieldSleep(int secs)
 int MultiMC::OnExit()
 {
 #ifdef WINDOWS
-	wxString updaterFileName = _("MultiMCUpdate.exe");
+	wxString updaterFileName = "MultiMCUpdate.exe";
 #else
-	wxString updaterFileName = _("MultiMCUpdate");
+	wxString updaterFileName = "MultiMCUpdate";
 #endif
 
 	if (updateOnExit && wxFileExists(updaterFileName))
 	{
 		wxFileName updateFile(updaterFileName);
 #if LINUX || OSX
-			wxExecute(_("chmod +x ") + updateFile.GetFullPath());
+			wxExecute("chmod +x " + updateFile.GetFullPath());
 			updateFile.MakeAbsolute();
 #endif
 
@@ -282,13 +282,13 @@ int MultiMC::OnExit()
 		wxString thisFilePath = wxStandardPaths::Get().GetExecutablePath();
 
 #if WINDOWS
-		wxString launchCmd = wxString::Format(_("cmd /C %s -u \"%s\""),
+		wxString launchCmd = wxString::Format("cmd /C %s -u \"%s\"",
 			updateFilePath.c_str(), thisFilePath.c_str());
 #else
-		updateFilePath.Replace(_(" "), _("\\ "));
-		thisFilePath.Replace(_(" "), _("\\ "));
+		updateFilePath.Replace(" ", "\\ ");
+		thisFilePath.Replace(" ", "\\ ");
 
-		wxString launchCmd = wxString::Format(_("%s -u:%s"),
+		wxString launchCmd = wxString::Format("%s -u:%s",
 			updateFilePath.c_str(), thisFilePath.c_str());
 #endif
 

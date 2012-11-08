@@ -70,7 +70,7 @@ wxThread::ExitCode FileDownloadTask::TaskStart()
 		int progress = ((double)downloadedSize / (double)downloadSize) * 100;
 		SetProgress(progress);
 
-		wxString sDownloadedSize = _("???");
+		wxString sDownloadedSize = "???";
 
 		if(progress >= 100 || downloadedSize > downloadSize)
 		{

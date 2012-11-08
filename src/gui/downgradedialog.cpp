@@ -29,21 +29,21 @@
 #include "apputils.h"
 #include "httputils.h"
 
-const wxString mcnwebURL = _("http://sonicrules.org/mcnweb.py");
+const wxString mcnwebURL = "http://sonicrules.org/mcnweb.py";
 
 DowngradeDialog::DowngradeDialog(wxWindow *parent)
 	: ListSelectDialog(parent, _("Downgrade Instance"))
 {
 	// GUI customizations.
 	wxHyperlinkCtrl *mcnLink = new wxHyperlinkCtrl(mainPanel, -1, _("Powered by MCNostalgia"),
-		_("http://www.minecraftforum.net/topic/800346-"));
+		"http://www.minecraftforum.net/topic/800346-");
 	mainSz->Add(mcnLink, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALL | wxALIGN_CENTER_VERTICAL, 4);
 }
 
 bool DowngradeDialog::DoLoadList()
 {
 	wxString vlistJSON;
-	if (DownloadString(mcnwebURL + _("?pversion=1&list=True"), &vlistJSON))
+	if (DownloadString(mcnwebURL + "?pversion=1&list=True", &vlistJSON))
 	{
 		using namespace boost::property_tree;
 

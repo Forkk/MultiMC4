@@ -51,7 +51,7 @@ void UserInfo::SaveToFile(const char * filename) const
 	{
 		outString.Append(username);
 		if (rememberPassword)
-			outString.Append(_("=") + password);
+			outString.Append("=" + password);
 	}
 	FILE* passfile = 0;
 	passfile = fopen(filename,"wb");

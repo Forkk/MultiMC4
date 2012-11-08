@@ -162,7 +162,7 @@ void ImportPackWizard::UpdateMissingModList()
 	{
 		if (centralModList->FindByID(iter->m_id, iter->m_version) == nullptr)
 		{
-			missingModsList->Append(wxString::Format(_("%s %s"), iter->m_id.c_str(), iter->m_version.c_str()));
+			missingModsList->Append(wxString::Format("%s %s", iter->m_id.c_str(), iter->m_version.c_str()));
 		}
 	}
 
@@ -170,7 +170,7 @@ void ImportPackWizard::UpdateMissingModList()
 	{
 		if (centralModList->FindByID(iter->m_id, iter->m_version) == nullptr)
 		{
-			missingModsList->Append(wxString::Format(_("%s %s"), iter->m_id.c_str(), iter->m_version.c_str()));
+			missingModsList->Append(wxString::Format("%s %s", iter->m_id.c_str(), iter->m_version.c_str()));
 		}
 	}
 	
@@ -178,7 +178,7 @@ void ImportPackWizard::UpdateMissingModList()
 	{
 		if (centralModList->FindByID(iter->m_id, iter->m_version) == nullptr)
 		{
-			missingModsList->Append(wxString::Format(_("%s %s"), iter->m_id.c_str(), iter->m_version.c_str()));
+			missingModsList->Append(wxString::Format("%s %s", iter->m_id.c_str(), iter->m_version.c_str()));
 		}
 	}
 }

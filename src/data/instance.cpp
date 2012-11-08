@@ -39,7 +39,7 @@ DEFINE_EVENT_TYPE(wxEVT_INST_OUTPUT)
 // macro for adding "" around strings
 #define DQuote(X) "\"" << X << "\""
 
-const wxString cfgFileName = _("instance.cfg");
+const wxString cfgFileName = "instance.cfg";
 
 /* HACK HACK HACK HACK HACK HACK HACK HACK*
  * This is a workaround for a wxWidgets bug
@@ -231,63 +231,63 @@ wxFileName Instance::GetMCDir() const
 
 wxFileName Instance::GetBinDir() const
 {
-	return wxFileName::DirName(GetMCDir().GetFullPath() + _("/bin"));
+	return wxFileName::DirName(GetMCDir().GetFullPath() + "/bin");
 }
 
 wxFileName Instance::GetCoreModsDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("coremods")));
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), "coremods"));
 }
 
 wxFileName Instance::GetMLModsDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("mods")));
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), "mods"));
 }
 
 wxFileName Instance::GetResourceDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("resources")));
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), "resources"));
 }
 
 wxFileName Instance::GetSavesDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("saves")));
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), "saves"));
 }
 
 wxFileName Instance::GetScreenshotsDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("screenshots")));
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), "screenshots"));
 }
 
 wxFileName Instance::GetTexturePacksDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("texturepacks")));
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), "texturepacks"));
 }
 
 
 wxFileName Instance::GetInstModsDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetRootDir().GetFullPath(), _("instMods")));
+	return wxFileName::DirName(Path::Combine(GetRootDir().GetFullPath(), "instMods"));
 }
 
 wxFileName Instance::GetVersionFile() const
 {
-	return wxFileName::FileName(GetBinDir().GetFullPath() + _("/version"));
+	return wxFileName::FileName(GetBinDir().GetFullPath() + "/version");
 }
 
 wxFileName Instance::GetMCBackup() const
 {
-	return wxFileName::FileName(GetBinDir().GetFullPath() + _("/mcbackup.jar"));
+	return wxFileName::FileName(GetBinDir().GetFullPath() + "/mcbackup.jar");
 }
 
 wxFileName Instance::GetMCJar() const
 {
-	return wxFileName::FileName(GetBinDir().GetFullPath() + _("/minecraft.jar"));
+	return wxFileName::FileName(GetBinDir().GetFullPath() + "/minecraft.jar");
 }
 
 wxFileName Instance::GetModListFile() const
 {
-	return wxFileName::FileName(Path::Combine(GetRootDir(), _("modlist")));
+	return wxFileName::FileName(Path::Combine(GetRootDir(), "modlist"));
 }
 
 
@@ -328,19 +328,19 @@ void Instance::WriteVersionFile(int64_t number)
 
 wxString Instance::GetName() const
 {
-	return GetSetting<wxString>(_("name"), _("Unnamed Instance"));
+	return GetSetting<wxString>("name", _("Unnamed Instance"));
 }
 
 void Instance::SetName(wxString name)
 {
-	SetSetting<wxString>(_("name"), name);
+	SetSetting<wxString>("name", name);
 	if(parentModel)
 		parentModel->InstanceRenamed(this);
 }
 
 wxString Instance::GetIconKey() const
 {
-	wxString iconKey = GetSetting<wxString>(_("iconKey"), _("default"));
+	wxString iconKey = GetSetting<wxString>("iconKey", "default");
 
 	if (iconKey == "default")
 	{
@@ -361,27 +361,27 @@ wxString Instance::GetIconKey() const
 
 void Instance::SetIconKey(wxString iconKey)
 {
-	SetSetting<wxString>(_("iconKey"), iconKey);
+	SetSetting<wxString>("iconKey", iconKey);
 }
 
 wxString Instance::GetNotes() const
 {
-	return GetSetting<wxString>(_("notes"), _(""));
+	return GetSetting<wxString>("notes", wxEmptyString);
 }
 
 void Instance::SetNotes(wxString notes)
 {
-	SetSetting<wxString>(_("notes"), notes);
+	SetSetting<wxString>("notes", notes);
 }
 
 bool Instance::ShouldRebuild() const
 {
-	return GetSetting<bool>(_("NeedsRebuild"), false);
+	return GetSetting<bool>("NeedsRebuild", false);
 }
 
 void Instance::SetNeedsRebuild(bool value)
 {
-	SetSetting<bool>(_("NeedsRebuild"), value);
+	SetSetting<bool>("NeedsRebuild", value);
 }
 
 bool Instance::HasBinaries()
@@ -404,7 +404,7 @@ void Instance::ExtractLauncher()
 		if (!zipper.CopyEntry(entry.release(), dezipper))
 			break;
 	// add the icon file
-	zipper.PutNextEntry(_("icon.png"));
+	zipper.PutNextEntry("icon.png");
 	InstIconList * iconList = InstIconList::Instance();
 	//FIXME: what if there is no such image?
 	wxImage &img =  iconList->getImageForKey(GetIconKey());
@@ -417,10 +417,10 @@ wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirect
 	SetLastLaunchNow();
 
 	if (username.IsEmpty())
-		username = _("Offline");
+		username = "Offline";
 	
 	if (sessionID.IsEmpty())
-		sessionID = _("Offline");
+		sessionID = "Offline";
 	
 	ExtractLauncher();
 	
@@ -577,20 +577,20 @@ void Instance::GetPossibleConfigFiles(wxArrayString *array, wxString dir)
 			
 			if (wxDirExists(fileName.GetFullPath()))
 			{
-				if (currentFile != _("saves"))
+				if (currentFile != "saves")
 					GetPossibleConfigFiles(array, fileName.GetFullPath());
 			}
-			else if (fileName.GetExt() == _("cfg") || 
-				fileName.GetExt() == _("conf") || 
-				fileName.GetExt() == _("config") || 
-				fileName.GetExt() == _("props") || 
-				fileName.GetExt() == _("properties") ||
-				fileName.GetExt() == _("xml") ||
-				fileName.GetExt() == _("yml") ||
-				fileName.GetFullPath().Contains(_("options")) ||
-				fileName.GetPath().Contains(_("config")) ||
-				fileName.GetName().Contains(_("config")) ||
-				fileName.GetName().Contains(_("options")))
+			else if (fileName.GetExt() == "cfg" || 
+				fileName.GetExt() == "conf" || 
+				fileName.GetExt() == "config" || 
+				fileName.GetExt() == "props" || 
+				fileName.GetExt() == "properties" ||
+				fileName.GetExt() == "xml" ||
+				fileName.GetExt() == "yml" ||
+				fileName.GetFullPath().Contains("options") ||
+				fileName.GetPath().Contains("config") ||
+				fileName.GetName().Contains("config") ||
+				fileName.GetName().Contains("options"))
 			{
 				fileName.MakeRelativeTo(GetRootDir().GetFullPath());
 				array->Add(fileName.GetFullPath());
