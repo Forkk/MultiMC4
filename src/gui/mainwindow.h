@@ -74,6 +74,7 @@ public:
 	void OnEditModsClicked(wxCommandEvent& event);
 	void OnDowngradeInstClicked(wxCommandEvent& event);
 	void OnSnapshotClicked(wxCommandEvent& event);
+	void OnChangeLWJGLClicked(wxCommandEvent& event);
 	void OnRebuildJarClicked(wxCommandEvent& event);
 	void OnViewInstFolderClicked(wxCommandEvent& event);
 	
@@ -240,6 +241,7 @@ enum
 	ID_EditMods,
 	ID_DowngradeInst,
 	ID_UseSnapshot,
+	ID_ChangeLWJGL,
 	ID_RebuildJar,
 	ID_ViewInstFolder,
 
