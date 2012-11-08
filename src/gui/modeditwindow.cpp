@@ -955,7 +955,7 @@ void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
 	InstallForgeDialog installDlg (this);
 	if (installDlg.ShowModal() == wxID_OK)
 	{
-		wxString dl = installDlg.GetSelectedBuild();
+		wxString dl = installDlg.GetSelection();
 		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), dl);
 		
 		auto dlTask = new FileDownloadTask("http://files.minecraftforge.net/" + dl, forgePath);
