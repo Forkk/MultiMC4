@@ -94,5 +94,5 @@ bool ChooseLWJGLDialog::DoLoadList(wxArrayString& sList)
 
 wxString ChooseLWJGLDialog::GetSelectedURL()
 {
-	return linkList[list->GetSelection()];
+	return linkList[GetSelectedIndex()];
 }

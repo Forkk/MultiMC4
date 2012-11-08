@@ -35,6 +35,8 @@ LWJGLInstallTask::LWJGLInstallTask(Instance *inst, const wxString &path)
 
 wxThread::ExitCode LWJGLInstallTask::TaskStart()
 {
+	SetStatus(_("Installing new LWJGL..."));
+
 	wxFFileInputStream in(m_path);
 	wxZipInputStream zipIn(in);
 
@@ -74,6 +76,7 @@ wxThread::ExitCode LWJGLInstallTask::TaskStart()
 		// Now if destFileName is still empty, go to the next file.
 		if (!destFileName.IsEmpty())
 		{
+			SetStatus(_("Installing new LWJGL - Extracting " + name));
 			wxFFileOutputStream out(destFileName);
 			zipIn.Read(out);
 		}
