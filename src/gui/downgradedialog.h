@@ -23,5 +23,5 @@ public:
 	DowngradeDialog(wxWindow *parent);
 
 protected:
-	virtual bool DoLoadList(wxArrayString& sList);
+	virtual bool DoLoadList();
 };

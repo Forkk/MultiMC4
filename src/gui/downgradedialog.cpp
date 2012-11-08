@@ -40,7 +40,7 @@ DowngradeDialog::DowngradeDialog(wxWindow *parent)
 	mainSz->Add(mcnLink, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALL | wxALIGN_CENTER_VERTICAL, 4);
 }
 
-bool DowngradeDialog::DoLoadList(wxArrayString& sList)
+bool DowngradeDialog::DoLoadList()
 {
 	wxString vlistJSON;
 	if (DownloadString(mcnwebURL + _("?pversion=1&list=True"), &vlistJSON))

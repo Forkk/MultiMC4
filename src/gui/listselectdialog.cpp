@@ -80,7 +80,7 @@ void ListSelectDialog::LoadList()
 	LambdaTask::TaskFunc func = [&] (LambdaTask *task) -> wxThread::ExitCode
 	{
 		task->DoSetStatus("Loading list...");
-		return (wxThread::ExitCode)DoLoadList(sList);
+		return (wxThread::ExitCode)DoLoadList();
 	};
 
 	LambdaTask *lTask = new LambdaTask(func);

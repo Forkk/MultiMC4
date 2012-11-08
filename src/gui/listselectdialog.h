@@ -32,7 +32,7 @@ public:
 
 protected:
 	virtual void LoadList();
-	virtual bool DoLoadList(wxArrayString& sList) = 0;
+	virtual bool DoLoadList() = 0;
 	virtual wxString OnGetItemText(long item, long column);
 
 	// By default, the first column's size is set to the width of the list

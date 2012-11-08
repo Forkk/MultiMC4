@@ -42,7 +42,7 @@ void ChooseLWJGLDialog::LoadList()
 	ListSelectDialog::LoadList();
 }
 
-bool ChooseLWJGLDialog::DoLoadList(wxArrayString& sList)
+bool ChooseLWJGLDialog::DoLoadList()
 {
 	// Parse XML from the given URL.
 	wxString rssXML = wxEmptyString;
