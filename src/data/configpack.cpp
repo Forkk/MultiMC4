@@ -44,7 +44,7 @@ ConfigPack::ConfigPack(const wxString& fileName)
 	do 
 	{
 		entry.reset(zipIn.GetNextEntry());
-	} while (entry.get() != nullptr && entry->GetInternalName() != _("modpack.json"));
+	} while (entry.get() != nullptr && entry->GetInternalName() != "modpack.json");
 	
 	// Read the file into a stringstream so boost can parse it
 	auto e = entry.get();

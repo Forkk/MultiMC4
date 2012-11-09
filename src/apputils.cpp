@@ -24,16 +24,16 @@ void Utils::OpenFolder(wxFileName path)
 	wxString cmd;
 	
 #if WINDOWS
-	cmd = _("explorer ");
+	cmd = "explorer ";
 #elif OSX
-	cmd = _("open ");
+	cmd = "open ";
 #elif LINUX
-	cmd = _("xdg-open ");
+	cmd = "xdg-open ";
 #endif
 
-	cmd.Append(wxT("\""));
+	cmd.Append("\"");
 	cmd.Append(path.GetFullPath());
-	cmd.Append(wxT("\""));
+	cmd.Append("\"");
     wxExecute(cmd);
 }
 
@@ -90,7 +90,7 @@ wxString Path::Combine(const wxString& path, const wxString& str)
 wxString Path::GetParent(const wxString &path)
 {
 	wxFileName pathName = wxFileName::DirName(path);
-	pathName.AppendDir(_(".."));
+	pathName.AppendDir("..");
 	pathName.Normalize();
 	return pathName.GetFullPath();
 }
@@ -149,7 +149,7 @@ wxString FindJavaPath(const wxString& def)
 			RegCloseKey(jreKey);
 
 			wxString javaHome = wxStr(value);
-			javaHome = Path::Combine(Path::Combine(javaHome, _("bin")), _("java.exe"));
+			javaHome = Path::Combine(Path::Combine(javaHome, "bin"), "java.exe");
 			return javaHome;
 		}
 	}
@@ -163,7 +163,7 @@ wxString FindJavaPath(const wxString& def)
     wxArrayString whichOutput;
 
     // This should work on all UNIX systems, including MacOS X
-    if (wxExecute(_("which java"), whichOutput, wxEXEC_SYNC | wxEXEC_NODISABLE) == 0)
+    if (wxExecute("which java", whichOutput, wxEXEC_SYNC | wxEXEC_NODISABLE) == 0)
     {
         // Valid java found, return the string
         return whichOutput.Last();

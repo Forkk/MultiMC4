@@ -96,11 +96,11 @@ bool GameUpdateTask::LoadJarURLs()
 	wxString nativeJar = wxEmptyString;
 	wxOperatingSystemId osID = wxPlatformInfo::Get().GetOperatingSystemId();
 #if WINDOWS
-		nativeJar = _("windows_natives.jar");
+		nativeJar = "windows_natives.jar";
 #elif OSX
-		nativeJar = _("macosx_natives.jar");
+		nativeJar = "macosx_natives.jar";
 #elif LINUX
-		nativeJar = _("linux_natives.jar");
+		nativeJar = "linux_natives.jar";
 #else
 #error Detected unsupported OS.
 #endif
@@ -122,7 +122,7 @@ void GameUpdateTask::DownloadJars()
 	using namespace boost::property_tree;
 	ptree md5s;
 	
-	wxFileName md5File(m_inst->GetBinDir().GetFullPath(), _("md5sums"));
+	wxFileName md5File(m_inst->GetBinDir().GetFullPath(), "md5sums");
 	if (md5File.FileExists())
 	{
 		try
@@ -149,7 +149,7 @@ void GameUpdateTask::DownloadJars()
 			stdStr(wxURL(jarURLs[i]).GetPath()), ""));
 		
 		struct curl_slist *headers = NULL;
-		headers = curl_slist_append(headers, stdStr(_("If-None-Match: ") + etagOnDisk).c_str());
+		headers = curl_slist_append(headers, stdStr("If-None-Match: " + etagOnDisk).c_str());
 		
 		CURL *curl = curl_easy_init();
 		curl_easy_setopt(curl, CURLOPT_HEADER, true);
@@ -205,7 +205,7 @@ void GameUpdateTask::DownloadJars()
 			wxFileName dlDest(m_inst->GetBinDir().GetFullPath(), 
 							  wxFileName(currentFile.GetPath()).GetFullName());
 			
-			if (currentFile.GetURL().Contains(_("minecraft.jar")) && 
+			if (currentFile.GetURL().Contains("minecraft.jar") && 
 				m_inst->GetMCBackup().FileExists())
 			{
 				wxRemoveFile(m_inst->GetMCBackup().GetFullPath());
@@ -270,10 +270,10 @@ void GameUpdateTask::DownloadJars()
 // 				   stdStr(Utils::BytesToString(md5digest)).c_str());
 			
 			// Find the "ETag" in the headers
-			const wxString etagHeader = _("ETag: \"");
+			const wxString etagHeader = "ETag: \"";
 			
 			size_t etagStart = headerContent.find(etagHeader) + etagHeader.Len();
-			size_t etagEnd = headerContent.find(_("\""), etagStart) - 1;
+			size_t etagEnd = headerContent.find("\"", etagStart) - 1;
 			wxString etag = headerContent.SubString(etagStart, etagEnd);
 			
 			wxString md5sum = Utils::BytesToString(md5digest);
@@ -313,7 +313,7 @@ void GameUpdateTask::ExtractNatives()
 	wxFileName nativesJar(Path::Combine(m_inst->GetBinDir(), 
 		wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
 	wxFileName nativesDir = wxFileName::DirName(Path::Combine(m_inst->GetBinDir(), 
-															  _("natives")));
+															  "natives"));
 	
 	if (!nativesDir.DirExists())
 		nativesDir.Mkdir();
@@ -324,7 +324,7 @@ void GameUpdateTask::ExtractNatives()
 	std::auto_ptr<wxZipEntry> entry;
 	while (entry.reset(zipStream.GetNextEntry()), entry.get() != NULL)
 	{
-		if (entry->IsDir() || entry->GetInternalName().Contains(_("META-INF")))
+		if (entry->IsDir() || entry->GetInternalName().Contains("META-INF"))
 			continue;
 		SetState(STATE_EXTRACTING_PACKAGES, entry->GetName());
 		wxFileName destFile(Path::Combine(nativesDir, entry->GetName()));

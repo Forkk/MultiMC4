@@ -42,14 +42,14 @@ void ChooseLWJGLDialog::LoadList()
 	ListSelectDialog::LoadList();
 }
 
-void ChooseLWJGLDialog::DoLoadList(wxArrayString& sList)
+bool ChooseLWJGLDialog::DoLoadList()
 {
 	// Parse XML from the given URL.
 	wxString rssXML = wxEmptyString;
 	if (!DownloadString(rssURL, &rssXML))
 	{
 		wxLogError(_("Failed to get RSS feed. Check your internet connection."));
-		return;
+		return false;
 	}
 
 	using namespace boost::property_tree;
@@ -86,12 +86,13 @@ void ChooseLWJGLDialog::DoLoadList(wxArrayString& sList)
 	{
 		wxLogError(_("Failed to parse LWJGL list.\nXML parser error at line %i: %s"), 
 			e.line(), wxStr(e.message()).c_str());
+		return false;
 	}
 
-	return;
+	return true;
 }
 
 wxString ChooseLWJGLDialog::GetSelectedURL()
 {
-	return linkList[list->GetSelection()];
+	return linkList[GetSelectedIndex()];
 }

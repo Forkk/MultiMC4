@@ -26,6 +26,7 @@
 #include <wx/app.h>
 #include <wx/sysopt.h>
 #include <wx/progdlg.h>
+#include <wx/intl.h>
 
 #include "mainwindow.h"
 
@@ -51,6 +52,8 @@ bool MultiMC::OnInit()
 	updateOnExit = false;
 	startMode = START_NORMAL;
 	useProvidedDir = false;
+
+	InitLocale();
 	
 	// This is necessary for the update system since it calls OnInitCmdLine
 	// to set up the command line arguments that the update system uses.
@@ -87,7 +90,7 @@ bool MultiMC::OnInit()
 	}
 	
 	wxString cwd = wxGetCwd();
-	if(cwd.Contains(_("!")))
+	if(cwd.Contains("!"))
 	{
 		wxLogError(_("MultiMC has been started from a path that contains '!':\n%s\nThis would break Minecraft. Please move it to a different place."), cwd.c_str());
 		return false;
@@ -153,10 +156,39 @@ bool MultiMC::OnInit()
 	return false;
 }
 
+bool MultiMC::InitLocale()
+{
+	long lang = wxLocale::GetSystemLanguage();
+
+	if (wxLocale::IsAvailable(lang))
+	{
+		m_locale = new wxLocale(lang);
+
+		m_locale->AddCatalog(GetAppName());
+
+		if (!m_locale->IsOk())
+		{
+			wxLogError("Could not load the selected language. Falling back to English.");
+			delete m_locale;
+			m_locale = new wxLocale(wxLANGUAGE_DEFAULT);
+			return false;
+		}
+	}
+	else
+	{
+		wxMessageBox("The selected language could not be found. You may need to install it.");
+		delete m_locale;
+		m_locale = new wxLocale(wxLANGUAGE_DEFAULT);
+		return false;
+	}
+
+	return true;
+}
+
 void MultiMC::OnInitCmdLine(wxCmdLineParser &parser)
 {
 	parser.SetDesc(cmdLineDesc);
-	parser.SetSwitchChars(_("-"));
+	parser.SetSwitchChars("-");
 }
 
 bool MultiMC::OnCmdLineParsed(wxCmdLineParser& parser)
@@ -177,14 +209,14 @@ bool MultiMC::OnCmdLineParsed(wxCmdLineParser& parser)
 		}
 		useProvidedDir = true;
 	}
-	if (parser.Found(_("u"), &parsedOption))
+	if (parser.Found("u", &parsedOption))
 	{
 		thisFileName = wxStandardPaths::Get().GetExecutablePath();
 		updateTarget = parsedOption;
 		startMode = START_INSTALL_UPDATE;
 		return true;
 	}
-	else if(parser.Found(_("l"), &parsedOption))
+	else if(parser.Found("l", &parsedOption))
 	{
 		launchInstance = parsedOption;
 		startMode = START_LAUNCH_INSTANCE;
@@ -263,16 +295,16 @@ void MultiMC::YieldSleep(int secs)
 int MultiMC::OnExit()
 {
 #ifdef WINDOWS
-	wxString updaterFileName = _("MultiMCUpdate.exe");
+	wxString updaterFileName = "MultiMCUpdate.exe";
 #else
-	wxString updaterFileName = _("MultiMCUpdate");
+	wxString updaterFileName = "MultiMCUpdate";
 #endif
 
 	if (updateOnExit && wxFileExists(updaterFileName))
 	{
 		wxFileName updateFile(updaterFileName);
 #if LINUX || OSX
-			wxExecute(_("chmod +x ") + updateFile.GetFullPath());
+			wxExecute("chmod +x " + updateFile.GetFullPath());
 			updateFile.MakeAbsolute();
 #endif
 
@@ -282,13 +314,13 @@ int MultiMC::OnExit()
 		wxString thisFilePath = wxStandardPaths::Get().GetExecutablePath();
 
 #if WINDOWS
-		wxString launchCmd = wxString::Format(_("cmd /C %s -u \"%s\""),
+		wxString launchCmd = wxString::Format("cmd /C %s -u \"%s\"",
 			updateFilePath.c_str(), thisFilePath.c_str());
 #else
-		updateFilePath.Replace(_(" "), _("\\ "));
-		thisFilePath.Replace(_(" "), _("\\ "));
+		updateFilePath.Replace(" ", "\\ ");
+		thisFilePath.Replace(" ", "\\ ");
 
-		wxString launchCmd = wxString::Format(_("%s -u:%s"),
+		wxString launchCmd = wxString::Format("%s -u:%s",
 			updateFilePath.c_str(), thisFilePath.c_str());
 #endif
 

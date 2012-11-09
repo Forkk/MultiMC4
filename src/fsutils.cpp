@@ -164,7 +164,7 @@ void ExtractZipArchive(wxInputStream &stream, const wxString &dest)
 			continue;
 		
 		wxString name = entry->GetName();
-		wxFileName destFile(dest + (name.StartsWith(_("/")) ? _("") : _("/")) + name);
+		wxFileName destFile(dest + (name.StartsWith("/") ? "" : "/") + name);
 		
 		destFile.Mkdir(0777, wxPATH_MKDIR_FULL);
 		
@@ -174,7 +174,7 @@ void ExtractZipArchive(wxInputStream &stream, const wxString &dest)
 		wxFFileOutputStream outStream(destFile.GetFullPath());
 		outStream.Write(zipStream);
 		
-// 		wxFFile file(destFile.GetFullPath(), _("w"));
+// 		wxFFile file(destFile.GetFullPath(), "w");
 // 		
 // 		const size_t bufSize = 1024;
 // 		void *buffer = new char[bufSize];

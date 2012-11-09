@@ -139,17 +139,17 @@ public:
 	UpdateMode GetUpdateMode() const { return (UpdateMode) GetSetting<int>("UpdateMode",settings->GetUpdateMode()); };
 	virtual bool GetAutoLogin() const { return GetSetting<bool>("AutoLogin", settings->GetAutoLogin()); }
 
-	virtual bool GetJavaOverride() const { return GetSetting<bool>(_("OverrideJava"), false); };
-	virtual void SetJavaOverride( bool value ) {  SetSetting<bool>(_("OverrideJava"), value); };
+	virtual bool GetJavaOverride() const { return GetSetting<bool>("OverrideJava", false); };
+	virtual void SetJavaOverride( bool value ) {  SetSetting<bool>("OverrideJava", value); };
 
-	virtual bool GetMemoryOverride() const { return GetSetting<bool>(_("OverrideMemory"), false); };
-	virtual void SetMemoryOverride( bool value ) {  SetSetting<bool>(_("OverrideMemory"), value); };
+	virtual bool GetMemoryOverride() const { return GetSetting<bool>("OverrideMemory", false); };
+	virtual void SetMemoryOverride( bool value ) {  SetSetting<bool>("OverrideMemory", value); };
 
-	virtual bool GetWindowOverride() const { return GetSetting<bool>(_("OverrideWindow"), false); };
-	virtual void SetWindowOverride( bool value ) {  SetSetting<bool>(_("OverrideWindow"), value); };
+	virtual bool GetWindowOverride() const { return GetSetting<bool>("OverrideWindow", false); };
+	virtual void SetWindowOverride( bool value ) {  SetSetting<bool>("OverrideWindow", value); };
 
-	virtual bool GetUpdatesOverride() const { return GetSetting<bool>(_("OverrideUpdates"), false); };
-	virtual void SetUpdatesOverride( bool value ) {  SetSetting<bool>(_("OverrideUpdates"), value); };
+	virtual bool GetUpdatesOverride() const { return GetSetting<bool>("OverrideUpdates", false); };
+	virtual void SetUpdatesOverride( bool value ) {  SetSetting<bool>("OverrideUpdates", value); };
 
 	virtual bool GetLoginOverride() const { return GetSetting<bool>("OverrideLogin", false); }
 	virtual void SetLoginOverride(bool value) {    SetSetting<bool>("OverrideLogin", value); }

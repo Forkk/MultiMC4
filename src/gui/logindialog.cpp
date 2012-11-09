@@ -18,7 +18,7 @@
 #include <wx/gbsizer.h>
 
 LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info, bool canGoOffline)
-	: wxDialog(parent, -1, _T("Login"), wxDefaultPosition, wxSize(520, 140))
+	: wxDialog(parent, -1, _("Login"), wxDefaultPosition, wxSize(520, 140))
 {
 	wxGridBagSizer *mainBox = new wxGridBagSizer();
 	int offset = (errorMsg.empty() ? 0 : 1);
@@ -34,7 +34,7 @@ LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info, bo
 	}
 	
 	// Username text field
-	wxStaticText *usernameLabel = new wxStaticText(this, -1, _T("Username: "));
+	wxStaticText *usernameLabel = new wxStaticText(this, -1, _("Username: "));
 	mainBox->Add(usernameLabel, wxGBPosition(0 + offset, 0), wxGBSpan(1, 1), 
 				 wxALL | wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT, padding);
 	
@@ -45,7 +45,7 @@ LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info, bo
 	
 	
 	// Password text field
-	wxStaticText *passwordLabel = new wxStaticText(this, -1, _T("Password: "));
+	wxStaticText *passwordLabel = new wxStaticText(this, -1, _("Password: "));
 	mainBox->Add(passwordLabel, wxGBPosition(1 + offset, 0), wxGBSpan(1, 1), 
 		wxALL | wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT, padding);
 	
@@ -56,15 +56,15 @@ LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info, bo
 	
 	
 	// Checkboxes
-	forceUpdateToggle = new wxToggleButton(this, -1, _T("&Force update"));
+	forceUpdateToggle = new wxToggleButton(this, -1, _("&Force update"));
 	mainBox->Add(forceUpdateToggle, wxGBPosition(2 + offset, 0), wxGBSpan(1, 1), wxALL, padding);
 	
-	rememberUsernameCheck = new wxCheckBox(this, -1, _T("&Remember username?"));
+	rememberUsernameCheck = new wxCheckBox(this, -1, _("&Remember username?"));
 	rememberUsernameCheck->SetValue(info.rememberUsername);
 	mainBox->Add(rememberUsernameCheck, wxGBPosition(2 + offset, 1), wxGBSpan(1, 1), 
 		wxALL | wxALIGN_CENTER_VERTICAL, padding);
 	
-	rememberPasswordCheck = new wxCheckBox(this, -1, _T("R&emember password?"));
+	rememberPasswordCheck = new wxCheckBox(this, -1, _("R&emember password?"));
 	rememberPasswordCheck->SetValue(info.rememberPassword);
 	mainBox->Add(rememberPasswordCheck, wxGBPosition(2 + offset, 2), wxGBSpan(1, 1),
 		wxALL | wxALIGN_CENTER_VERTICAL, padding);

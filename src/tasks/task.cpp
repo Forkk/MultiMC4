@@ -26,7 +26,7 @@ DEFINE_EVENT_TYPE(wxEVT_TASK_ERRORMSG)
 Task::Task()
 	: wxThread(wxTHREAD_JOINABLE)
 {
-	m_status = _("");
+	m_status = wxEmptyString;
 	m_progress = 0;
 	m_modal = false;
 	ended = false;

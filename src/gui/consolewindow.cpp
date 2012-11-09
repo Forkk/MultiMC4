@@ -135,7 +135,7 @@ void InstConsoleWindow::AppendMessage(const wxString& msg, MessageType msgT)
 		break;
 	}
 
-	(*consoleTextCtrl) << msg << _("\n");
+	(*consoleTextCtrl) << msg << "\n";
 
 	consoleTextCtrl->SetDefaultStyle(wxTextAttr(
 		wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT)));
@@ -309,9 +309,9 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		while ((newlinePos = outputBuffer.First('\n')) != wxString::npos)
 		{
 			wxString line = outputBuffer.Left(newlinePos);
-			if (line.EndsWith(_("\n")) || line.EndsWith(_("\r")))
+			if (line.EndsWith("\n") || line.EndsWith("\r"))
 				line = line.Left(line.size() - 1);
-			if (line.EndsWith(_("\r\n")))
+			if (line.EndsWith("\r\n"))
 				line = line.Left(line.size() - 2);
 			outputBuffer = outputBuffer.Mid(newlinePos + 1);
 
@@ -331,8 +331,8 @@ void InstConsoleWindow::OnInstOutput(InstOutputEvent& event)
 {
 	MessageType msgT = (event.m_stdErr ? MSGT_STDERR : MSGT_STDOUT);
 
-	if (msgT == MSGT_STDERR && (event.m_output.Contains(_("[STDOUT]")) || 
-		event.m_output.Contains(_("[ForgeModLoader]"))))
+	if (msgT == MSGT_STDERR && (event.m_output.Contains("[STDOUT]") || 
+		event.m_output.Contains("[ForgeModLoader]")))
 		msgT = MSGT_STDOUT;
 
 	AppendMessage(event.m_output, msgT);
@@ -487,15 +487,15 @@ void InstConsoleWindow::KillMinecraft(int tries)
 		switch (error)
 		{
 		case wxKILL_ACCESS_DENIED:
-			errorName = _("wxKILL_ACCESS_DENIED");
+			errorName = "wxKILL_ACCESS_DENIED";
 			break;
 
 		case wxKILL_BAD_SIGNAL:
-			errorName = _("wxKILL_BAD_SIGNAL");
+			errorName = "wxKILL_BAD_SIGNAL";
 			break;
 
 		case wxKILL_ERROR:
-			errorName = _("wxKILL_ERROR");
+			errorName = "wxKILL_ERROR";
 
 			// Wait to see if the process kills.
 			for (int i = 0; i < 20; i++)
@@ -520,7 +520,7 @@ void InstConsoleWindow::KillMinecraft(int tries)
 			break;
 
 		case wxKILL_NO_PROCESS:
-			errorName = _("wxKILL_NO_PROCESS");
+			errorName = "wxKILL_NO_PROCESS";
 			break;
 
 		default:

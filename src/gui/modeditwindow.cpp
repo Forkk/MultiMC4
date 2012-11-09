@@ -658,7 +658,7 @@ void ModEditWindow::ModListCtrl::DrawInsertMark(int index)
 	}
 	
 	wxWindowDC dc(listMainWin);
-	dc.SetPen(wxPen(wxColour(_("white")), 2, wxSOLID));
+	dc.SetPen(wxPen(wxColour("white"), 2, wxSOLID));
 	
 	const wxBrush *brush = wxTRANSPARENT_BRUSH;
 	dc.SetBrush(*brush);
@@ -906,7 +906,7 @@ void ModEditWindow::OnExportClicked(wxCommandEvent& event)
 	if (chooseFileDlg.ShowModal() == wxID_OK)
 	{
 		file = chooseFileDlg.GetPath();
-		file.SetExt(_("zip"));
+		file.SetExt("zip");
 		if(file.FileExists())
 		{
 			int res = wxMessageBox("Do you want to overwrite the original file?","Overwrite file?",wxYES_NO|wxICON_QUESTION,this);
@@ -955,7 +955,7 @@ void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
 	InstallForgeDialog installDlg (this);
 	if (installDlg.ShowModal() == wxID_OK)
 	{
-		wxString dl = installDlg.GetSelectedBuild();
+		wxString dl = installDlg.GetSelection();
 		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), dl);
 		
 		auto dlTask = new FileDownloadTask("http://files.minecraftforge.net/" + dl, forgePath);

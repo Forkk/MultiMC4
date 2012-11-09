@@ -69,7 +69,7 @@ Mod::Mod(const wxFileName& file, ModType type)
 			do 
 			{
 				entry.reset(zipIn.GetNextEntry());
-			} while (entry.get() != nullptr && !entry->GetInternalName().EndsWith(_("mcmod.info")));
+			} while (entry.get() != nullptr && !entry->GetInternalName().EndsWith("mcmod.info"));
 
 			if (entry.get() != nullptr)
 			{

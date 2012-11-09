@@ -16,7 +16,9 @@
 
 #pragma once
 #include <wx/dialog.h>
-#include <wx/listbox.h>
+#include <wx/listctrl.h>
+
+class wxGridBagSizer;
 
 class ListSelectDialog : public wxDialog
 {
@@ -24,19 +26,54 @@ public:
 	ListSelectDialog(wxWindow *parent, const wxString& title);
 
 	wxString GetSelection();
+	int GetSelectedIndex();
 
 	virtual int ShowModal();
 
 protected:
 	virtual void LoadList();
-	virtual void DoLoadList(wxArrayString& sList) = 0;
+	virtual bool DoLoadList() = 0;
+	virtual wxString OnGetItemText(long item, long column);
+
+	// By default, the first column's size is set to the width of the list
+	// control minus the sum of the widths of the other columns.
+	// Override this function to change the behavior.
+	virtual void SetupColumnSizes();
 
 	void OnRefreshListClicked(wxCommandEvent& event);
-	void OnListBoxSelChange(wxCommandEvent& event);
+	void OnListBoxSelChange(wxListEvent& event);
 
 	void UpdateOKBtn();
 
-	wxListBox *list;
+	// Shows / hides the list control header.
+	void ShowHeader(bool show);
+
+	// String list that the list control reads from.
+	wxArrayString sList;
+
+	class ListSelectCtrl : public wxListCtrl
+	{
+	public:
+		ListSelectCtrl(wxWindow* parent, ListSelectDialog* owner);
+
+		virtual wxString OnGetItemText(long item, long column) const;
+
+		void OnResize(wxSizeEvent& event);
+
+	protected:
+		ListSelectDialog* m_owner;
+
+		DECLARE_EVENT_TABLE()
+	} *listCtrl;
+
+	// Sizers and other GUI controls. These are used by overriding classes to customize the GUI.
+	wxBoxSizer* dlgSizer;
+
+	wxPanel* mainPanel;
+	wxGridBagSizer* mainSz;
+
+	wxSizer* btnSz;
+	wxButton* refreshButton;
 
 	DECLARE_EVENT_TABLE()
 };

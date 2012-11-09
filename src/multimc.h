@@ -29,6 +29,7 @@ class MultiMC : public wxApp
 {
 public:
 	virtual bool OnInit();
+	virtual bool InitLocale();
 	virtual void OnInitCmdLine(wxCmdLineParser &parser);
 	virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
 	virtual int OnExit();
@@ -41,6 +42,8 @@ public:
 	bool useProvidedDir;
 	wxFileName providedDir;
 protected:
+	wxLocale* m_locale;
+
 	wxIconBundle AppIcons;
 
 	wxString thisFileName;
@@ -65,16 +68,16 @@ protected:
 
 const wxCmdLineEntryDesc cmdLineDesc[] = 
 {
-	{ wxCMD_LINE_SWITCH, _("h"), _("help"), _("displays help on command line parameters"), 
+	{ wxCMD_LINE_SWITCH, "h", "help", _("displays help on command line parameters"), 
 		wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
 
-	{ wxCMD_LINE_OPTION, _("u"), _("update"), _("replaces the given file with the running executable"),
+	{ wxCMD_LINE_OPTION, "u", "update", _("replaces the given file with the running executable"),
 		wxCMD_LINE_VAL_STRING },
 
-	{ wxCMD_LINE_OPTION, _("l"), _("launch"), _("tries to launch the given instance"),
+	{ wxCMD_LINE_OPTION, "l", "launch", _("tries to launch the given instance"),
 		wxCMD_LINE_VAL_STRING },
 	
-	{ wxCMD_LINE_OPTION, _("d"), _("dir"), _("use the supplied directory as MultiMC root instead of the binary location (use '.' for current)"),
+	{ wxCMD_LINE_OPTION, "d", "dir", _("use the supplied directory as MultiMC root instead of the binary location (use '.' for current)"),
 		wxCMD_LINE_VAL_STRING },
 
 	{ wxCMD_LINE_NONE }

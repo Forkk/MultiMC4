@@ -15,44 +15,14 @@
 //
 
 #pragma once
-#include <wx/dialog.h>
+#include "listselectdialog.h"
 
-#include "instance.h"
-#include "task.h"
-
-class ForgeListCtrl : public wxListCtrl
-{
-public:
-ForgeListCtrl(wxWindow* parent):wxListCtrl(parent,-1,wxDefaultPosition,wxDefaultSize,wxLC_SINGLE_SEL| wxLC_REPORT){};
-ForgeListCtrl():wxListCtrl(){};
-virtual ~ForgeListCtrl(){};
-
-void SetupColumns();
-void OnSize( wxSizeEvent& event );
-
-private:
-DECLARE_DYNAMIC_CLASS(ForgeListCtrl)
-DECLARE_EVENT_TABLE()
-};
-
-
-
-class InstallForgeDialog : public wxDialog
+class InstallForgeDialog : public ListSelectDialog
 {
 public:
 	InstallForgeDialog(wxWindow *parent);
 
-	wxString GetSelectedBuild();
-
 protected:
-	void LoadBuildList();
-
-	void OnRefreshListClicked(wxCommandEvent& event);
-	void OnListBoxSelChange(wxListEvent& event);
-
-	void UpdateOKBtn();
-
-	ForgeListCtrl *buildList;
-
-	DECLARE_EVENT_TABLE()
+	virtual bool DoLoadList();
+	virtual wxString OnGetItemText(long item, long column);
 };

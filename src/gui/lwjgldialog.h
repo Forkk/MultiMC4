@@ -26,7 +26,7 @@ public:
 
 protected:
 	virtual void LoadList();
-	virtual void DoLoadList(wxArrayString& sList);
+	virtual bool DoLoadList();
 
 	wxArrayString linkList;
 };

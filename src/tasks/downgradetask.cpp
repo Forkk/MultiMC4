@@ -28,7 +28,7 @@
 #include "httputils.h"
 #include "apputils.h"
 
-const wxString mcnwebURL = _("http://sonicrules.org/mcnweb.py");
+const wxString mcnwebURL = "http://sonicrules.org/mcnweb.py";
 
 DowngradeTask::DowngradeTask(Instance *inst, const wxString& targetVersion)
 {
@@ -38,8 +38,8 @@ DowngradeTask::DowngradeTask(Instance *inst, const wxString& targetVersion)
 
 wxThread::ExitCode DowngradeTask::TaskStart()
 {
-	if (!wxDirExists(_("patches")))
-		wxMkdir(_("patches"));
+	if (!wxDirExists("patches"))
+		wxMkdir("patches");
 
 	if (!DownloadPatches())
 		return (ExitCode)0;
@@ -54,7 +54,7 @@ wxThread::ExitCode DowngradeTask::TaskStart()
 		return (ExitCode)0;
 
 	// if mcbackup.jar exists, we updated that anyway. The version update won't pick that up.
-	if(!wxFileExists(Path::Combine(m_inst->GetBinDir(), _("mcbackup.jar"))))
+	if(!wxFileExists(Path::Combine(m_inst->GetBinDir(), "mcbackup.jar")))
 		m_inst->UpdateVersion();
 	SetStep(STEP_DONE);
 	return (ExitCode)1;
@@ -67,11 +67,11 @@ bool DowngradeTask::DownloadPatches()
 	const int patchURLCount = 5;
 	const wxString patchURLs[patchURLCount] =
 	{ 
-		_("minecraft.ptch"), 
-		_("lwjgl.ptch"),
-		_("lwjgl_util.ptch"),
-		_("jinput.ptch"),
-		_("checksum.json"),
+		"minecraft.ptch", 
+		"lwjgl.ptch",
+		"lwjgl_util.ptch",
+		"jinput.ptch",
+		"checksum.json",
 	};
 
 	// Get the base URL.
@@ -84,8 +84,8 @@ bool DowngradeTask::DownloadPatches()
 	for (int i = 0; i < patchURLCount; i++)
 	{
 		SetStatusDetail(_("Downloading ") + patchURLs[i]);
-		wxString downloadURL = baseURL + _("/") + patchURLs[i];
-		wxString dest = Path::Combine(_("patches"), patchURLs[i]);
+		wxString downloadURL = baseURL + "/" + patchURLs[i];
+		wxString dest = Path::Combine("patches", patchURLs[i]);
 
 		CURL *curl = curl_easy_init();
 
@@ -115,7 +115,7 @@ bool DowngradeTask::DownloadPatches()
 bool DowngradeTask::RetrievePatchBaseURL(const wxString& mcVersion, wxString *patchURL)
 {
 	wxString json;
-	if (DownloadString(wxString::Format(_("%s?pversion=1&mcversion=%s"), 
+	if (DownloadString(wxString::Format("%s?pversion=1&mcversion=%s", 
 		mcnwebURL.c_str(), mcVersion.c_str()), &json))
 	{
 		using namespace boost::property_tree;
@@ -148,10 +148,10 @@ bool DowngradeTask::VerifyOriginalFiles()
 	const int patchFileCount = 4;
 	const wxString patchFiles[] =
 	{ 
-		_("minecraft"), 
-		_("lwjgl"),
-		_("lwjgl_util"),
-		_("jinput"),
+		"minecraft", 
+		"lwjgl",
+		"lwjgl_util",
+		"jinput",
 	};
 
 	using namespace boost::property_tree;
@@ -165,9 +165,9 @@ bool DowngradeTask::VerifyOriginalFiles()
 			SetStatusDetail(_("Verifying ") + patchFiles[i]);
 
 			wxString cFileName = patchFiles[i];
-			if (cFileName == _("minecraft") && wxFileExists(Path::Combine(m_inst->GetBinDir(), _("mcbackup.jar"))))
-				cFileName = _("mcbackup");
-			wxString checkFile = Path::Combine(m_inst->GetBinDir(), cFileName + _(".jar"));
+			if (cFileName == "minecraft" && wxFileExists(Path::Combine(m_inst->GetBinDir(), "mcbackup.jar")))
+				cFileName = "mcbackup";
+			wxString checkFile = Path::Combine(m_inst->GetBinDir(), cFileName + ".jar");
 
 			// Verify the file's MD5 sum.
 			MD5Context md5ctx;
@@ -209,10 +209,10 @@ bool DowngradeTask::ApplyPatches()
 	const int patchFileCount = 4;
 	const wxString patchFiles[] =
 	{ 
-		_("minecraft"), 
-		_("lwjgl"),
-		_("lwjgl_util"),
-		_("jinput"),
+		"minecraft", 
+		"lwjgl",
+		"lwjgl_util",
+		"jinput",
 	};
 
 	SetStep(STEP_APPLY_PATCHES);
@@ -222,12 +222,12 @@ bool DowngradeTask::ApplyPatches()
 		wxString file = patchFiles[i];
 
 		wxString binDir = m_inst->GetBinDir().GetFullPath();
-		wxString patchFile = Path::Combine(_("patches"), file + _(".ptch"));
+		wxString patchFile = Path::Combine("patches", file + ".ptch");
 
-		if (file == _("minecraft") && wxFileExists(m_inst->GetMCBackup().GetFullPath()))
-			file = _("mcbackup");
-		wxString patchSrc = Path::Combine(binDir, file + _(".jar"));
-		wxString patchDest = Path::Combine(binDir, file + _("_new.jar"));
+		if (file == "minecraft" && wxFileExists(m_inst->GetMCBackup().GetFullPath()))
+			file = "mcbackup";
+		wxString patchSrc = Path::Combine(binDir, file + ".jar");
+		wxString patchDest = Path::Combine(binDir, file + "_new.jar");
 
 		if (wxFileExists(patchDest))
 			wxRemoveFile(patchDest);
@@ -265,10 +265,10 @@ bool DowngradeTask::VerifyPatchedFiles()
 	const int patchFileCount = 4;
 	const wxString patchFiles[] =
 	{ 
-		_("minecraft"), 
-		_("lwjgl"),
-		_("lwjgl_util"),
-		_("jinput"),
+		"minecraft", 
+		"lwjgl",
+		"lwjgl_util",
+		"jinput",
 	};
 
 	using namespace boost::property_tree;
@@ -282,9 +282,9 @@ bool DowngradeTask::VerifyPatchedFiles()
 			SetStatusDetail(_("Verifying ") + patchFiles[i]);
 
 			wxString cFileName = patchFiles[i];
-			if (cFileName == _("minecraft") && wxFileExists(Path::Combine(m_inst->GetBinDir(), _("mcbackup.jar"))))
-				cFileName = _("mcbackup");
-			wxString checkFile = Path::Combine(m_inst->GetBinDir(), cFileName + _(".jar"));
+			if (cFileName == "minecraft" && wxFileExists(Path::Combine(m_inst->GetBinDir(), "mcbackup.jar")))
+				cFileName = "mcbackup";
+			wxString checkFile = Path::Combine(m_inst->GetBinDir(), cFileName + ".jar");
 
 			// Verify the file's MD5 sum.
 			MD5Context md5ctx;

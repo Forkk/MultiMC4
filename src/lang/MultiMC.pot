@@ -1,0 +1,1159 @@
+# 
+# Copyright 2012 MultiMC Contributors
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-11-08 18:28-0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "&Add"
+msgstr ""
+
+msgid "&Add Icon"
+msgstr ""
+
+msgid "&Cancel"
+msgstr ""
+
+msgid "&Change Icon"
+msgstr ""
+
+msgid "&Changelog"
+msgstr ""
+
+msgid "&Close"
+msgstr ""
+
+msgid "&Delete"
+msgstr ""
+
+msgid "&Edit Mods"
+msgstr ""
+
+msgid "&Export"
+msgstr ""
+
+msgid "&Force update"
+msgstr ""
+
+msgid "&Licenses"
+msgstr ""
+
+msgid "&Manage Saves"
+msgstr ""
+
+msgid "&Notes"
+msgstr ""
+
+msgid "&Play"
+msgstr ""
+
+msgid "&Refresh"
+msgstr ""
+
+msgid "&Reload"
+msgstr ""
+
+msgid "&Reload Icons"
+msgstr ""
+
+msgid "&Remember username?"
+msgstr ""
+
+msgid "&Remove"
+msgstr ""
+
+msgid "&Remove Icon"
+msgstr ""
+
+msgid "&Rename"
+msgstr ""
+
+msgid "&Settings"
+msgstr ""
+
+msgid "&View Central Mods Folder"
+msgstr ""
+
+msgid "&View Folder"
+msgstr ""
+
+msgid "(C) 2012 MultiMC Contributors"
+msgstr ""
+
+msgid "503 - login servers unavailable. Check help.mojang.com!"
+msgstr ""
+
+msgid "A crash report has been generated. What would you like to do with it?"
+msgstr ""
+
+msgid "A fatal error has occurred and MultiMC has to exit. Sorry for the inconvenience."
+msgstr ""
+
+msgid "About"
+msgstr ""
+
+msgid "About MultiMC"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Add a jar mod."
+msgstr ""
+
+msgid "Add a new Minecraft instance."
+msgstr ""
+
+msgid "Add a new forge core mod."
+msgstr ""
+
+msgid "Add a new instance."
+msgstr ""
+
+msgid "Add a new modloader mod."
+msgstr ""
+
+msgid "Add a new texture pack."
+msgstr ""
+
+msgid "Add instance"
+msgstr ""
+
+msgid "Adding config files..."
+msgstr ""
+
+msgid "An error occurred when downloading the file.\n"
+msgstr ""
+
+msgid "Andrew Okin <forkk@forkk.net>"
+msgstr ""
+
+msgid "Are you sure?"
+msgstr ""
+
+msgid "Auto-detect"
+msgstr ""
+
+msgid "Automatically close console when the game quits."
+msgstr ""
+
+msgid "Backup / restore your saves."
+msgstr ""
+
+msgid "Browse..."
+msgstr ""
+
+#, c-format
+msgid "Build #%i is available. Would you like to download and install it?"
+msgstr ""
+
+msgid "By Last Launched"
+msgstr ""
+
+msgid "By Name"
+msgstr ""
+
+msgid "Can't fine mod info file. Failed to open mod folder."
+msgstr ""
+
+#, c-format
+msgid "Can't patch because %s has been modified. Try force updating."
+msgstr ""
+
+msgid "Central mods directory changed."
+msgstr ""
+
+msgid "Change &Icon"
+msgstr ""
+
+msgid "Change Group"
+msgstr ""
+
+msgid "Change Icon"
+msgstr ""
+
+msgid "Change LWJGL"
+msgstr ""
+
+msgid "Change MultiMC or Minecraft settings."
+msgstr ""
+
+msgid "Change instance settings."
+msgstr ""
+
+msgid "Change the instance's group."
+msgstr ""
+
+msgid "Change the instance's name."
+msgstr ""
+
+msgid "Change this instance's icon."
+msgstr ""
+
+msgid "Changing the GUI style requires a restart in order to take effect. Please restart MultiMC."
+msgstr ""
+
+msgid "Check for MultiMC updates."
+msgstr ""
+
+msgid "Check for updates"
+msgstr ""
+
+msgid "Check for updates when MultiMC starts?"
+msgstr ""
+
+msgid "Checking cache for existing files..."
+msgstr ""
+
+msgid "Checking cache for existing files: "
+msgstr ""
+
+msgid "Choose Included Configs"
+msgstr ""
+
+msgid "Choose LWJGL Version"
+msgstr ""
+
+msgid "Choose Version"
+msgstr ""
+
+msgid "Choose a pack to import."
+msgstr ""
+
+msgid "Choose a snapshot"
+msgstr ""
+
+msgid "Choose an icon to add."
+msgstr ""
+
+msgid "Close this window."
+msgstr ""
+
+msgid "Compatibility mode launches Minecraftusing the old Minecraft.main() method, rather than using MultiMC'sAppletWrapper. This should help fix a few issues with certain mods,but it will disable certain features such as setting Minecraft's windowsize and icon."
+msgstr ""
+
+msgid "Compatibility mode?"
+msgstr ""
+
+msgid "Config Pack Info"
+msgstr ""
+
+msgid "Console Settings"
+msgstr ""
+
+msgid "Continue?"
+msgstr ""
+
+msgid "Copy Instance"
+msgstr ""
+
+msgid "Copy existing instance"
+msgstr ""
+
+msgid "Copy selected instance."
+msgstr ""
+
+msgid "Copy to Clipboard"
+msgstr ""
+
+#, c-format
+msgid "Copying %i files..."
+msgstr ""
+
+msgid "Coremods Folder"
+msgstr ""
+
+#, c-format
+msgid "Couldn't create instance folder: %s"
+msgstr ""
+
+msgid "Crash Report"
+msgstr ""
+
+msgid "Create new instance"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Delete this group, ungrouping all instances in it."
+msgstr ""
+
+msgid "Delete this instance."
+msgstr ""
+
+msgid "Determining packages to load..."
+msgstr ""
+
+msgid "Determining packages to load: "
+msgstr ""
+
+msgid "Discovering files..."
+msgstr ""
+
+msgid "Done!"
+msgstr ""
+
+msgid "Done: "
+msgstr ""
+
+msgid "Downgrade"
+msgstr ""
+
+msgid "Downgrade Instance"
+msgstr ""
+
+msgid "Download and install Minecraft Forge"
+msgstr ""
+
+msgid "Download failed."
+msgstr ""
+
+msgid "Downloading "
+msgstr ""
+
+msgid "Downloading LWJGL..."
+msgstr ""
+
+#, c-format
+msgid "Downloading file from %s..."
+msgstr ""
+
+msgid "Downloading packages..."
+msgstr ""
+
+msgid "Downloading packages: "
+msgstr ""
+
+msgid "Downloading patches..."
+msgstr ""
+
+msgid "Downloading patches: "
+msgstr ""
+
+msgid "Downloading updates..."
+msgstr ""
+
+#, c-format
+msgid ""
+"Downloading...\n"
+"(%skB/%skB)"
+msgstr ""
+
+msgid "Edit &Mods"
+msgstr ""
+
+msgid "Edit Mods"
+msgstr ""
+
+#, c-format
+msgid "Edit Mods for %s"
+msgstr ""
+
+msgid "Enter a new group for this instance."
+msgstr ""
+
+msgid "Enter a new name for this group."
+msgstr ""
+
+msgid "Enter a new name for this instance."
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+#, c-format
+msgid "Error %i (%s) when killing process %i!"
+msgstr ""
+
+msgid "Error 404, the page could not be found."
+msgstr ""
+
+msgid "Error console"
+msgstr ""
+
+msgid "Error message color: "
+msgstr ""
+
+msgid "Export Instance"
+msgstr ""
+
+msgid "Export the instance to a config pack."
+msgstr ""
+
+msgid "Export to Zip"
+msgstr ""
+
+msgid "Extracting downloaded packages..."
+msgstr ""
+
+msgid "Extracting downloaded packages: "
+msgstr ""
+
+#, c-format
+msgid "Failed terminate process. Error 0x%08X: access denied."
+msgstr ""
+
+msgid "Failed to back up minecraft.jar"
+msgstr ""
+
+#, c-format
+msgid ""
+"Failed to check file MD5.\n"
+"JSON parser error at line %i: %s"
+msgstr ""
+
+msgid "Failed to check for updates. Please check your internet connection."
+msgstr ""
+
+msgid "Failed to create instance directory."
+msgstr ""
+
+#, c-format
+msgid "Failed to create the new folder: %s"
+msgstr ""
+
+msgid "Failed to delete mod."
+msgstr ""
+
+msgid "Failed to delete old minecraft.jar"
+msgstr ""
+
+msgid "Failed to download "
+msgstr ""
+
+#, c-format
+msgid "Failed to download patch %s."
+msgstr ""
+
+msgid "Failed to get RSS feed. Check your internet connection."
+msgstr ""
+
+#, c-format
+msgid ""
+"Failed to get patch URL.\n"
+"JSON parser error at line %i: %s"
+msgstr ""
+
+#, c-format
+msgid "Failed to get process handle. Error 0x%08X: access denied."
+msgstr ""
+
+msgid "Failed to get snapshot list. Check your internet connection."
+msgstr ""
+
+msgid "Failed to get version list. Check your internet connection and try again later."
+msgstr ""
+
+msgid "Failed to initialize settings."
+msgstr ""
+
+#, c-format
+msgid ""
+"Failed to install updates. Tried %i times. \n"
+"This is probably because the file that is supposed to be updated is in use. \n"
+"Please check to make sure there are no other running MultiMC processes \n"
+"and that MultiMC's updater has sufficient permissions to replace the file \n"
+"%s and then try again."
+msgstr ""
+
+msgid "Failed to kill the process. Trying again..."
+msgstr ""
+
+msgid "Failed to load build list. Check your internet connection."
+msgstr ""
+
+#, c-format
+msgid "Failed to move: %s"
+msgstr ""
+
+msgid "Failed to open directory: "
+msgstr ""
+
+#, c-format
+msgid ""
+"Failed to parse LWJGL list.\n"
+"XML parser error at line %i: %s"
+msgstr ""
+
+#, c-format
+msgid ""
+"Failed to parse md5s file.\n"
+"INI parser error at line %i: %s"
+msgstr ""
+
+#, c-format
+msgid ""
+"Failed to parse snapshot list.\n"
+"XML parser error at line %i: %s"
+msgstr ""
+
+#, c-format
+msgid "Failed to patch %s.jar. Patch is corrupt."
+msgstr ""
+
+#, c-format
+msgid "Failed to patch %s.jar. Unknown error."
+msgstr ""
+
+#, c-format
+msgid ""
+"Failed to read group list.\n"
+"JSON parser error at line %i: %s"
+msgstr ""
+
+msgid "Failed to read group list. Unknown ptree error."
+msgstr ""
+
+msgid "Failed to read source directory."
+msgstr ""
+
+#, c-format
+msgid ""
+"Failed to read version list.\n"
+"JSON parser error at line %i: %s"
+msgstr ""
+
+msgid "Failed to save group list. Unknown ptree error."
+msgstr ""
+
+msgid "Failed to send the crash report to pastebin. Please check your internet connection."
+msgstr ""
+
+#, c-format
+msgid "Failed to write config setting %s"
+msgstr ""
+
+msgid "Fancy"
+msgstr ""
+
+msgid "File already exists."
+msgstr ""
+
+msgid "Filename"
+msgstr ""
+
+msgid "Folders"
+msgstr ""
+
+msgid "Force-update MultiMC"
+msgstr ""
+
+msgid "GUI Style (requires restart)"
+msgstr ""
+
+msgid "Generate Crash &Report"
+msgstr ""
+
+msgid "Getting patch URLs."
+msgstr ""
+
+msgid "Getting version info..."
+msgstr ""
+
+msgid "Help"
+msgstr ""
+
+#, c-format
+msgid "Image %d %s has no alpha."
+msgstr ""
+
+#, c-format
+msgid "Image %s has no alpha after rescaling."
+msgstr ""
+
+msgid "Import Config Pack"
+msgstr ""
+
+msgid "Import config pack"
+msgstr ""
+
+msgid "Import existing .minecraft folder"
+msgstr ""
+
+msgid "Import existing Minecraft folder"
+msgstr ""
+
+msgid "Initializing..."
+msgstr ""
+
+msgid "Initializing: "
+msgstr ""
+
+msgid "Install Minecraft Forge"
+msgstr ""
+
+msgid "Install a snapshot."
+msgstr ""
+
+msgid "Install or remove mods."
+msgstr ""
+
+msgid "Installing mods - Adding "
+msgstr ""
+
+msgid "Installing mods - Adding mod files..."
+msgstr ""
+
+msgid "Installing mods - Opening minecraft.jar"
+msgstr ""
+
+msgid "Installing mods - Recompressing jar..."
+msgstr ""
+
+msgid "Installing mods - backing up minecraft.jar..."
+msgstr ""
+
+msgid "Installing new LWJGL - Extracting "
+msgstr ""
+
+msgid "Installing new LWJGL..."
+msgstr ""
+
+msgid "Installing updates..."
+msgstr ""
+
+msgid "Instance Console Colors"
+msgstr ""
+
+msgid "Instance Settings"
+msgstr ""
+
+#, c-format
+msgid "Instance closed its output %d."
+msgstr ""
+
+msgid "Instance directory changed."
+msgstr ""
+
+#, c-format
+msgid "Instance exited with code %i."
+msgstr ""
+
+msgid "Instance name:"
+msgstr ""
+
+msgid "Instance notes"
+msgstr ""
+
+#, c-format
+msgid "Instance started with command: %s\n"
+msgstr ""
+
+msgid "Instance was killed."
+msgstr ""
+
+msgid "Instances: "
+msgstr ""
+
+msgid "Invalid config pack."
+msgstr ""
+
+#, c-format
+msgid "Invalid config pack. Failed to parse JSON. At line %i: %s"
+msgstr ""
+
+msgid "Invalid username or password."
+msgstr ""
+
+msgid "JVM Arguments: "
+msgstr ""
+
+msgid "Java"
+msgstr ""
+
+msgid "Java Path: "
+msgstr ""
+
+msgid "Java Settings"
+msgstr ""
+
+msgid "Kill Minecraft"
+msgstr ""
+
+#, c-format
+msgid "Killed Minecraft (pid: %i)"
+msgstr ""
+
+msgid "Killing Minecraft may damage saves. You should only do this if the game is frozen."
+msgstr ""
+
+msgid "Kills Minecraft's process."
+msgstr ""
+
+msgid "Launch the instance."
+msgstr ""
+
+msgid "Launcher outdated, please update."
+msgstr ""
+
+msgid "License"
+msgstr ""
+
+#, c-format
+msgid "Loaded %i instances..."
+msgstr ""
+
+msgid "Loading central mods list..."
+msgstr ""
+
+msgid "Loading instances..."
+msgstr ""
+
+msgid "Log in automatically when I launch an instance."
+msgstr ""
+
+msgid "Logging in..."
+msgstr ""
+
+msgid "Login"
+msgstr ""
+
+msgid "Login failed: "
+msgstr ""
+
+msgid "MCForge"
+msgstr ""
+
+msgid "Manage Saves"
+msgstr ""
+
+#, c-format
+msgid "Manage Saves for %s"
+msgstr ""
+
+msgid "Maximum memory allocation: "
+msgstr ""
+
+msgid "Memory"
+msgstr ""
+
+msgid "Minecraft"
+msgstr ""
+
+msgid "Minecraft Version"
+msgstr ""
+
+msgid "Minecraft Window Size"
+msgstr ""
+
+msgid "Minecraft failed to launch. Check your Java path."
+msgstr ""
+
+msgid "Minecraft has crashed!"
+msgstr ""
+
+msgid "Minecraft.jar"
+msgstr ""
+
+msgid "Minimum memory allocation: "
+msgstr ""
+
+#, c-format
+msgid "Missing jar mod %s."
+msgstr ""
+
+#, c-format
+msgid "Missing modloader mod %s."
+msgstr ""
+
+msgid "Mod Name"
+msgstr ""
+
+msgid "Mod Version"
+msgstr ""
+
+msgid "Mods Folder"
+msgstr ""
+
+msgid "Mods: "
+msgstr ""
+
+msgid "Move &Down"
+msgstr ""
+
+msgid "Move &Up"
+msgstr ""
+
+msgid "Move the selected jar mod down"
+msgstr ""
+
+msgid "Move the selected jar mod up."
+msgstr ""
+
+msgid "MultiMC"
+msgstr ""
+
+#, c-format
+msgid "MultiMC %d.%d.%d %s"
+msgstr ""
+
+msgid "MultiMC Console"
+msgstr ""
+
+#, c-format
+msgid ""
+"MultiMC has been started from a path that contains '!':\n"
+"%s\n"
+"This would break Minecraft. Please move it to a different place."
+msgstr ""
+
+msgid "MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once."
+msgstr ""
+
+msgid "MultiMC is currently incompatible with indev and infdev. Are you sure you would like to downgrade to this version?"
+msgstr ""
+
+msgid "MultiMC was unable to replace the old .jar with the new snapshot."
+msgstr ""
+
+msgid ""
+"MultiMC was unable to run your web browser.\n"
+"\n"
+"To report bugs, visit:\n"
+"http://bugs.forkk.net/"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Name: "
+msgstr ""
+
+msgid "Not a valid save."
+msgstr ""
+
+msgid "Not implemented"
+msgstr ""
+
+msgid "Notes"
+msgstr ""
+
+msgid "Notes: "
+msgstr ""
+
+msgid "Oh no!"
+msgstr ""
+
+msgid "Open the central mods folder."
+msgstr ""
+
+msgid "Open the core mod folder in your file browser."
+msgstr ""
+
+msgid "Open the instance folder."
+msgstr ""
+
+msgid "Open the instance's folder."
+msgstr ""
+
+msgid "Open the modloader mods folder in your file browser."
+msgstr ""
+
+msgid "Open the texture packs folder in your file browser."
+msgstr ""
+
+msgid "Output message color: "
+msgstr ""
+
+msgid "Output not redirected!\n"
+msgstr ""
+
+msgid "Password: "
+msgstr ""
+
+msgid "Patching files..."
+msgstr ""
+
+msgid "Patching files: "
+msgstr ""
+
+msgid "Petr Mr\320\223\320\216zek <peterix@gmail.com>"
+msgstr ""
+
+msgid "Play &Offline"
+msgstr ""
+
+msgid "Please add the mods listed below to your central mods folder and click refresh."
+msgstr ""
+
+msgid "Please wait..."
+msgstr ""
+
+msgid "Powered by MCNostalgia"
+msgstr ""
+
+msgid "R&emember password?"
+msgstr ""
+
+msgid "Re&build Jar"
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+
+msgid "Reinstall all the instance's jar mods."
+msgstr ""
+
+msgid "Reload ALL the instances!"
+msgstr ""
+
+msgid "Reload the mod lists."
+msgstr ""
+
+msgid "Remove the selected core mod"
+msgstr ""
+
+msgid "Remove the selected jar mod."
+msgstr ""
+
+msgid "Remove the selected modloader mod."
+msgstr ""
+
+msgid "Remove the selected texture pack."
+msgstr ""
+
+msgid "Rename Group"
+msgstr ""
+
+msgid "Rename Instance"
+msgstr ""
+
+msgid "Rename the group."
+msgstr ""
+
+#, c-format
+msgid "Renaming instance '%s'... (Press enter to finish)"
+msgstr ""
+
+msgid "Report bug"
+msgstr ""
+
+msgid "Restart Required"
+msgstr ""
+
+msgid "Save Crash Report"
+msgstr ""
+
+msgid "Save to File"
+msgstr ""
+
+msgid "Select a Minecraft folder to import"
+msgstr ""
+
+msgid "Select an instance"
+msgstr ""
+
+msgid "Send to Pastebin"
+msgstr ""
+
+msgid "Sending to pastebin..."
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Show Console"
+msgstr ""
+
+msgid "Show console while an instance is running."
+msgstr ""
+
+msgid "Shows or hides the console."
+msgstr ""
+
+msgid "Simple"
+msgstr ""
+
+msgid "Snapshot"
+msgstr ""
+
+msgid "Sorry, that name is too long."
+msgstr ""
+
+msgid "Sorry, that name is too long. 25 characters is the limit."
+msgstr ""
+
+msgid "Sorting Mode"
+msgstr ""
+
+msgid "Start Minecraft maximized?"
+msgstr ""
+
+msgid "Success"
+msgstr ""
+
+msgid "System message color: "
+msgstr ""
+
+msgid "Texture Packs"
+msgstr ""
+
+#, c-format
+msgid "The MD5 sum of %s didn't match what it was supposed to be after patching!"
+msgstr ""
+
+msgid ""
+"The chosen instance path contains a ! character.\n"
+"This would make Minecraft crash. Please change it."
+msgstr ""
+
+#, c-format
+msgid "There's already a save with the filename '%s'. Copy to '%s' instead?"
+msgstr ""
+
+msgid "This feature has not yet been implemented."
+msgstr ""
+
+msgid "This folder does not contain a level.dat file. Continue?"
+msgstr ""
+
+msgid "This is not a valid config pack!"
+msgstr ""
+
+msgid ""
+"This text represents the size of the dialog and the area\n"
+"reserved for any possible status text."
+msgstr ""
+
+#, c-format
+msgid "Unknown HTTP error %i occurred."
+msgstr ""
+
+#, c-format
+msgid "Unknown error %i occurred."
+msgstr ""
+
+#, c-format
+msgid "Unknown error 0x%08X occurred when getting process handle."
+msgstr ""
+
+#, c-format
+msgid "Unknown error 0x%08X occurred when terminating the process."
+msgstr ""
+
+#, c-format
+msgid "Unknown error 0x%08X occurred when waiting for process to exit."
+msgstr ""
+
+msgid "Unknown error."
+msgstr ""
+
+msgid "Unnamed Instance"
+msgstr ""
+
+msgid "Update Avaliable"
+msgstr ""
+
+msgid "Update Settings"
+msgstr ""
+
+msgid "Update installed successfully. Starting MultiMC..."
+msgstr ""
+
+msgid "Updates"
+msgstr ""
+
+msgid "Use MCNostalgia to downgrade this instance."
+msgstr ""
+
+msgid "Use a different version of LWJGL with this instance."
+msgstr ""
+
+msgid "Use defaults?"
+msgstr ""
+
+msgid "Use development builds."
+msgstr ""
+
+msgid "Username: "
+msgstr ""
+
+msgid "Verifying "
+msgstr ""
+
+msgid "Verifying files..."
+msgstr ""
+
+msgid "Verifying files: "
+msgstr ""
+
+msgid "View / edit this instance's notes."
+msgstr ""
+
+msgid "View Central mods folder"
+msgstr ""
+
+msgid "View Folder"
+msgstr ""
+
+msgid "View folder"
+msgstr ""
+
+msgid "Waiting for old version to exit..."
+msgstr ""
+
+#, c-format
+msgid "Waiting for old version to exit... Try #%i."
+msgstr ""
+
+msgid "Warning: Dev builds contain incomplete, experimental, and possibly unstable features. Some may be extremely buggy, and others may not work at all. Use these at your own risk. Are you sure you want to use dev builds?"
+msgstr ""
+
+msgid "Window height: "
+msgstr ""
+
+msgid "Window width: "
+msgstr ""
+
+msgid "World Name"
+msgstr ""
+
+msgid "Writing metadata..."
+msgstr ""
+
+msgid "You must run this instance at least once to download minecraft before you can downgrade it!"
+msgstr ""
+
+msgid "You've changed your central mods directory, would you like to transfer all of your mods?"
+msgstr ""
+
+msgid "You've changed your instance directory, would you like to transfer all of your instances?"
+msgstr ""
+
+msgid "Your error report has been sent to the URL listed below."
+msgstr ""
+
+msgid "displays help on command line parameters"
+msgstr ""
+
+msgid "replaces the given file with the running executable"
+msgstr ""
+
+msgid "tries to launch the given instance"
+msgstr ""
+
+msgid "use the supplied directory as MultiMC root instead of the binary location (use '.' for current)"
+msgstr ""
