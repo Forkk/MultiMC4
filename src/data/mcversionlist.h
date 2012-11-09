@@ -15,20 +15,52 @@
 //
 
 #pragma once
-
-#include <wx/arrstr.h>
-
 #include <wx/string.h>
+#include <vector>
 
-class SnapshotList : public wxArrayString
+enum VersionType
+{
+	OldSnapshot,
+	Stable,
+	CurrentStable,
+	Snapshot
+};
+
+struct MCVersion
+{
+	MCVersion(wxString _name, uint64_t _unixTimestamp, wxString _dlURL, bool _has_lwjgl, wxString _etag)
+	: name(_name), unixTimestamp(_unixTimestamp), dlURL(_dlURL), has_lwjgl(_has_lwjgl), etag(_etag)
+	{
+	}
+	MCVersion()
+	{
+		unixTimestamp = 0;
+		has_lwjgl = false;
+	}
+	// the mojang version string
+	wxString name;
+	// checksum
+	wxString etag;
+	// last changed unix time in seconds. nice for sorting :3
+	uint64_t unixTimestamp;
+	// base URL for download
+	wxString dlURL;
+	// this version has a mojang lwjgl associated with it
+	bool has_lwjgl;
+	VersionType type;
+};
+
+class MCVersionList
 {
 public:
-	SnapshotList();
+	MCVersionList();
 
-	bool LoadFromURL(wxString url);
+	bool Reload();
 
+	/*
 	void Sort(bool descending = false);
-
+	*/
+/*
 	static int CompareSnapshots(wxString *first, wxString *second, bool reverse = false);
 
 	static inline int CompareSnapshotsAscending(wxString *first, wxString *second)
@@ -40,4 +72,6 @@ public:
 	{
 		return CompareSnapshots(first, second, true);
 	}
+	*/
+	std::vector <MCVersion> versions;
 };
