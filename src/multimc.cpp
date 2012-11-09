@@ -26,6 +26,7 @@
 #include <wx/app.h>
 #include <wx/sysopt.h>
 #include <wx/progdlg.h>
+#include <wx/intl.h>
 
 #include "mainwindow.h"
 
@@ -51,6 +52,8 @@ bool MultiMC::OnInit()
 	updateOnExit = false;
 	startMode = START_NORMAL;
 	useProvidedDir = false;
+
+	InitLocale();
 	
 	// This is necessary for the update system since it calls OnInitCmdLine
 	// to set up the command line arguments that the update system uses.
@@ -151,6 +154,35 @@ bool MultiMC::OnInit()
 	}
 
 	return false;
+}
+
+bool MultiMC::InitLocale()
+{
+	long lang = wxLocale::GetSystemLanguage();
+
+	if (wxLocale::IsAvailable(lang))
+	{
+		m_locale = new wxLocale(lang);
+
+		m_locale->AddCatalog(GetAppName());
+
+		if (!m_locale->IsOk())
+		{
+			wxLogError("Could not load the selected language. Falling back to English.");
+			delete m_locale;
+			m_locale = new wxLocale(wxLANGUAGE_DEFAULT);
+			return false;
+		}
+	}
+	else
+	{
+		wxMessageBox("The selected language could not be found. You may need to install it.");
+		delete m_locale;
+		m_locale = new wxLocale(wxLANGUAGE_DEFAULT);
+		return false;
+	}
+
+	return true;
 }
 
 void MultiMC::OnInitCmdLine(wxCmdLineParser &parser)

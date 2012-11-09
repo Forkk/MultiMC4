@@ -215,7 +215,7 @@ MainWindow::MainWindow(void)
 		break;
 	}
 
-	launchInstance = _("");
+	launchInstance = wxEmptyString;
 
 	// This breaks the windows version and is pretty much alien on linux.
 	// AWAY WITH YOU, FOUL CODE, INTO THE LANDS OF IFDEF AND SPINNING BEACHBALLS!

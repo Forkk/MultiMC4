@@ -29,6 +29,7 @@ class MultiMC : public wxApp
 {
 public:
 	virtual bool OnInit();
+	virtual bool InitLocale();
 	virtual void OnInitCmdLine(wxCmdLineParser &parser);
 	virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
 	virtual int OnExit();
@@ -41,6 +42,8 @@ public:
 	bool useProvidedDir;
 	wxFileName providedDir;
 protected:
+	wxLocale* m_locale;
+
 	wxIconBundle AppIcons;
 
 	wxString thisFileName;
