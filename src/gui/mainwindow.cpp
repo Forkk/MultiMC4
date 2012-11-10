@@ -256,13 +256,9 @@ void MainWindow::OnStartup()
 
 	if(!launchInstance.empty())
 	{
-		//FIXME: broken by instance model changes
-		/*
-		wxFileName instanceDir = settings->GetInstDir();
-		instanceDir.AppendDir(launchInstance);
-		currentInstance = Instance::LoadInstance(instanceDir);
-
-		if(currentInstance == nullptr)
+		instItems.SelectInstanceByID(launchInstance);
+		Instance * inst = instItems.GetSelectedInstance();
+		if(inst == nullptr)
 		{
 			wxString output = _("Couldn't find the instance you tried to load: ");
 			output.append(launchInstance);
@@ -273,7 +269,6 @@ void MainWindow::OnStartup()
 		{
 			LoginClicked();
 		}
-		*/
 	}
 }
 

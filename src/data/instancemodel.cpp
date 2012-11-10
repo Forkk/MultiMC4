@@ -52,6 +52,21 @@ Instance * InstanceModel::operator[](const std::size_t index) const
 	return at(index);
 }
 
+bool InstanceModel::SelectInstanceByID ( wxString select )
+{
+	for(unsigned i = 0; i < m_instances.size(); i++)
+	{
+		Instance * inst = m_instances[i];
+		if(inst->GetInstID() == select)
+		{
+			LogicSelectInstance(i);
+			return true;
+		}
+	}
+	return false;
+}
+
+
 void InstanceModel::Clear()
 {
 	for(int i = 0; i < size(); i++)
