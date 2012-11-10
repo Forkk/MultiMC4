@@ -40,6 +40,12 @@ wxThread::ExitCode LWJGLInstallTask::TaskStart()
 	wxFFileInputStream in(m_path);
 	wxZipInputStream zipIn(in);
 
+	// make sure the instance natives dir is there (and all the dirs leading to it from root)
+	wxString nativesPath = Path::Combine(m_inst->GetBinDir(), "natives");
+	bool success = wxDir::Make(nativesPath,wxS_DIR_DEFAULT,wxPATH_MKDIR_FULL);
+	if(!success)
+		return (wxThread::ExitCode) 0;
+	
 	std::auto_ptr<wxZipEntry> entry;
 	while (entry.reset(zipIn.GetNextEntry()), entry.get() != NULL)
 	{
@@ -68,8 +74,7 @@ wxThread::ExitCode LWJGLInstallTask::TaskStart()
 #endif
 			if (name.Contains(nativesDir))
 			{
-				wxString nativesDir = Path::Combine(m_inst->GetBinDir(), "natives");
-				destFileName = Path::Combine(nativesDir, name.AfterLast('/').AfterLast('\\'));
+				destFileName = Path::Combine(nativesPath, name.AfterLast('/').AfterLast('\\'));
 			}
 		}
 
