@@ -35,9 +35,10 @@ DowngradeDialog::DowngradeDialog(wxWindow *parent)
 	: ListSelectDialog(parent, _("Downgrade Instance"))
 {
 	// GUI customizations.
-	wxHyperlinkCtrl *mcnLink = new wxHyperlinkCtrl(mainPanel, -1, _("Powered by MCNostalgia"),
+	wxHyperlinkCtrl *mcnLink = new wxHyperlinkCtrl(this, -1, _("Powered by MCNostalgia"),
 		"http://www.minecraftforum.net/topic/800346-");
-	mainSz->Add(mcnLink, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALL | wxALIGN_CENTER_VERTICAL, 4);
+	auto cnt = dlgSizer->GetItemCount();
+	dlgSizer->Insert(cnt-1,mcnLink,0, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 4);
 }
 
 bool DowngradeDialog::DoLoadList()

@@ -69,9 +69,6 @@ protected:
 	// Sizers and other GUI controls. These are used by overriding classes to customize the GUI.
 	wxBoxSizer* dlgSizer;
 
-	wxPanel* mainPanel;
-	wxGridBagSizer* mainSz;
-
 	wxSizer* btnSz;
 	wxButton* refreshButton;
 

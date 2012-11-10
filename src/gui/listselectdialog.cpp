@@ -46,23 +46,17 @@ ListSelectDialog::ListSelectDialog(wxWindow *parent, const wxString& title)
 	dlgSizer = new wxBoxSizer(wxVERTICAL);
 	SetSizer(dlgSizer);
 
-	mainPanel = new wxPanel(this);
-	dlgSizer->Add(mainPanel, wxSizerFlags(1).Expand().Border(wxALL, 8));
-	mainSz = new wxGridBagSizer();
-	mainSz->AddGrowableCol(0, 0);
-	mainSz->AddGrowableRow(0, 0);
-	mainPanel->SetSizer(mainSz);
-
-	listCtrl = new ListSelectCtrl(mainPanel, this);
+	listCtrl = new ListSelectCtrl(this, this);
 	listCtrl->AppendColumn(wxEmptyString, wxLIST_FORMAT_LEFT);
-	mainSz->Add(listCtrl, wxGBPosition(0, 0), wxGBSpan(1, 2), wxEXPAND | wxALL, 4);
+	dlgSizer->Add(listCtrl,1, wxEXPAND | wxALL, 4);
 
-	refreshButton = new wxButton(mainPanel, ID_RefreshList, _("&Refresh"));
-	mainSz->Add(refreshButton, wxGBPosition(1, 1), wxGBSpan(1, 1), wxALL | wxALIGN_RIGHT, 3);
-
-	btnSz = CreateButtonSizer(wxOK | wxCANCEL);
-	dlgSizer->Add(btnSz, wxSizerFlags(0).Border(wxBOTTOM | wxRIGHT, 8).
-		Align(wxALIGN_RIGHT | wxALIGN_BOTTOM));
+	wxSizer* btnSz = new wxBoxSizer(wxHORIZONTAL);
+	refreshButton = new wxButton(this, ID_RefreshList, _("&Refresh"));
+	btnSz->Add(refreshButton);
+	btnSz->AddSpacer(8);
+	btnSz->Add(new wxButton(this, wxID_CANCEL));
+	btnSz->Add(new wxButton(this, wxID_OK));
+	dlgSizer->Add(btnSz, wxSizerFlags(0).Border(wxBOTTOM | wxRIGHT, 8).Align(wxALIGN_RIGHT | wxALIGN_BOTTOM));
 
 	SetControlEnable(this, wxID_OK, false);
 }
@@ -113,7 +107,7 @@ void ListSelectDialog::UpdateOKBtn()
 wxString ListSelectDialog::GetSelection()
 {
 	int index = GetSelectedIndex();
-	if (index)
+	if (index != -1)
 		return listCtrl->GetItemText(index);
 	else
 		return wxEmptyString;
@@ -183,6 +177,7 @@ wxString ListSelectDialog::ListSelectCtrl::OnGetItemText(long item, long column)
 void ListSelectDialog::ListSelectCtrl::OnResize(wxSizeEvent& event)
 {
 	m_owner->SetupColumnSizes();
+	event.Skip();
 }
 
 BEGIN_EVENT_TABLE(ListSelectDialog::ListSelectCtrl, wxListCtrl)

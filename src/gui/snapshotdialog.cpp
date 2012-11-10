@@ -15,114 +15,134 @@
 //
 
 #include "snapshotdialog.h"
-
-#include <wx/gbsizer.h>
-
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/foreach.hpp>
-
-#include <string>
-#include <sstream>
-#include <algorithm>
-
-#include "apputils.h"
-#include "httputils.h"
-#include "mcversionlist.h"
 #include "taskprogressdialog.h"
-#include "lambdatask.h"
-
-enum
-{
-	ID_RefreshSnapshotList,
-};
-
-inline void SetControlEnable(wxWindow *parentWin, int id, bool state)
-{
-	wxWindow *win = parentWin->FindWindowById(id);
-	if (win) win->Enable(state);
-}
+#include "mcversionlist.h"
+#include <lambdatask.h>
+#include <wx/dcclient.h>
 
 SnapshotDialog::SnapshotDialog(wxWindow *parent)
-	: wxDialog(parent, wxID_ANY, _("Choose a snapshot"), wxDefaultPosition, wxSize(400, 420))
+	: ListSelectDialog(parent, _("Select Minecraft version"))
 {
-	wxFont titleFont(12, wxSWISS, wxNORMAL, wxNORMAL);
+	// data setup
+	showOldSnapshots = false;
+	
+	// Custom GUI stuff.
+	wxCheckBox *snapshotShow = new wxCheckBox(this, 5555, _("Show old snapshots"));
+	snapshotShow->SetValue(showOldSnapshots);
+	auto cnt = dlgSizer->GetItemCount();
+	dlgSizer->Insert(cnt-1,snapshotShow,0, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 4);
+	
+	
+	wxClientDC dc(this);
+	dc.SetFont(listCtrl->GetFont());
+	int w,h;
+	int maxWidth = 0;
+	typeColumnWidth = 120;
 
-	wxBoxSizer *dlgSizer = new wxBoxSizer(wxVERTICAL);
-	SetSizer(dlgSizer);
-
-	wxPanel *mainPanel = new wxPanel(this);
-	dlgSizer->Add(mainPanel, wxSizerFlags(1).Expand().Border(wxALL, 8));
-	wxGridBagSizer *mainSz = new wxGridBagSizer();
-	mainSz->AddGrowableCol(0, 0);
-	mainSz->AddGrowableRow(1, 0);
-	mainPanel->SetSizer(mainSz);
-
-	wxStaticText *versionPageTitle = new wxStaticText(mainPanel, -1, _("Choose Version"));
-	versionPageTitle->SetFont(titleFont);
-	mainSz->Add(versionPageTitle, wxGBPosition(0, 0), wxGBSpan(1, 2), wxALL | wxALIGN_CENTER, 4);
-
-	snapshotList = new wxListBox(mainPanel, -1, wxDefaultPosition, wxDefaultSize,
-		wxArrayString(), wxLB_SINGLE);
-	mainSz->Add(snapshotList, wxGBPosition(1, 0), wxGBSpan(1, 2), wxEXPAND | wxALL, 4);
-
-	wxButton *versionRefreshBtn = new wxButton(mainPanel, ID_RefreshSnapshotList, _("&Refresh"));
-	mainSz->Add(versionRefreshBtn, wxGBPosition(2, 1), wxGBSpan(1, 1), wxALL, 3);
-
-	wxSizer *btnSz = CreateButtonSizer(wxOK | wxCANCEL);
-	dlgSizer->Add(btnSz, wxSizerFlags(0).Border(wxBOTTOM | wxRIGHT, 8).
-		Align(wxALIGN_RIGHT | wxALIGN_BOTTOM));
-
-	SetControlEnable(this, wxID_OK, false);
-
-	LoadSnapshotList();
-}
-
-void SnapshotDialog::LoadSnapshotList()
-{
-	MCVersionList snapList;
-	LambdaTask::TaskFunc func = [&] (LambdaTask *task) -> wxThread::ExitCode
+	for(int i = 0; i < 4; i++)
 	{
-		task->DoSetStatus("Loading snapshot list...");
+		dc.GetTextExtent(typeNames[i], & w, & h);
+		if(w > maxWidth)
+			maxWidth = w;
+	}
+	typeColumnWidth = maxWidth + 10;
+	
+	// Clear columns and add our own.
+	listCtrl->DeleteAllColumns();
+	listCtrl->AppendColumn(_("Minecraft Version"), wxLIST_FORMAT_LEFT);
+	listCtrl->AppendColumn(_("Type"), wxLIST_FORMAT_RIGHT, typeColumnWidth);
 
-		snapList.Reload();
-		//snapList.Sort(true);
-		return (wxThread::ExitCode) 0;
-	};
-
-	LambdaTask *lTask = new LambdaTask(func);
-	TaskProgressDialog taskDlg(this);
-	taskDlg.ShowModal(lTask);
-	delete lTask;
-
-	//snapshotList->Set(snapList);
-
-	UpdateOKBtn();
+	// Show column headers
+	ShowHeader(true);
 }
 
-void SnapshotDialog::OnRefreshSListClicked(wxCommandEvent& event)
+void SnapshotDialog::LoadList()
 {
-	LoadSnapshotList();
-}
+	MCVersionList & verList = MCVersionList::Instance();
 
-void SnapshotDialog::OnListBoxSelChange(wxCommandEvent& event)
-{
-	UpdateOKBtn();
-}
+	bool success = false;
+	
+	if(verList.NeedsLoad())
+	{
+		LambdaTask::TaskFunc func = [&] (LambdaTask *task) -> wxThread::ExitCode
+		{
+			task->DoSetStatus(_("Loading Minecraft version list..."));
+			return (wxThread::ExitCode)DoLoadList();
+		};
 
-void SnapshotDialog::UpdateOKBtn()
-{
-	SetControlEnable(this, wxID_OK, snapshotList->GetSelection() != wxNOT_FOUND);
-}
-
-wxString SnapshotDialog::GetSelectedSnapshot()
-{
-	if (snapshotList->GetSelection() != wxNOT_FOUND)
-		return snapshotList->GetStringSelection();
+		LambdaTask *lTask = new LambdaTask(func);
+		TaskProgressDialog taskDlg(this);
+		success = taskDlg.ShowModal(lTask);
+		delete lTask;
+	}
 	else
-		return wxEmptyString;
+	{
+		success = true;
+	}
+	
+	Refilter();
 }
 
-BEGIN_EVENT_TABLE(SnapshotDialog, wxDialog)
-	EVT_BUTTON(ID_RefreshSnapshotList, SnapshotDialog::OnRefreshSListClicked)
-	EVT_LISTBOX(-1, SnapshotDialog::OnListBoxSelChange)
+bool SnapshotDialog::DoLoadList()
+{
+	MCVersionList & verList = MCVersionList::Instance();
+	return verList.LoadIfNeeded();
+}
+
+void SnapshotDialog::Refilter()
+{
+	visibleIndexes.clear();
+	MCVersionList & verList = MCVersionList::Instance();
+	for(unsigned i = 0; i < verList.versions.size(); i++ )
+	{
+		MCVersion & ver = verList.versions[i];
+		if(showOldSnapshots || ver.type != OldSnapshot)
+			visibleIndexes.push_back(i);
+	}
+	listCtrl->SetItemCount(visibleIndexes.size());
+	// we can use that value because the indexes do correspond up to the current stable version
+	listCtrl->SetItemState(verList.stableVersionIndex,wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+	listCtrl->SetColumnWidth(1,typeColumnWidth);
+	SetupColumnSizes();
+	listCtrl->Refresh();
+	listCtrl->Update();
+	UpdateOKBtn();
+}
+
+wxString SnapshotDialog::OnGetItemText(long item, long column)
+{
+	MCVersionList & verList = MCVersionList::Instance();
+	MCVersion & ver = verList.versions[visibleIndexes[item]];
+
+	switch (column)
+	{
+	case 0:
+		return ver.name;
+	case 1:
+		return typeNames[ver.type];
+
+	default:
+		return "...";
+	}
+}
+
+bool SnapshotDialog::GetSelectedVersion ( MCVersion& out )
+{
+	MCVersionList & verList = MCVersionList::Instance();
+	int idx = GetSelectedIndex();
+	if(idx == -1)
+		return false;
+	out = verList.versions[visibleIndexes[idx]];
+	return true;
+}
+
+
+void SnapshotDialog::OnCheckbox(wxCommandEvent& event)
+{
+	showOldSnapshots = event.IsChecked();
+	Refilter();
+}
+
+BEGIN_EVENT_TABLE(SnapshotDialog, ListSelectDialog)
+	EVT_CHECKBOX(5555, SnapshotDialog::OnCheckbox)
 END_EVENT_TABLE()

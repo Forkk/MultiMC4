@@ -43,6 +43,7 @@
 #include "lwjgldialog.h"
 #include "savemgrwindow.h"
 #include "stdinstance.h"
+#include <mcversionlist.h>
 #include "lwjglinstalltask.h"
 
 #include "instancectrl.h"
@@ -1251,10 +1252,10 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 	{
 		SnapshotDialog snapDlg(this);
 		snapDlg.CenterOnParent();
-		if (snapDlg.ShowModal() == wxID_OK && !snapDlg.GetSelectedSnapshot().IsEmpty())
+		MCVersion ver;
+		if (snapDlg.ShowModal() == wxID_OK && snapDlg.GetSelectedVersion(ver))
 		{
-			wxString snapURL = wxString::Format(wxT("assets.minecraft.net/%s/minecraft.jar"), 
-				snapDlg.GetSelectedSnapshot().c_str());
+			wxString snapURL = ver.dlURL + "minecraft.jar";
 
 			wxString snapshotJar = Path::Combine(currentInstance->GetBinDir(), wxT("snapshot.jar"));
 			FileDownloadTask task(snapURL, snapshotJar);

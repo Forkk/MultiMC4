@@ -15,27 +15,34 @@
 //
 
 #pragma once
-#include <wx/dialog.h>
+#include "listselectdialog.h"
+#include "mcversionlist.h"
+#include <vector>
 
-#include "instance.h"
-#include "task.h"
-
-class SnapshotDialog : public wxDialog
+class SnapshotDialog : public ListSelectDialog
 {
 public:
 	SnapshotDialog(wxWindow *parent);
-
-	wxString GetSelectedSnapshot();
+	bool GetSelectedVersion(MCVersion & out);
 
 protected:
-	void LoadSnapshotList();
-
-	void OnRefreshSListClicked(wxCommandEvent& event);
-	void OnListBoxSelChange(wxCommandEvent& event);
-
-	void UpdateOKBtn();
-
-	wxListBox *snapshotList;
-
+	void Refilter();
+	virtual void LoadList();
+	virtual bool DoLoadList();
+	virtual wxString OnGetItemText(long item, long column);
+	void OnCheckbox(wxCommandEvent& event);
+	
+	// data
+	const wxString typeNames[4] = 
+	{
+		_("Old snapshot"),
+		_("Old version"),
+		_("Current version"),
+		_("Snapshot")
+	};
+	int typeColumnWidth;
+	std::vector<unsigned> visibleIndexes;
+	bool showOldSnapshots;
+	
 	DECLARE_EVENT_TABLE()
 };

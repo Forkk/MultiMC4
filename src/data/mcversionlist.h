@@ -53,25 +53,24 @@ struct MCVersion
 class MCVersionList
 {
 public:
-	MCVersionList();
+	static MCVersionList& Instance()
+	{
+		if (pInstance == 0)
+			pInstance = new MCVersionList();
+		return *pInstance;
+	};
+	
 
 	bool Reload();
-
-	/*
-	void Sort(bool descending = false);
-	*/
-/*
-	static int CompareSnapshots(wxString *first, wxString *second, bool reverse = false);
-
-	static inline int CompareSnapshotsAscending(wxString *first, wxString *second)
+	bool LoadIfNeeded();
+	bool NeedsLoad()
 	{
-		return CompareSnapshots(first, second);
+		return versions.size() == 0;
 	}
 
-	static inline int CompareSnapshotsDescending(wxString *first, wxString *second)
-	{
-		return CompareSnapshots(first, second, true);
-	}
-	*/
 	std::vector <MCVersion> versions;
+	int stableVersionIndex;
+private:
+	static MCVersionList * pInstance;
+	MCVersionList();
 };
