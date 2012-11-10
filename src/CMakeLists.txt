@@ -128,6 +128,7 @@ gui/textdisplaydialog.cpp
 gui/advancedmsgdlg.cpp
 gui/listselectdialog.cpp
 gui/lwjgldialog.cpp
+gui/ftbselectdialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -197,6 +198,7 @@ gui/textdisplaydialog.h
 gui/advancedmsgdlg.h
 gui/listselectdialog.h
 gui/lwjgldialog.h
+gui/ftbselectdialog.h
 
 data/appsettings.h
 data/instance.h

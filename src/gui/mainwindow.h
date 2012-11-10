@@ -45,6 +45,7 @@ public:
 	// Toolbar
 	void OnAddInstClicked(wxCommandEvent& event);
 	void OnImportCPClicked(wxCommandEvent& event);
+	void OnImportFTBClicked(wxCommandEvent& event);
 	void OnViewFolderClicked(wxCommandEvent& event);
 	void OnViewCMFolderClicked(wxCommandEvent& event);
 	void OnRefreshClicked(wxCommandEvent& event);
@@ -214,6 +215,7 @@ enum
 	ID_NewInst,
 	ID_ImportInst,
 	ID_ImportCP,
+	ID_ImportFTB,
 	ID_ViewFolder,
 	ID_ViewCMFolder,
 	ID_ModsFolder,
