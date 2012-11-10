@@ -110,16 +110,16 @@ void ListSelectDialog::UpdateOKBtn()
 	SetControlEnable(this, wxID_OK, GetSelectedIndex() != -1);
 }
 
-wxString ListSelectDialog::GetSelection()
+wxString ListSelectDialog::GetSelection() const
 {
 	int index = GetSelectedIndex();
-	if (index)
+	if (index != -1)
 		return listCtrl->GetItemText(index);
 	else
 		return wxEmptyString;
 }
 
-int ListSelectDialog::GetSelectedIndex()
+int ListSelectDialog::GetSelectedIndex() const
 {
 	long item = -1;
 	while (true)
