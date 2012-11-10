@@ -33,13 +33,6 @@ protected:
 	void OnCheckbox(wxCommandEvent& event);
 	
 	// data
-	const wxString typeNames[4] = 
-	{
-		_("Old snapshot"),
-		_("Old version"),
-		_("Current version"),
-		_("Snapshot")
-	};
 	int typeColumnWidth;
 	std::vector<unsigned> visibleIndexes;
 	bool showOldSnapshots;
