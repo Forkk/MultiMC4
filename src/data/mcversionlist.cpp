@@ -27,11 +27,13 @@
 #include "httputils.h"
 #include "apputils.h"
 
-#define PRINT_CRUD
+//#define PRINT_CRUD
+
+MCVersionList* MCVersionList::pInstance = 0;
 
 MCVersionList::MCVersionList()
 {
-	
+	stableVersionIndex = -1;
 }
 
 bool TimeFromS3Time(wxString str, wxDateTime & datetime)
@@ -47,9 +49,19 @@ bool compareVersions(const MCVersion & left, const MCVersion & right)
 	return left.unixTimestamp > right.unixTimestamp;
 }
 
+bool MCVersionList::LoadIfNeeded()
+{
+	if(versions.empty())
+	{
+		return Reload();
+	}
+	return true;
+}
+
 bool MCVersionList::Reload()
 {
 	using namespace boost::property_tree;
+	versions.clear();
 	
 	MCVersion currentStable;
 	bool currentStableFound = false;
@@ -197,6 +209,14 @@ bool MCVersionList::Reload()
 		return false;
 	}
 	std::sort(versions.begin(), versions.end(),compareVersions);
+	for(int i = 0; i < versions.size();i++)
+	{
+		if(versions[i].type == CurrentStable)
+		{
+			stableVersionIndex = i;
+			break;
+		}
+	}
 #ifdef PRINT_CRUD
 	std::ofstream out("test.txt");
 	if(out.is_open())
