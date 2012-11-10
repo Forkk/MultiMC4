@@ -1416,6 +1416,7 @@ int MainWindow::StartTask ( Task* task )
 
 void MainWindow::OnWindowClosed(wxCloseEvent& event)
 {
+	wxPersistenceManager::Get().SaveAndUnregister(this);
 	if(instNotesEditor)
 	{
 		// Save instance notes on exit.
