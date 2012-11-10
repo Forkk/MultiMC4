@@ -67,6 +67,10 @@ class SettingsBase
 public:
 	virtual bool GetMemoryOverride() const { return false; };
 	virtual void SetMemoryOverride( bool ) {};
+
+	virtual long GetLanguage() const { return GetSetting<long>("Language", wxLocale::GetSystemLanguage()); }
+	virtual void SetLanguage(long value) { SetSetting<long>("Language", value); }
+	virtual void ResetLanguage() { config->DeleteEntry("Language"); }
 	
 	virtual int GetMinMemAlloc() const { return GetSetting<int>("MinMemoryAlloc", 512); };
 	virtual void SetMinMemAlloc(int value) {    SetSetting<int>("MinMemoryAlloc", value); };

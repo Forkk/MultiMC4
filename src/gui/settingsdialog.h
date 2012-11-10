@@ -58,6 +58,7 @@ protected:
 	wxToggleButton *forceUpdateToggle;
 	wxRadioBox *guiStyleBox;
 	wxRadioBox *sortModeBox;
+	wxComboBox *langSelectorBox;
 	wxTextCtrl *instDirTextBox;
 	wxTextCtrl *modsDirTextBox;
 	
@@ -90,6 +91,10 @@ protected:
 
 	wxCheckBox *loginUseDefs;
 	wxCheckBox *autoLoginCheck;
+
+	// Other stuff
+	wxArrayString langList;
+	wxArrayLong langIDList;
 
 	DECLARE_EVENT_TABLE()
 };

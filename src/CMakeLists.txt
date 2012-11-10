@@ -166,6 +166,7 @@ curlutils.cpp
 datautils.cpp
 fsutils.cpp
 httputils.cpp
+langutils.cpp
 
 version.cpp
 buildtag.cpp
@@ -240,6 +241,7 @@ osutils.h
 datautils.h
 fsutils.h
 httputils.h
+langutils.h
 
 version.h
 buildtag.h

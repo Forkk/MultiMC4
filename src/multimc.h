@@ -23,13 +23,14 @@
 
 #include <wx/cmdline.h>
 
+#include "langutils.h"
+
 extern const wxString licenseText;
 
 class MultiMC : public wxApp
 {
 public:
 	virtual bool OnInit();
-	virtual bool InitLocale();
 	virtual void OnInitCmdLine(wxCmdLineParser &parser);
 	virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
 	virtual int OnExit();
@@ -41,6 +42,8 @@ public:
 	bool updateOnExit;
 	bool useProvidedDir;
 	wxFileName providedDir;
+
+	LocaleHelper localeHelper;
 protected:
 	wxLocale* m_locale;
 

@@ -53,8 +53,6 @@ bool MultiMC::OnInit()
 	startMode = START_NORMAL;
 	useProvidedDir = false;
 
-	InitLocale();
-	
 	// This is necessary for the update system since it calls OnInitCmdLine
 	// to set up the command line arguments that the update system uses.
 	if (!wxApp::OnInit())
@@ -87,6 +85,12 @@ bool MultiMC::OnInit()
 	{
 		wxLogError(_("Failed to initialize settings."));
 		return false;
+	}
+
+	// Load language.
+	if (!localeHelper.SetLanguage((wxLanguage)settings->GetLanguage()))
+	{
+		wxLogError(_("Failed to set language. Using English."));
 	}
 	
 	wxString cwd = wxGetCwd();
@@ -154,35 +158,6 @@ bool MultiMC::OnInit()
 	}
 
 	return false;
-}
-
-bool MultiMC::InitLocale()
-{
-	long lang = wxLocale::GetSystemLanguage();
-
-	if (wxLocale::IsAvailable(lang))
-	{
-		m_locale = new wxLocale(lang);
-
-		m_locale->AddCatalog(GetAppName());
-
-		if (!m_locale->IsOk())
-		{
-			wxLogError("Could not load the selected language. Falling back to English.");
-			delete m_locale;
-			m_locale = new wxLocale(wxLANGUAGE_DEFAULT);
-			return false;
-		}
-	}
-	else
-	{
-		wxMessageBox("The selected language could not be found. You may need to install it.");
-		delete m_locale;
-		m_locale = new wxLocale(wxLANGUAGE_DEFAULT);
-		return false;
-	}
-
-	return true;
 }
 
 void MultiMC::OnInitCmdLine(wxCmdLineParser &parser)

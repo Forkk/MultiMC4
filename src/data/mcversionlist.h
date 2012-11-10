@@ -17,6 +17,7 @@
 #pragma once
 #include <wx/string.h>
 #include <vector>
+#include <stdint.h>
 
 enum VersionType
 {

@@ -19,6 +19,8 @@
 #include <wx/dir.h>
 #include <apputils.h>
 #include <fsutils.h>
+
+#include "multimc.h"
 #include "instance.h"
 
 const wxString guiModeFancy = _("Fancy");
@@ -101,6 +103,20 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 				multimcSizer->Add(sortModeBox, staticBoxOuterFlags);
 			}
 
+			// Language combo box
+			{
+				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _("Language"));
+
+				wxGetApp().localeHelper.GetSupportedLanguages(langList, langIDList);
+
+				langSelectorBox = new wxComboBox(box->GetStaticBox(), -1, 
+					wxEmptyString, wxDefaultPosition, wxDefaultSize, langList, 
+					wxCB_DROPDOWN | wxCB_READONLY);
+				box->Add(langSelectorBox, expandingItemFlags);
+
+				multimcSizer->Add(box, staticBoxOuterFlags);
+			}
+
 			// Update settings group box
 			{
 				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _("Update Settings"));
@@ -112,6 +128,7 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 				box->Add(forceUpdateToggle, itemFlags);
 				multimcSizer->Add(box, staticBoxOuterFlags);
 			}
+
 			// Directory group box
 			{
 				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _("Folders"));
@@ -422,6 +439,9 @@ bool SettingsDialog::FolderMove ( wxFileName oldDir, wxFileName newDir, wxString
 
 bool SettingsDialog::ApplySettings()
 {
+	// True if MultiMC needs to restart to apply the settings.
+	bool needsRestart = false;
+
 	if(!instanceMode)
 	{
 		wxFileName newInstDir = wxFileName::DirName(instDirTextBox->GetValue());
@@ -466,8 +486,7 @@ bool SettingsDialog::ApplySettings()
 		if (newGUIMode != currentSettings->GetGUIMode())
 		{
 			currentSettings->SetGUIMode(newGUIMode);
-			wxMessageBox(_("Changing the GUI style requires a restart in order to take effect. Please restart MultiMC."),
-				_("Restart Required"));
+			needsRestart = true;
 		}
 
 		if (sortModeBox->GetStringSelection() == sortModeName)
@@ -520,6 +539,19 @@ Are you sure you want to use dev builds?"),
 		else
 		{
 			currentSettings->SetUseDevBuilds(useDevBuildsCheck->GetValue());
+		}
+
+
+		// Apply language settings.
+		if (langSelectorBox->GetSelection() >= 0 && 
+			langSelectorBox->GetSelection() < langIDList.GetCount() &&
+			langIDList[langSelectorBox->GetSelection()] != currentSettings->GetLanguage())
+		{
+			// Language has been changed.
+			currentSettings->SetLanguage(langIDList[langSelectorBox->GetSelection()]);
+
+			// We need to restart MultiMC.
+			needsRestart = true;
 		}
 	}
 	else
@@ -594,6 +626,13 @@ Are you sure you want to use dev builds?"),
 			currentSettings->ResetAutoLogin();
 		}
 	}
+	
+	if (needsRestart)
+	{
+		wxMessageBox(
+			_("Some settings were changed that require MultiMC to restart before they take effect. Please close and restart MultiMC"),
+			_("Restart Required"));
+	}
 
 	return true;
 }
@@ -635,6 +674,12 @@ void SettingsDialog::LoadSettings()
 		case Sort_LastLaunch:
 			sortModeBox->SetStringSelection(sortModeLastLaunch);
 			break;
+		}
+
+		for (int i = 0; i < langIDList.GetCount(); i++)
+		{
+			if (langIDList[i] == currentSettings->GetLanguage())
+				langSelectorBox->SetSelection(i);
 		}
 	}
 	else
