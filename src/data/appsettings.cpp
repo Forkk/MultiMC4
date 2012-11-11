@@ -20,6 +20,8 @@
 
 #include "version.h"
 
+#include "langutils.h"
+
 AppSettings *settings;
 
 bool InitAppSettings(void)
@@ -35,4 +37,10 @@ AppSettings::AppSettings()
 AppSettings::~AppSettings()
 {
 	delete config;
+}
+
+// Put this here because we don't want everything to recompile when langutils.h changes.
+long SettingsBase::GetLanguage() const
+{
+	return GetSetting<long>("Language", GetDefaultLanguage());
 }

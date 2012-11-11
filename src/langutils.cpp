@@ -23,9 +23,13 @@
 
 #include "apputils.h"
 
+#include <wx/arrimpl.cpp>
+WX_DEFINE_OBJARRAY(LanguageArray);
+
 LocaleHelper::LocaleHelper()
 {
 	m_locale = nullptr;
+	UpdateLangList();
 }
 
 LocaleHelper::~LocaleHelper()
@@ -36,13 +40,10 @@ LocaleHelper::~LocaleHelper()
 	}
 }
 
-bool LocaleHelper::GetSupportedLanguages(wxArrayString& langs, wxArrayLong& ids)
+bool LocaleHelper::UpdateLangList()
 {
-	langs.Clear();
-	ids.Clear();
-
-	langs.Add("English");
-	ids.Add(wxLANGUAGE_ENGLISH);
+	m_langDefs.Clear();
+	m_langDefs.Add(LanguageDef("English", wxLANGUAGE_ENGLISH));
 
 	wxDir dir(Path::Combine(wxGetCwd(), "lang"));
 
@@ -62,11 +63,9 @@ bool LocaleHelper::GetSupportedLanguages(wxArrayString& langs, wxArrayLong& ids)
 
 			if (langInfo)
 			{
-				if (wxFileExists(Path::Combine(Path::Combine(dir.GetName(), filename), 
-					wxGetApp().GetAppName() + ".mo")))
+				if (wxFileExists(Path::Combine(dir.GetName(), filename, "MultiMC.mo")))
 				{
-					langs.Add(langInfo->Description);
-					ids.Add(langInfo->Language);
+					m_langDefs.Add(LanguageDef(langInfo->Description, langInfo->Language));
 				}
 			}
 		} while (dir.GetNext(&filename));
@@ -89,4 +88,45 @@ bool LocaleHelper::SetLanguage(long id)
 wxLocale* LocaleHelper::GetLocale()
 {
 	return m_locale;
+}
+
+long GetDefaultLanguage()
+{
+	long lang = wxLocale::GetSystemLanguage();
+
+	if (lang != wxLANGUAGE_UNKNOWN)
+		return wxLANGUAGE_ENGLISH;
+	else
+		return lang;
+}
+
+const LanguageArray* LocaleHelper::GetLanguages() const
+{
+	return &m_langDefs;
+}
+
+LanguageArray* LocaleHelper::GetLanguages()
+{
+	return &m_langDefs;
+}
+
+bool LocaleHelper::IsLanguageSupported(long langID) const
+{
+	for (int i = 0; i < m_langDefs.size(); i++)
+	{
+		if (m_langDefs.operator[](i).m_id == langID)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+// LocaleDef stuff
+LanguageDef::LanguageDef(wxString name, long id)
+{
+	m_name = name;
+	m_id = id;
 }

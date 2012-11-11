@@ -68,7 +68,7 @@ public:
 	virtual bool GetMemoryOverride() const { return false; };
 	virtual void SetMemoryOverride( bool ) {};
 
-	virtual long GetLanguage() const { return GetSetting<long>("Language", wxLocale::GetSystemLanguage()); }
+	virtual long GetLanguage() const;
 	virtual void SetLanguage(long value) { SetSetting<long>("Language", value); }
 	virtual void ResetLanguage() { config->DeleteEntry("Language"); }
 	

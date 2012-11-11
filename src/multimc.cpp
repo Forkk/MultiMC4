@@ -87,10 +87,14 @@ bool MultiMC::OnInit()
 		return false;
 	}
 
+	SetAppName(_("MultiMC"));
+
 	// Load language.
 	if (!localeHelper.SetLanguage((wxLanguage)settings->GetLanguage()))
 	{
-		wxLogError(_("Failed to set language. Using English."));
+		settings->SetLanguage(wxLANGUAGE_ENGLISH);
+		localeHelper.SetLanguage(wxLANGUAGE_ENGLISH);
+		wxLogError(_("Failed to set language. Language set to English."));
 	}
 	
 	wxString cwd = wxGetCwd();
@@ -99,8 +103,6 @@ bool MultiMC::OnInit()
 		wxLogError(_("MultiMC has been started from a path that contains '!':\n%s\nThis would break Minecraft. Please move it to a different place."), cwd.c_str());
 		return false;
 	}
-
-	SetAppName(_("MultiMC"));
 
 	wxInitAllImageHandlers();
 	wxSocketBase::Initialize();

@@ -106,11 +106,8 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			// Language combo box
 			{
 				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _("Language"));
-
-				wxGetApp().localeHelper.GetSupportedLanguages(langList, langIDList);
-
 				langSelectorBox = new wxComboBox(box->GetStaticBox(), -1, 
-					wxEmptyString, wxDefaultPosition, wxDefaultSize, langList, 
+					wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, 
 					wxCB_DROPDOWN | wxCB_READONLY);
 				box->Add(langSelectorBox, expandingItemFlags);
 
@@ -543,15 +540,17 @@ Are you sure you want to use dev builds?"),
 
 
 		// Apply language settings.
-		if (langSelectorBox->GetSelection() >= 0 && 
-			langSelectorBox->GetSelection() < langIDList.GetCount() &&
-			langIDList[langSelectorBox->GetSelection()] != currentSettings->GetLanguage())
+		bool languageSet = false;
+		wxString langName = langSelectorBox->GetStringSelection();
+		const LanguageArray* langs = wxGetApp().localeHelper.GetLanguages();
+		for (int i = 0; i < langs->size(); i++)
 		{
-			// Language has been changed.
-			currentSettings->SetLanguage(langIDList[langSelectorBox->GetSelection()]);
-
-			// We need to restart MultiMC.
-			needsRestart = true;
+			if (langs->operator[](i).m_name == langName)
+			{
+				// Set the language.
+				currentSettings->SetLanguage(langs->operator[](i).m_id);
+				needsRestart = true;
+			}
 		}
 	}
 	else
@@ -676,11 +675,16 @@ void SettingsDialog::LoadSettings()
 			break;
 		}
 
-		for (int i = 0; i < langIDList.GetCount(); i++)
+		int selectedIndex = 0;
+		const LanguageArray* langs = wxGetApp().localeHelper.GetLanguages();
+		for (int i = 0; i < langs->size(); i++)
 		{
-			if (langIDList[i] == currentSettings->GetLanguage())
-				langSelectorBox->SetSelection(i);
+			long id = langs->operator[](i).m_id;
+			langSelectorBox->Append(langs->operator[](i).m_name);
+			if (id == currentSettings->GetLanguage())
+				selectedIndex = i;
 		}
+		langSelectorBox->SetSelection(selectedIndex);
 	}
 	else
 	{

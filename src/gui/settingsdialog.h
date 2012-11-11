@@ -92,10 +92,6 @@ protected:
 	wxCheckBox *loginUseDefs;
 	wxCheckBox *autoLoginCheck;
 
-	// Other stuff
-	wxArrayString langList;
-	wxArrayLong langIDList;
-
 	DECLARE_EVENT_TABLE()
 };
 
