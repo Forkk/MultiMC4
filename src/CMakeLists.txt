@@ -321,6 +321,9 @@ endif ()
 add_subdirectory(resources)
 add_subdirectory(launcher)
 
+# Compile localizations.
+add_subdirectory(lang)
+
 include_directories("${PROJECT_BINARY_DIR}")
 
 include_directories(
