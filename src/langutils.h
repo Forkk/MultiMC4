@@ -58,3 +58,6 @@ protected:
 };
 
 long GetDefaultLanguage();
+
+// Extract .mo files to their directories.
+bool InstallLangFiles();

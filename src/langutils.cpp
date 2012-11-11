@@ -17,6 +17,8 @@
 #include "langutils.h"
 
 #include <wx/dir.h>
+#include <wx/mstream.h>
+#include <wx/wfstream.h>
 
 #include "multimc.h"
 #include "appsettings.h"
@@ -29,7 +31,6 @@ WX_DEFINE_OBJARRAY(LanguageArray);
 LocaleHelper::LocaleHelper()
 {
 	m_locale = nullptr;
-	UpdateLangList();
 }
 
 LocaleHelper::~LocaleHelper()
@@ -80,9 +81,16 @@ bool LocaleHelper::SetLanguage(long id)
 		delete m_locale;
 
 	m_locale = new wxLocale(id);
-	m_locale->AddCatalogLookupPathPrefix(
-		Path::Combine(wxPathOnly(wxGetApp().argv[0]), "lang"));
-	return m_locale->AddCatalog(wxGetApp().GetAppName());
+	if (id != wxLANGUAGE_ENGLISH)
+	{
+		m_locale->AddCatalogLookupPathPrefix(
+			Path::Combine(wxPathOnly(wxGetApp().argv[0]), "lang"));
+		return m_locale->AddCatalog(wxGetApp().GetAppName());
+	}
+	else
+	{
+		return true;
+	}
 }
 
 wxLocale* LocaleHelper::GetLocale()
@@ -129,4 +137,56 @@ LanguageDef::LanguageDef(wxString name, long id)
 {
 	m_name = name;
 	m_id = id;
+}
+
+
+// More stuff
+#include "lang/langfiles.h"
+
+struct LangFileDef
+{
+	LangFileDef(wxString dirName, const unsigned char* data, unsigned int dataSize)
+	{
+		m_dirName = dirName;
+		m_data = data;
+		m_dataSize = dataSize;
+	}
+
+	wxString m_dirName;
+	const unsigned char* m_data;
+	size_t m_dataSize;
+};
+
+#define STR_VALUE(val) #val
+#define DEFINE_LANGFILE(lfile) LangFileDef(STR_VALUE(lfile), lfile, sizeof(lfile))
+
+const wxString langDir = "lang";
+
+bool InstallLangFiles()
+{
+	if (!wxDirExists(langDir))
+		wxMkDir(langDir);
+
+	const int langFileCount = 1;
+	LangFileDef langFiles[] = 
+	{
+		DEFINE_LANGFILE(es),
+	};
+
+	for (int i = 0; i < langFileCount; i++)
+	{
+		wxString dir = Path::Combine(langDir, langFiles[i].m_dirName);
+
+		if (!wxDirExists(dir) && !wxMkdir(dir))
+		{
+			wxLogError(_("Can't install localizations. Failed to create directory."));
+			return false;
+		}
+
+		// Write the file.
+		wxString moFileName = Path::Combine(dir, "MultiMC.mo");
+		wxMemoryInputStream inStream(langFiles[i].m_data, langFiles[i].m_dataSize);
+		wxFFileOutputStream outStream(moFileName);
+		outStream.Write(inStream);
+	}
 }

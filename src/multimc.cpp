@@ -88,6 +88,8 @@ bool MultiMC::OnInit()
 	}
 
 	SetAppName(_("MultiMC"));
+	InstallLangFiles();
+	localeHelper.UpdateLangList();
 
 	// Load language.
 	if (!localeHelper.SetLanguage((wxLanguage)settings->GetLanguage()))

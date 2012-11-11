@@ -340,7 +340,7 @@ endif()
 
 # Add the executable.
 add_executable(MultiMC WIN32 ${SRCS} ${INCS})
-add_dependencies(MultiMC generate_headers generate_launcher)
+add_dependencies(MultiMC generate_headers generate_launcher generate_langheader)
 
 # Link the libraries.
 target_link_libraries(MultiMC
