@@ -62,10 +62,36 @@ enum InstSortMode
 	Sort_LastLaunch,
 };
 
-#define DEFINE_SETTING(funcName, cfgEntryName, typeName, defVal) \
+#define STR_VALUE(val) #val
+
+#define DEFINE_SETTING_ADVANCED(funcName, cfgEntryName, typeName, defVal) \
 	virtual typeName Get ## funcName() const { return GetSetting<typeName>(cfgEntryName, defVal); } \
 	virtual void Set ## funcName(typeName value) { SetSetting<typeName>(cfgEntryName, value); } \
 	virtual void Reset ## funcName() { config->DeleteEntry(cfgEntryName); }
+
+#define DEFINE_SETTING(settingName, typeName, defVal) \
+	DEFINE_SETTING_ADVANCED(settingName, STR_VALUE(settingName), typeName, defVal)
+
+#define DEFINE_FN_SETTING_ADVANCED(funcName, cfgEntryName, defVal) \
+	virtual wxFileName Get ## funcName() const { return GetSetting(cfgEntryName, defVal); } \
+	virtual void Set ## funcName(wxFileName value) { SetSetting(cfgEntryName, value); } \
+	virtual void Reset ## funcName() { config->DeleteEntry(cfgEntryName); }
+
+#define DEFINE_FN_SETTING(settingName, defVal) \
+	DEFINE_FN_SETTING_ADVANCED(settingName, STR_VALUE(settingName), defVal)
+
+#define DEFINE_ENUM_SETTING_ADVANCED(funcName, cfgEntryName, typeName, defVal) \
+	virtual typeName Get ## funcName() const { return (typeName)GetSetting<int>(cfgEntryName, defVal); } \
+	virtual void Set ## funcName(typeName value) { SetSetting<int>(cfgEntryName, value); } \
+	virtual void Reset ## funcName() { config->DeleteEntry(cfgEntryName); };
+
+#define DEFINE_ENUM_SETTING(settingName, typeName, defVal) \
+	DEFINE_ENUM_SETTING_ADVANCED(settingName, STR_VALUE(settingName), typeName, defVal)
+
+#define DEFINE_OVERRIDE_SETTING_BLANK(overrideName) \
+	virtual bool Get ## overrideName ## Override() const { return false; }; \
+	virtual void Set ## overrideName ## Override(bool value) {  };
+
 
 class SettingsBase
 {
@@ -78,87 +104,42 @@ public:
 	virtual void SetLanguage(wxString value) { SetSetting<wxString>("Language", value); }
 	virtual void ResetLanguage() { config->DeleteEntry("Language"); }
 
-	DEFINE_SETTING(UseSystemLang, "UseSystemLanguage", bool, true)
+	DEFINE_SETTING(UseSystemLang, bool, true);
 
-	virtual int GetMinMemAlloc() const { return GetSetting<int>("MinMemoryAlloc", 512); };
-	virtual void SetMinMemAlloc(int value) {    SetSetting<int>("MinMemoryAlloc", value); };
-	virtual void ResetMinMemAlloc() {   config->DeleteEntry("MinMemoryAlloc"); };
+	DEFINE_SETTING_ADVANCED(MinMemAlloc, "MinMemoryAlloc", int, 512);
+	DEFINE_SETTING_ADVANCED(MaxMemAlloc, "MaxMemoryAlloc", int, 1024);
 
-	virtual int GetMaxMemAlloc() const { return GetSetting<int>("MaxMemoryAlloc", 1024); };
-	virtual void SetMaxMemAlloc(int value) {    SetSetting<int>("MaxMemoryAlloc", value); };
-	virtual void ResetMaxMemAlloc() {   config->DeleteEntry("MaxMemoryAlloc"); };
-	
-	virtual bool GetWindowOverride() const { return false; };
-	virtual void SetWindowOverride( bool ) {};
-	
-	virtual int GetMCWindowWidth() const { return GetSetting<int>("MCWindowWidth", 854); };
-	virtual void SetMCWindowWidth(int value) {    SetSetting<int>("MCWindowWidth", value); };
-	virtual void ResetMCWindowWidth() {   config->DeleteEntry("MCWindowWidth"); };
+	DEFINE_OVERRIDE_SETTING_BLANK(Window);
+	DEFINE_SETTING(MCWindowWidth, int, 854);
+	DEFINE_SETTING(MCWindowHeight, int, 480);
+	DEFINE_SETTING(MCWindowMaximize, bool, false);
+	DEFINE_SETTING(UseAppletWrapper, bool, true);
 
-	virtual int GetMCWindowHeight() const { return GetSetting<int>("MCWindowHeight", 480); };
-	virtual void SetMCWindowHeight(int value) {    SetSetting<int>("MCWindowHeight", value); };
-	virtual void ResetMCWindowHeight() {   config->DeleteEntry("MCWindowHeight"); };
-	
-	virtual bool GetMCWindowMaximize() const { return GetSetting<bool>("MCWindowMaximize", false); };
-	virtual void SetMCWindowMaximize(bool value) {    SetSetting<bool>("MCWindowMaximize", value); };
-	virtual void ResetMCWindowMaximize() {    config->DeleteEntry("MCWindowMaximize"); };
-	
-	virtual bool GetUseAppletWrapper() const { return GetSetting<bool>("UseAppletWrapper", true); };
-	virtual void SetUseAppletWrapper(bool value) {    SetSetting<bool>("UseAppletWrapper", value); };
-	virtual void ResetUseAppletWrapper() {    config->DeleteEntry("UseAppletWrapper"); };
+	DEFINE_OVERRIDE_SETTING_BLANK(Updates);
+	DEFINE_ENUM_SETTING(UpdateMode, UpdateMode, Update_Never);
 
-	virtual bool GetUpdatesOverride() const { return false; };
-	virtual void SetUpdatesOverride( bool ) {};
-	
-	virtual UpdateMode GetUpdateMode() const { return (UpdateMode)GetSetting<int>("UpdateMode", Update_Never); }
-	void SetUpdateMode(UpdateMode value) { SetSetting<int>("UpdateMode", value); }
-	virtual void ResetUpdateMode() {           config->DeleteEntry("UpdateMode"); };
+	DEFINE_OVERRIDE_SETTING_BLANK(Login);
+	DEFINE_SETTING(AutoLogin, bool, false);
 
-	virtual bool GetLoginOverride() const { return false; }
-	virtual void SetLoginOverride( bool ) {};
+	DEFINE_OVERRIDE_SETTING_BLANK(Java);
+	DEFINE_SETTING_ADVANCED(JavaPath, JPATH_FIELD_NAME, wxString, "java");
+	DEFINE_SETTING(JvmArgs, wxString, wxEmptyString);
 
-	virtual bool GetAutoLogin() const { return GetSetting<bool>("AutoLogin", false); }
-	virtual void SetAutoLogin(bool value) { SetSetting<bool>("AutoLogin", value); }
-	virtual void ResetAutoLogin() { config->DeleteEntry("AutoLogin"); }
-	
-	virtual bool GetJavaOverride() const { return false; };
-	virtual void SetJavaOverride( bool ) {};
-	
-	virtual wxString GetJavaPath() const { return GetSetting<wxString>(JPATH_FIELD_NAME, "java"); }
-	virtual void SetJavaPath(wxString value) {    SetSetting<wxString>(JPATH_FIELD_NAME, value); }
-	virtual void ResetJavaPath() {           config->DeleteEntry(JPATH_FIELD_NAME); };
-	
-	virtual void SetJvmArgs(wxString value) { SetSetting<wxString>("JvmArgs", value); }
-	wxString GetJvmArgs() const { return GetSetting<wxString>("JvmArgs", wxEmptyString ); }
-	virtual void ResetJvmArgs() {           config->DeleteEntry("JvmArgs"); };
+	DEFINE_FN_SETTING_ADVANCED(InstDir, "InstanceDir", wxFileName::DirName("instances"));
+	DEFINE_FN_SETTING(ModsDir, wxFileName::DirName("mods"));
+	DEFINE_FN_SETTING(IconsDir, wxFileName::DirName("icons"));
 
-	virtual wxFileName GetInstDir() const { return GetSetting("InstanceDir", wxFileName::DirName("instances")); }
-	virtual void SetInstDir(wxFileName value) {    SetSetting("InstanceDir", value); }
-	
-	virtual wxFileName GetModsDir() const { return GetSetting("ModsDir", wxFileName::DirName("mods")); }
-	void SetModsDir(wxFileName value) { SetSetting("ModsDir", value); }
+	DEFINE_SETTING(AutoCloseConsole, bool, true);
+	DEFINE_SETTING(ShowConsole, bool, true);
 
-	virtual wxFileName GetIconsDir() const { return GetSetting("IconsDir", wxFileName::DirName("icons")); }
-	void SetIconsDir(wxFileName value) { SetSetting("IconsDir", value); }
+	DEFINE_SETTING(AutoUpdate, bool, true);
+	DEFINE_SETTING(UseDevBuilds, bool, false);
 
-	virtual bool GetAutoCloseConsole() const { return GetSetting<bool>("AutoCloseConsole", true); }
-	void SetAutoCloseConsole(bool value) { SetSetting<bool>("AutoCloseConsole", value); }
+	DEFINE_ENUM_SETTING(GUIMode, GUIMode, GUI_Simple);
 
-	virtual bool GetAutoUpdate() const { return GetSetting<bool>("AutoUpdate", true); }
-	void SetAutoUpdate(bool value) { SetSetting<bool>("AutoUpdate", value); }
+	DEFINE_ENUM_SETTING(InstSortMode, InstSortMode, Sort_LastLaunch);
 
-	virtual bool GetShowConsole() const { return GetSetting<bool>("ShowConsole", true); }
-	void SetShowConsole(bool value) { SetSetting<bool>("ShowConsole", value); }
-
-	virtual bool GetUseDevBuilds() const { return GetSetting<bool>("UseDevBuilds", false); }
-	void SetUseDevBuilds(bool value) { SetSetting<bool>("UseDevBuilds", value); }
-
-	virtual GUIMode GetGUIMode() const { return (GUIMode)GetSetting<int>("GUIMode", GUI_Simple); }
-	void SetGUIMode(GUIMode value) { SetSetting<int>("GUIMode", value); }
-
-	virtual InstSortMode GetInstSortMode() const { return (InstSortMode)GetSetting<int>("InstSortMode", Sort_LastLaunch); }
-	void SetInstSortMode(InstSortMode value) { SetSetting<int>("InstSortMode", value); }
-
+	// These are special... No macros for them.
 	virtual wxColor GetConsoleSysMsgColor() const { return wxColor(GetSetting<wxString>("ConsoleSysMsgColor", "#0000FF")); }
 	void SetConsoleSysMsgColor(wxColor color) { SetSetting<wxString>("ConsoleSysMsgColor", color.GetAsString()); }
 
