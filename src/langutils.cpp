@@ -206,7 +206,7 @@ const wxString langDir = "lang";
 bool InstallLangFiles()
 {
 	if (!wxDirExists(langDir))
-		wxMkDir(langDir);
+		wxMkDir(langDir,wxS_DIR_DEFAULT);
 
 	const int langFileCount = 3;
 	LangFileDef langFiles[] = 
