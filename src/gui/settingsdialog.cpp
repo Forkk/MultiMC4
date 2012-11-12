@@ -546,7 +546,8 @@ Are you sure you want to use dev builds?"),
 		const LanguageArray* langs = wxGetApp().localeHelper.GetLanguages();
 		for (int i = 0; i < langs->size(); i++)
 		{
-			if (langs->operator[](i).m_name == langName)
+			if (langs->operator[](i).m_name == langName &&
+				langs->operator[](i).m_id != currentSettings->GetLanguage())
 			{
 				// Set the language.
 				currentSettings->SetLanguage(langs->operator[](i).m_id);
