@@ -107,6 +107,10 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			// Language combo box
 			{
 				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _("Language"));
+				useSystemLangCheck = new wxCheckBox(box->GetStaticBox(), ID_UseSystemLang, 
+					_("Use the system language?"));
+				box->Add(useSystemLangCheck, itemsFlags);
+
 				langSelectorBox = new wxComboBox(box->GetStaticBox(), -1, 
 					wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, 
 					wxCB_DROPDOWN | wxCB_READONLY);
@@ -541,17 +545,24 @@ Are you sure you want to use dev builds?"),
 
 
 		// Apply language settings.
-		bool languageSet = false;
-		wxString langName = langSelectorBox->GetStringSelection();
-		const LanguageArray* langs = wxGetApp().localeHelper.GetLanguages();
-		for (int i = 0; i < langs->size(); i++)
+		if (currentSettings->GetUseSystemLang() != useSystemLangCheck->GetValue())
+			needsRestart = true;
+
+		currentSettings->SetUseSystemLang(useSystemLangCheck->GetValue());
+		if (!useSystemLangCheck->GetValue())
 		{
-			if (langs->operator[](i).m_name == langName &&
-				langs->operator[](i).m_id != currentSettings->GetLanguage())
+			bool languageSet = false;
+			wxString langName = langSelectorBox->GetStringSelection();
+			const LanguageArray* langs = wxGetApp().localeHelper.GetLanguages();
+			for (int i = 0; i < langs->size(); i++)
 			{
-				// Set the language.
-				currentSettings->SetLanguage(langs->operator[](i).m_id);
-				needsRestart = true;
+				if (langs->operator[](i).m_name == langName &&
+					langs->operator[](i).m_canonicalName != currentSettings->GetLanguage())
+				{
+					// Set the language.
+					currentSettings->SetLanguage(langs->operator[](i).m_canonicalName);
+					needsRestart = true;
+				}
 			}
 		}
 	}
@@ -681,16 +692,23 @@ void SettingsDialog::LoadSettings()
 			break;
 		}
 
-		int selectedIndex = 0;
+		int selectedIndex = -1;
 		const LanguageArray* langs = wxGetApp().localeHelper.GetLanguages();
 		for (int i = 0; i < langs->size(); i++)
 		{
-			long id = langs->operator[](i).m_id;
+			wxString langCName = langs->operator[](i).m_canonicalName;
 			langSelectorBox->Append(langs->operator[](i).m_name);
-			if (id == currentSettings->GetLanguage())
+			if (langCName == currentSettings->GetLanguage())
 				selectedIndex = i;
 		}
+		if (selectedIndex == -1)
+		{
+			langSelectorBox->Insert(_("Unsupported Language"), 0);
+			selectedIndex = 0;
+		}
 		langSelectorBox->SetSelection(selectedIndex);
+
+		useSystemLangCheck->SetValue(currentSettings->GetUseSystemLang());
 	}
 	else
 	{
@@ -773,7 +791,7 @@ void SettingsDialog::OnDetectJavaPathClicked(wxCommandEvent& event)
 }
 
 
-void SettingsDialog::OnUpdateMCTabCheckboxes(wxCommandEvent& event)
+void SettingsDialog::OnUpdateCheckboxes(wxCommandEvent& event)
 {
 	UpdateCheckboxStuff();
 }
@@ -820,6 +838,8 @@ void SettingsDialog::UpdateCheckboxStuff()
 
 		winWidthSpin->Enable(!(winMaxCheckbox->GetValue() || compatCheckbox->GetValue()));
 		winHeightSpin->Enable(!(winMaxCheckbox->GetValue() || compatCheckbox->GetValue()));
+
+		langSelectorBox->Enable(!useSystemLangCheck->GetValue());
 	}
 }
 
@@ -840,11 +860,12 @@ BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_BUTTON(ID_DetectJavaPath, SettingsDialog::OnDetectJavaPathClicked)
 	EVT_BUTTON(wxID_OK, SettingsDialog::OnOKClicked)
 
-	EVT_CHECKBOX(ID_MCMaximizeCheckbox, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_CHECKBOX(ID_CompatModeCheckbox, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_CHECKBOX(ID_OverrideJava, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_CHECKBOX(ID_OverrideWindow, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_CHECKBOX(ID_OverrideUpdate, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_CHECKBOX(ID_OverrideMemory, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_CHECKBOX(ID_OverrideLogin, SettingsDialog::OnUpdateMCTabCheckboxes)
+	EVT_CHECKBOX(ID_MCMaximizeCheckbox, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_CompatModeCheckbox, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_UseSystemLang, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_OverrideJava, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_OverrideWindow, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_OverrideUpdate, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_OverrideMemory, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_OverrideLogin, SettingsDialog::OnUpdateCheckboxes)
 END_EVENT_TABLE()

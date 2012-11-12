@@ -18,7 +18,7 @@ FOREACH (FILE ${PO_FILES})
 	SET (LANGFILES ${LANGFILES} ${OUT})
 ENDFOREACH ()
 
-ADD_CUSTOM_TARGET(languages DEPENDS ${LANGFILE_DEP})
+ADD_CUSTOM_TARGET(languages DEPENDS ${LANGFILE_DEP} ${PO_FILES})
 
 
 # Embedding .mo files in the executable.

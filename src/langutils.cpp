@@ -65,7 +65,8 @@ bool LocaleHelper::UpdateLangList()
 			{
 				if (wxFileExists(Path::Combine(dir.GetName(), filename, "MultiMC.mo")))
 				{
-					m_langDefs.Add(LanguageDef(langInfo->Description, langInfo->Language));
+					m_langDefs.Add(LanguageDef(langInfo->Description, 
+						langInfo->CanonicalName, langInfo->Language));
 				}
 			}
 		} while (dir.GetNext(&filename));
@@ -101,7 +102,7 @@ long GetDefaultLanguage()
 {
 	long lang = wxLocale::GetSystemLanguage();
 
-	if (lang != wxLANGUAGE_UNKNOWN)
+	if (lang == wxLANGUAGE_UNKNOWN)
 		return wxLANGUAGE_ENGLISH;
 	else
 		return lang;
@@ -115,6 +116,43 @@ const LanguageArray* LocaleHelper::GetLanguages() const
 LanguageArray* LocaleHelper::GetLanguages()
 {
 	return &m_langDefs;
+}
+
+long LocaleHelper::FindClosestMatch(long langID, bool exactMatch)
+{
+	const wxLanguageInfo* langInfo = wxLocale::GetLanguageInfo(langID);
+	LanguageDef* closestMatch = nullptr;
+
+	if (!langInfo)
+		return wxLANGUAGE_UNKNOWN;
+
+	for (int i = 0; i < m_langDefs.size(); i++)
+	{
+		LanguageDef* langDef = &m_langDefs.operator[](i);
+
+		// First, see if it's an exact match.
+		if (langID == langDef->m_id)
+		{
+			closestMatch = langDef;
+			break;
+		}
+
+		// Next, see if it almost matches. (if the first part of the canonical names match)
+		// Ignore this if we already have a close match. (since we want the 
+		// *first* close match, not the last)
+		if (!exactMatch &&
+			langInfo->CanonicalName.BeforeLast('_') == 
+			langDef->m_canonicalName.BeforeLast('_') &&
+			closestMatch == nullptr)
+		{
+			closestMatch = langDef;
+		}
+	}
+
+	if (closestMatch)
+		return closestMatch->m_id;
+	else
+		return wxLANGUAGE_UNKNOWN;
 }
 
 bool LocaleHelper::IsLanguageSupported(long langID) const
@@ -132,14 +170,15 @@ bool LocaleHelper::IsLanguageSupported(long langID) const
 
 
 // LocaleDef stuff
-LanguageDef::LanguageDef(wxString name, long id)
+LanguageDef::LanguageDef(wxString name, wxString canonicalName, long id)
 {
 	m_name = name;
+	m_canonicalName = canonicalName;
 	m_id = id;
 }
 
 
-// More stuff
+// Localization installer stuff
 #include "lang/langfiles.h"
 
 struct LangFileDef
@@ -157,7 +196,10 @@ struct LangFileDef
 };
 
 #define STR_VALUE(val) #val
-#define DEFINE_LANGFILE(lfile) LangFileDef(STR_VALUE(lfile), lfile, sizeof(lfile))
+
+// This is pretty hacky, but it works...
+#define DEFINE_LANGFILE(lfile) LangFileDef(wxString(STR_VALUE(lfile)).BeforeFirst('_') + \
+	"_" + wxString(STR_VALUE(lfile)).AfterFirst('_').Upper(), lfile, sizeof(lfile))
 
 const wxString langDir = "lang";
 
@@ -166,11 +208,12 @@ bool InstallLangFiles()
 	if (!wxDirExists(langDir))
 		wxMkDir(langDir);
 
-	const int langFileCount = 1;
+	const int langFileCount = 3;
 	LangFileDef langFiles[] = 
 	{
-		DEFINE_LANGFILE(en),
-		DEFINE_LANGFILE(es),
+		DEFINE_LANGFILE(en_us),
+		DEFINE_LANGFILE(en_gb),
+		DEFINE_LANGFILE(es_mx),
 	};
 
 	for (int i = 0; i < langFileCount; i++)

@@ -40,7 +40,16 @@ AppSettings::~AppSettings()
 }
 
 // Put this here because we don't want everything to recompile when langutils.h changes.
-long SettingsBase::GetLanguage() const
+wxString SettingsBase::GetLanguage() const
 {
-	return GetSetting<long>("Language", GetDefaultLanguage());
+	return GetSetting<wxString>("Language", wxLocale::GetLanguageInfo(GetDefaultLanguage())->CanonicalName);
+}
+
+long SettingsBase::GetLanguageID() const
+{
+	const wxLanguageInfo* info = wxLocale::FindLanguageInfo(GetLanguage());
+	if (info)
+		return info->Language;
+	else
+		return wxLANGUAGE_UNKNOWN;
 }

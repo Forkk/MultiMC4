@@ -62,16 +62,24 @@ enum InstSortMode
 	Sort_LastLaunch,
 };
 
+#define DEFINE_SETTING(funcName, cfgEntryName, typeName, defVal) \
+	virtual typeName Get ## funcName() const { return GetSetting<typeName>(cfgEntryName, defVal); } \
+	virtual void Set ## funcName(typeName value) { SetSetting<typeName>(cfgEntryName, value); } \
+	virtual void Reset ## funcName() { config->DeleteEntry(cfgEntryName); }
+
 class SettingsBase
 {
 public:
 	virtual bool GetMemoryOverride() const { return false; };
 	virtual void SetMemoryOverride( bool ) {};
 
-	virtual long GetLanguage() const;
-	virtual void SetLanguage(long value) { SetSetting<long>("Language", value); }
+	virtual long GetLanguageID() const;
+	virtual wxString GetLanguage() const;
+	virtual void SetLanguage(wxString value) { SetSetting<wxString>("Language", value); }
 	virtual void ResetLanguage() { config->DeleteEntry("Language"); }
-	
+
+	DEFINE_SETTING(UseSystemLang, "UseSystemLanguage", bool, true)
+
 	virtual int GetMinMemAlloc() const { return GetSetting<int>("MinMemoryAlloc", 512); };
 	virtual void SetMinMemAlloc(int value) {    SetSetting<int>("MinMemoryAlloc", value); };
 	virtual void ResetMinMemAlloc() {   config->DeleteEntry("MinMemoryAlloc"); };
