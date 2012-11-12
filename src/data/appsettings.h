@@ -72,6 +72,14 @@ enum InstSortMode
 #define DEFINE_SETTING(settingName, typeName, defVal) \
 	DEFINE_SETTING_ADVANCED(settingName, STR_VALUE(settingName), typeName, defVal)
 
+#define DEFINE_FN_SETTING_ADVANCED(funcName, cfgEntryName, defVal) \
+	virtual wxFileName Get ## funcName() const { return GetSetting(cfgEntryName, defVal); } \
+	virtual void Set ## funcName(wxFileName value) { SetSetting(cfgEntryName, value); } \
+	virtual void Reset ## funcName() { config->DeleteEntry(cfgEntryName); }
+
+#define DEFINE_FN_SETTING(settingName, defVal) \
+	DEFINE_FN_SETTING_ADVANCED(settingName, STR_VALUE(settingName), defVal)
+
 #define DEFINE_ENUM_SETTING_ADVANCED(funcName, cfgEntryName, typeName, defVal) \
 	virtual typeName Get ## funcName() const { return (typeName)GetSetting<int>(cfgEntryName, defVal); } \
 	virtual void Set ## funcName(typeName value) { SetSetting<int>(cfgEntryName, value); } \
@@ -80,7 +88,7 @@ enum InstSortMode
 #define DEFINE_ENUM_SETTING(settingName, typeName, defVal) \
 	DEFINE_ENUM_SETTING_ADVANCED(settingName, STR_VALUE(settingName), typeName, defVal)
 
-#define DEFINE_OVERRIDE_SETTING(overrideName) \
+#define DEFINE_OVERRIDE_SETTING_BLANK(overrideName) \
 	virtual bool Get ## overrideName ## Override() const { return false; }; \
 	virtual void Set ## overrideName ## Override(bool value) {  };
 
@@ -98,28 +106,28 @@ public:
 
 	DEFINE_SETTING(UseSystemLang, bool, true);
 
-	DEFINE_SETTING_ADVANCED(MinMemAlloc, "MinMemoryAlloc", int 512);
+	DEFINE_SETTING_ADVANCED(MinMemAlloc, "MinMemoryAlloc", int, 512);
 	DEFINE_SETTING_ADVANCED(MaxMemAlloc, "MaxMemoryAlloc", int, 1024);
 
-	DEFINE_OVERRIDE_SETTING(Window);
+	DEFINE_OVERRIDE_SETTING_BLANK(Window);
 	DEFINE_SETTING(MCWindowWidth, int, 854);
 	DEFINE_SETTING(MCWindowHeight, int, 480);
 	DEFINE_SETTING(MCWindowMaximize, bool, false);
 	DEFINE_SETTING(UseAppletWrapper, bool, true);
 
-	DEFINE_OVERRIDE_SETTING(Updates);
+	DEFINE_OVERRIDE_SETTING_BLANK(Updates);
 	DEFINE_ENUM_SETTING(UpdateMode, UpdateMode, Update_Never);
 
-	DEFINE_OVERRIDE_SETTING(Login);
+	DEFINE_OVERRIDE_SETTING_BLANK(Login);
 	DEFINE_SETTING(AutoLogin, bool, false);
 
-	DEFINE_OVERRIDE_SETTING(Java);
+	DEFINE_OVERRIDE_SETTING_BLANK(Java);
 	DEFINE_SETTING_ADVANCED(JavaPath, JPATH_FIELD_NAME, wxString, "java");
 	DEFINE_SETTING(JvmArgs, wxString, wxEmptyString);
 
-	DEFINE_SETTING_ADVANCED(InstDir, "InstanceDir", wxFileName, wxFileName::DirName("instances"));
-	DEFINE_SETTING(ModsDir, wxFileName, wxFileName::DirName("mods"));
-	DEFINE_SETTING(IconsDir, wxFileName, wxFileName::DirName("icons"));
+	DEFINE_FN_SETTING_ADVANCED(InstDir, "InstanceDir", wxFileName::DirName("instances"));
+	DEFINE_FN_SETTING(ModsDir, wxFileName::DirName("mods"));
+	DEFINE_FN_SETTING(IconsDir, wxFileName::DirName("icons"));
 
 	DEFINE_SETTING(AutoCloseConsole, bool, true);
 	DEFINE_SETTING(ShowConsole, bool, true);
