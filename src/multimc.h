@@ -38,9 +38,22 @@ public:
 	virtual void OnUnhandledException();
 	
 	const wxIconBundle &GetAppIcons() const;
+
+	enum ExitAction
+	{
+		// Do nothing on exit.
+		EXIT_NORMAL,
+
+		// Installs updates when MultiMC exits without restarting MultiMC when the update is done.
+		EXIT_UPDATE,
+
+		// Installs updates when MultiMC exits and restarts MultiMC when the update is done.
+		EXIT_UPDATE_RESTART,
+
+		// Restarts MultiMC on exit.
+		EXIT_RESTART,
+	} exitAction;
 	
-	bool updateOnExit;
-	bool restartOnExit;
 	bool useProvidedDir;
 	wxFileName providedDir;
 
@@ -68,6 +81,8 @@ protected:
 		// Launches an instance on start.
 		START_LAUNCH_INSTANCE
 	} startMode;
+
+	bool updateQuiet;
 };
 
 const wxCmdLineEntryDesc cmdLineDesc[] = 
@@ -77,6 +92,9 @@ const wxCmdLineEntryDesc cmdLineDesc[] =
 
 	{ wxCMD_LINE_OPTION, "u", "update", _("replaces the given file with the running executable"),
 		wxCMD_LINE_VAL_STRING },
+
+	{ wxCMD_LINE_SWITCH, "U", "quietupdate", _("doesn't restart MultiMC after installing updates"),
+		wxCMD_LINE_VAL_NONE },
 
 	{ wxCMD_LINE_OPTION, "l", "launch", _("tries to launch the given instance"),
 		wxCMD_LINE_VAL_STRING },

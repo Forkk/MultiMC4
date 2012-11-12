@@ -49,9 +49,9 @@ bool MultiMC::OnInit()
 	// Only works with Linux GCC or MSVC
 	wxHandleFatalExceptions();
 #endif
-	updateOnExit = false;
-	restartOnExit = false;
+	exitAction = EXIT_NORMAL;
 	startMode = START_NORMAL;
+	updateQuiet = false;
 	useProvidedDir = false;
 
 	// This is necessary for the update system since it calls OnInitCmdLine
@@ -195,6 +195,8 @@ bool MultiMC::OnCmdLineParsed(wxCmdLineParser& parser)
 	}
 	if (parser.Found("u", &parsedOption))
 	{
+		updateQuiet = parser.Found("U");
+
 		thisFileName = wxStandardPaths::Get().GetExecutablePath();
 		updateTarget = parsedOption;
 		startMode = START_INSTALL_UPDATE;
@@ -260,9 +262,13 @@ and that MultiMC's updater has sufficient permissions to replace the file \n\
 	wxYieldIfNeeded();
 	
 	targetFile.MakeAbsolute();
-	wxProcess proc;
-	wxExecute("\"" + targetFile.GetFullPath() + "\"", wxEXEC_ASYNC, &proc);
-	proc.Detach();
+
+	if (!updateQuiet)
+	{
+		wxProcess proc;
+		wxExecute("\"" + targetFile.GetFullPath() + "\"", wxEXEC_ASYNC, &proc);
+		proc.Detach();
+	}
 	progDlg->Destroy();
 }
 
@@ -284,7 +290,8 @@ int MultiMC::OnExit()
 	wxString updaterFileName = "MultiMCUpdate";
 #endif
 
-	if (updateOnExit && wxFileExists(updaterFileName))
+	if ((exitAction == EXIT_UPDATE_RESTART || exitAction == EXIT_UPDATE) && 
+		wxFileExists(updaterFileName))
 	{
 		wxFileName updateFile(updaterFileName);
 #if LINUX || OSX
@@ -311,7 +318,7 @@ int MultiMC::OnExit()
 		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
 		proc.Detach();
 	}
-	else if (restartOnExit)
+	else if (exitAction == EXIT_RESTART)
 	{
 		wxProcess proc;
 

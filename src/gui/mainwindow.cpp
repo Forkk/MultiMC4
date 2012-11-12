@@ -757,7 +757,7 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 
 		if (settingsDlg.ShouldRestartNow())
 		{
-			wxGetApp().restartOnExit = true;
+			wxGetApp().exitAction = MultiMC::EXIT_RESTART;
 			Close(false);
 		}
 	}
@@ -784,14 +784,19 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 
 		UpdatePromptDialog updatePrompt (this, updateMsg);
 		updatePrompt.CenterOnParent();
-		if (updatePrompt.ShowModal() == wxID_OK)
+		int response = updatePrompt.ShowModal();
+		if (response == ID_UpdateNow)
 		{
 			DownloadInstallUpdates(event.m_downloadURL);
+		}
+		else if (response == ID_UpdateLater)
+		{
+			DownloadInstallUpdates(event.m_downloadURL, false);
 		}
 	}
 }
 
-void MainWindow::DownloadInstallUpdates(const wxString &downloadURL)
+void MainWindow::DownloadInstallUpdates(const wxString &downloadURL, bool installNow)
 {
 #if WINDOWS
 	wxString updaterFileName = "MultiMCUpdate.exe";
@@ -800,10 +805,22 @@ void MainWindow::DownloadInstallUpdates(const wxString &downloadURL)
 #endif
 
 	auto dlTask = new FileDownloadTask(downloadURL, wxFileName(updaterFileName), _("Downloading updates..."));
-	wxGetApp().updateOnExit = true;
-	StartTask(dlTask);
-	delete dlTask;
-	Close(false);
+
+	if (installNow)
+	{
+		// Download and install in the foreground.
+		StartTask(dlTask);
+		delete dlTask;
+		wxGetApp().exitAction = MultiMC::EXIT_UPDATE_RESTART;
+		Close(false);
+	}
+	else
+	{
+		// Download in the background and install on exit.
+		// FIXME: If MultiMC closes before the download finishes, the update will not install.
+		dlTask->Start(this, false);
+		wxGetApp().exitAction = MultiMC::EXIT_UPDATE;
+	}
 }
 
 void MainWindow::OnHelpClicked(wxCommandEvent& event)

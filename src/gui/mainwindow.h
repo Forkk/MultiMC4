@@ -112,7 +112,7 @@ public:
 	void DoLogin(UserInfo info, bool playOffline = false, bool forceUpdate = false);
 	void ShowLoginDlg(wxString errorMsg);
 
-	void DownloadInstallUpdates(const wxString &downloadURL);
+	void DownloadInstallUpdates(const wxString &downloadURL, bool installNow = true);
 	
 	void LoadInstanceList(wxFileName instDir = settings->GetInstDir());
 	void LoadCentralModList();
