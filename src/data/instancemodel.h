@@ -93,6 +93,8 @@ public:
 	bool LoadGroupInfo(wxString file = wxEmptyString);
 	bool SaveGroupInfo(wxString file = wxEmptyString) const;
 
+	bool SelectInstanceByID(wxString select);
+
 	Instance *GetSelectedInstance()
 	{
 		if(m_selectedIndex == -1)
@@ -106,6 +108,13 @@ public:
 			return nullptr;
 		return m_instances[m_previousIndex];
 	};
+	
+	// FIXME: this should send out an event to all concerned parties
+	void LogicSelectInstance(int selectID)
+	{
+		m_previousIndex = m_selectedIndex;
+		m_selectedIndex = selectID;
+	}
 	
 	/// Set the selection from the linked control side. We do not notify the originating control.
 	void CtrlSelectInstance ( int clickedID )

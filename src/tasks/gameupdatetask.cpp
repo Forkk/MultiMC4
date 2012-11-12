@@ -73,6 +73,7 @@ wxThread::ExitCode GameUpdateTask::TaskStart()
 			m_inst->UpdateVersion(false);
 			ExtractNatives();
 			wxRemoveFile(Path::Combine(m_inst->GetBinDir(), wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
+			m_inst->SetNeedsRebuild(true);
 		}
 	}
 	return (ExitCode)1;

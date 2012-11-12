@@ -138,7 +138,9 @@ bool MultiMC::OnInit()
 			MainWindow *mainWin = new MainWindow();
 			mainWin->SetName(wxT("MainWindow"));
 			if (!wxPersistenceManager::Get().RegisterAndRestore(mainWin))
+			{
 				mainWin->CenterOnScreen();
+			}
 			mainWin->Show();
 			mainWin->OnStartup();
 			return true;
@@ -149,7 +151,9 @@ bool MultiMC::OnInit()
 			MainWindow *mainWin = new MainWindow();
 			mainWin->SetName(wxT("MainWindow"));
 			if (!wxPersistenceManager::Get().RegisterAndRestore(mainWin))
+			{
 				mainWin->CenterOnScreen();
+			}
 			mainWin->Show();
 			mainWin->launchInstance = launchInstance;
 			mainWin->OnStartup();

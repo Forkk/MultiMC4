@@ -22,6 +22,7 @@
 #include <wx/wfstream.h>
 #include <wx/msgdlg.h>
 #include <wx/clipbrd.h>
+#include <wx/persist.h>
 
 #include <gui/mainwindow.h>
 
@@ -189,6 +190,8 @@ void InstConsoleWindow::Close()
 {
 	if(crashReportIsOpen)
 		return;
+	
+	//FIXME: is this actually intended? This calls OnWindowClosed() via wxFrame
 	wxFrame::Close();
 	if (trayIcon->IsIconInstalled())
 		trayIcon->RemoveIcon();
@@ -218,6 +221,7 @@ void InstConsoleWindow::OnCloseClicked(wxCommandEvent& event)
 	Close();
 }
 
+//NOTE: indirectly called by Close()
 void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
 {
 	if (event.CanVeto() && !m_closeAllowed)
@@ -226,6 +230,7 @@ void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
 	}
 	else
 	{
+		wxPersistenceManager::Get().SaveAndUnregister(this);
 		if (trayIcon->IsIconInstalled())
 			trayIcon->RemoveIcon();
 		m_mainWin->Show();
