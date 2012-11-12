@@ -754,6 +754,12 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 				ciURL.c_str(), dlFileName.c_str());
 			DownloadInstallUpdates(dlURL);
 		}
+
+		if (settingsDlg.ShouldRestartNow())
+		{
+			wxGetApp().restartOnExit = true;
+			Close(false);
+		}
 	}
 }
 

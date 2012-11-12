@@ -40,6 +40,7 @@ public:
 	const wxIconBundle &GetAppIcons() const;
 	
 	bool updateOnExit;
+	bool restartOnExit;
 	bool useProvidedDir;
 	wxFileName providedDir;
 

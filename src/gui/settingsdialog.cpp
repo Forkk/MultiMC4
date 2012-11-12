@@ -41,6 +41,7 @@ const wxString sortModeLastLaunch = _("By Last Launched");
 SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s /* = settings */)
 	: wxDialog(parent, id, _("Settings"), wxDefaultPosition, wxSize(500, 450))
 {
+	m_shouldRestartMMC = false;
 	currentSettings = s;
 	wxBoxSizer *mainBox = new wxBoxSizer(wxVERTICAL);
 	SetSizer(mainBox);
@@ -628,9 +629,13 @@ Are you sure you want to use dev builds?"),
 	
 	if (needsRestart)
 	{
-		wxMessageBox(
-			_("Some settings were changed that require MultiMC to restart before they take effect. Please close and restart MultiMC"),
-			_("Restart Required"));
+		if (wxMessageBox(
+			_("Some settings were changed that require MultiMC to restart before they take effect. "
+			  "Would you like to restart MultiMC now?"),
+			_("Restart Required"), wxYES_NO) == wxYES)
+		{
+			m_shouldRestartMMC = true;
+		}
 	}
 
 	return true;
@@ -820,6 +825,11 @@ void SettingsDialog::UpdateCheckboxStuff()
 bool SettingsDialog::GetForceUpdateMultiMC() const
 {
 	return !instanceMode && forceUpdateToggle->GetValue();
+}
+
+bool SettingsDialog::ShouldRestartNow() const
+{
+	return m_shouldRestartMMC;
 }
 
 

@@ -29,6 +29,8 @@ public:
 	SettingsDialog(wxWindow *parent, wxWindowID id, SettingsBase *s = settings);
 	bool GetForceUpdateMultiMC() const;
 
+	bool ShouldRestartNow() const;
+
 protected:
 	void OnBrowseInstDirClicked(wxCommandEvent& event);
 	void OnBrowseModsDirClicked(wxCommandEvent& event);
@@ -91,6 +93,10 @@ protected:
 
 	wxCheckBox *loginUseDefs;
 	wxCheckBox *autoLoginCheck;
+
+
+	// Other stuff
+	bool m_shouldRestartMMC;
 
 	DECLARE_EVENT_TABLE()
 };

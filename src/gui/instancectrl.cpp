@@ -1310,7 +1310,7 @@ void InstanceVisual::updateName()
 				name_wrapped.Append(raw_name.SubString(linestart, i - 1));
 				text_lines++;
 				if (i + 1 != extents.size())
-					name_wrapped.Append(_("\n"));
+					name_wrapped.Append("\n");
 					
 				if (size > text_width)
 					text_width = size;

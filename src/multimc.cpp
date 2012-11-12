@@ -50,6 +50,7 @@ bool MultiMC::OnInit()
 	wxHandleFatalExceptions();
 #endif
 	updateOnExit = false;
+	restartOnExit = false;
 	startMode = START_NORMAL;
 	useProvidedDir = false;
 
@@ -306,6 +307,20 @@ int MultiMC::OnExit()
 		wxString launchCmd = wxString::Format("%s -u:%s",
 			updateFilePath.c_str(), thisFilePath.c_str());
 #endif
+
+		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
+		proc.Detach();
+	}
+	else if (restartOnExit)
+	{
+		wxProcess proc;
+
+		// Put together the command that MultiMC launched with.
+		wxString launchCmd;
+		for (int i = 0; i < argc; i++)
+		{
+			launchCmd += wxString::Format("%s ", argv[i]);
+		}
 
 		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
 		proc.Detach();
