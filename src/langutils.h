@@ -22,9 +22,10 @@
 // Represents a certain locale.
 struct LanguageDef
 {
-	LanguageDef(wxString name, long id);
+	LanguageDef(wxString name, wxString canonicalName, long id);
 
 	wxString m_name;
+	wxString m_canonicalName;
 	int m_id;
 };
 
@@ -50,6 +51,13 @@ public:
 
 	// Checks if a language is supported.
 	bool IsLanguageSupported(long langID) const;
+
+	// Finds the language with the given ID. If the language isn't supported,
+	// returns NULL.
+	// If exactMatch is true, it will look only for languages that match
+	// exactly. Otherwise it will substitute similar ones. (for example, 
+	// if en_GB isn't supported, en_US will be used instead)
+	long FindClosestMatch(long langID, bool exactMatch = false);
 
 protected:
 	wxLocale* m_locale;

@@ -93,10 +93,22 @@ bool MultiMC::OnInit()
 	localeHelper.UpdateLangList();
 
 	// Load language.
-	if (!localeHelper.SetLanguage((wxLanguage)settings->GetLanguage()))
+	long langID = wxLANGUAGE_UNKNOWN;
+	if (settings->GetUseSystemLang())
+		langID = wxLocale::GetSystemLanguage();
+	else
+		langID = settings->GetLanguageID();
+	langID = localeHelper.FindClosestMatch(langID);
+
+	// If no matching language is found, use English.
+	if (langID == wxLANGUAGE_UNKNOWN)
 	{
-		settings->SetLanguage(wxLANGUAGE_ENGLISH);
-		localeHelper.SetLanguage(wxLANGUAGE_ENGLISH);
+		langID = wxLANGUAGE_ENGLISH_US;
+	}
+
+	if (!localeHelper.SetLanguage((wxLanguage)langID))
+	{
+		localeHelper.SetLanguage(wxLANGUAGE_ENGLISH_US);
 		wxLogError(_("Failed to set language. Language set to English."));
 	}
 	

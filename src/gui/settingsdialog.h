@@ -35,7 +35,7 @@ protected:
 	void OnBrowseInstDirClicked(wxCommandEvent& event);
 	void OnBrowseModsDirClicked(wxCommandEvent& event);
 	void OnDetectJavaPathClicked(wxCommandEvent& event);
-	void OnUpdateMCTabCheckboxes(wxCommandEvent& event);
+	void OnUpdateCheckboxes(wxCommandEvent& event);
 	void OnOKClicked(wxCommandEvent& event);
 
 	void UpdateCheckboxStuff();
@@ -61,6 +61,7 @@ protected:
 	wxRadioBox *guiStyleBox;
 	wxRadioBox *sortModeBox;
 	wxComboBox *langSelectorBox;
+	wxCheckBox *useSystemLangCheck;
 	wxTextCtrl *instDirTextBox;
 	wxTextCtrl *modsDirTextBox;
 	
@@ -114,4 +115,6 @@ enum
 	ID_OverrideUpdate,
 	ID_OverrideMemory,
 	ID_OverrideLogin,
+
+	ID_UseSystemLang,
 };
