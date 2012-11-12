@@ -37,6 +37,21 @@ class InstanceModel;
 
 bool IsValidInstance(wxFileName rootDir);
 
+// Defines an "ignored" setting. These are settings where the instance just 
+// returns their value in the global application settings.
+#define DEFINE_IGNORED_SETTING(settingName, typeName) \
+	virtual typeName Get ## settingName() const { return settings->Get ## settingName(); };
+
+#define DEFINE_OVERRIDDEN_SETTING_ADVANCED(funcName, cfgEntryName, typeName) \
+	typeName Get ## funcName() const { return GetSetting<typeName>(cfgEntryName, settings->Get ## funcName()); }
+
+#define DEFINE_OVERRIDDEN_SETTING(settingName, typeName) \
+	DEFINE_OVERRIDDEN_SETTING_ADVANCED(settingName, STR_VALUE(settingName), typeName)
+
+#define DEFINE_OVERRIDE_SETTING(overrideName) \
+	virtual bool Get ## overrideName ## Override() const { return GetSetting<bool>(STR_VALUE(Override ## overrideName), false); } \
+	virtual void Set ## overrideName ## Override( bool value ) {  SetSetting<bool>(STR_VALUE(Override ## overrideName), value); }
+
 class Instance : public wxEvtHandler, public SettingsBase
 {
 public:
@@ -115,44 +130,39 @@ public:
 	void GetPossibleConfigFiles(wxArrayString *array, wxString dir = wxEmptyString);
 	
 	// these just pass on through
-	virtual bool GetAutoCloseConsole() const { return settings->GetAutoCloseConsole(); };
-	virtual bool GetAutoUpdate() const { return settings->GetAutoUpdate(); };
-	virtual wxColour GetConsoleStderrColor() const { return settings->GetConsoleStderrColor(); };
-	virtual wxColour GetConsoleStdoutColor() const { return settings->GetConsoleStdoutColor(); };
-	virtual wxColour GetConsoleSysMsgColor() const { return settings->GetConsoleSysMsgColor(); };
-	virtual GUIMode GetGUIMode() const { return settings->GetGUIMode(); };
-	virtual wxFileName GetIconsDir() const { return settings->GetIconsDir(); };
-	virtual wxFileName GetInstDir() const { return settings->GetInstDir(); };
-	virtual wxFileName GetModsDir() const { return settings->GetModsDir(); };
-	virtual bool GetShowConsole() const { return settings->GetShowConsole(); };
-	virtual InstSortMode GetSortMode() const { return settings->GetInstSortMode(); }
-	
+	DEFINE_IGNORED_SETTING(AutoCloseConsole, bool);
+	DEFINE_IGNORED_SETTING(AutoUpdate, bool);
+	DEFINE_IGNORED_SETTING(ConsoleStderrColor, wxColour);
+	DEFINE_IGNORED_SETTING(ConsoleStdoutColor, wxColour);
+	DEFINE_IGNORED_SETTING(ConsoleSysMsgColor, wxColour);
+	DEFINE_IGNORED_SETTING(GUIMode, GUIMode);
+	DEFINE_IGNORED_SETTING(IconsDir, wxFileName);
+	DEFINE_IGNORED_SETTING(InstDir, wxFileName);
+	DEFINE_IGNORED_SETTING(ModsDir, wxFileName);
+	DEFINE_IGNORED_SETTING(ShowConsole, bool);
+	DEFINE_IGNORED_SETTING(InstSortMode, InstSortMode);
+
 	// and these are overrides
-	wxString GetJavaPath() const { return GetSetting<wxString>("JPath",settings->GetJavaPath()); };
-	wxString GetJvmArgs() const { return GetSetting<wxString>("JvmArgs",settings->GetJvmArgs()); };
-	int GetMaxMemAlloc() const { return GetSetting<int>("MaxMemoryAlloc",settings->GetMaxMemAlloc()); };
-	int GetMinMemAlloc() const { return GetSetting<int>("MinMemoryAlloc",settings->GetMinMemAlloc()); };
-	int GetMCWindowHeight() const { return GetSetting<int>("MCWindowHeight",settings->GetMCWindowHeight()); };
-	int GetMCWindowWidth() const { return GetSetting<int>("MCWindowWidth",settings->GetMCWindowWidth()); };
-	bool GetMCWindowMaximize() const { return GetSetting<bool>("MCWindowMaximize",settings->GetMCWindowMaximize()); };
-	bool GetUseAppletWrapper() const { return GetSetting<bool>("UseAppletWrapper",settings->GetUseAppletWrapper()); };
-	UpdateMode GetUpdateMode() const { return (UpdateMode) GetSetting<int>("UpdateMode",settings->GetUpdateMode()); };
-	virtual bool GetAutoLogin() const { return GetSetting<bool>("AutoLogin", settings->GetAutoLogin()); }
+	DEFINE_OVERRIDDEN_SETTING_ADVANCED(JavaPath, "JPath", wxString);
+	DEFINE_OVERRIDDEN_SETTING(JvmArgs, wxString);
 
-	virtual bool GetJavaOverride() const { return GetSetting<bool>("OverrideJava", false); };
-	virtual void SetJavaOverride( bool value ) {  SetSetting<bool>("OverrideJava", value); };
+	DEFINE_OVERRIDDEN_SETTING_ADVANCED(MaxMemAlloc, "MaxMemoryAlloc", int);
+	DEFINE_OVERRIDDEN_SETTING_ADVANCED(MinMemAlloc, "MinMemoryAlloc", int);
 
-	virtual bool GetMemoryOverride() const { return GetSetting<bool>("OverrideMemory", false); };
-	virtual void SetMemoryOverride( bool value ) {  SetSetting<bool>("OverrideMemory", value); };
+	DEFINE_OVERRIDDEN_SETTING(MCWindowHeight, int);
+	DEFINE_OVERRIDDEN_SETTING(MCWindowWidth, int);
+	DEFINE_OVERRIDDEN_SETTING(MCWindowMaximize, bool);
+	DEFINE_OVERRIDDEN_SETTING(UseAppletWrapper, bool);
 
-	virtual bool GetWindowOverride() const { return GetSetting<bool>("OverrideWindow", false); };
-	virtual void SetWindowOverride( bool value ) {  SetSetting<bool>("OverrideWindow", value); };
+	UpdateMode GetUpdateMode() const { return (UpdateMode)GetSetting<int>("UpdateMode", settings->GetUpdateMode()); };
 
-	virtual bool GetUpdatesOverride() const { return GetSetting<bool>("OverrideUpdates", false); };
-	virtual void SetUpdatesOverride( bool value ) {  SetSetting<bool>("OverrideUpdates", value); };
+	DEFINE_OVERRIDDEN_SETTING(AutoLogin, bool);
 
-	virtual bool GetLoginOverride() const { return GetSetting<bool>("OverrideLogin", false); }
-	virtual void SetLoginOverride(bool value) {    SetSetting<bool>("OverrideLogin", value); }
+	DEFINE_OVERRIDE_SETTING(Java);
+	DEFINE_OVERRIDE_SETTING(Memory);
+	DEFINE_OVERRIDE_SETTING(Window);
+	DEFINE_OVERRIDE_SETTING(Updates);
+	DEFINE_OVERRIDE_SETTING(Login);
 	
 	// and these are specific to instances only
 	wxString GetJarVersion() const { return GetSetting<wxString>("JarVersion","Unknown"); };
