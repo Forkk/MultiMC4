@@ -44,7 +44,6 @@ LocaleHelper::~LocaleHelper()
 bool LocaleHelper::UpdateLangList()
 {
 	m_langDefs.Clear();
-	m_langDefs.Add(LanguageDef("English", wxLANGUAGE_ENGLISH));
 
 	wxDir dir(Path::Combine(wxGetCwd(), "lang"));
 
@@ -170,6 +169,7 @@ bool InstallLangFiles()
 	const int langFileCount = 1;
 	LangFileDef langFiles[] = 
 	{
+		DEFINE_LANGFILE(en),
 		DEFINE_LANGFILE(es),
 	};
 
