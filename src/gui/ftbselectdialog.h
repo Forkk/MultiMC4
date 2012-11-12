@@ -16,26 +16,16 @@
 
 #pragma once
 #include "listselectdialog.h"
-#include "mcversionlist.h"
-#include <vector>
 
-class SnapshotDialog : public ListSelectDialog
+class SelectFTBDialog : public ListSelectDialog
 {
 public:
-	SnapshotDialog(wxWindow *parent);
-	bool GetSelectedVersion(MCVersion & out);
+	SelectFTBDialog(wxWindow *parent, const wxString& ftbDir);
+
+	wxString GetSelectedFolder() const;
 
 protected:
-	void Refilter();
-	virtual void LoadList();
 	virtual bool DoLoadList();
-	virtual wxString OnGetItemText(long item, long column);
-	void OnCheckbox(wxCommandEvent& event);
-	
-	// data
-	int typeColumnWidth;
-	std::vector<unsigned> visibleIndexes;
-	bool showOldSnapshots;
-	
-	DECLARE_EVENT_TABLE()
+
+	wxString m_ftbDir;
 };

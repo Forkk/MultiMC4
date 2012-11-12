@@ -1,127 +1,137 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
+# Copyright 2012 MultiMC Contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: MultiMC Translation\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-11 21:17-0600\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2012-11-11 21:22-0600\n"
+"Last-Translator: Andrew Okin <forkk@forkk.net>\n"
+"Language-Team: MultiMC\n"
+"Language: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #: gui/modeditwindow.cpp:63 gui/modeditwindow.cpp:102
 #: gui/modeditwindow.cpp:133 gui/modeditwindow.cpp:163
 #: gui/savemgrwindow.cpp:67
 msgid "&Add"
-msgstr ""
+msgstr "&Agregar"
 
 #: gui/changeicondialog.cpp:42
 msgid "&Add Icon"
-msgstr ""
+msgstr "&Agregar Icono"
 
 #: gui/consolewindow.cpp:670
 msgid "&Cancel"
-msgstr ""
+msgstr "&Cancelar"
 
 #: gui/mainwindow.cpp:297
 msgid "&Change Icon"
-msgstr ""
+msgstr "&Cambiar Icono"
 
 #: gui/updatepromptdlg.cpp:37
 msgid "&Changelog"
-msgstr ""
+msgstr "&Cambios"
 
 #: gui/aboutdlg.cpp:76 gui/consolewindow.cpp:77 gui/modeditwindow.cpp:193
 #: gui/savemgrwindow.cpp:98
 msgid "&Close"
-msgstr ""
+msgstr "&Cerrar"
 
 #: gui/savemgrwindow.cpp:70
 msgid "&Delete"
-msgstr ""
+msgstr "&Eliminar"
 
 #: gui/mainwindow.cpp:302
 msgid "&Edit Mods"
-msgstr ""
+msgstr "&Editar Mods"
 
 #: gui/modeditwindow.cpp:187
 msgid "&Export"
-msgstr ""
+msgstr "&Exportar"
 
 #: gui/logindialog.cpp:59
 msgid "&Force update"
-msgstr ""
+msgstr "&Forzar Actualizacion"
 
 #: gui/aboutdlg.cpp:73
 msgid "&Licenses"
-msgstr ""
+msgstr "&Licensia"
 
 #: gui/mainwindow.cpp:301
 msgid "&Manage Saves"
-msgstr ""
+msgstr "&Administrar Guardados"
 
 #: gui/mainwindow.cpp:298
 msgid "&Notes"
-msgstr ""
+msgstr "&Notas"
 
 #: gui/mainwindow.cpp:293 gui/mainwindow.cpp:365
 msgid "&Play"
-msgstr ""
+msgstr "&Iniciar"
 
 #: gui/importpackwizard.cpp:76 gui/listselectdialog.cpp:54
 #: gui/savemgrwindow.cpp:93
 msgid "&Refresh"
-msgstr ""
+msgstr "&Actualizar"
 
 #: gui/modeditwindow.cpp:183
 msgid "&Reload"
-msgstr ""
+msgstr "&Recargar"
 
 #: gui/changeicondialog.cpp:48
 msgid "&Reload Icons"
-msgstr ""
+msgstr "&Recargar Iconos"
 
 #: gui/logindialog.cpp:62
 msgid "&Remember username?"
-msgstr ""
+msgstr "&¿Recordar nombre de usuario?"
 
 #: gui/modeditwindow.cpp:67 gui/modeditwindow.cpp:106
 #: gui/modeditwindow.cpp:137 gui/modeditwindow.cpp:167
 msgid "&Remove"
-msgstr ""
+msgstr "&Eliminar"
 
 #: gui/changeicondialog.cpp:45
 msgid "&Remove Icon"
-msgstr ""
+msgstr "&Eliminar Icono"
 
 #: gui/mainwindow.cpp:295 gui/mainwindow.cpp:313 gui/mainwindow.cpp:371
 msgid "&Rename"
-msgstr ""
+msgstr "&Renombrar"
 
 #: gui/mainwindow.cpp:299
 msgid "&Settings"
-msgstr ""
+msgstr "&Opciones"
 
 #: gui/importpackwizard.cpp:73
 msgid "&View Central Mods Folder"
-msgstr ""
+msgstr "&Ver Folder Central de Mods"
 
 #: gui/mainwindow.cpp:307 gui/mainwindow.cpp:390 gui/modeditwindow.cpp:112
 #: gui/modeditwindow.cpp:143 gui/modeditwindow.cpp:173
 msgid "&View Folder"
-msgstr ""
+msgstr "&Ver Folder"
 
 #: gui/mainwindow.cpp:838 gui/mainwindow.cpp:855
 msgid "(C) 2012 MultiMC Contributors"
-msgstr ""
+msgstr "(C) Contribuidores 2012 MultiMC "
 
 #: gui/mainwindow.cpp:267
 msgid ". Make sure it exists!"
@@ -129,107 +139,110 @@ msgstr ""
 
 #: tasks/logintask.cpp:92
 msgid "503 - login servers unavailable. Check help.mojang.com!"
-msgstr ""
+msgstr "503 - Servidores de sesión inaccesibles. Revisa help.mojang.com !"
 
 #: gui/consolewindow.cpp:672
 msgid "A crash report has been generated. What would you like to do with it?"
-msgstr ""
+msgstr "Un reporte de error a sido generado. ¿Que quieres hacer con el?"
 
 #: multimc.cpp:343
 msgid ""
 "A fatal error has occurred and MultiMC has to exit. Sorry for the "
 "inconvenience."
 msgstr ""
+"Un error fatal ha ocurrido y MultiMC a tenido que cerrar. Perdone la "
+"inconveniencia."
 
 #: gui/mainwindow.cpp:194
 msgid "About"
-msgstr ""
+msgstr "Acerca de"
 
 #: gui/aboutdlg.cpp:30 gui/mainwindow.cpp:196
 msgid "About MultiMC"
-msgstr ""
+msgstr "Acerca MultiMC"
 
 #: gui/mainwindow.cpp:154
 msgid "Add"
-msgstr ""
+msgstr "Añadir"
 
 #: gui/modeditwindow.cpp:64
 msgid "Add a jar mod."
-msgstr ""
+msgstr "Añadir un mod a jar"
 
 #: gui/mainwindow.cpp:156
 msgid "Add a new Minecraft instance."
-msgstr ""
+msgstr "Añadir una nueva instancia de Minecraft"
 
 #: gui/modeditwindow.cpp:103
 msgid "Add a new forge core mod."
-msgstr ""
+msgstr "Añadir un nuevo mod de Core Forge"
 
 #: gui/mainwindow.cpp:143 gui/mainwindow.cpp:149 gui/mainwindow.cpp:156
 #: gui/mainwindow.cpp:569
 msgid "Add a new instance."
-msgstr ""
+msgstr "Añadir una nueva instancia."
 
 #: gui/modeditwindow.cpp:134
 msgid "Add a new modloader mod."
-msgstr ""
+msgstr "Añadir un nuevo mod de Modloader"
 
 #: gui/modeditwindow.cpp:164
 msgid "Add a new texture pack."
-msgstr ""
+msgstr "Añadir un nuevo paquete de texturas."
 
 #: gui/mainwindow.cpp:149
 msgid "Add instance"
-msgstr ""
+msgstr "Añadir Instancia."
 
 #: tasks/exportpacktask.cpp:42
 msgid "Adding config files..."
-msgstr ""
+msgstr "Añadiendo archivo de configuraciones..."
 
 #: tasks/filedownloadtask.cpp:43
 msgid "An error occurred when downloading the file.\n"
-msgstr ""
+msgstr "Un error a ocurrido cuando descargando el archivo.\n"
 
 #: gui/mainwindow.cpp:845
 msgid "Andrew Okin <forkk@forkk.net>"
-msgstr ""
+msgstr "Andrew Okin <forkk@forkk.net>"
 
 #: gui/consolewindow.cpp:396 gui/settingsdialog.cpp:532
 msgid "Are you sure?"
-msgstr ""
+msgstr "¿Estas seguro?"
 
 #: gui/settingsdialog.cpp:364
 msgid "Auto-detect"
-msgstr ""
+msgstr "Autodetectar"
 
 #: gui/settingsdialog.cpp:178
 msgid "Automatically close console when the game quits."
-msgstr ""
+msgstr "Cerrar automaticamente la consola cuando el juego cierre."
 
 #: gui/mainwindow.cpp:301
 msgid "Backup / restore your saves."
-msgstr ""
+msgstr "Copia de seguridad / Restorar tus salvados."
 
 #: gui/settingsdialog.cpp:142 gui/settingsdialog.cpp:153
 msgid "Browse..."
-msgstr ""
+msgstr "Buscar"
 
 #: gui/mainwindow.cpp:782
 #, c-format
 msgid "Build #%i is available. Would you like to download and install it?"
 msgstr ""
+"Compilacion #%i esta disponible. ¿Quieres descargarlo e instalarlo ahora?"
 
 #: gui/settingsdialog.cpp:39
 msgid "By Last Launched"
-msgstr ""
+msgstr "Por ultimo abierto"
 
 #: gui/settingsdialog.cpp:38
 msgid "By Name"
-msgstr ""
+msgstr "Por Nombre"
 
 #: data/mod.cpp:97
 msgid "Can't fine mod info file. Failed to open mod folder."
-msgstr ""
+msgstr "No puedo encontrar archivo de mod. Falla al abrir el folder de mod."
 
 #: langutils.cpp:182
 msgid "Can't install localizations. Failed to create directory."
@@ -239,38 +252,40 @@ msgstr ""
 #, c-format
 msgid "Can't patch because %s has been modified. Try force updating."
 msgstr ""
+"No se puede parchear porque %s a sido modificado. Intenta forzar "
+"actualizacion."
 
 #: gui/updatepromptdlg.cpp:42
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: gui/settingsdialog.cpp:471
 msgid "Central mods directory changed."
-msgstr ""
+msgstr "Folder de mods centrales cambiado."
 
 #: gui/mainwindow.cpp:373
 msgid "Change &Icon"
-msgstr ""
+msgstr "Cambiar &Icono"
 
 #: gui/mainwindow.cpp:296 gui/mainwindow.cpp:1071
 msgid "Change Group"
-msgstr ""
+msgstr "Cambiar Grupo"
 
 #: gui/changeicondialog.cpp:32
 msgid "Change Icon"
-msgstr ""
+msgstr "Cambiar Icono"
 
 #: gui/mainwindow.cpp:305
 msgid "Change LWJGL"
-msgstr ""
+msgstr "Cambiar LWJGL"
 
 #: gui/mainwindow.cpp:177
 msgid "Change MultiMC or Minecraft settings."
-msgstr ""
+msgstr "Cambiar MultiMC u opciones de Minecraft "
 
 #: gui/mainwindow.cpp:299
 msgid "Change instance settings."
-msgstr ""
+msgstr "Cambiar opciones de instancia."
 
 #: gui/mainwindow.cpp:296
 msgid "Change the instance's group."

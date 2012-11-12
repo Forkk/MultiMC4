@@ -45,6 +45,7 @@
 #include "stdinstance.h"
 #include <mcversionlist.h>
 #include "lwjglinstalltask.h"
+#include "ftbselectdialog.h"
 
 #include "instancectrl.h"
 
@@ -143,6 +144,7 @@ MainWindow::MainWindow(void)
 		addInstMenu->Append(ID_CopyInst, _("Copy selected instance."));
 		addInstMenu->Append(ID_ImportInst, _("Import existing .minecraft folder"));
 		addInstMenu->Append(ID_ImportCP, _("Import config pack"));
+		addInstMenu->Append(ID_ImportFTB, _("Import from FTB launcher."));
 
 		auto tool = mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."), wxITEM_DROPDOWN);
 		tool->SetDropdownMenu(addInstMenu);
@@ -568,6 +570,7 @@ void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 	addInstMenu->Append(ID_CopyInst, _("Copy selected instance."));
 	addInstMenu->Append(ID_ImportInst, _("Import existing .minecraft folder"));
 	addInstMenu->Append(ID_ImportCP, _("Import config pack"));
+	addInstMenu->Append(ID_ImportFTB, _("Import from FTB launcher."));
 	PopupMenu(addInstMenu);
 	wxDELETE(addInstMenu);
 #endif
@@ -648,6 +651,58 @@ void MainWindow::OnImportCPClicked(wxCommandEvent& event)
 	}
 }
 
+void MainWindow::OnImportFTBClicked(wxCommandEvent& event)
+{
+	// Select the launcher folder.
+	wxDirDialog dirDlg(this, _("Please select your FTB launcher folder."));
+	dirDlg.CenterOnParent();
+	if (dirDlg.ShowModal() == wxID_OK && wxDirExists(dirDlg.GetPath()))
+	{
+		// Choose a pack to import.
+		SelectFTBDialog selDialog(this, dirDlg.GetPath());
+		selDialog.CenterOnParent();
+		if (selDialog.ShowModal() == wxID_OK)
+		{
+			// Name the instance.
+			wxString instName;
+			wxString instDirName;
+			if (GetNewInstName(&instName, &instDirName, _("Import FTB pack.")))
+			{
+				instDirName = Path::Combine(settings->GetInstDir(), instDirName);
+
+				// Create the instance.
+				wxMkdir(instDirName);
+
+				Instance *inst = new StdInstance(instDirName);
+				inst->SetName(instName);
+				
+				// Just to be safe...
+				wxRmDir(inst->GetMCDir().GetFullPath());
+
+				// Copy the pack to its new instance folder.
+				FileCopyTask *copyTask = new FileCopyTask(
+					selDialog.GetSelectedFolder(), instDirName);
+				StartTask(copyTask);
+				delete copyTask;
+
+				// Make some corrections
+				if (!wxFileExists(inst->GetVersionFile().GetFullPath()) &&
+					wxFileExists(Path::Combine(inst->GetRootDir().GetFullPath(), "version")))
+				{
+					wxRenameFile(Path::Combine(inst->GetRootDir().GetFullPath(), "version"),
+						inst->GetVersionFile().GetFullPath());
+				}
+
+				// Set needs rebuild.
+				inst->SetNeedsRebuild();
+
+				// Add the instance.
+				AddInstance(inst);
+			}
+		}
+	}
+}
+
 void MainWindow::OnViewFolderClicked(wxCommandEvent& event)
 {
 	if (!settings->GetInstDir().DirExists())
@@ -699,6 +754,12 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 				ciURL.c_str(), dlFileName.c_str());
 			DownloadInstallUpdates(dlURL);
 		}
+
+		if (settingsDlg.ShouldRestartNow())
+		{
+			wxGetApp().exitAction = MultiMC::EXIT_RESTART;
+			Close(false);
+		}
 	}
 }
 
@@ -723,14 +784,19 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 
 		UpdatePromptDialog updatePrompt (this, updateMsg);
 		updatePrompt.CenterOnParent();
-		if (updatePrompt.ShowModal() == wxID_OK)
+		int response = updatePrompt.ShowModal();
+		if (response == ID_UpdateNow)
 		{
 			DownloadInstallUpdates(event.m_downloadURL);
+		}
+		else if (response == ID_UpdateLater)
+		{
+			DownloadInstallUpdates(event.m_downloadURL, false);
 		}
 	}
 }
 
-void MainWindow::DownloadInstallUpdates(const wxString &downloadURL)
+void MainWindow::DownloadInstallUpdates(const wxString &downloadURL, bool installNow)
 {
 #if WINDOWS
 	wxString updaterFileName = "MultiMCUpdate.exe";
@@ -739,10 +805,22 @@ void MainWindow::DownloadInstallUpdates(const wxString &downloadURL)
 #endif
 
 	auto dlTask = new FileDownloadTask(downloadURL, wxFileName(updaterFileName), _("Downloading updates..."));
-	wxGetApp().updateOnExit = true;
-	StartTask(dlTask);
-	delete dlTask;
-	Close(false);
+
+	if (installNow)
+	{
+		// Download and install in the foreground.
+		StartTask(dlTask);
+		delete dlTask;
+		wxGetApp().exitAction = MultiMC::EXIT_UPDATE_RESTART;
+		Close(false);
+	}
+	else
+	{
+		// Download in the background and install on exit.
+		// FIXME: If MultiMC closes before the download finishes, the update will not install.
+		dlTask->Start(this, false);
+		wxGetApp().exitAction = MultiMC::EXIT_UPDATE;
+	}
 }
 
 void MainWindow::OnHelpClicked(wxCommandEvent& event)
@@ -1473,6 +1551,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_CopyInst, MainWindow::OnCopyInstClicked)
 	EVT_MENU(ID_ImportInst, MainWindow::OnImportMCFolder)
 	EVT_MENU(ID_ImportCP, MainWindow::OnImportCPClicked)
+	EVT_MENU(ID_ImportFTB, MainWindow::OnImportFTBClicked)
 
 	EVT_MENU(ID_Play, MainWindow::OnPlayClicked)
 	

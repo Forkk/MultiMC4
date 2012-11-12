@@ -49,8 +49,9 @@ bool MultiMC::OnInit()
 	// Only works with Linux GCC or MSVC
 	wxHandleFatalExceptions();
 #endif
-	updateOnExit = false;
+	exitAction = EXIT_NORMAL;
 	startMode = START_NORMAL;
+	updateQuiet = false;
 	useProvidedDir = false;
 
 	// This is necessary for the update system since it calls OnInitCmdLine
@@ -87,10 +88,16 @@ bool MultiMC::OnInit()
 		return false;
 	}
 
+	SetAppName(_("MultiMC"));
+	InstallLangFiles();
+	localeHelper.UpdateLangList();
+
 	// Load language.
 	if (!localeHelper.SetLanguage((wxLanguage)settings->GetLanguage()))
 	{
-		wxLogError(_("Failed to set language. Using English."));
+		settings->SetLanguage(wxLANGUAGE_ENGLISH);
+		localeHelper.SetLanguage(wxLANGUAGE_ENGLISH);
+		wxLogError(_("Failed to set language. Language set to English."));
 	}
 	
 	wxString cwd = wxGetCwd();
@@ -99,8 +106,6 @@ bool MultiMC::OnInit()
 		wxLogError(_("MultiMC has been started from a path that contains '!':\n%s\nThis would break Minecraft. Please move it to a different place."), cwd.c_str());
 		return false;
 	}
-
-	SetAppName(_("MultiMC"));
 
 	wxInitAllImageHandlers();
 	wxSocketBase::Initialize();
@@ -190,6 +195,8 @@ bool MultiMC::OnCmdLineParsed(wxCmdLineParser& parser)
 	}
 	if (parser.Found("u", &parsedOption))
 	{
+		updateQuiet = parser.Found("U");
+
 		thisFileName = wxStandardPaths::Get().GetExecutablePath();
 		updateTarget = parsedOption;
 		startMode = START_INSTALL_UPDATE;
@@ -255,9 +262,13 @@ and that MultiMC's updater has sufficient permissions to replace the file \n\
 	wxYieldIfNeeded();
 	
 	targetFile.MakeAbsolute();
-	wxProcess proc;
-	wxExecute("\"" + targetFile.GetFullPath() + "\"", wxEXEC_ASYNC, &proc);
-	proc.Detach();
+
+	if (!updateQuiet)
+	{
+		wxProcess proc;
+		wxExecute("\"" + targetFile.GetFullPath() + "\"", wxEXEC_ASYNC, &proc);
+		proc.Detach();
+	}
 	progDlg->Destroy();
 }
 
@@ -279,7 +290,8 @@ int MultiMC::OnExit()
 	wxString updaterFileName = "MultiMCUpdate";
 #endif
 
-	if (updateOnExit && wxFileExists(updaterFileName))
+	if ((exitAction == EXIT_UPDATE_RESTART || exitAction == EXIT_UPDATE) && 
+		wxFileExists(updaterFileName))
 	{
 		wxFileName updateFile(updaterFileName);
 #if LINUX || OSX
@@ -306,6 +318,20 @@ int MultiMC::OnExit()
 		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
 		proc.Detach();
 	}
+	else if (exitAction == EXIT_RESTART)
+	{
+		wxProcess proc;
+
+		// Put together the command that MultiMC launched with.
+		wxString launchCmd;
+		for (int i = 0; i < argc; i++)
+		{
+			launchCmd += wxString::Format("%s ", argv[i]);
+		}
+
+		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
+		proc.Detach();
+	}
 
 	delete settings;
 	
@@ -328,7 +354,7 @@ const wxIconBundle &MultiMC::GetAppIcons() const
 	return AppIcons;
 }
 
-const wxString licenseText = _(
+const wxString licenseText =
 "Copyright 2012 MultiMC Contributors\n\
 Licensed under the Apache License, Version 2.0 (the \"License\");\n\
 you may not use this file except in compliance with the License.\n\
@@ -365,4 +391,4 @@ OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n\
 HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n\
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING\n\
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n\
-POSSIBILITY OF SUCH DAMAGE.");
+POSSIBILITY OF SUCH DAMAGE.";

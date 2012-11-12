@@ -87,6 +87,11 @@ wxString Path::Combine(const wxString& path, const wxString& str)
 	return wxFileName(path, str).GetFullPath();
 }
 
+wxString Path::Combine(const wxString& path, const wxString& str, const wxString& str2)
+{
+	return Path::Combine(Path::Combine(path, str), str2);
+}
+
 wxString Path::GetParent(const wxString &path)
 {
 	wxFileName pathName = wxFileName::DirName(path);

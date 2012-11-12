@@ -20,6 +20,14 @@
 #include <lambdatask.h>
 #include <wx/dcclient.h>
 
+const wxString typeNames[4] = 
+{
+	_("Old snapshot"),
+	_("Old version"),
+	_("Current version"),
+	_("Snapshot")
+};
+
 SnapshotDialog::SnapshotDialog(wxWindow *parent)
 	: ListSelectDialog(parent, _("Select Minecraft version"))
 {

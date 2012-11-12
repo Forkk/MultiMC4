@@ -90,8 +90,9 @@ namespace Utils
 
 namespace Path
 {
-	wxString Combine(const wxString& path, const wxString& str);
 	wxString Combine(const wxFileName& path, const wxString& str);
+	wxString Combine(const wxString& path, const wxString& str);
+	wxString Combine(const wxString& path, const wxString& str, const wxString& str2);
 
 	wxString GetParent(const wxString &path);
 }

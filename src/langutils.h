@@ -19,20 +19,45 @@
 #include <wx/string.h>
 #include <wx/dynarray.h>
 
+// Represents a certain locale.
+struct LanguageDef
+{
+	LanguageDef(wxString name, long id);
+
+	wxString m_name;
+	int m_id;
+};
+
+WX_DECLARE_OBJARRAY(LanguageDef, LanguageArray);
+
 class LocaleHelper
 {
 public:
 	LocaleHelper();
 	~LocaleHelper();
 
-	// Gets a list of installed languages.
-	bool GetSupportedLanguages(wxArrayString& langs, wxArrayLong& ids);
+	// Updates the list of installed languages.
+	bool UpdateLangList();
 
 	// Sets the current language.
 	bool SetLanguage(long id);
 
 	wxLocale* GetLocale();
 
+	// Gets the language list.
+	const LanguageArray* GetLanguages() const;
+	LanguageArray* GetLanguages();
+
+	// Checks if a language is supported.
+	bool IsLanguageSupported(long langID) const;
+
 protected:
 	wxLocale* m_locale;
+
+	LanguageArray m_langDefs;
 };
+
+long GetDefaultLanguage();
+
+// Extract .mo files to their directories.
+bool InstallLangFiles();

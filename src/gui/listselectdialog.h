@@ -25,8 +25,8 @@ class ListSelectDialog : public wxDialog
 public:
 	ListSelectDialog(wxWindow *parent, const wxString& title);
 
-	wxString GetSelection();
-	int GetSelectedIndex();
+	wxString GetSelection() const;
+	int GetSelectedIndex() const;
 
 	virtual int ShowModal();
 

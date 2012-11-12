@@ -128,6 +128,7 @@ gui/textdisplaydialog.cpp
 gui/advancedmsgdlg.cpp
 gui/listselectdialog.cpp
 gui/lwjgldialog.cpp
+gui/ftbselectdialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -197,6 +198,7 @@ gui/textdisplaydialog.h
 gui/advancedmsgdlg.h
 gui/listselectdialog.h
 gui/lwjgldialog.h
+gui/ftbselectdialog.h
 
 data/appsettings.h
 data/instance.h
@@ -319,6 +321,9 @@ endif ()
 add_subdirectory(resources)
 add_subdirectory(launcher)
 
+# Compile localizations.
+add_subdirectory(lang)
+
 include_directories("${PROJECT_BINARY_DIR}")
 
 include_directories(
@@ -335,7 +340,7 @@ endif()
 
 # Add the executable.
 add_executable(MultiMC WIN32 ${SRCS} ${INCS})
-add_dependencies(MultiMC generate_headers generate_launcher)
+add_dependencies(MultiMC generate_headers generate_launcher generate_langheader)
 
 # Link the libraries.
 target_link_libraries(MultiMC

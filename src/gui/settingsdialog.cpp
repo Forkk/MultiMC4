@@ -41,6 +41,7 @@ const wxString sortModeLastLaunch = _("By Last Launched");
 SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s /* = settings */)
 	: wxDialog(parent, id, _("Settings"), wxDefaultPosition, wxSize(500, 450))
 {
+	m_shouldRestartMMC = false;
 	currentSettings = s;
 	wxBoxSizer *mainBox = new wxBoxSizer(wxVERTICAL);
 	SetSizer(mainBox);
@@ -106,11 +107,8 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			// Language combo box
 			{
 				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _("Language"));
-
-				wxGetApp().localeHelper.GetSupportedLanguages(langList, langIDList);
-
 				langSelectorBox = new wxComboBox(box->GetStaticBox(), -1, 
-					wxEmptyString, wxDefaultPosition, wxDefaultSize, langList, 
+					wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, 
 					wxCB_DROPDOWN | wxCB_READONLY);
 				box->Add(langSelectorBox, expandingItemFlags);
 
@@ -543,15 +541,18 @@ Are you sure you want to use dev builds?"),
 
 
 		// Apply language settings.
-		if (langSelectorBox->GetSelection() >= 0 && 
-			langSelectorBox->GetSelection() < langIDList.GetCount() &&
-			langIDList[langSelectorBox->GetSelection()] != currentSettings->GetLanguage())
+		bool languageSet = false;
+		wxString langName = langSelectorBox->GetStringSelection();
+		const LanguageArray* langs = wxGetApp().localeHelper.GetLanguages();
+		for (int i = 0; i < langs->size(); i++)
 		{
-			// Language has been changed.
-			currentSettings->SetLanguage(langIDList[langSelectorBox->GetSelection()]);
-
-			// We need to restart MultiMC.
-			needsRestart = true;
+			if (langs->operator[](i).m_name == langName &&
+				langs->operator[](i).m_id != currentSettings->GetLanguage())
+			{
+				// Set the language.
+				currentSettings->SetLanguage(langs->operator[](i).m_id);
+				needsRestart = true;
+			}
 		}
 	}
 	else
@@ -629,9 +630,13 @@ Are you sure you want to use dev builds?"),
 	
 	if (needsRestart)
 	{
-		wxMessageBox(
-			_("Some settings were changed that require MultiMC to restart before they take effect. Please close and restart MultiMC"),
-			_("Restart Required"));
+		if (wxMessageBox(
+			_("Some settings were changed that require MultiMC to restart before they take effect. "
+			  "Would you like to restart MultiMC now?"),
+			_("Restart Required"), wxYES_NO) == wxYES)
+		{
+			m_shouldRestartMMC = true;
+		}
 	}
 
 	return true;
@@ -676,11 +681,16 @@ void SettingsDialog::LoadSettings()
 			break;
 		}
 
-		for (int i = 0; i < langIDList.GetCount(); i++)
+		int selectedIndex = 0;
+		const LanguageArray* langs = wxGetApp().localeHelper.GetLanguages();
+		for (int i = 0; i < langs->size(); i++)
 		{
-			if (langIDList[i] == currentSettings->GetLanguage())
-				langSelectorBox->SetSelection(i);
+			long id = langs->operator[](i).m_id;
+			langSelectorBox->Append(langs->operator[](i).m_name);
+			if (id == currentSettings->GetLanguage())
+				selectedIndex = i;
 		}
+		langSelectorBox->SetSelection(selectedIndex);
 	}
 	else
 	{
@@ -816,6 +826,11 @@ void SettingsDialog::UpdateCheckboxStuff()
 bool SettingsDialog::GetForceUpdateMultiMC() const
 {
 	return !instanceMode && forceUpdateToggle->GetValue();
+}
+
+bool SettingsDialog::ShouldRestartNow() const
+{
+	return m_shouldRestartMMC;
 }
 
 
