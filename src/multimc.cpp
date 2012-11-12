@@ -354,7 +354,7 @@ const wxIconBundle &MultiMC::GetAppIcons() const
 	return AppIcons;
 }
 
-const wxString licenseText = _(
+const wxString licenseText =
 "Copyright 2012 MultiMC Contributors\n\
 Licensed under the Apache License, Version 2.0 (the \"License\");\n\
 you may not use this file except in compliance with the License.\n\
@@ -391,4 +391,4 @@ OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n\
 HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n\
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING\n\
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n\
-POSSIBILITY OF SUCH DAMAGE.");
+POSSIBILITY OF SUCH DAMAGE.";
