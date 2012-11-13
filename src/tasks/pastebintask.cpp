@@ -68,7 +68,7 @@ wxThread::ExitCode PastebinTask::TaskStart()
 	{
 		// Parse the response header for the redirect location.
 		m_pasteURL = outString.Mid(outString.Find("Location: ") + 10);
-		m_pasteURL = m_pasteURL.Mid(0, m_pasteURL.Find('\n'));
+		m_pasteURL = m_pasteURL.Mid(0, m_pasteURL.Find('\r'));
 		return (ExitCode)1;
 	}
 	else
