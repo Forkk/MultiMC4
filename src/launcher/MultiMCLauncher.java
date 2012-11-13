@@ -45,10 +45,12 @@ public class MultiMCLauncher
 			System.out.println("Not enough arguments.");
 			System.exit(-1);
 		}
+		
 		String userName = args[0];
 		String sessionId = args[1];
 		String windowtitle = args[2];
 		String cwd = System.getProperty("user.dir");
+		System.out.println("Minecraft started from: " + cwd);
 		
 		Dimension winSize = new Dimension(854, 480);
 		boolean maximize = false;
@@ -230,7 +232,8 @@ public class MultiMCLauncher
 			mcArgs[0] = userName;
 			mcArgs[1] = sessionId;
 
-			String mcDir = 	mc.getMethod("a", String.class).invoke(null, (Object) "minecraft").toString();
+			//String mcDir = 	mc.getMethod("a", String.class).invoke(null, (Object) "minecraft").toString();
+			String mcDir = 	mc.getMethod("b").invoke(null).toString();
 
 			System.out.println("MCDIR: " + mcDir);
 			

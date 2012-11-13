@@ -55,6 +55,7 @@ wxThread::ExitCode ExportPackTask::TaskStart()
 	ptree pt;
 
 	pt.put<std::string>("name", MBSTR(m_packName));
+	pt.put<std::string>("MCversion", MBSTR(m_inst->GetJarVersion()));
 	pt.put<std::string>("notes", MBSTR(m_packNotes));
 
 

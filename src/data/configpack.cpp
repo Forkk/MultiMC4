@@ -63,6 +63,14 @@ ConfigPack::ConfigPack(const wxString& fileName)
 		read_json(jsonIn, pt);
 
 		m_packName = wxStr(pt.get<std::string>("name"));
+		if(pt.count("MCversion"))
+		{
+			m_minecraftVersion = wxStr(pt.get<std::string>("MCversion"));
+		}
+		else
+		{
+			m_minecraftVersion = "Unknown";
+		}
 		m_packNotes = wxStr(pt.get<std::string>("notes"));
 
 		// Load the jar mod list.
