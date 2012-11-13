@@ -275,7 +275,7 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 	char *buffer = new char[bufSize];
 	
 	size_t readSize = 0;
-	while (m_inst->IsRunning() && !TestDestroy() && wxProcess::Exists(instPid))
+	while ( 1 )
 	{
 		if (TestDestroy())
 			break;
@@ -283,12 +283,6 @@ void* InstConsoleWindow::InstConsoleListener::Entry()
 		// Read from input
 		wxString temp;
 		wxStringOutputStream tempStream(&temp);
-
-		if (!consoleStream->CanRead())
-		{
-			wxMilliSleep(100);
-			continue;
-		}
 
 		consoleStream->Read(buffer, bufSize);
 		readSize = consoleStream->LastRead();
