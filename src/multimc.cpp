@@ -167,9 +167,9 @@ bool MultiMC::OnInit()
 			{
 				mainWin->CenterOnScreen();
 			}
-			mainWin->Show();
 			mainWin->launchInstance = launchInstance;
 			mainWin->OnStartup();
+			mainWin->Hide();
 			return true;
 		}
 
