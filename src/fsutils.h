@@ -34,4 +34,6 @@ namespace fsutils
 	void TransferZipArchive(wxInputStream &stream, wxZipOutputStream &out);
 
 	bool CompressZipArchive(wxOutputStream &stream, const wxString &srcDir);
+	
+	bool SecureFile (const char * filename);
 }
