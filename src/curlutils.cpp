@@ -14,9 +14,8 @@
 //    limitations under the License.
 //
 
-#include "curlutils.h"
-
 #include "appsettings.h"
+#include "curlutils.h"
 
 size_t CurlBlankCallback(void* buffer, size_t size, size_t nmemb, void* userp)
 {
