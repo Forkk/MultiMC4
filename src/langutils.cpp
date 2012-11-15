@@ -208,12 +208,12 @@ bool InstallLangFiles()
 	if (!wxDirExists(langDir))
 		wxMkDir(langDir,wxS_DIR_DEFAULT);
 
-	const int langFileCount = 3;
+	const int langFileCount = 2;
 	LangFileDef langFiles[] = 
 	{
 		DEFINE_LANGFILE(en_us),
 		DEFINE_LANGFILE(en_gb),
-		DEFINE_LANGFILE(es_mx),
+		// DEFINE_LANGFILE(es_mx), translation is not complete yet
 	};
 
 	for (int i = 0; i < langFileCount; i++)
