@@ -96,6 +96,19 @@ protected:
 	wxCheckBox *autoLoginCheck;
 
 
+	// Network tab stuff
+	wxRadioButton* noProxyRBtn;
+	wxRadioButton* httpProxyRBtn;
+	wxRadioButton* socks4ProxyRBtn;
+	wxRadioButton* socks5ProxyRBtn;
+	wxTextCtrl* proxyHostTextbox;
+	wxTextCtrl* proxyPortTextbox;
+	wxTextCtrl* proxyUserTextbox;
+	wxTextCtrl* proxyPassTextbox;
+
+	long proxyPortValue;
+
+
 	// Other stuff
 	bool m_shouldRestartMMC;
 
@@ -117,4 +130,6 @@ enum
 	ID_OverrideLogin,
 
 	ID_UseSystemLang,
+
+	ID_UseProxy,
 };

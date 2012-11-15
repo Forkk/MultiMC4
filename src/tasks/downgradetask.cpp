@@ -87,7 +87,7 @@ bool DowngradeTask::DownloadPatches()
 		wxString downloadURL = baseURL + "/" + patchURLs[i];
 		wxString dest = Path::Combine("patches", patchURLs[i]);
 
-		CURL *curl = curl_easy_init();
+		CURL *curl = InitCurlHandle();
 
 		curl_easy_setopt(curl, CURLOPT_URL, TOASCII(downloadURL));
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);

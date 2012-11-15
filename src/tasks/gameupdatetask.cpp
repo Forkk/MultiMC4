@@ -152,7 +152,7 @@ void GameUpdateTask::DownloadJars()
 		struct curl_slist *headers = NULL;
 		headers = curl_slist_append(headers, stdStr("If-None-Match: " + etagOnDisk).c_str());
 		
-		CURL *curl = curl_easy_init();
+		CURL *curl = InitCurlHandle();
 		curl_easy_setopt(curl, CURLOPT_HEADER, true);
 		curl_easy_setopt(curl, CURLOPT_URL, TOASCII(jarURLs[i]));
 		curl_easy_setopt(curl, CURLOPT_NOBODY, true);
@@ -226,7 +226,7 @@ void GameUpdateTask::DownloadJars()
 			unsigned char md5digest[16];
 			int currentDownloadedSize = 0;
 			
-			CURL *curl = curl_easy_init();
+			CURL *curl = InitCurlHandle();
 			curl_easy_setopt(curl, CURLOPT_URL, TOASCII(currentFile.GetURL()));
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
 			curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, CurlLambdaCallback);

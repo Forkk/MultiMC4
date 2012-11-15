@@ -15,8 +15,11 @@
 //
 
 #include "settingsdialog.h"
+
 #include <wx/gbsizer.h>
 #include <wx/dir.h>
+#include <wx/valnum.h>
+
 #include <apputils.h>
 #include <fsutils.h>
 
@@ -167,13 +170,95 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 		}
 	}
 
+	// Network tab
+	if (!instanceMode)
+	{
+		auto networkPanel = new wxPanel(tabCtrl, -1);
+		auto networkSz = new wxBoxSizer(wxVERTICAL);
+		networkPanel->SetSizer(networkSz);
+		tabCtrl->AddPage(networkPanel, _("Network"), false);
+
+		// Proxy settings box
+		{
+			auto box = new wxStaticBoxSizer(wxVERTICAL, networkPanel, _("Proxy"));
+
+			// Proxy type
+			box->AddSpacer(4);
+			wxStaticText* proxyTypeLabel = new wxStaticText(box->GetStaticBox(), 
+				-1, _("Proxy Type: "));
+			box->Add(proxyTypeLabel, wxSizerFlags().Border(wxLEFT, 4));
+
+			wxBoxSizer* pTypeSz = new wxBoxSizer(wxHORIZONTAL);
+			box->Add(pTypeSz, wxSizerFlags(1).Border(wxBOTTOM | wxLEFT | wxRIGHT, 4).Expand());
+
+			auto rbtnSzFlags = itemFlags.Align(wxALIGN_TOP);
+			noProxyRBtn = new wxRadioButton(box->GetStaticBox(), ID_UseProxy, _("None"), 
+				wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+			pTypeSz->Add(noProxyRBtn, rbtnSzFlags);
+			httpProxyRBtn = new wxRadioButton(box->GetStaticBox(), ID_UseProxy, _("HTTP"));
+			pTypeSz->Add(httpProxyRBtn, rbtnSzFlags);
+			socks4ProxyRBtn = new wxRadioButton(box->GetStaticBox(), ID_UseProxy, _("SOCKS4"));
+			pTypeSz->Add(socks4ProxyRBtn, rbtnSzFlags);
+			socks5ProxyRBtn = new wxRadioButton(box->GetStaticBox(), ID_UseProxy, _("SOCKS5"));
+			pTypeSz->Add(socks5ProxyRBtn, rbtnSzFlags);
+
+
+			// Host / port
+			box->AddSpacer(4);
+			wxStaticText* hostPortLabel = new wxStaticText(box->GetStaticBox(), 
+				-1, _("Hostname / IP and Port:"));
+			box->Add(hostPortLabel, wxSizerFlags().Border(wxLEFT, 4));
+
+			wxBoxSizer* hostPortSz = new wxBoxSizer(wxHORIZONTAL);
+			box->Add(hostPortSz, wxSizerFlags(1).Border(wxBOTTOM | wxLEFT | wxRIGHT, 4).Expand());
+
+			proxyHostTextbox = new wxTextCtrl(box->GetStaticBox(), -1);
+			hostPortSz->Add(proxyHostTextbox, expandingItemsFlags);
+
+			proxyPortTextbox = new wxTextCtrl(box->GetStaticBox(), -1);
+			wxIntegerValidator<long> portValidator(&proxyPortValue);
+			portValidator.SetMin(1);
+			portValidator.SetMax(65535);
+			proxyPortTextbox->SetValidator(portValidator);
+			hostPortSz->Add(proxyPortTextbox, itemsFlags);
+
+			
+			// Username / password
+			box->AddSpacer(4);
+			wxGridBagSizer* credentialsSz = new wxGridBagSizer();
+			box->Add(credentialsSz, staticBoxInnerFlags);
+
+			wxStaticText* proxyUserLabel = new wxStaticText(box->GetStaticBox(), 
+				-1, _("Username:"));
+			credentialsSz->Add(proxyUserLabel, wxGBPosition(0, 0), wxGBSpan(1, 1), GBitemsFlags);
+			proxyUserTextbox = new wxTextCtrl(box->GetStaticBox(), -1);
+			credentialsSz->Add(proxyUserTextbox, wxGBPosition(0, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+			wxStaticText* proxyPassLabel = new wxStaticText(box->GetStaticBox(), 
+				-1, _("Password:"));
+			credentialsSz->Add(proxyPassLabel, wxGBPosition(1, 0), wxGBSpan(1, 1), GBitemsFlags);
+			proxyPassTextbox = new wxTextCtrl(box->GetStaticBox(), -1, wxEmptyString, 
+				wxDefaultPosition, wxDefaultSize, wxTE_PASSWORD);
+			credentialsSz->Add(proxyPassTextbox, wxGBPosition(1, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+			wxStaticText* passwarnLabel = new wxStaticText(box->GetStaticBox(), -1, 
+				_("Warning: Proxy password is stored in plaintext!"));
+			passwarnLabel->SetForegroundColour(wxColor("red"));
+			credentialsSz->Add(passwarnLabel, wxGBPosition(2, 0), wxGBSpan(1, 2), GBitemsFlags);
+
+			credentialsSz->AddGrowableCol(1);
+
+			networkSz->Add(box, staticBoxOuterFlags);
+		}
+	}
+
 	// Console tab
 	if(!instanceMode)
 	{
 		auto consolePanel = new wxPanel(tabCtrl, -1);
 		auto consoleSizer = new wxBoxSizer(wxVERTICAL);
 		consolePanel->SetSizer(consoleSizer);
-		tabCtrl->AddPage(consolePanel, _("Error console"), false);
+		tabCtrl->AddPage(consolePanel, _("Console"), false);
 		// Console settings group box
 		{
 			auto box = new wxStaticBoxSizer(wxVERTICAL, consolePanel, _("Console Settings"));
@@ -565,6 +650,23 @@ Are you sure you want to use dev builds?"),
 				}
 			}
 		}
+
+		// Proxy settings
+		if (noProxyRBtn->GetValue())
+			currentSettings->SetProxyType(Proxy_None);
+		else if (httpProxyRBtn->GetValue())
+			currentSettings->SetProxyType(Proxy_HTTP);
+		else if (socks4ProxyRBtn->GetValue())
+			currentSettings->SetProxyType(Proxy_SOCKS4);
+		else if (socks5ProxyRBtn->GetValue())
+			currentSettings->SetProxyType(Proxy_SOCKS5);
+
+		currentSettings->SetProxyHostName(proxyHostTextbox->GetValue());
+		proxyPortTextbox->GetValidator()->TransferFromWindow();
+		currentSettings->SetProxyPort(proxyPortValue);
+
+		currentSettings->SetProxyUsername(proxyUserTextbox->GetValue());
+		currentSettings->SetProxyPassword(proxyPassTextbox->GetValue());
 	}
 	else
 	{
@@ -709,6 +811,33 @@ void SettingsDialog::LoadSettings()
 		langSelectorBox->SetSelection(selectedIndex);
 
 		useSystemLangCheck->SetValue(currentSettings->GetUseSystemLang());
+
+		// Proxy settings
+		switch (currentSettings->GetProxyType())
+		{
+		case Proxy_None:
+			noProxyRBtn->SetValue(true);
+			break;
+
+		case Proxy_HTTP:
+			httpProxyRBtn->SetValue(true);
+			break;
+
+		case Proxy_SOCKS4:
+			socks4ProxyRBtn->SetValue(true);
+			break;
+
+		case Proxy_SOCKS5:
+			socks5ProxyRBtn->SetValue(true);
+			break;
+		}
+
+		proxyHostTextbox->SetValue(currentSettings->GetProxyHostName());
+		proxyPortValue = currentSettings->GetProxyPort();
+		proxyPortTextbox->GetValidator()->TransferToWindow();
+
+		proxyUserTextbox->SetValue(currentSettings->GetProxyUsername());
+		proxyPassTextbox->SetValue(currentSettings->GetProxyPassword());
 	}
 	else
 	{
@@ -840,6 +969,11 @@ void SettingsDialog::UpdateCheckboxStuff()
 		winHeightSpin->Enable(!(winMaxCheckbox->GetValue() || compatCheckbox->GetValue()));
 
 		langSelectorBox->Enable(!useSystemLangCheck->GetValue());
+
+		proxyHostTextbox->Enable(!noProxyRBtn->GetValue());
+		proxyPortTextbox->Enable(!noProxyRBtn->GetValue());
+		proxyUserTextbox->Enable(!noProxyRBtn->GetValue());
+		proxyPassTextbox->Enable(!noProxyRBtn->GetValue());
 	}
 }
 
@@ -868,4 +1002,5 @@ BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_CHECKBOX(ID_OverrideUpdate, SettingsDialog::OnUpdateCheckboxes)
 	EVT_CHECKBOX(ID_OverrideMemory, SettingsDialog::OnUpdateCheckboxes)
 	EVT_CHECKBOX(ID_OverrideLogin, SettingsDialog::OnUpdateCheckboxes)
+	EVT_RADIOBUTTON(ID_UseProxy, SettingsDialog::OnUpdateCheckboxes)
 END_EVENT_TABLE()

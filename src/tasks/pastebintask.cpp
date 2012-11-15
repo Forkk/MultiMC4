@@ -34,7 +34,7 @@ wxThread::ExitCode PastebinTask::TaskStart()
 	SetStatus(_("Sending to pastebin..."));
 
 	// Create handle
-	CURL *curl = curl_easy_init();
+	CURL *curl = InitCurlHandle();
 	char errBuffer[CURL_ERROR_SIZE];
 
 	// URL encode

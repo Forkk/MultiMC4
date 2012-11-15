@@ -62,6 +62,14 @@ enum InstSortMode
 	Sort_LastLaunch,
 };
 
+enum ProxyType
+{
+	Proxy_None,
+	Proxy_HTTP,
+	Proxy_SOCKS4,
+	Proxy_SOCKS5,
+};
+
 #define STR_VALUE(val) #val
 
 #define DEFINE_SETTING_ADVANCED(funcName, cfgEntryName, typeName, defVal) \
@@ -124,6 +132,13 @@ public:
 	DEFINE_OVERRIDE_SETTING_BLANK(Java);
 	DEFINE_SETTING_ADVANCED(JavaPath, JPATH_FIELD_NAME, wxString, "java");
 	DEFINE_SETTING(JvmArgs, wxString, wxEmptyString);
+
+	DEFINE_ENUM_SETTING(ProxyType, ProxyType, Proxy_None);
+	DEFINE_SETTING(ProxyHostName, wxString, wxEmptyString);
+	DEFINE_SETTING(ProxyPort, long, 8080);
+	DEFINE_SETTING(ProxyUsername, wxString, wxEmptyString);
+	DEFINE_SETTING(ProxyPassword, wxString, wxEmptyString);
+	DEFINE_SETTING(ProxyDNS, bool, true);
 
 	DEFINE_FN_SETTING_ADVANCED(InstDir, "InstanceDir", wxFileName::DirName("instances"));
 	DEFINE_FN_SETTING(ModsDir, wxFileName::DirName("mods"));

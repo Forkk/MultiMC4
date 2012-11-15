@@ -23,3 +23,6 @@ size_t CurlBlankCallback(void *buffer, size_t size, size_t nmemb, void *userp);
 
 typedef std::function<size_t (void *buffer, size_t size)> CurlLambdaCallbackFunction;
 size_t CurlLambdaCallback(void *buffer, size_t size, size_t nmemb, void *userp);
+
+// Returns a CURL handle initialized with the default things such as proxy settings.
+CURL* InitCurlHandle();
