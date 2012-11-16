@@ -143,7 +143,7 @@ public:
 	DEFINE_IGNORED_SETTING(InstSortMode, InstSortMode);
 
 	// and these are overrides
-	DEFINE_OVERRIDDEN_SETTING_ADVANCED(JavaPath, "JPath", wxString);
+	DEFINE_OVERRIDDEN_SETTING_ADVANCED(JavaPath, JPATH_FIELD_NAME, wxString);
 	DEFINE_OVERRIDDEN_SETTING(JvmArgs, wxString);
 
 	DEFINE_OVERRIDDEN_SETTING_ADVANCED(MaxMemAlloc, "MaxMemoryAlloc", int);
