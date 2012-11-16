@@ -59,7 +59,7 @@ bool ChooseLWJGLDialog::DoLoadList()
 		std::stringstream inStream(stdStr(rssXML), std::ios::in);
 		read_xml(inStream, pt);
 
-		wxRegEx lwjglRegex(wxT("^lwjgl-([0-9]\.?)+\.zip$"));
+		wxRegEx lwjglRegex(wxT("^lwjgl-([0-9]\\.?)+\\.zip$"));
 
 		BOOST_FOREACH(const ptree::value_type& v, pt.get_child("rss.channel"))
 		{
