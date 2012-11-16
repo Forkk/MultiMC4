@@ -1,7 +1,9 @@
-# SOME DESCRIPTIVE TITLE.
+# Russian language interface translation for MultiMC4
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Petr Mrázek <peterix@gmail.com>, 2012.
+# Jack Moorhouse <moverperfect@gmail.com>, 2012.
+# Sharkman <sharkman.ru@gmail.com>, 2012.
 #
 #, fuzzy
 msgid ""
@@ -9,8 +11,8 @@ msgstr ""
 "Project-Id-Version: MultiMC Translation\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-11 21:17-0600\n"
-"PO-Revision-Date: 2012-11-12 23:11+0000\n"
-"Last-Translator: Jack Moorhouse <moverperfect@gmail.com>\n"
+"PO-Revision-Date: 2012-11-16 15:25+0400\n"
+"Last-Translator: Sharkman <sharkman.ru@gmail.com>\n"
 "Language-Team: MultiMC\n"
 "Language: Russian\n"
 "MIME-Version: 1.0\n"
@@ -21,44 +23,44 @@ msgstr ""
 #: gui/modeditwindow.cpp:133 gui/modeditwindow.cpp:163
 #: gui/savemgrwindow.cpp:67
 msgid "&Add"
-msgstr "&добавлять"
+msgstr "&Добавить"
 
 #: gui/changeicondialog.cpp:42
 msgid "&Add Icon"
-msgstr "&добавить значок"
+msgstr "&Добавить иконку"
 
 #: gui/consolewindow.cpp:670
 msgid "&Cancel"
-msgstr "&отменить"
+msgstr "&Отменить"
 
 #: gui/mainwindow.cpp:297
 msgid "&Change Icon"
-msgstr "&изменить иконку"
+msgstr "&Изменить иконку"
 
 #: gui/updatepromptdlg.cpp:37
 msgid "&Changelog"
-msgstr "&журнал изменений"
+msgstr "&История изменений"
 
 #: gui/aboutdlg.cpp:76 gui/consolewindow.cpp:77 gui/modeditwindow.cpp:193
 #: gui/savemgrwindow.cpp:98
 msgid "&Close"
-msgstr "&близко"
+msgstr "&Закрыть"
 
 #: gui/savemgrwindow.cpp:70
 msgid "&Delete"
-msgstr "&удалить"
+msgstr "&Удалить"
 
 #: gui/mainwindow.cpp:302
 msgid "&Edit Mods"
-msgstr "&Редактировать модов"
+msgstr "&Редактировать дополнения"
 
 #: gui/modeditwindow.cpp:187
 msgid "&Export"
-msgstr "&экспорту"
+msgstr "&Экспорт"
 
 #: gui/logindialog.cpp:59
 msgid "&Force update"
-msgstr "&сила обновления"
+msgstr "Обновить в&ручную"
 
 #: gui/aboutdlg.cpp:73
 msgid "&Licenses"
@@ -66,53 +68,53 @@ msgstr "&Лицензии"
 
 #: gui/mainwindow.cpp:301
 msgid "&Manage Saves"
-msgstr "&управлять экономит"
+msgstr "&Сохранения"
 
 #: gui/mainwindow.cpp:298
 msgid "&Notes"
-msgstr "&заметки"
+msgstr "&Заметки"
 
 #: gui/mainwindow.cpp:293 gui/mainwindow.cpp:365
 msgid "&Play"
-msgstr "&играть"
+msgstr "&Запустить"
 
 #: gui/importpackwizard.cpp:76 gui/listselectdialog.cpp:54
 #: gui/savemgrwindow.cpp:93
 msgid "&Refresh"
-msgstr "&освежать"
+msgstr "&Обновить"
 
 #: gui/modeditwindow.cpp:183
 msgid "&Reload"
-msgstr "&перезагружать"
+msgstr "&Перезагрузить"
 
 #: gui/changeicondialog.cpp:48
 msgid "&Reload Icons"
-msgstr "&перезагрузить иконки"
+msgstr "&Перезагрузить иконки"
 
 #: gui/logindialog.cpp:62
 msgid "&Remember username?"
-msgstr "&запомнить имя пользователя?"
+msgstr "&Запомнить имя пользователя?"
 
 #: gui/modeditwindow.cpp:67 gui/modeditwindow.cpp:106
 #: gui/modeditwindow.cpp:137 gui/modeditwindow.cpp:167
 msgid "&Remove"
-msgstr "&удалять"
+msgstr "&Удалить"
 
 #: gui/changeicondialog.cpp:45
 msgid "&Remove Icon"
-msgstr "&удалять значок"
+msgstr "&Удалить значок"
 
 #: gui/mainwindow.cpp:295 gui/mainwindow.cpp:313 gui/mainwindow.cpp:371
 msgid "&Rename"
-msgstr "&переименовать"
+msgstr "&Переименовать"
 
 #: gui/mainwindow.cpp:299
 msgid "&Settings"
-msgstr "&настройки"
+msgstr "&Настройки"
 
 #: gui/importpackwizard.cpp:73
 msgid "&View Central Mods Folder"
-msgstr "&Просмотреть Центральной модов папки"
+msgstr "&Открыть главную папку с дополнениями"
 
 #: gui/mainwindow.cpp:307 gui/mainwindow.cpp:390 gui/modeditwindow.cpp:112
 #: gui/modeditwindow.cpp:143 gui/modeditwindow.cpp:173
@@ -121,26 +123,26 @@ msgstr "&Просмотр папки"
 
 #: gui/mainwindow.cpp:838 gui/mainwindow.cpp:855
 msgid "(C) 2012 MultiMC Contributors"
-msgstr "(C) 2012 MultiMC соавторы"
+msgstr "(C) 2012 соавторы MultiMC"
 
 #: gui/mainwindow.cpp:267
 msgid ". Make sure it exists!"
-msgstr ". Удостоверьтесь это существует!"
+msgstr ". Удостоверьтесь, что он существует!"
 
 #: tasks/logintask.cpp:92
 msgid "503 - login servers unavailable. Check help.mojang.com!"
-msgstr "503 - логин серверов Недоступные. Проверьте help.mojang.com!"
+msgstr "503 - сервера авторизации недоступны. Проверьте help.mojang.com!"
 
 #: gui/consolewindow.cpp:672
 msgid "A crash report has been generated. What would you like to do with it?"
-msgstr "Crash Report была сформирована. Что бы вы хотели с ним делать?"
+msgstr "Отчёт об ошибке был сформирован. Что желаете с ним сделать?"
 
 #: multimc.cpp:343
 msgid ""
 "A fatal error has occurred and MultiMC has to exit. Sorry for the "
 "inconvenience."
 msgstr ""
-"Произошла критическая ошибка и MultiMC имеет для выхода. Извините за "
+"Произошла критическая ошибка и MultiMC должен быть закрыт. Извините за "
 "неудобства."
 
 #: gui/mainwindow.cpp:194
@@ -153,11 +155,11 @@ msgstr "O MultiMC"
 
 #: gui/mainwindow.cpp:154
 msgid "Add"
-msgstr "Добавлять"
+msgstr "Добавить"
 
 #: gui/modeditwindow.cpp:64
 msgid "Add a jar mod."
-msgstr "Добавьте jar мод."
+msgstr "Добавить дополнение в jar."
 
 #: gui/mainwindow.cpp:156
 msgid "Add a new Minecraft instance."
@@ -165,7 +167,7 @@ msgstr "Добавить новый экземпляр Minecraft."
 
 #: gui/modeditwindow.cpp:103
 msgid "Add a new forge core mod."
-msgstr "Добавить новую выковать ядро мод."
+msgstr "Добавить новое дополнение ядра forge."
 
 #: gui/mainwindow.cpp:143 gui/mainwindow.cpp:149 gui/mainwindow.cpp:156
 #: gui/mainwindow.cpp:569
@@ -174,7 +176,7 @@ msgstr "Добавить новый экземпляр."
 
 #: gui/modeditwindow.cpp:134
 msgid "Add a new modloader mod."
-msgstr "Добавьте новый modloader мод."
+msgstr "Добавить новое дополнение для modloader."
 
 #: gui/modeditwindow.cpp:164
 msgid "Add a new texture pack."
@@ -182,11 +184,11 @@ msgstr "Добавить новый пакет текстур."
 
 #: gui/mainwindow.cpp:149
 msgid "Add instance"
-msgstr "Добавить экземпляра"
+msgstr "Добавить экземпляр"
 
 #: tasks/exportpacktask.cpp:42
 msgid "Adding config files..."
-msgstr "Добавление файлов конфигурации ..."
+msgstr "Добавление файлов конфигурации..."
 
 #: tasks/filedownloadtask.cpp:43
 msgid "An error occurred when downloading the file.\n"
@@ -194,7 +196,7 @@ msgstr "Произошла ошибка при загрузке файла.\n"
 
 #: gui/mainwindow.cpp:845
 msgid "Andrew Okin <forkk@forkk.net>"
-msgstr "Andrew Okin <forkk@forkk.net"
+msgstr "Andrew Okin <forkk@forkk.net>"
 
 #: gui/consolewindow.cpp:396 gui/settingsdialog.cpp:532
 msgid "Are you sure?"
@@ -206,69 +208,69 @@ msgstr "Автоопределение"
 
 #: gui/settingsdialog.cpp:178
 msgid "Automatically close console when the game quits."
-msgstr "Автоматически закрыть консоль, когда игра Квиты."
+msgstr "Автоматически закрывать консоль при выходе из игры."
 
 #: gui/mainwindow.cpp:301
 msgid "Backup / restore your saves."
-msgstr "Резервное копирование / восстановление ваши Сейвы."
+msgstr "Резервное копирование / восстановление сохранений."
 
 #: gui/settingsdialog.cpp:142 gui/settingsdialog.cpp:153
 msgid "Browse..."
-msgstr "Обзор ..."
+msgstr "Обзор..."
 
 #: gui/mainwindow.cpp:782
 #, c-format
 msgid "Build #%i is available. Would you like to download and install it?"
-msgstr "Построить #%i доступен. Хотели бы вы скачать и установить его?"
+msgstr "Сборка #%i доступна. Желаете скачать и установить её?"
 
 #: gui/settingsdialog.cpp:39
 msgid "By Last Launched"
-msgstr "По Последний запускаемых"
+msgstr "По времени последнего запуска"
 
 #: gui/settingsdialog.cpp:38
 msgid "By Name"
-msgstr "По Названию"
+msgstr "По названию"
 
 #: data/mod.cpp:97
 msgid "Can't fine mod info file. Failed to open mod folder."
-msgstr "Не удается найти файл мод информации. Не удалось открыть папку мод."
+msgstr "Не удалось найти файл информации о дополнении. Нвозможно открыть папку дополнения."
 
 #: langutils.cpp:182
 msgid "Can't install localizations. Failed to create directory."
-msgstr "Не удается установить локализаций. Не удалось создать каталог."
+msgstr "Не удалось установить переводы. Невозможно создать каталог."
 
 #: tasks/downgradetask.cpp:191
 #, c-format
 msgid "Can't patch because %s has been modified. Try force updating."
-msgstr "Не может потому, что патч %s было изменено. Попробуйте сила в обновлении."
+msgstr "Не удалось пропатчить потому, что %s было изменено. Попробуйте обновиться вручную."
 
 #: gui/updatepromptdlg.cpp:42
 msgid "Cancel"
-msgstr "отменить"
+msgstr "Отмена"
 
 #: gui/settingsdialog.cpp:471
 msgid "Central mods directory changed."
-msgstr "Центральный каталог модов изменились."
+msgstr "Главный каталог дополнений изменился."
 
 #: gui/mainwindow.cpp:373
 msgid "Change &Icon"
-msgstr "Изменение &Icon"
+msgstr "Изменить &иконку"
 
 #: gui/mainwindow.cpp:296 gui/mainwindow.cpp:1071
 msgid "Change Group"
-msgstr "Изменение группы"
+msgstr "Изменить группу"
 
 #: gui/changeicondialog.cpp:32
 msgid "Change Icon"
-msgstr "Сменить значок"
+msgstr "Изменить иконку"
 
 #: gui/mainwindow.cpp:305
 msgid "Change LWJGL"
-msgstr "Изменение LWJGL"
+msgstr "Изменить LWJGL"
 
 #: gui/mainwindow.cpp:177
 msgid "Change MultiMC or Minecraft settings."
-msgstr "Изменение MultiMC или Minecraft настройки."
+msgstr "Изменить настройки MultiMC или Minecraft."
 
 #: gui/mainwindow.cpp:299
 msgid "Change instance settings."
@@ -276,7 +278,7 @@ msgstr "Изменить настройки экземпляра."
 
 #: gui/mainwindow.cpp:296
 msgid "Change the instance's group."
-msgstr "Изменить группы экземпляра."
+msgstr "Изменить группу экземпляра."
 
 #: gui/mainwindow.cpp:295
 msgid "Change the instance's name."
@@ -284,43 +286,43 @@ msgstr "Изменить имя экземпляра."
 
 #: gui/mainwindow.cpp:297
 msgid "Change this instance's icon."
-msgstr "Изменить значка данного экземпляра."
+msgstr "Изменить иконку экземпляра."
 
 #: gui/mainwindow.cpp:181
 msgid "Check for MultiMC updates."
-msgstr "Проверьте наличие MultiMC обновления."
+msgstr "Проверить на наличие обновлений MultiMC."
 
 #: gui/mainwindow.cpp:179
 msgid "Check for updates"
-msgstr "Проверить наличие обновлений"
+msgstr "Проверить на наличие обновлений"
 
 #: gui/settingsdialog.cpp:123
 msgid "Check for updates when MultiMC starts?"
-msgstr "Проверить наличие обновлений, когда MultiMC начинается?"
+msgstr "Проверять обновления при запуске MultiMC?"
 
 #: tasks/gameupdatetask.cpp:358
 msgid "Checking cache for existing files..."
-msgstr "Проверка кэше для существующих файлов ..."
+msgstr "Поиск существующих файлов в кеше..."
 
 #: tasks/gameupdatetask.cpp:360
 msgid "Checking cache for existing files: "
-msgstr "Проверка кэше для существующего файла: "
+msgstr "Поиск существующих файлов в кеше: "
 
 #: gui/exportinstwizard.cpp:59
 msgid "Choose Included Configs"
-msgstr "Выбери Включено Конфиги"
+msgstr "Выберите нужные файлы конфигурации"
 
 #: gui/lwjgldialog.cpp:33
 msgid "Choose LWJGL Version"
-msgstr "Выбери LWJGL версия"
+msgstr "Выберите версию LWJGL"
 
 #: gui/mainwindow.cpp:636
 msgid "Choose a pack to import."
-msgstr "Выбрать пакет для импорта."
+msgstr "Выберите пакет для импорта."
 
 #: gui/changeicondialog.cpp:110
 msgid "Choose an icon to add."
-msgstr "Выбери значок, чтобы добавить."
+msgstr "Выберите иконку для добавления."
 
 #: gui/modeditwindow.cpp:194
 msgid "Close this window."
@@ -333,10 +335,10 @@ msgid ""
 "with certain mods,but it will disable certain features such as setting "
 "Minecraft's windowsize and icon."
 msgstr ""
-"Режим совместимости запускает Minecraft с использованием старых Minecraft.main () метод, "
-"вместо использования MultiMC'sAppletWrapper. Это должно помочь исправить несколько проблем "
-"с определенными модов, но это будет отключить определенные функции, такие как настройка "
-"Minecraft's размер окна и значок."
+"Режим совместимости запускает Minecraft с использованием старого вызова Minecraft.main(), "
+"вместо использования sAppletWrapper из MultiMC. Это может помочь исправить некоторые проблемы "
+"с определёнными дополнениями, но также из-за этого будут отключены определённые функции, такие как настройка "
+"размера окна и иконки Minecraft."
 
 #: gui/settingsdialog.cpp:256
 msgid "Compatibility mode?"
@@ -344,7 +346,7 @@ msgstr "Режим совместимости?"
 
 #: gui/exportinstwizard.cpp:34
 msgid "Config Pack Info"
-msgstr "конфиг упаковывать информация"
+msgstr "Информация о пакете файлов конфигурации"
 
 #: gui/settingsdialog.cpp:175
 msgid "Console Settings"
@@ -356,19 +358,19 @@ msgstr "Продолжить?"
 
 #: gui/mainwindow.cpp:375
 msgid "Copy Instance"
-msgstr "Копировать экземпляра"
+msgstr "Скопировать экземпляр"
 
 #: gui/mainwindow.cpp:1101
 msgid "Copy existing instance"
-msgstr "Скопируйте существующий экземпляр"
+msgstr "Скопировать существующий экземпляр"
 
 #: gui/mainwindow.cpp:144 gui/mainwindow.cpp:570
 msgid "Copy selected instance."
-msgstr "Скопируйте выбранный экземпляр."
+msgstr "Скопировать выбранный экземпляр."
 
 #: gui/consolewindow.cpp:669
 msgid "Copy to Clipboard"
-msgstr "Копировать в буфер обмена"
+msgstr "Скопировать в буфер обмена"
 
 #: tasks/filecopytask.cpp:43
 #, c-format
@@ -377,24 +379,24 @@ msgstr "Копирование %i файлов ..."
 
 #: gui/modeditwindow.cpp:91
 msgid "Coremods Folder"
-msgstr "Coremods папки"
+msgstr "Папка дополнений ядра"
 
 #: gui/mainwindow.cpp:550
 #, c-format
 msgid "Couldn't create instance folder: %s"
-msgstr "Не удается создать экземпляра папки: %s"
+msgstr "Невозможно создать папку экземпляра: %s"
 
 #: gui/mainwindow.cpp:265
 msgid "Couldn't find the instance you tried to load: "
-msgstr "Не удается найти экземпляр, который пытался загрузить: "
+msgstr "Невозможно найти экземпляр, который вы пытались загрузить: "
 
 #: gui/consolewindow.cpp:673
 msgid "Crash Report"
-msgstr "Crash доклад"
+msgstr "Очёт об ошибке"
 
 #: gui/mainwindow.h:125
 msgid "Create new instance"
-msgstr "Создать нового экземпляра"
+msgstr "Создать новый экземпляр"
 
 #: gui/snapshotdialog.cpp:27
 msgid "Current version"
@@ -402,11 +404,11 @@ msgstr "Текущая версия"
 
 #: gui/mainwindow.cpp:309 gui/mainwindow.cpp:314
 msgid "Delete"
-msgstr "удалю"
+msgstr "Удалить"
 
 #: gui/mainwindow.cpp:314
 msgid "Delete this group, ungrouping all instances in it."
-msgstr "Удалить эту группу, разгруппировку все экземпляры в нем."
+msgstr "Удалить группу, разгруппировав все экземпляры в ней."
 
 #: gui/mainwindow.cpp:309
 msgid "Delete this instance."
@@ -414,72 +416,72 @@ msgstr "Удалить этот экземпляр."
 
 #: tasks/gameupdatetask.cpp:351
 msgid "Determining packages to load..."
-msgstr "Определения пакетов для загружать..."
+msgstr "Определение пакетов для загрузки..."
 
 #: tasks/gameupdatetask.cpp:353
 msgid "Determining packages to load: "
-msgstr "Определения пакетов для загружать: "
+msgstr "Определение пакетов для загрузки: "
 
 #: tasks/filecopytask.cpp:34
 msgid "Discovering files..."
-msgstr "Обнаружение файлов ..."
+msgstr "Обнаружение файлов..."
 
 #: tasks/downgradetask.cpp:361
 msgid "Done!"
-msgstr "Готово!"
+msgstr "Завершено!"
 
 #: tasks/downgradetask.cpp:383
 msgid "Done: "
-msgstr "Готово: "
+msgstr "Завершено: "
 
 #: gui/mainwindow.cpp:303 gui/mainwindow.cpp:384
 msgid "Downgrade"
-msgstr "Понижения"
+msgstr "Сменить версию"
 
 #: gui/downgradedialog.cpp:35
 msgid "Downgrade Instance"
-msgstr "Понижения инстанция"
+msgstr "Сменить версию экземпляра"
 
 #: gui/modeditwindow.cpp:72
 msgid "Download and install Minecraft Forge"
-msgstr "Скачать и установить Minecraft Forge"
+msgstr "Загрузить и установить Minecraft Forge"
 
 #: tasks/filedownloadtask.cpp:95
 msgid "Download failed."
-msgstr "Скачать не удалось."
+msgstr "Загрузка не удалась."
 
 #: tasks/downgradetask.cpp:86
 msgid "Downloading "
-msgstr "скачивание "
+msgstr "Загрузка "
 
 #: gui/mainwindow.cpp:1366
 msgid "Downloading LWJGL..."
-msgstr "Загружая LWJGL ..."
+msgstr "Загрузка LWJGL ..."
 
 #: tasks/filedownloadtask.cpp:34
 #, c-format
 msgid "Downloading file from %s..."
-msgstr "Загружая файла из %s..."
+msgstr "Загрузка файла из %s..."
 
 #: tasks/gameupdatetask.cpp:365
 msgid "Downloading packages..."
-msgstr "Загружая пакетов..."
+msgstr "Загрузка пакетов..."
 
 #: tasks/gameupdatetask.cpp:367
 msgid "Downloading packages: "
-msgstr "Загружая пакетов: "
+msgstr "Загрузка пакетов: "
 
 #: tasks/downgradetask.cpp:348
 msgid "Downloading patches..."
-msgstr "Загружая патчи..."
+msgstr "Загрузка патчей..."
 
 #: tasks/downgradetask.cpp:370
 msgid "Downloading patches: "
-msgstr "Загружая патчи: "
+msgstr "Загрузка патчей: "
 
 #: gui/mainwindow.cpp:807
 msgid "Downloading updates..."
-msgstr "Загружая обновлениями..."
+msgstr "Загрузка обновлений..."
 
 #: tasks/filedownloadtask.cpp:85
 #, c-format
@@ -487,21 +489,21 @@ msgid ""
 "Downloading...\n"
 "(%skB/%skB)"
 msgstr ""
-"Загружая...\n"
+"Загрузка...\n"
 "(%skB/%skB)"
 
 #: gui/mainwindow.cpp:380
 msgid "Edit &Mods"
-msgstr "редактировать &Mods"
+msgstr "Редактировать &дополнения"
 
 #: gui/modeditwindow.cpp:32
 msgid "Edit Mods"
-msgstr "Редактировать модов"
+msgstr "Редактировать дополнения"
 
 #: gui/modeditwindow.cpp:37
 #, c-format
 msgid "Edit Mods for %s"
-msgstr "Редактировать модов для"
+msgstr "Редактировать дополнения для"
 
 #: gui/mainwindow.cpp:1070
 msgid "Enter a new group for this instance."
@@ -518,24 +520,24 @@ msgstr "Введите новое имя для этого экземпляра.
 #: gui/consolewindow.cpp:693 gui/mainwindow.cpp:536 gui/mainwindow.cpp:873
 #: gui/mainwindow.cpp:1043
 msgid "Error"
-msgstr "погрешность"
+msgstr "Ошибка"
 
 #: gui/consolewindow.cpp:536
 #, c-format
 msgid "Error %i (%s) when killing process %i!"
-msgstr "погрешность %i (%s) При убийстве процесса %i!"
+msgstr "Ошибка %i (%s) при завершении процесса %i!"
 
 #: tasks/filedownloadtask.cpp:47
 msgid "Error 404, the page could not be found."
-msgstr "Ошибка 404 страница не может быть найден."
+msgstr "Ошибка 404: страница не найдена."
 
 #: gui/settingsdialog.cpp:172
 msgid "Error console"
-msgstr "ошибках консоли"
+msgstr "Консоль ошибок "
 
 #: gui/settingsdialog.cpp:201
 msgid "Error message color: "
-msgstr "Цвет сообщение об ошибке: "
+msgstr "Цвет сообщений об ошибке: "
 
 #: gui/exportinstwizard.cpp:22
 msgid "Export Instance"
@@ -543,7 +545,7 @@ msgstr "Экспорт экземпляра"
 
 #: gui/modeditwindow.cpp:188
 msgid "Export the instance to a config pack."
-msgstr "Экспорт экземпляр до конфигурации пакета."
+msgstr "Экспорт экземпляра в пакет конфигурационных файлов."
 
 #: gui/savemgrwindow.cpp:75
 msgid "Export to Zip"
@@ -560,11 +562,11 @@ msgstr "Извлечение загруженных пакетов: "
 #: gui/consolewindow.cpp:451
 #, c-format
 msgid "Failed terminate process. Error 0x%08X: access denied."
-msgstr "Не удалось завершить процесс воспользовавшись. Ошибках 0x%08X: Доступ запрещен."
+msgstr "Невозможно завершить процесс. Ошибка 0x%08X: доступ запрещён."
 
 #: tasks/moddertask.cpp:45
 msgid "Failed to back up minecraft.jar"
-msgstr "Не удалось создать резервную копию minecraft.jar"
+msgstr "Невозможно создать резервную копию minecraft.jar"
 
 #: tasks/downgradetask.cpp:199 tasks/downgradetask.cpp:315
 #, c-format
@@ -572,46 +574,46 @@ msgid ""
 "Failed to check file MD5.\n"
 "JSON parser error at line %i: %s"
 msgstr ""
-"Не удалось проверить файл MD5.\n"
-"JSON ошибку синтаксического анализатора в строку %i: %s"
+"Невозможно проверить MD5 файла.\n"
+"ошибка синтаксиса JSON в строке %i: %s"
 
 #: tasks/checkupdatetask.cpp:66
 msgid "Failed to check for updates. Please check your internet connection."
-msgstr "Не удалось проверить наличие обновлений. Пожалуйста, проверьте подключение к Интернету."
+msgstr "Невозможно проверить на наличие обновлений. Пожалуйста, проверьте ваше подключение к интернету."
 
 #: gui/mainwindow.cpp:454
 msgid "Failed to create instance directory."
-msgstr "Не удалось создать экземпляра каталог."
+msgstr "Невозможно создать каталог экземпляра."
 
 #: gui/settingsdialog.cpp:416
 #, c-format
 msgid "Failed to create the new folder: %s"
-msgstr "Не удалось создать новую папку: %s"
+msgstr "Невозможно создать новую папку: %s"
 
 #: data/modlist.cpp:226 data/texturepacklist.cpp:96
 msgid "Failed to delete mod."
-msgstr "Не удалось удалить мод."
+msgstr "Невозможно удалить дополнение."
 
 #: tasks/moddertask.cpp:51
 msgid "Failed to delete old minecraft.jar"
-msgstr "Не удалось удалить старую minecraft.jar"
+msgstr "Невозможно удалить старый minecraft.jar"
 
 #: tasks/gameupdatetask.cpp:220
 msgid "Failed to download "
-msgstr "Немогу загрузить "
+msgstr "Невозможно загрузить "
 
 #: tasks/downgradetask.cpp:108
 #, c-format
 msgid "Failed to download patch %s."
-msgstr "Немогу загрузить патч %s."
+msgstr "Невозможно загрузить патч %s."
 
 #: gui/ftbselectdialog.cpp:36
 msgid "Failed to get FTB pack list. Could not open directory."
-msgstr "Ошибка получения список FTB пакет. Не удалось открыть каталога."
+msgstr "Невозможно получить список сборок FTB. Невозможно открыть папку."
 
 #: gui/lwjgldialog.cpp:51
 msgid "Failed to get RSS feed. Check your internet connection."
-msgstr "Ошибка получения RSS канал. Проверьте подключение к Интернету."
+msgstr "Невозможно загрузить RSS. Проверьте ваше подключение к интернету."
 
 #: tasks/downgradetask.cpp:132
 #, c-format
@@ -619,29 +621,29 @@ msgid ""
 "Failed to get patch URL.\n"
 "JSON parser error at line %i: %s"
 msgstr ""
-"Ошибка получения патч URL.\n"
-"JSON ошибки синтаксического анализатора в линии %i: %s"
+"Невозможно получить URL патча.\n"
+"ошибка синтаксиса JSON в строке %i: %s"
 
 #: gui/consolewindow.cpp:431
 #, c-format
 msgid "Failed to get process handle. Error 0x%08X: access denied."
-msgstr "Ошибка получения дескриптор процесса. Ошибка 0x%08X: Отказано в доступе."
+msgstr "Невозможно получить дескриптор процесса. Ошибка 0x%08X: отказано в доступе."
 
 #: data/mcversionlist.cpp:72 data/mcversionlist.cpp:115
 msgid "Failed to get snapshot list. Check your internet connection."
-msgstr "Ошибка получения снимком списке. Проверьте подключение к Интернету."
+msgstr "Невозможно получить список снапшотов. Проверьте ваше подключение к интернету."
 
 #: gui/downgradedialog.cpp:79
 msgid ""
 "Failed to get version list. Check your internet connection and try again "
 "later."
 msgstr ""
-"Ошибка получения список версий. Проверьте ваше интернет-соединение и попробуйте еще раз "
-"позже"
+"Невозможно получить список версий. Проверьте ваше подключение к интернету и повторите попытку "
+"позднее"
 
 #: multimc.cpp:87
 msgid "Failed to initialize settings."
-msgstr "Не удалось инициализировать настройки."
+msgstr "Невозможно инициализировать настройки."
 
 #: multimc.cpp:249
 #, c-format
@@ -653,21 +655,24 @@ msgid ""
 "and that MultiMC's updater has sufficient permissions to replace the file \n"
 "%s and then try again."
 msgstr ""
-"Не удалось установить обновления. Пробовали %i раза. \n"
-"Это, наверное, потому, что файл, который должен быть обновлен является в "
-"использовать."
+"Невозможно установить обновления. Было сделано %i попыток. \n"
+"Возможно это произошло потому, что файл, который необходимо обновить в данный момент"
+"используется. \n"
+"Убедитесь пожалуйста, что MultiMC запущен только один раз \n"
+"и процесс обновления MultiMC имеет достаточные привелегии для замены файла \n"
+"%s, после чего повторите попытку снова."
 
 #: gui/consolewindow.cpp:521
 msgid "Failed to kill the process. Trying again..."
-msgstr "Не удается убить процесс. Пытаясь снова ..."
+msgstr "Невозможно завершить процесс. Повторяю попытку снова..."
 
 #: gui/installforgedialog.cpp:70
 msgid "Failed to load build list. Check your internet connection."
-msgstr "Не удалось загрузить построить список. Проверьте подключение к Интернету."
+msgstr "Невозможно загрузить список сборок. Проверьте ваше подключение к интернету."
 
 #: langutils.cpp:53
 msgid "Failed to load the langauge list. Couldn't open language directory."
-msgstr "Не удалось загрузить список языков. Не удается открыть языковую директорию."
+msgstr "Невозможно загрузить список языков. Невозможно открыть языковую директорию."
 
 #: gui/settingsdialog.cpp:430
 #, c-format
@@ -677,7 +682,7 @@ msgstr "Ошибка при перемещении: %s"
 #: data/instance.cpp:658 data/modlist.cpp:71 data/texturepacklist.cpp:63
 #: data/worldlist.cpp:63
 msgid "Failed to open directory: "
-msgstr "Не удалось открыть каталог: "
+msgstr "Невозможно открыть каталог: "
 
 #: gui/lwjgldialog.cpp:87
 #, c-format
@@ -685,12 +690,12 @@ msgid ""
 "Failed to parse LWJGL list.\n"
 "XML parser error at line %i: %s"
 msgstr ""
-"Невозможно разобрать выражение LWJGL список.\n"
-"XML-парсер ошибку в линии %i: %s"
+"Невозможно разобрать список LWJGL.\n"
+"ошибка синтаксиса XML в строке %i: %s"
 
 #: data/mcversionlist.cpp:93 data/mcversionlist.cpp:138
 msgid "Failed to parse date/time."
-msgstr "Невозможно разобрать выражение дату / время."
+msgstr "Невозможно разобрать дату/время."
 
 #: tasks/gameupdatetask.cpp:135
 #, c-format
@@ -698,8 +703,8 @@ msgid ""
 "Failed to parse md5s file.\n"
 "INI parser error at line %i: %s"
 msgstr ""
-"Невозможно разобрать выражение md5s файл.\n"
-"INI ошибку синтаксического анализатора в строку %i: %s"
+"Невозможно разобрать файл md5.\n"
+"ошибка синтаксиса INI в строке %i: %s"
 
 #: data/mcversionlist.cpp:106 data/mcversionlist.cpp:207
 #, c-format
@@ -707,18 +712,18 @@ msgid ""
 "Failed to parse snapshot list.\n"
 "XML parser error at line %i: %s"
 msgstr ""
-"Невозможно разобрать выражение снимком файл.\n"
-"XML ошибку синтаксического анализатора в строку %i: %s"
+"Невозможно разобрать список снапшотов.\n"
+"ошибка синтаксиса XML в строке %i: %s"
 
 #: tasks/downgradetask.cpp:247
 #, c-format
 msgid "Failed to patch %s.jar. Patch is corrupt."
-msgstr "Не удалось пропатчить %s.jar. Патч поврежден."
+msgstr "Невозможно пропатчить %s.jar. Патч повреждён."
 
 #: tasks/downgradetask.cpp:251
 #, c-format
 msgid "Failed to patch %s.jar. Unknown error."
-msgstr "Не удалось пропатчить %s.jar. Неизвестная ошибка."
+msgstr "Невозможно пропатчить %s.jar. Неизвестная ошибка."
 
 #: data/instancemodel.cpp:205 data/instancemodel.cpp:265
 #, c-format
@@ -726,17 +731,17 @@ msgid ""
 "Failed to read group list.\n"
 "JSON parser error at line %i: %s"
 msgstr ""
-"Не удалось прочитать список групп.\n"
-"JSON ошибку синтаксического анализатора в линии %i: %s"
+"Невозможно прочитать список групп.\n"
+"ошибка синтаксиса JSON в строке %i: %s"
 
 
 #: data/instancemodel.cpp:211
 msgid "Failed to read group list. Unknown ptree error."
-msgstr "Не удалось прочитать список групп. Неизвестная ошибка Ptree."
+msgstr "Невозможно прочитать список групп. Неизвестная ошибка ptree."
 
 #: tasks/filecopytask.cpp:39
 msgid "Failed to read source directory."
-msgstr "Не удалось прочитать исходный каталог."
+msgstr Невозможно прочитать исходный каталог."
 
 #: gui/downgradedialog.cpp:72
 #, c-format
@@ -744,41 +749,41 @@ msgid ""
 "Failed to read version list.\n"
 "JSON parser error at line %i: %s"
 msgstr ""
-"Не удалось прочитать список версий."
-"JSON ошибку синтаксического анализатора в линии %i: %s"
+"Невозможно прочитать список версий."
+"ошибка синтаксиса JSON в строке %i: %s"
 
 #: data/instancemodel.cpp:271
 msgid "Failed to save group list. Unknown ptree error."
-msgstr "Не удалось сохранить группу списка. Неизвестная ошибка Ptree."
+msgstr "Невозможно сохранить список групп. Неизвестная ошибка ptree."
 
 #: gui/consolewindow.cpp:692
 msgid ""
 "Failed to send the crash report to pastebin. Please check your internet "
 "connection."
 msgstr ""
-"Не удалось отправить крах докладе Pastebin. Пожалуйста, проверьте ваше интернет "
-"связи."
+"Невозможно отправить отчёт об ошибке на pastebin. Пожалуйста, проверьте ваше подключение "
+"к интернету."
 
 #: multimc.cpp:100
 msgid "Failed to set language. Language set to English."
-msgstr "Не удалось задать язык. Язык английский."
+msgstr "Невозможно задать язык. Установлен английский язык."
 
 #: data/appsettings.h:183 data/appsettings.h:203
 #, c-format
 msgid "Failed to write config setting %s"
-msgstr "Ошибка записи в настройки конфигурации %s"
+msgstr "Невозможно записать настройки конфигурации %s"
 
 #: gui/settingsdialog.cpp:26
 msgid "Fancy"
-msgstr "орнаментальный"
+msgstr "Модный"
 
 #: gui/savemgrwindow.cpp:322
 msgid "File already exists."
-msgstr "Файл уже существует."
+msgstr "Файл существует."
 
 #: gui/installforgedialog.cpp:33
 msgid "Filename"
-msgstr "имя файла"
+msgstr "Имя файла"
 
 #: gui/settingsdialog.cpp:132
 msgid "Folders"
@@ -786,61 +791,61 @@ msgstr "Папки"
 
 #: gui/settingsdialog.cpp:125
 msgid "Force-update MultiMC"
-msgstr "Силу обновление MultiMC"
+msgstr "Обновить MultiMC вручную"
 
 #: gui/settingsdialog.cpp:92
 msgid "GUI Style (requires restart)"
-msgstr "GUI Style (требуется перезапуск)"
+msgstr "Стиль GUI (требуется перезапуск)"
 
 #: gui/consolewindow.cpp:72
 msgid "Generate Crash &Report"
-msgstr "Создать отчета об &ошибке"
+msgstr "Создать отчет об &ошибке"
 
 #: tasks/downgradetask.cpp:79
 msgid "Getting patch URLs."
-msgstr "Получение патч URLs."
+msgstr "Получение URL-ей патча."
 
 #: tasks/checkupdatetask.cpp:40
 msgid "Getting version info..."
-msgstr "Получение информации о версии ..."
+msgstr "Получение информации о версии..."
 
 #: gui/mainwindow.cpp:188 gui/mainwindow.cpp:190
 msgid "Help"
-msgstr "Помогите"
+msgstr "Помощь"
 
 #: insticonlist.cpp:114
 #, c-format
 msgid "Image %d %s has no alpha."
-msgstr "Изображение %d %s не имеет альфа."
+msgstr "Изображение %d %s не имеет альфа канала."
 
 #: insticonlist.cpp:163
 #, c-format
 msgid "Image %s has no alpha after rescaling."
-msgstr "Изображение %s не имеет альфа после масштабирования."
+msgstr "Изображение %s не имеет альфа канала после масштабирования."
 
 #: gui/importpackwizard.cpp:32
 msgid "Import Config Pack"
-msgstr "Импорте конфигурации упаковки"
+msgstr "Импорт пакета конфигурационных файлов"
 
 #: gui/mainwindow.cpp:669
 msgid "Import FTB pack."
-msgstr "Импорте FTB упаковке."
+msgstr "Импорт сборки FTB."
 
 #: gui/importpackwizard.cpp:91 gui/mainwindow.cpp:146 gui/mainwindow.cpp:572
 msgid "Import config pack"
-msgstr "Импорте конфигурации упаковки"
+msgstr "Импорт пакета конфигурационных файлов"
 
 #: gui/mainwindow.cpp:145 gui/mainwindow.cpp:571
 msgid "Import existing .minecraft folder"
-msgstr "Импорт существующих .minecraft папку"
+msgstr "Импорт существующей папки .minecraft"
 
 #: gui/mainwindow.cpp:617
 msgid "Import existing Minecraft folder"
-msgstr "Импорте существующей папке Minecraft"
+msgstr ""Импорт существующей папки Minecraft"
 
 #: gui/mainwindow.cpp:147 gui/mainwindow.cpp:573
 msgid "Import from FTB launcher."
-msgstr "Импорт из FTB пусковой установки."
+msgstr "Импорт из программы запуска FTB."
 
 #: tasks/gameupdatetask.cpp:344
 msgid "Initializing..."
@@ -856,31 +861,31 @@ msgstr "Установка Minecraft Forge"
 
 #: gui/mainwindow.cpp:304
 msgid "Install a snapshot."
-msgstr "Установите моментального снимка."
+msgstr "Установка снапшота."
 
 #: gui/mainwindow.cpp:302
 msgid "Install or remove mods."
-msgstr "Установите или удалите модов."
+msgstr "Установка или удаление дополнений."
 
 #: tasks/moddertask.cpp:73
 msgid "Installing mods - Adding "
-msgstr "Установка модов - Добавить "
+msgstr "Установка дополнений - Добавление "
 
 #: tasks/moddertask.cpp:69
 msgid "Installing mods - Adding mod files..."
-msgstr "Установка модов - Добавление файлов мода..."
+msgstr "Установка дополнений - Добавление файлов дополнений..."
 
 #: tasks/moddertask.cpp:58
 msgid "Installing mods - Opening minecraft.jar"
-msgstr "Установка модов - Открытие minecraft.jar"
+msgstr "Установка дополнений - Открытие minecraft.jar"
 
 #: tasks/moddertask.cpp:131
 msgid "Installing mods - Recompressing jar..."
-msgstr "Установка модов - Повторное сжатие jar..."
+msgstr "Установка дополнений - Повторное сжатие jar..."
 
 #: tasks/moddertask.cpp:42
 msgid "Installing mods - backing up minecraft.jar..."
-msgstr "Установка модов - Резервное копирование minecraft.jar..."
+msgstr "Установка дополнений - Резервное копирование minecraft.jar..."
 
 #: tasks/lwjglinstalltask.cpp:79
 msgid "Installing new LWJGL - Extracting "
@@ -896,42 +901,42 @@ msgstr "Установка обновлений..."
 
 #: gui/settingsdialog.cpp:184
 msgid "Instance Console Colors"
-msgstr "Цвета экземпляра консоли"
+msgstr "Цвета консоли экземпляра"
 
 #: gui/mainwindow.cpp:377
 msgid "Instance Settings"
-msgstr "экземпляра Настройки"
+msgstr "Настройки экземпляра"
 
 #: gui/consolewindow.cpp:303
 #, c-format
 msgid "Instance closed its output %d."
-msgstr "экземпляра закрыл свой выходной %d."
+msgstr "Экземпляр закрыл свой поток вывода %d."
 
 #: gui/settingsdialog.cpp:459
 msgid "Instance directory changed."
-msgstr "экземпляра каталогов изменилось."
+msgstr "Каталог экземпляра был изменён."
 
 #: gui/consolewindow.cpp:147
 #, c-format
 msgid "Instance exited with code %i."
-msgstr "Экземпляр завершился с кодом %i."
+msgstr "Экземпляр завершился с кодом возврата %i."
 
 #: gui/mainwindow.cpp:527
 msgid "Instance name:"
-msgstr "имя экземпляра:"
+msgstr "Имя экземпляра:"
 
 #: gui/mainwindow.cpp:1134
 msgid "Instance notes"
-msgstr "экземпляра заметки"
+msgstr "Заметки экземпляра"
 
 #: gui/consolewindow.cpp:104
 #, c-format
 msgid "Instance started with command: %s\n"
-msgstr "экземпляра начал с команды: %s\n"
+msgstr "Экземпляр запущен командой: %s\n"
 
 #: gui/consolewindow.cpp:159
 msgid "Instance was killed."
-msgstr "экземпляра был убит."
+msgstr "Экземпляр был завершён."
 
 #: gui/settingsdialog.cpp:136
 msgid "Instances: "
@@ -939,12 +944,12 @@ msgstr "Экземпляры: "
 
 #: data/configpack.cpp:110
 msgid "Invalid config pack."
-msgstr "Недопустимая конфигурации пакета."
+msgstr "Недопустимый пакет конфигурационных файлов."
 
 #: data/configpack.cpp:104
 #, c-format
 msgid "Invalid config pack. Failed to parse JSON. At line %i: %s"
-msgstr "Недопустимая конфигурации пакета. Невозможно разобрать выражение JSON. В строке %i: %s"
+msgstr "Недопустимый пакет конфигурационных файлов. Ошибка синтаксиса JSON в строке %i: %s"
 
 #: tasks/logintask.cpp:137
 msgid "Invalid username or password."
@@ -952,7 +957,7 @@ msgstr "Неверное имя пользователя или пароль."
 
 #: gui/settingsdialog.cpp:370
 msgid "JVM Arguments: "
-msgstr "JVM аргументами: "
+msgstr "Аргументы JVM: "
 
 #: gui/settingsdialog.cpp:309
 msgid "Java"
@@ -960,36 +965,36 @@ msgstr "Java"
 
 #: gui/settingsdialog.cpp:360
 msgid "Java Path: "
-msgstr "Java стезя: "
+msgstr "Путь Java : "
 
 #: gui/settingsdialog.cpp:348
 msgid "Java Settings"
-msgstr "Java настройки"
+msgstr "Настройки Java"
 
 #: gui/consolewindow.cpp:383
 msgid "Kill Minecraft"
-msgstr "Убийств Minecraft"
+msgstr "Завершить Minecraft"
 
 #: gui/consolewindow.cpp:543
 #, c-format
 msgid "Killed Minecraft (pid: %i)"
-msgstr "убитый Minecraft (pid: %i)"
+msgstr "Minecraft завершён (pid: %i)"
 
 #: gui/consolewindow.cpp:395
 msgid ""
 "Killing Minecraft may damage saves. You should only do this if the game is "
 "frozen."
 msgstr ""
-"Убийство Minecraft может привести к повреждению спасает. Вам следует это сделать, только если игра "
-"замерзший."
+"Завершение Minecraft может привести к повреждению сохранений. Рекомендуется делать это, только если игра "
+"зависла."
 
 #: gui/consolewindow.cpp:383
 msgid "Kills Minecraft's process."
-msgstr "Убийств Minecraft's процесса."
+msgstr "Завершение процесса Minecraft."
 
 #: gui/settingsdialog.cpp:109
 msgid "Language"
-msgstr "язык"
+msgstr "Язык"
 
 #: gui/mainwindow.cpp:293
 msgid "Launch the instance."
@@ -997,40 +1002,40 @@ msgstr "Запуск экземпляра."
 
 #: tasks/logintask.cpp:139
 msgid "Launcher outdated, please update."
-msgstr "Пусковая устарела, пожалуйста, обновите."
+msgstr "Программа запуска устарела, пожалуйста обновите."
 
 #: gui/aboutdlg.cpp:88
 msgid "License"
-msgstr "лицензия"
+msgstr "Лицензия"
 
 #: gui/mainwindow.cpp:497
 #, c-format
 msgid "Loaded %i instances..."
-msgstr "Загружен %i экземпляры ..."
+msgstr "Загружено %i экземпляров..."
 
 #: gui/snapshotdialog.cpp:77
 msgid "Loading Minecraft version list..."
-msgstr "Загрузке Minecraft версия списка..."
+msgstr "Загрузка списка версий Minecraft..."
 
 #: gui/mainwindow.cpp:1514
 msgid "Loading central mods list..."
-msgstr "Загрузке центрального модов список..."
+msgstr "Загрузка главной директории дополнений..."
 
 #: gui/mainwindow.cpp:448
 msgid "Loading instances..."
-msgstr "Загрузка экземпляры..."
+msgstr "Загрузка экземпляров..."
 
 #: gui/settingsdialog.cpp:299
 msgid "Log in automatically when I launch an instance."
-msgstr "Войдите автоматически при запуске экземпляра."
+msgstr "Автоматическая аутентификация при запуске экземпляра."
 
 #: tasks/logintask.cpp:37
 msgid "Logging in..."
-msgstr "ведения журналов в..."
+msgstr "Производится аутентификация..."
 
 #: gui/logindialog.cpp:21 gui/settingsdialog.cpp:289
 msgid "Login"
-msgstr "логин"
+msgstr "Войти"
 
 #: tasks/logintask.cpp:141
 msgid "Login failed: "
@@ -1042,20 +1047,20 @@ msgstr "MCForge"
 
 #: gui/mainwindow.cpp:382
 msgid "Manage Saves"
-msgstr "Управление Сохраняет"
+msgstr "Управление сохранениями"
 
 #: gui/savemgrwindow.cpp:49
 #, c-format
 msgid "Manage Saves for %s"
-msgstr "Управление Сохраняет для %s"
+msgstr "Управление сохранениями для %s"
 
 #: gui/settingsdialog.cpp:334
 msgid "Maximum memory allocation: "
-msgstr "Максимальное выделении памяти: "
+msgstr "Максимальное количество памяти: "
 
 #: gui/settingsdialog.cpp:312
 msgid "Memory"
-msgstr "память"
+msgstr "Память"
 
 #: gui/settingsdialog.cpp:217
 msgid "Minecraft"
@@ -1063,19 +1068,19 @@ msgstr "Minecraft"
 
 #: gui/installforgedialog.cpp:34 gui/snapshotdialog.cpp:60
 msgid "Minecraft Version"
-msgstr "Minecraft версия"
+msgstr "Версия Minecraft"
 
 #: gui/settingsdialog.cpp:243
 msgid "Minecraft Window Size"
-msgstr "Minecraft размере окна"
+msgstr "Размер окна Minecraft"
 
 #: gui/mainwindow.cpp:1009
 msgid "Minecraft failed to launch. Check your Java path."
-msgstr "Minecraft не удалось запустить. Проверьте ваш Java стезя."
+msgstr "Невозможно запустить Minecraft. Проверьте путь до Java."
 
 #: gui/consolewindow.cpp:153
 msgid "Minecraft has crashed!"
-msgstr "Minecraft потерпел аварию!"
+msgstr "Minecraft аварийно завершился!"
 
 #: gui/modeditwindow.cpp:52
 msgid "Minecraft.jar"
@@ -1083,33 +1088,33 @@ msgstr "Minecraft.jar"
 
 #: gui/settingsdialog.cpp:325
 msgid "Minimum memory allocation: "
-msgstr "Минимальное выделении памяти: "
+msgstr "Минимальное количество памяти: "
 
 #: gui/importpackwizard.cpp:109
 #, c-format
 msgid "Missing jar mod %s."
-msgstr "Отсутствующие jar мода %s."
+msgstr "Отсутствующие дополнения jar %s."
 
 #: gui/importpackwizard.cpp:123 gui/importpackwizard.cpp:137
 #, c-format
 msgid "Missing modloader mod %s."
-msgstr "Отсутствующие modloader мода %s."
+msgstr "Отсутствующие дополнения modloader %s."
 
 #: gui/modeditwindow.cpp:55 gui/modeditwindow.cpp:94 gui/modeditwindow.cpp:125
 msgid "Mod Name"
-msgstr "стиляга имя"
+msgstr "Имя дополнения"
 
 #: gui/modeditwindow.cpp:56 gui/modeditwindow.cpp:95 gui/modeditwindow.cpp:126
 msgid "Mod Version"
-msgstr "стиляга версия"
+msgstr "Версия дополнения"
 
 #: gui/modeditwindow.cpp:122
 msgid "Mods Folder"
-msgstr "модов папки"
+msgstr "Папка дополнений"
 
 #: gui/settingsdialog.cpp:147
 msgid "Mods: "
-msgstr "модов: "
+msgstr "Дополнения: "
 
 #: gui/modeditwindow.cpp:81
 msgid "Move &Down"
@@ -1121,11 +1126,11 @@ msgstr "Переместить &вверх"
 
 #: gui/modeditwindow.cpp:82
 msgid "Move the selected jar mod down"
-msgstr "Перемещение выбранного мод jar вниз"
+msgstr "Перемещение выбранного jar дополнения вниз"
 
 #: gui/modeditwindow.cpp:78
 msgid "Move the selected jar mod up."
-msgstr "Перемещение выбранного мод jar вверху."
+msgstr "Перемещение выбранного jar дополнения вверх."
 
 #: multimc.cpp:91 data/appsettings.cpp:35 gui/mainwindow.cpp:835
 #: gui/mainwindow.cpp:852
@@ -1139,7 +1144,7 @@ msgstr "MultiMC %d.%d.%d %s"
 
 #: gui/consolewindow.cpp:46
 msgid "MultiMC Console"
-msgstr "MultiMC консоль"
+msgstr "Консоль MultiMC"
 
 #: multimc.cpp:106
 #, c-format
@@ -1148,9 +1153,9 @@ msgid ""
 "%s\n"
 "This would break Minecraft. Please move it to a different place."
 msgstr ""
-"MultiMC начался с пути, который содержит '!':\n"
+"MultiMC был запущен из пути, который содержит '!':\n"
 "%s\n"
-"Этот нарушит Minecraft. Пожалуйста, переместить его в другое место."
+"Это может нарушить работу Minecraft. Пожалуйста, переместите его в другое место."
 
 
 #: gui/mainwindow.cpp:837 gui/mainwindow.cpp:854
@@ -1158,8 +1163,8 @@ msgid ""
 "MultiMC is a custom launcher that makes managing Minecraft easier by "
 "allowing you to have multiple installations of Minecraft at once."
 msgstr ""
-"MultiMC custom ракеты-носителя, что делает управление Minecraft проще "
-"Позволяет иметь несколько установок Minecraft сразу."
+"MultiMC --- улучшенная программа для запуска Minecraft, которая позволяет иметь "
+"нескольно различных установленных Minecraft'ов одновременно."
 
 
 #: gui/mainwindow.cpp:1298
@@ -1167,12 +1172,12 @@ msgid ""
 "MultiMC is currently incompatible with indev and infdev. Are you sure you "
 "would like to downgrade to this version?"
 msgstr ""
-"MultiMC настоящее время несовместима с Indev и infdev. Вы уверены "
-"хотела бы даунгрейд до этой версии?"
+"MultiMC в настоящее время несовместим с indev и infdev. Вы уверены, что "
+"хотите сделать даунгрейд до этой версии?"
 
 #: gui/mainwindow.cpp:1340
 msgid "MultiMC was unable to replace the old .jar with the new snapshot."
-msgstr "MultiMC не смог заменить старый .jar с нового снимка."
+msgstr "MultiMC не смог заменить старый .jar новым снапшотом."
 
 #: gui/mainwindow.cpp:872
 msgid ""
@@ -1181,34 +1186,34 @@ msgid ""
 "To report bugs, visit:\n"
 "http://bugs.forkk.net/"
 msgstr ""
-"MultiMC не смогла запустить веб-браузер.\n"
+"MultiMC не смог запустить веб-браузер.\n"
 "/n"
-"Чтобы сообщить ошибки, посетите:\n"
+"Чтобы сообщить об ошибках, посетите сайт:\n"
 "http://bugs.forkk.net/"
 
 #: gui/modeditwindow.cpp:156
 msgid "Name"
-msgstr "имя"
+msgstr "Имя"
 
 #: gui/exportinstwizard.cpp:38
 msgid "Name: "
-msgstr "имя: "
+msgstr "Имя: "
 
 #: gui/savemgrwindow.cpp:304
 msgid "Not a valid save."
-msgstr "Не является допустимым сохранить."
+msgstr "Повреждённое сохранение."
 
 #: gui/mainwindow.cpp:881
 msgid "Not implemented"
-msgstr "не реализовано"
+msgstr "Не реализовано"
 
 #: gui/mainwindow.cpp:1134
 msgid "Notes"
-msgstr "Примечания"
+msgstr "Заметки"
 
 #: gui/exportinstwizard.cpp:44
 msgid "Notes: "
-msgstr "Примечания: "
+msgstr "Заметки: "
 
 #: multimc.cpp:344
 msgid "Oh no!"
@@ -1216,43 +1221,43 @@ msgstr "О, нет!"
 
 #: gui/snapshotdialog.cpp:25
 msgid "Old snapshot"
-msgstr "Старый снимком"
+msgstr "Старый снапшот"
 
 #: gui/snapshotdialog.cpp:26
 msgid "Old version"
-msgstr "предыдущая версия"
+msgstr "Предыдущая версия"
 
 #: gui/mainwindow.cpp:171
 msgid "Open the central mods folder."
-msgstr "Откройте папку центральной модов."
+msgstr "Открыть главную папку дополнений."
 
 #: gui/modeditwindow.cpp:113
 msgid "Open the core mod folder in your file browser."
-msgstr "Откройте папку основных мод в вашем браузере файлов."
+msgstr "Открыть главную папку дополнений в файловом менеджере."
 
 #: gui/mainwindow.cpp:167
 msgid "Open the instance folder."
-msgstr "Откройте папку, экземпляра."
+msgstr "Открыть папку экземпляра."
 
 #: gui/mainwindow.cpp:307
 msgid "Open the instance's folder."
-msgstr "Откройте папку, экземпляра."
+msgstr "Открыть папку экземпляра."
 
 #: gui/modeditwindow.cpp:144
 msgid "Open the modloader mods folder in your file browser."
-msgstr "Откройте папку modloader модов в вашем браузере файлов."
+msgstr "Открыть папку дополнений modloader в файловом менеджере."
 
 #: gui/modeditwindow.cpp:174
 msgid "Open the texture packs folder in your file browser."
-msgstr "Откройте папку текстур пакетов в ваш файл-браузер."
+msgstr "Открыть папку текстурпаков в файловом менеджере."
 
 #: gui/settingsdialog.cpp:195
 msgid "Output message color: "
-msgstr "Цвет выходного сообщение: "
+msgstr "Цвет сообщений в консоли: "
 
 #: gui/consolewindow.cpp:260
 msgid "Output not redirected!\n"
-msgstr "Выход не перенаправляются!\n"
+msgstr "Поток вывода не был перенаправлен!\n"
 
 #: gui/logindialog.cpp:48
 msgid "Password: "
@@ -1260,11 +1265,11 @@ msgstr "Пароль:"
 
 #: tasks/downgradetask.cpp:357
 msgid "Patching files..."
-msgstr "Исправление файлов..."
+msgstr "Патчу файлы..."
 
 #: tasks/downgradetask.cpp:379
 msgid "Patching files: "
-msgstr "Исправление файлов: "
+msgstr "Патчу файлы: "
 
 #: gui/mainwindow.cpp:846
 msgid "Petr MrГЎzek <peterix@gmail.com>"
@@ -1272,23 +1277,23 @@ msgstr "Petr MrГЎzek <peterix@gmail.com>"
 
 #: gui/logindialog.cpp:73
 msgid "Play &Offline"
-msgstr "Играть &оффлайне"
+msgstr "Играть &оффлайн"
 
 #: gui/importpackwizard.cpp:64
 msgid ""
 "Please add the mods listed below to your central mods folder and click "
 "refresh."
 msgstr ""
-"Пожалуйста, добавьте модов перечисленных ниже, чтобы ваш центральный папку модах и "
-"нажмите кнопку Обновить."
+"Пожалуйста, добавьте перечисленные ниже дополнения в главную папку дополнений и нажмите "
+"кнопку обновить."
 
 #: gui/mainwindow.cpp:657
 msgid "Please select your FTB launcher folder."
-msgstr "Пожалуйста выберите вашу FTB папке запуска."
+msgstr "Пожалуйста выберите папку программы запуска FTB."
 
 #: gui/taskprogressdialog.cpp:22
 msgid "Please wait..."
-msgstr "Пожалуйста, подождите ..."
+msgstr "Подождите пожалуйста..."
 
 #: gui/downgradedialog.cpp:38
 msgid "Powered by MCNostalgia"
@@ -1300,7 +1305,7 @@ msgstr "З&апомнить пароль?"
 
 #: gui/mainwindow.cpp:306 gui/mainwindow.cpp:388
 msgid "Re&build Jar"
-msgstr "Пе&рестроить Jar"
+msgstr "Пе&репаковать Jar"
 
 #: gui/mainwindow.cpp:161
 msgid "Refresh"
@@ -1308,31 +1313,31 @@ msgstr "Обновить"
 
 #: gui/mainwindow.cpp:306
 msgid "Reinstall all the instance's jar mods."
-msgstr "Переустановить все инстанции модов jar."
+msgstr "Переустановить все дополнений jar для экземпляра."
 
 #: gui/mainwindow.cpp:163
 msgid "Reload ALL the instances!"
-msgstr "Обновить все экземпляры!"
+msgstr "Перезагрузить все экземпляры!"
 
 #: gui/modeditwindow.cpp:184
 msgid "Reload the mod lists."
-msgstr "Обновить мод списки."
+msgstr "Перезагрузить списки дополнений."
 
 #: gui/modeditwindow.cpp:107
 msgid "Remove the selected core mod"
-msgstr "Удалить выбранный мод ядро"
+msgstr "Удалить выбранное дополнение ядра"
 
 #: gui/modeditwindow.cpp:68
 msgid "Remove the selected jar mod."
-msgstr "Удалить выбранный мод jar."
+msgstr "Удалить выбранное дополнение jar."
 
 #: gui/modeditwindow.cpp:138
 msgid "Remove the selected modloader mod."
-msgstr "Удалить выбранный мод modloader."
+msgstr "Удалить выбранное дополнение modloader."
 
 #: gui/modeditwindow.cpp:168
 msgid "Remove the selected texture pack."
-msgstr "Удалить выбранный пакет текстур."
+msgstr "Удалить выбранный текстурпак."
 
 #: gui/mainwindow.cpp:1458
 msgid "Rename Group"
@@ -1340,16 +1345,16 @@ msgstr "Переименовать группу"
 
 #: gui/mainwindow.cpp:1033
 msgid "Rename Instance"
-msgstr "Переименовать экземпляра"
+msgstr "Переименовать экземпляр"
 
 #: gui/mainwindow.cpp:313
 msgid "Rename the group."
-msgstr "Переименовать группы."
+msgstr "Переименовать группу."
 
 #: gui/mainwindow.cpp:1180
 #, c-format
 msgid "Renaming instance '%s'... (Press enter to finish)"
-msgstr "Переименование экземпляра '%s'... (Нажмите клавишу до конца)"
+msgstr "Переименовывается экземпляр '%s'... (Нажмите Enter для завершения)"
 
 #: gui/mainwindow.cpp:185 gui/mainwindow.cpp:187
 msgid "Report bug"
@@ -1361,7 +1366,7 @@ msgstr "Требуется перезапуск"
 
 #: gui/consolewindow.cpp:699
 msgid "Save Crash Report"
-msgstr "Сохранить отчета об ошибке"
+msgstr "Сохранить отчет об ошибке"
 
 #: gui/consolewindow.cpp:668
 msgid "Save to File"
@@ -1369,15 +1374,15 @@ msgstr "Сохранить в файл"
 
 #: gui/ftbselectdialog.cpp:25
 msgid "Select FTB pack to import"
-msgstr "Выберите FTB пакет для импорта"
+msgstr "Выбрать сборку FTB для импорта"
 
 #: gui/snapshotdialog.cpp:32
 msgid "Select Minecraft version"
-msgstr "Выберите версию Minecraft"
+msgstr "Выберать версию Minecraft"
 
 #: gui/mainwindow.cpp:608
 msgid "Select a Minecraft folder to import"
-msgstr "Выберите папку для импорта Minecraft"
+msgstr "Выберать папку Minecraft для импорта"
 
 #: gui/mainwindow.cpp:430
 msgid "Select an instance"
@@ -1385,7 +1390,7 @@ msgstr "Выберите экземпляр"
 
 #: gui/consolewindow.cpp:667
 msgid "Send to Pastebin"
-msgstr "Отправь Pastebin"
+msgstr "Отправить на Pastebin"
 
 #: tasks/pastebintask.cpp:34
 msgid "Sending to pastebin..."
@@ -1393,47 +1398,47 @@ msgstr "Отправка на Pastebin ..."
 
 #: gui/mainwindow.cpp:175 gui/mainwindow.cpp:177 gui/settingsdialog.cpp:42
 msgid "Settings"
-msgstr "настройки"
+msgstr "Настройки"
 
 #: gui/consolewindow.cpp:381
 msgid "Show Console"
-msgstr "Показать консоли"
+msgstr "Показать консоль"
 
 #: gui/settingsdialog.cpp:176
 msgid "Show console while an instance is running."
-msgstr "Показать консоль при экземпляра работает."
+msgstr "Показывать консоль при запуске экземпляра."
 
 #: gui/snapshotdialog.cpp:38
 msgid "Show old snapshots"
-msgstr "Показать старые снимки"
+msgstr "Показать старые снапшоты"
 
 #: gui/consolewindow.cpp:381
 msgid "Shows or hides the console."
-msgstr "Показывает или скрывает консоли."
+msgstr "Показать или скрыть консоль."
 
 #: gui/settingsdialog.cpp:27
 msgid "Simple"
-msgstr "простой"
+msgstr "Простой"
 
 #: gui/mainwindow.cpp:304 gui/mainwindow.cpp:386 gui/snapshotdialog.cpp:28
 msgid "Snapshot"
-msgstr "простой"
+msgstr "Снапшот"
 
 #: gui/settingsdialog.cpp:633
 msgid ""
 "Some settings were changed that require MultiMC to restart before they take "
 "effect. Would you like to restart MultiMC now?"
 msgstr ""
-"Некоторые настройки были изменены, что требует MultiMC, чтобы перезагрузитьпрежде чем они принимают "
-"эффект. Хотели бы вы, чтобы перезагрузить MultiMC сейчас?"
+"Изменены настройки, для применения которых требуется перезапуск MultiMC. "
+"Перезапустить MultiMC?"
 
 #: gui/mainwindow.cpp:536
 msgid "Sorry, that name is too long."
-msgstr "Извините, этого имени слишком длинное."
+msgstr "Извините, вы ввели слишком длинное имя."
 
 #: gui/mainwindow.cpp:1043
 msgid "Sorry, that name is too long. 25 characters is the limit."
-msgstr "Извините, этого имени слишком длинное. 25 символов это предел."
+msgstr "Извините, вы ввели слишком длинное имя. Имя не должно быть длиннее 25 символов."
 
 #: gui/settingsdialog.cpp:102
 msgid "Sorting Mode"
@@ -1441,88 +1446,88 @@ msgstr "Режим сортировки"
 
 #: gui/settingsdialog.cpp:262
 msgid "Start Minecraft maximized?"
-msgstr "Начало Minecraft максимальным?"
+msgstr "Запускать Minecraft развёрнутым на полный экран?"
 
 #: gui/consolewindow.cpp:686
 msgid "Success"
-msgstr "успех"
+msgstr "Успешно"
 
 #: gui/settingsdialog.cpp:189
 msgid "System message color: "
-msgstr "Цвет Системное сообщение: "
+msgstr "Цвет системных сообщений: "
 
 #: gui/modeditwindow.cpp:153
 msgid "Texture Packs"
-msgstr "Текстура пакеты"
+msgstr "Текстурпаки"
 
 #: tasks/downgradetask.cpp:308
 #, c-format
 msgid ""
 "The MD5 sum of %s didn't match what it was supposed to be after patching!"
 msgstr ""
-"Сумма MD5 sum из %s не совпадают, то, что он должен был быть после латать!"
+"MD5 сумма %s не совпадает с той, какой она должна быть после пропатчивания!"
 
 #: gui/settingsdialog.cpp:452
 msgid ""
 "The chosen instance path contains a ! character.\n"
 "This would make Minecraft crash. Please change it."
 msgstr ""
-"экземпляра выбрали путь содержит ! характер.\n"
-"Это сделало бы Minecraft аварии. Измените его."
+"Путь до выбранного экземпляра содержит символ '!'.\n"
+"Это может привести к нестабильной работе Minecraft. Пожалуйста измените его."
 
 #: gui/savemgrwindow.cpp:320
 #, c-format
 msgid "There's already a save with the filename '%s'. Copy to '%s' instead?"
-msgstr "Там уже сохраните под именем '%s'. Копировать в '%s' вместо этого?"
+msgstr "Сохранение с именем '%s' существует. Скопировать в '%s' вместо этого?"
 
 #: gui/mainwindow.cpp:880
 msgid "This feature has not yet been implemented."
-msgstr "Эта функция еще не была реализована."
+msgstr "Данная функция еще не была реализована."
 
 #: gui/savemgrwindow.cpp:303
 msgid "This folder does not contain a level.dat file. Continue?"
-msgstr "Эта папка не содержит level.dat файл. Продолжить?"
+msgstr "Данная папка не содержит файла level.dat. Продолжить?"
 
 #: gui/mainwindow.cpp:649
 msgid "This is not a valid config pack!"
-msgstr "Этот не является допустимым пакет конфигурации!"
+msgstr "Повреждённый пакет конфигурационных файлов!"
 
 #: gui/taskprogressdialog.cpp:19
 msgid ""
 "This text represents the size of the dialog and the area\n"
 "reserved for any possible status text."
 msgstr ""
-"Этот текст представляет размер диалога и области\n"
-"зарезервированы для любого возможного текста статуса."
+"Этот текст показывает размер диалога и данная область\n"
+"зарезервирована для любого возможного текста статуса."
 
 #: gui/snapshotdialog.cpp:61
 msgid "Type"
-msgstr "тип"
+msgstr "Тип"
 
 #: tasks/logintask.cpp:97
 #, c-format
 msgid "Unknown HTTP error %i occurred."
-msgstr "Неизвестная ошибка HTTP %i произошло."
+msgstr "Произошла неизвестная ошибка HTTP %i."
 
 #: tasks/filedownloadtask.cpp:51
 #, c-format
 msgid "Unknown error %i occurred."
-msgstr "Неизвестная ошибка %i произошло."
+msgstr "Произошла неизвестная ошибка %i."
 
 #: gui/consolewindow.cpp:435
 #, c-format
 msgid "Unknown error 0x%08X occurred when getting process handle."
-msgstr "Неизвестная ошибка 0x%08X произошло при получении процессом ручкой."
+msgstr "Произошла неизвестная ошибка 0x%08X при получении дескриптора процесса."
 
 #: gui/consolewindow.cpp:455
 #, c-format
 msgid "Unknown error 0x%08X occurred when terminating the process."
-msgstr "Неизвестная ошибка 0x% 08X произошло, когда прекращение процесса."
+msgstr "Произошла неизвестная ошибка 0x%08X при завершении процесса."
 
 #: gui/consolewindow.cpp:477
 #, c-format
 msgid "Unknown error 0x%08X occurred when waiting for process to exit."
-msgstr "Неизвестная ошибка 0x% 08X произошло при ожидании процесса, чтобы выйти."
+msgstr "Произошла неизвестная ошибка 0x%08X во время ожидания завершения процесса."
 
 #: gui/consolewindow.cpp:532
 msgid "Unknown error."
@@ -1530,7 +1535,7 @@ msgstr "Неизвестная ошибка."
 
 #: data/instance.cpp:331
 msgid "Unnamed Instance"
-msgstr "Безымянные экземпляра"
+msgstr "Безымянный экземпляр"
 
 #: gui/updatepromptdlg.cpp:26
 msgid "Update Available"
@@ -1546,7 +1551,7 @@ msgstr "Настройки обновления"
 
 #: multimc.cpp:259
 msgid "Update installed successfully. Starting MultiMC..."
-msgstr "Обновление успешно установлено. Начиная MultiMC ..."
+msgstr "Обновление успешно установлено. Запуск MultiMC ..."
 
 #: gui/settingsdialog.cpp:221
 msgid "Updates"
@@ -1554,11 +1559,11 @@ msgstr "Обновления"
 
 #: gui/mainwindow.cpp:303
 msgid "Use MCNostalgia to downgrade this instance."
-msgstr "Используйте MCNostalgia к использованию старых версий данного экземпляра."
+msgstr "Использовать MCNostalgia для изменения версии данного экземпляра."
 
 #: gui/mainwindow.cpp:305
 msgid "Use a different version of LWJGL with this instance."
-msgstr "Используйте другой версии LWJGL с этим экземпляром."
+msgstr "Использовать другую версию LWJGL для этого экземпляра."
 
 #: gui/settingsdialog.cpp:226 gui/settingsdialog.cpp:251
 #: gui/settingsdialog.cpp:294 gui/settingsdialog.cpp:319
@@ -1568,48 +1573,48 @@ msgstr "Использовать значения по умолчанию?"
 
 #: gui/settingsdialog.cpp:121
 msgid "Use development builds."
-msgstr "Используйте развития построений."
+msgstr "Использовать сборки для разработчиков."
 
 #: gui/logindialog.cpp:37
 msgid "Username: "
-msgstr "имени пользователя: "
+msgstr "Имя пользователя: "
 
 #: tasks/downgradetask.cpp:165 tasks/downgradetask.cpp:282
 msgid "Verifying "
-msgstr "Проверка правильности "
+msgstr "Проверка "
 
 #: tasks/downgradetask.cpp:353
 msgid "Verifying files..."
-msgstr "Проверка правильности файлов..."
+msgstr "Проверка файлов..."
 
 #: tasks/downgradetask.cpp:375
 msgid "Verifying files: "
-msgstr "Проверка правильности файлов: "
+msgstr "Проверка файлов: "
 
 #: gui/mainwindow.cpp:298
 msgid "View / edit this instance's notes."
-msgstr "Показать / редактировать заметки данного экземпляра."
+msgstr "Показать / редактировать заметки для данного экземпляра."
 
 #: gui/mainwindow.cpp:169
 msgid "View Central mods folder"
-msgstr "Просмотреть Центральной модов папку"
+msgstr "Посмотреть глявную папку дополнений"
 
 #: gui/savemgrwindow.cpp:90
 msgid "View Folder"
-msgstr "Просмотр папок"
+msgstr "Посмотреть папку"
 
 #: gui/mainwindow.cpp:165
 msgid "View folder"
-msgstr "Просмотр папок"
+msgstr "Посмотреть папку"
 
 #: multimc.cpp:231
 msgid "Waiting for old version to exit..."
-msgstr "Ожидании старой версии, чтобы выйти из..."
+msgstr "Ждём завершения старой версии..."
 
 #: multimc.cpp:236
 #, c-format
 msgid "Waiting for old version to exit... Try #%i."
-msgstr "Ожидании старой версии, чтобы выйти ... Попробуйте #%i."
+msgstr "Ждём завершения старой версии... Попытка #%i."
 
 #: gui/settingsdialog.cpp:529
 msgid ""
@@ -1617,25 +1622,25 @@ msgid ""
 "features. Some may be extremely buggy, and others may not work at all. Use "
 "these at your own risk. Are you sure you want to use dev builds?"
 msgstr ""
-"Внимание: Развитие сборки содержат неполные, экспериментальный, и, возможно, неустойчивое "
-"особенности. Некоторые из них могут быть чрезвычайно ошибки, и другие могут не работать вообще. использовать "
-"этих на свой страх и риск. Вы уверены, что хотите использовать разработчика сборки?"
+"Внимание: Сборки для разработчиков содержат неполные, экспериментальные, и, возможно, нестабильные "
+"функции. Некоторые из них могут быть чрезвычайно глучными, и другие могут не работать вообще. Используйте "
+"их на свой страх и риск. Вы уверены, что хотите использовать сборки для разработчиков?"
 
 #: gui/updatepromptdlg.cpp:45
 msgid "When MultiMC Exits"
-msgstr "Когда MultiMC выход"
+msgstr "При завершении MultiMC"
 
 #: gui/settingsdialog.cpp:275
 msgid "Window height: "
-msgstr "высота окна: "
+msgstr "Высота окна: "
 
 #: gui/settingsdialog.cpp:267
 msgid "Window width: "
-msgstr "ширина окна"
+msgstr "Ширина окна"
 
 #: gui/savemgrwindow.cpp:55
 msgid "World Name"
-msgstr "Всемирная Имя"
+msgstr "Имя мира"
 
 #: tasks/exportpacktask.cpp:53
 msgid "Writing metadata..."
@@ -1647,48 +1652,48 @@ msgid ""
 "can downgrade it!"
 msgstr ""
 "Вы должны запустить этот экземпляр по крайней мере один раз, чтобы скачать Minecraft, прежде чем вы "
-"может понижения класса!"
+"сможете использовать другую версию Minecraft!"
 
 #: gui/settingsdialog.cpp:470
 msgid ""
 "You've changed your central mods directory, would you like to transfer all "
 "of your mods?"
 msgstr ""
-"Вы изменили ваш центральный каталог модов, хотели бы вы, чтобы передать все "
-"Вашей модов?"
+"Вы изменили ваш главный каталог дополнений, перенести все моды в него?"
+""
 
 #: gui/settingsdialog.cpp:458
 msgid ""
 "You've changed your instance directory, would you like to transfer all of "
 "your instances?"
 msgstr ""
-"Вы изменили экземпляра каталога, Вы хотели бы передать все "
-"ваши экземпляры?"
+"Вы изменили каталог экземпляров, перенести все экземпляры в него?"
+""
 
 #: gui/consolewindow.cpp:685
 msgid "Your error report has been sent to the URL listed below."
-msgstr "Ваш отчет об ошибке был отправлен URL, перечисленных ниже."
+msgstr "Ваш отчет об ошибке был отправлен на URL, показанный ниже."
 
 #: multimc.h:90
 msgid "displays help on command line parameters"
-msgstr "выводит справку о параметрах командной строки"
+msgstr "показать справку о параметрах командной строки"
 
 #: multimc.h:96
 msgid "doesn't restart MultiMC after installing updates"
-msgstr "не перезагружается MultiMC после установки обновлений"
+msgstr "не перезапускать MultiMC после установки обновлений"
 
 #: multimc.h:93
 msgid "replaces the given file with the running executable"
-msgstr "заменяет данный файл с запуском исполняемого"
+msgstr "заменять данный файл при запуске"
 
 #: multimc.h:99
 msgid "tries to launch the given instance"
-msgstr "попытается запустить данный экземпляр"
+msgstr "попытаться запустить данный экземпляр"
 
 #: multimc.h:102
 msgid ""
 "use the supplied directory as MultiMC root instead of the binary location "
 "(use '.' for current)"
 msgstr ""
-"с помощью прилагаемого каталог как корень MultiMC вместо бинарной местоположение "
+"использовать данную папку, как рабочую для MultiMC, вместо папки исполняемого файла"
 "(используйте '.' для текущей)"
