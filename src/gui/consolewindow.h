@@ -85,6 +85,9 @@ protected:
 	
 	wxWindow *m_mainWin;
 	Instance *m_inst;
+
+	// Scans the output for common problems and alerts the user.
+	bool CheckCommonProblems(const wxString& output);
 	
 	// Called by timer to generate wakeupidle events
 	void OnProcessTimer(wxTimerEvent& event);

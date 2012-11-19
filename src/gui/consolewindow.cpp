@@ -23,6 +23,7 @@
 #include <wx/msgdlg.h>
 #include <wx/clipbrd.h>
 #include <wx/persist.h>
+#include <wx/regex.h>
 
 #include <gui/mainwindow.h>
 
@@ -144,6 +145,14 @@ void InstConsoleWindow::OnProcessExit( bool killed, int status )
 	m_running = nullptr;
 	
 	AppendMessage(wxString::Format(_("Minecraft exited with code %i."), status));
+
+	bool keepOpen;
+
+	// Keep the console open if there's a problem.
+	if (CheckCommonProblems(consoleTextCtrl->GetValue()))
+	{
+		keepOpen = true;
+	}
 	
 	AllowClose();
 	if (killed)
@@ -158,7 +167,7 @@ void InstConsoleWindow::OnProcessExit( bool killed, int status )
 		SetState(STATE_BAD);
 		Show();
 	}
-	else if (settings->GetAutoCloseConsole() && !crashReportIsOpen)
+	else if (settings->GetAutoCloseConsole() && !crashReportIsOpen && !keepOpen)
 	{
 		Close();
 	}
@@ -456,6 +465,44 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 			wxTheClipboard->Close();
 		}
 	}
+}
+
+bool InstConsoleWindow::CheckCommonProblems(const wxString& output)
+{
+	wxRegEx idConflictRegex("([0-9]+) is already occupied by ([A-Za-z0-9.]+)@[A-Za-z0-9]+ when adding ([A-Za-z0-9.]+)@[A-Za-z0-9]+");
+
+	if (!idConflictRegex.IsValid())
+	{
+		wxLogError(_("ID conflict regex is invalid!"));
+		return false;
+	}
+
+	if (idConflictRegex.Matches(output))
+	{
+		// We have an ID conflict.
+		wxArrayString values;
+
+		for (int i = 0; i < idConflictRegex.GetMatchCount(); i++)
+		{
+			values.Add(idConflictRegex.GetMatch(output, i));
+		}
+
+		if (values.Count() < 4)
+		{
+			// Something's wrong here...
+			wxLogError(_("Not enough values matched ID conflict regex!"));
+			return false;
+		}
+
+		// Alert the user.
+		AppendMessage(wxString::Format(
+			_("MultiMC found a block or item ID conflict. %s and %s are both using the same block ID (%s)."), 
+			values[2].c_str(), values[3].c_str(), values[1].c_str()), MSGT_SYSTEM);
+		return true;
+	}
+
+	// No common problems found.
+	return false;
 }
 
 
