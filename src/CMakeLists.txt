@@ -132,6 +132,7 @@ gui/ftbselectdialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
+data/mcprocess.cpp
 data/userinfo.cpp
 data/mod.cpp
 data/modlist.cpp

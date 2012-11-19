@@ -233,4 +233,5 @@ bool InstallLangFiles()
 		wxFFileOutputStream outStream(moFileName);
 		outStream.Write(inStream);
 	}
+	return true;
 }

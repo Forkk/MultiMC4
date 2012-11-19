@@ -335,6 +335,7 @@ InstanceGroup* InstanceModel::GetGroupByName(wxString name) const
 		if ((*iter)->GetName() == name)
 			return *iter;
 	}
+	return nullptr;
 }
 
 InstanceGroup* InstanceModel::GetGroupByIndex(int index) const
