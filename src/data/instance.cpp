@@ -27,39 +27,14 @@
 #include <memory>
 #include <sstream>
 
-#include "launcher/launcherdata.h"
 #include "osutils.h"
 #include "datautils.h"
 #include "insticonlist.h"
 #include "java/javautils.h"
 #include "instancemodel.h"
-
-DEFINE_EVENT_TYPE(wxEVT_INST_OUTPUT)
-
-// macro for adding "" around strings
-#define DQuote(X) "\"" << X << "\""
+#include "mcprocess.h"
 
 const wxString cfgFileName = "instance.cfg";
-
-/* HACK HACK HACK HACK HACK HACK HACK HACK*
- * This is a workaround for a wxWidgets bug
- * HACK HACK HACK HACK HACK HACK HACK HACK*/
-class MinecraftProcess : public wxProcess
-{
-public:
-	MinecraftProcess ( wxEvtHandler* parent = 0 )
-	:wxProcess(nullptr,wxID_ANY)
-	{
-		myParent = parent;
-	}
-protected:
-	virtual void OnTerminate ( int pid, int status )
-	{
-		wxProcessEvent ev(wxID_ANY,pid, status);
-		myParent->AddPendingEvent(ev);
-	};
-	wxEvtHandler * myParent;
-};
 
 bool IsValidInstance(wxFileName rootDir)
 {
@@ -101,7 +76,6 @@ Instance::Instance(const wxString &rootDir)
 		this->rootDir = wxFileName::DirName(rootDir);
 	config = new wxFileConfig(wxEmptyString, wxEmptyString, GetConfigPath().GetFullPath(), wxEmptyString,
 		wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
-	evtHandler = NULL;
 	MkDirs();
 
 	// initialize empty mod lists - they are filled later and only if requested (see apropriate Get* methods)
@@ -122,10 +96,6 @@ Instance::Instance(const wxString &rootDir)
 Instance::~Instance(void)
 {
 	delete config;
-	if (IsRunning())
-	{
-		instProc->Detach();
-	}
 	Save();
 }
 
@@ -392,117 +362,6 @@ bool Instance::HasBinaries()
 	return isOK;
 }
 
-void Instance::ExtractLauncher()
-{
-	wxMemoryInputStream launcherInputStream(multimclauncher, sizeof(multimclauncher));
-	wxZipInputStream dezipper(launcherInputStream);
-	wxFFileOutputStream launcherOutStream( Path::Combine(GetMCDir(),"MultiMCLauncher.jar") );
-	wxZipOutputStream zipper(launcherOutStream);
-	std::auto_ptr<wxZipEntry> entry;
-	// copy all files from the old zip file
-	while (entry.reset(dezipper.GetNextEntry()), entry.get() != NULL)
-		if (!zipper.CopyEntry(entry.release(), dezipper))
-			break;
-	// add the icon file
-	zipper.PutNextEntry("icon.png");
-	InstIconList * iconList = InstIconList::Instance();
-	//FIXME: what if there is no such image?
-	wxImage &img =  iconList->getImageForKey(GetIconKey());
-	img.SaveFile(zipper,wxBITMAP_TYPE_PNG);
-}
-
-wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirectOutput)
-{
-	// Set lastLaunch
-	SetLastLaunchNow();
-
-	if (username.IsEmpty())
-		username = "Offline";
-	
-	if (sessionID.IsEmpty())
-		sessionID = "Offline";
-	
-	ExtractLauncher();
-	
-	// window size parameter (depends on some flags also)
-	wxString winSizeArg;
-	if (!GetUseAppletWrapper())
-		winSizeArg = "compatmode";
-	else if (GetMCWindowMaximize())
-		winSizeArg = "max";
-	else
-		winSizeArg << GetMCWindowWidth() << "x" << GetMCWindowHeight();
-	
-	// putting together the window title
-	wxString windowTitle;
-	windowTitle << "MultiMC: " << GetName();
-	
-	// now put together the launch command in the form:
-	// "%java%" %extra_args% -Xms%min_memory%m -Xmx%max_memory%m -jar MultiMCLauncher.jar "%user_name%" "%session_id%" "%window_title%" "%window_size%"
-	wxString launchCmd;
-	launchCmd << DQuote(GetJavaPath()) << " " << GetJvmArgs() << " -Xms" << GetMinMemAlloc() << "m" << " -Xmx" << GetMaxMemAlloc() << "m"
-	          << " -jar MultiMCLauncher.jar "
-	          << " " << DQuote(username) << " " << DQuote(sessionID) << " " << DQuote(windowTitle) << " " << DQuote(winSizeArg);
-	m_lastLaunchCommand = launchCmd;
-	
-	// create a (custom) process object!
-	instProc = new MinecraftProcess(this);
-	if (redirectOutput)
-		instProc->Redirect();
-	
-	// set up environment path
-	wxExecuteEnv env;
-	wxFileName mcDir = GetMCDir();
-	mcDir.MakeAbsolute();
-	env.cwd = GetMCDir().GetFullPath();
-	
-	// run minecraft using the stuff above :)
-	int pid = wxExecute(launchCmd,wxEXEC_ASYNC|wxEXEC_HIDE_CONSOLE,instProc,&env);
-	if(pid > 0)
-	{
-		m_running = true;
-	}
-	else
-	{
-		m_running = false;
-		delete instProc;
-		instProc = nullptr;
-	}
-	return instProc;
-}
-
-void Instance::OnInstProcExited(wxProcessEvent& event)
-{
-	m_running = false;
-	printf("Instance exited with code %i.\n", event.GetExitCode());
-	delete instProc;
-	instProc = nullptr;
-	if (evtHandler != NULL)
-	{
-		evtHandler->AddPendingEvent(event);
-	}
-}
-
-void Instance::SetEvtHandler(wxEvtHandler* handler)
-{
-	evtHandler = handler;
-}
-
-bool Instance::IsRunning() const
-{
-	return m_running;
-}
-
-wxProcess* Instance::GetInstProcess() const
-{
-	return instProc;
-}
-
-wxString Instance::GetLastLaunchCommand() const
-{
-	return m_lastLaunchCommand;
-}
-
 ModList *Instance::GetModList()
 {
 	// if nothing requested the jar list yet, load it.
@@ -700,9 +559,3 @@ void Instance::SetGroup ( const wxString& group )
 {
 	parentModel->SetInstanceGroup(this, group);
 }
-
-
-
-BEGIN_EVENT_TABLE(Instance, wxEvtHandler)
-	EVT_END_PROCESS(wxID_ANY, Instance::OnInstProcExited)
-END_EVENT_TABLE()

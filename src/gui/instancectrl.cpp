@@ -206,6 +206,7 @@ bool InstanceCtrl::GetGroupRect ( int group, wxRect& rect, bool view_relative )
 		}
 		return true;
 	}
+	return false;
 }
 
 

@@ -44,6 +44,7 @@
 #include "savemgrwindow.h"
 #include "stdinstance.h"
 #include <mcversionlist.h>
+#include <mcprocess.h>
 #include "lwjglinstalltask.h"
 #include "ftbselectdialog.h"
 
@@ -993,17 +994,17 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 			delete task;
 		}
 		
-		if(inst->Launch(result.username, result.sessionID, true) != nullptr)
+		InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, !launchInstance.IsEmpty());
+		cwin->SetUserInfo(result.username, result.sessionID);
+		cwin->SetName(wxT("InstConsoleWindow"));
+		if (!wxPersistenceManager::Get().RegisterAndRestore(cwin))
+			cwin->CenterOnScreen();
+		
+		if(MinecraftProcess::Launch(inst, cwin, result.username, result.sessionID) != nullptr)
 		{
 			Show(false);
-			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, 
-				!launchInstance.IsEmpty());
-			cwin->SetUserInfo(result.username, result.sessionID);
-			cwin->SetName(wxT("InstConsoleWindow"));
-			if (!wxPersistenceManager::Get().RegisterAndRestore(cwin))
-				cwin->CenterOnScreen();
-			cwin->Start();
-			instListCtrl->ReloadAll();
+			cwin->Show(settings->GetShowConsole());
+			//instListCtrl->ReloadAll(); // why?
 		}
 		else
 		{
