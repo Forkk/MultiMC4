@@ -841,7 +841,7 @@ msgstr "Импорт существующей папки .minecraft"
 
 #: gui/mainwindow.cpp:617
 msgid "Import existing Minecraft folder"
-msgstr ""Импорт существующей папки Minecraft"
+msgstr "Импорт существующей папки Minecraft"
 
 #: gui/mainwindow.cpp:147 gui/mainwindow.cpp:573
 msgid "Import from FTB launcher."
