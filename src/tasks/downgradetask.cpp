@@ -64,13 +64,13 @@ bool DowngradeTask::DownloadPatches()
 {
 	SetStep(STEP_DOWNLOAD_PATCHES);
 
-	const int patchURLCount = 5;
+	const int patchURLCount = 2;
 	const wxString patchURLs[patchURLCount] =
 	{ 
 		"minecraft.ptch", 
-		"lwjgl.ptch",
+		/*"lwjgl.ptch",
 		"lwjgl_util.ptch",
-		"jinput.ptch",
+		"jinput.ptch",*/
 		"checksum.json",
 	};
 
@@ -145,13 +145,13 @@ bool DowngradeTask::VerifyOriginalFiles()
 {
 	SetStep(STEP_VERIFY_FILES);
 
-	const int patchFileCount = 4;
+	const int patchFileCount = 1;
 	const wxString patchFiles[] =
 	{ 
 		"minecraft", 
-		"lwjgl",
+		/*"lwjgl",
 		"lwjgl_util",
-		"jinput",
+		"jinput",*/
 	};
 
 	using namespace boost::property_tree;
@@ -206,13 +206,13 @@ bool DowngradeTask::VerifyOriginalFiles()
 
 bool DowngradeTask::ApplyPatches()
 {
-	const int patchFileCount = 4;
+	const int patchFileCount = 1;
 	const wxString patchFiles[] =
 	{ 
 		"minecraft", 
-		"lwjgl",
+		/*"lwjgl",
 		"lwjgl_util",
-		"jinput",
+		"jinput",*/
 	};
 
 	SetStep(STEP_APPLY_PATCHES);
@@ -262,13 +262,13 @@ bool DowngradeTask::VerifyPatchedFiles()
 
 	SetStep(STEP_VERIFY_FILES2);
 
-	const int patchFileCount = 4;
+	const int patchFileCount = 1;
 	const wxString patchFiles[] =
 	{ 
 		"minecraft", 
-		"lwjgl",
+		/*"lwjgl",
 		"lwjgl_util",
-		"jinput",
+		"jinput",*/
 	};
 
 	using namespace boost::property_tree;
