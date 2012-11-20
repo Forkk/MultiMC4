@@ -18,7 +18,7 @@
 
 #include "data/instance.h"
 #include "instancectrl.h"
-#include "fsutils.h"
+#include "utils/fsutils.h"
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
@@ -69,13 +69,13 @@ bool InstanceModel::SelectInstanceByID ( wxString select )
 
 void InstanceModel::Clear()
 {
-	for(int i = 0; i < size(); i++)
+	for(unsigned i = 0; i < size(); i++)
 		delete m_instances[i];
 	m_instances.clear();
 	m_previousIndex = -1;
 	m_selectedIndex = -1;
 
-	for (int i = 0; i < m_groups.size(); i++)
+	for (unsigned i = 0; i < m_groups.size(); i++)
 		delete m_groups[i];
 	m_groups.clear();
 	

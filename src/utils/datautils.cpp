@@ -14,6 +14,7 @@
 //    limitations under the License.
 //
 
+#include "multimc_pragma.h"
 #include "datautils.h"
 #include <wx/sstream.h>
 #include <wx/tokenzr.h>

@@ -13,7 +13,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-
+#include "multimc_pragma.h"
 #include "instance.h"
 #include "stdinstance.h"
 
@@ -27,8 +27,8 @@
 #include <memory>
 #include <sstream>
 
-#include "osutils.h"
-#include "datautils.h"
+#include "utils/osutils.h"
+#include "utils/datautils.h"
 #include "insticonlist.h"
 #include "java/javautils.h"
 #include "instancemodel.h"

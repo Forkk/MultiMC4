@@ -22,7 +22,7 @@
 #include <wx/fileconf.h>
 #include <wx/confbase.h>
 
-#include "osutils.h"
+#include "utils/osutils.h"
 
 #if WINDOWS
 #define JPATH_FIELD_NAME "JPathWindows"

@@ -15,8 +15,8 @@
 //
 
 #include "filedownloadtask.h"
-#include "curlutils.h"
-#include <apputils.h>
+#include "utils/curlutils.h"
+#include "utils/apputils.h"
 #include <wx/wfstream.h>
 
 FileDownloadTask::FileDownloadTask(const wxString &src, const wxFileName &dest, const wxString &message)

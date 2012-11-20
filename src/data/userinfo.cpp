@@ -21,7 +21,7 @@
 #include <wx/sstream.h>
 #include <wx/filename.h>
 
-#include "fsutils.h"
+#include "utils/fsutils.h"
 
 UserInfo::UserInfo(LoginDialog& loginDlg)
 {

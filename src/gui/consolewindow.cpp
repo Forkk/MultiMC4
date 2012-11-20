@@ -38,8 +38,8 @@
 
 #include "multimc.h"
 #include "resources/consoleicon.h"
-#include "apputils.h"
-#include "osutils.h"
+#include "utils/apputils.h"
+#include "utils/osutils.h"
 #include "version.h"
 #include "buildtag.h"
 #include "mcprocess.h"
@@ -476,7 +476,7 @@ bool InstConsoleWindow::CheckCommonProblems(const wxString& output)
 		// We have an ID conflict.
 		wxArrayString values;
 
-		for (int i = 0; i < idConflictRegex.GetMatchCount(); i++)
+		for (unsigned i = 0; i < idConflictRegex.GetMatchCount(); i++)
 		{
 			values.Add(idConflictRegex.GetMatch(output, i));
 		}

@@ -21,8 +21,8 @@
 #include <wx/zipstrm.h>
 
 #include "mainwindow.h"
-#include "apputils.h"
-#include "fsutils.h"
+#include "utils/apputils.h"
+#include "utils/fsutils.h"
 
 #include "stdinstance.h"
 

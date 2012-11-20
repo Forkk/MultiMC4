@@ -24,8 +24,8 @@
 #include <wx/regex.h>
 #include <wx/numformatter.h>
 
-#include "httputils.h"
-#include "apputils.h"
+#include "utils/httputils.h"
+#include "utils/apputils.h"
 
 const wxString rssURL = "http://sourceforge.net/api/file/index/project-id/58488/mtime/desc/rss";
 

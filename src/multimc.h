@@ -23,7 +23,7 @@
 
 #include <wx/cmdline.h>
 
-#include "langutils.h"
+#include "utils/langutils.h"
 
 extern const wxString licenseText;
 

@@ -22,8 +22,8 @@
 #include <wx/url.h>
 #include <wx/wfstream.h>
 
-#include "curlutils.h"
-#include "osutils.h"
+#include "utils/curlutils.h"
+#include "utils/osutils.h"
 
 enum UpdateState
 {

@@ -26,8 +26,8 @@
 #include <string>
 #include <sstream>
 
-#include "apputils.h"
-#include "httputils.h"
+#include "utils/apputils.h"
+#include "utils/httputils.h"
 
 const wxString mcnwebURL = "http://sonicrules.org/mcnweb.py";
 
@@ -73,6 +73,7 @@ bool DowngradeDialog::DoLoadList()
 				e.line(), wxStr(e.message()).c_str());
 			return false;
 		}
+		return true;
 	}
 	else
 	{

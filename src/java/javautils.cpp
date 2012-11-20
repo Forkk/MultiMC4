@@ -1,3 +1,4 @@
+#include "multimc_pragma.h"
 #include "classfile.h"
 #include "javautils.h"
 #include <wx/zipstrm.h>

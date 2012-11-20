@@ -35,7 +35,7 @@
 #include "importpackwizard.h"
 #include "downgradedialog.h"
 #include "downgradetask.h"
-#include "fsutils.h"
+#include "utils/fsutils.h"
 #include "aboutdlg.h"
 #include "updatepromptdlg.h"
 #include "taskprogressdialog.h"

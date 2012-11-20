@@ -28,6 +28,13 @@
      bzBuffToBuffDecompress.  Fixed.
 */
 
+#ifdef _MSC_VER
+	//'function': was declared deprecated
+	#define _CRT_SECURE_NO_DEPRECATE
+	#define _SCL_SECURE_NO_DEPRECATE
+	#pragma warning( disable: 4996 )
+#endif
+
 #include "bzlib_private.h"
 
 
