@@ -146,14 +146,8 @@ void InstConsoleWindow::OnProcessExit( bool killed, int status )
 	
 	AppendMessage(wxString::Format(_("Minecraft exited with code %i."), status));
 
-	bool keepOpen;
+	bool keepOpen = CheckCommonProblems(consoleTextCtrl->GetValue());
 
-	// Keep the console open if there's a problem.
-	if (CheckCommonProblems(consoleTextCtrl->GetValue()))
-	{
-		keepOpen = true;
-	}
-	
 	AllowClose();
 	if (killed)
 	{
