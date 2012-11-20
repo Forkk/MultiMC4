@@ -445,7 +445,7 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 		}
 		delete task;
 	}
-	else if (response == id_pastebin) // Save to file
+	else if (response == id_file) // Save to file
 	{
 		wxFileDialog saveReportDlg(this, _("Save Crash Report"), wxGetCwd(), 
 			wxDateTime::Now().Format("MultiMC_Report_%m-%d-%Y_%H-%M-%S.txt"), 
