@@ -1004,7 +1004,7 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 		{
 			Show(false);
 			cwin->Show(settings->GetShowConsole());
-			//instListCtrl->ReloadAll(); // why?
+			instListCtrl->ReloadAll();
 		}
 		else
 		{

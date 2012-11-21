@@ -74,11 +74,11 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin, bool qui
 	
 	killButton = new wxButton(mainPanel, wxID_DELETE, _("&Kill Minecraft"));
 	btnBox->Add(killButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
-	closeButton = new wxButton(mainPanel, wxID_CLOSE, _("&Hidez"));
+	closeButton = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
 	btnBox->Add(closeButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
 
 	// close is close at this point. there is no linked process yet.
-	//SetCloseIsHide(false);
+	SetCloseIsHide(false);
 	
 	consoleIcons = new wxIconArray();
 	wxMemoryInputStream iconInput1(console, sizeof(console));
@@ -162,7 +162,7 @@ void InstConsoleWindow::OnProcessExit( bool killed, int status )
 		Show();
 		Raise();
 	}
-	else if (settings->GetAutoCloseConsole() && !crashReportIsOpen && !keepOpen)
+	else if ((settings->GetAutoCloseConsole() || !IsShown() ) && !crashReportIsOpen && !keepOpen)
 	{
 		Close();
 	}
@@ -207,8 +207,11 @@ void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
 		Show(false);
 		return;
 	}
-	
-	wxPersistenceManager::Get().SaveAndUnregister(this);
+	auto & persist = wxPersistenceManager::Get();
+	if(persist.Find(this) != nullptr)
+	{
+		persist.SaveAndUnregister(this);
+	}
 	if (trayIcon->IsIconInstalled())
 		trayIcon->RemoveIcon();
 	Destroy();
