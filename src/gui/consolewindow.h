@@ -52,8 +52,6 @@ public:
 	bool LinkProcess(MinecraftProcess *process);
 	void OnProcessExit(bool killed, int status);
 	
-	void OnKillMC(wxCommandEvent &event);
-
 protected:
 	wxString m_username, m_sessID;
 
@@ -68,6 +66,8 @@ protected:
 		
 		void OnShowConsole(wxCommandEvent &event);
 		void OnKillMC(wxCommandEvent &event);
+		void TaskBarLeft(wxTaskBarIconEvent &e);
+
 	protected:
 		
 		InstConsoleWindow *m_console;
@@ -93,15 +93,15 @@ protected:
 	void OnProcessTimer(wxTimerEvent& event);
 	void OnIdle(wxIdleEvent& event);
 
-	void OnCloseClicked(wxCommandEvent &event);
 	void OnWindowClosed(wxCloseEvent &event);
 
 	void OnGenReportClicked(wxCommandEvent& event);
 	void OnPastebinClicked(wxCommandEvent& event);
-	
-	void AllowClose(bool allow = true);
+	void OnKillMC(wxCommandEvent &event);
+	void OnCloseButton(wxCommandEvent &event);
 	
 	void Close();
+	void SetCloseIsHide(bool isHide);
 
 	enum State
 	{
@@ -110,7 +110,7 @@ protected:
 	};
 	void SetState(State newstate);
 	
-	bool m_closeAllowed;
+	bool closeIsHide;
 	bool crashReportIsOpen;
 	wxTimer m_timerIdleWakeUp;
 	MinecraftProcess* m_running;
