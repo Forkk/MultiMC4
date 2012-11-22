@@ -1,4 +1,4 @@
-project(patchlib)
+project(patchlib C)
 
 set(SRCS 
 blocksort.c

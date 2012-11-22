@@ -38,8 +38,8 @@
 
 #include "multimc.h"
 #include "resources/consoleicon.h"
-#include "apputils.h"
-#include "osutils.h"
+#include "utils/apputils.h"
+#include "utils/osutils.h"
 #include "version.h"
 #include "buildtag.h"
 #include "mcprocess.h"
@@ -72,14 +72,13 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin, bool qui
 
 	btnBox->AddStretchSpacer();
 	
-	killButton = new wxButton(mainPanel, wxID_CANCEL, _("&Kill Minecraft"));
+	killButton = new wxButton(mainPanel, wxID_DELETE, _("&Kill Minecraft"));
 	btnBox->Add(killButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
 	closeButton = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
 	btnBox->Add(closeButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
-	
-	
-	// disable close button and the X button provided by the window manager
-	AllowClose(false);
+
+	// close is close at this point. there is no linked process yet.
+	SetCloseIsHide(false);
 	
 	consoleIcons = new wxIconArray();
 	wxMemoryInputStream iconInput1(console, sizeof(console));
@@ -143,55 +142,51 @@ void InstConsoleWindow::OnProcessExit( bool killed, int status )
 	else
 		m_running->Detach();
 	m_running = nullptr;
+	SetCloseIsHide(false);
 	
 	AppendMessage(wxString::Format(_("Minecraft exited with code %i."), status));
 
-	bool keepOpen;
+	bool keepOpen = CheckCommonProblems(consoleTextCtrl->GetValue());
 
-	// Keep the console open if there's a problem.
-	if (CheckCommonProblems(consoleTextCtrl->GetValue()))
-	{
-		keepOpen = true;
-	}
-	
-	AllowClose();
 	if (killed)
 	{
 		AppendMessage(_("Minecraft was killed."));
 		SetState(STATE_BAD);
 		Show();
+		Raise();
 	}
 	else if (status != 0)
 	{
 		AppendMessage(_("Minecraft has crashed!"));
 		SetState(STATE_BAD);
 		Show();
+		Raise();
 	}
-	else if (settings->GetAutoCloseConsole() && !crashReportIsOpen && !keepOpen)
+	else if ((settings->GetAutoCloseConsole() || !IsShown() ) && !crashReportIsOpen && !keepOpen)
 	{
 		Close();
 	}
 	else
 	{
 		Show();
+		Raise();
 	}
 }
 
-void InstConsoleWindow::AllowClose(bool allow)
+void InstConsoleWindow::SetCloseIsHide ( bool isHide )
 {
-	if(allow)
+	closeIsHide = isHide;
+	killButton->Enable(isHide);
+	if(closeIsHide)
 	{
-		EnableCloseButton(true);
-		m_closeAllowed = true;
-		closeButton->Enable();
+		closeButton->SetLabel("&Hide");
 	}
 	else
 	{
-		EnableCloseButton(false);
-		m_closeAllowed = false;
-		closeButton->Enable(false);
+		closeButton->SetLabel("&Close");
 	}
 }
+
 
 void InstConsoleWindow::Close()
 {
@@ -200,42 +195,63 @@ void InstConsoleWindow::Close()
 	
 	//FIXME: is this actually intended? This calls OnWindowClosed() via wxFrame
 	wxFrame::Close();
-	if (trayIcon->IsIconInstalled())
-		trayIcon->RemoveIcon();
-	m_mainWin->Show();
 }
 
-void InstConsoleWindow::OnCloseClicked(wxCommandEvent& event)
-{
-	Close();
-}
 
 //NOTE: indirectly called by Close()
 void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
 {
-	if (event.CanVeto() && !m_closeAllowed)
+	if(closeIsHide && event.CanVeto())
 	{
-		event.Veto();
+		event.Veto(true);
+		Show(false);
+		return;
+	}
+	auto & persist = wxPersistenceManager::Get();
+	if(persist.Find(this) != nullptr)
+	{
+		persist.SaveAndUnregister(this);
+	}
+	if (trayIcon->IsIconInstalled())
+		trayIcon->RemoveIcon();
+	Destroy();
+	
+	if (m_quitAppOnClose)
+	{
+		m_mainWin->Destroy();
+		wxGetApp().ExitMainLoop();
 	}
 	else
 	{
-		wxPersistenceManager::Get().SaveAndUnregister(this);
-		if (trayIcon->IsIconInstalled())
-			trayIcon->RemoveIcon();
 		m_mainWin->Show();
-		Destroy();
-		if (m_quitAppOnClose)
-		{
-			m_mainWin->Destroy();
-			wxGetApp().ExitMainLoop();
-		}
+		m_mainWin->Raise();
 	}
 }
+
+void InstConsoleWindow::OnCloseButton ( wxCommandEvent& event )
+{
+	Close();
+}
+
 
 InstConsoleWindow::ConsoleIcon::ConsoleIcon(InstConsoleWindow *console)
 {
 	m_console = console;
 }
+
+void InstConsoleWindow::ConsoleIcon::TaskBarLeft ( wxTaskBarIconEvent& e )
+{
+	if(!m_console->IsShown() || m_console->IsIconized())
+	{
+		m_console->Show();
+		m_console->Raise();
+	}
+	else
+	{
+		m_console->Iconize();
+	}
+}
+
 
 void InstConsoleWindow::SetState ( InstConsoleWindow::State newstate )
 {
@@ -266,6 +282,8 @@ wxMenu *InstConsoleWindow::ConsoleIcon::CreatePopupMenu()
 void InstConsoleWindow::ConsoleIcon::OnShowConsole(wxCommandEvent &event)
 {
 	m_console->Show(event.IsChecked());
+	if(event.IsChecked())
+		m_console->Raise();
 }
 
 void InstConsoleWindow::ConsoleIcon::OnKillMC(wxCommandEvent &event)
@@ -278,7 +296,7 @@ void InstConsoleWindow::OnKillMC ( wxCommandEvent& event )
 	if(m_running == nullptr)
 		return;
 	if (wxMessageBox(_("Killing Minecraft may damage saves. You should only do this if the game is frozen."),
-		_("Are you sure?"), wxOK | wxCANCEL | wxCENTER) == wxOK)
+		_("Are you sure?"), wxOK | wxCANCEL | wxCENTER, this) == wxOK)
 	{
 		m_running->KillMinecraft();
 	}
@@ -295,6 +313,7 @@ bool InstConsoleWindow::LinkProcess(MinecraftProcess *process)
 	{
 		m_running = process;
 		m_timerIdleWakeUp.Start(100);
+		SetCloseIsHide(true);
 		return true;
 	}
 	return false;
@@ -425,6 +444,7 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 
 
 	crashReportIsOpen = true;
+	msgDlg.CenterOnParent();
 	int response = msgDlg.ShowModal();
 	crashReportIsOpen = false;
 	if (response == id_pastebin) // Pastebin
@@ -482,7 +502,7 @@ bool InstConsoleWindow::CheckCommonProblems(const wxString& output)
 		// We have an ID conflict.
 		wxArrayString values;
 
-		for (int i = 0; i < idConflictRegex.GetMatchCount(); i++)
+		for (unsigned i = 0; i < idConflictRegex.GetMatchCount(); i++)
 		{
 			values.Add(idConflictRegex.GetMatch(output, i));
 		}
@@ -507,7 +527,7 @@ bool InstConsoleWindow::CheckCommonProblems(const wxString& output)
 
 
 BEGIN_EVENT_TABLE(InstConsoleWindow, wxFrame)
-	EVT_BUTTON(wxID_CLOSE, InstConsoleWindow::OnCloseClicked)
+	EVT_BUTTON(wxID_CLOSE, InstConsoleWindow::OnCloseButton)
 	EVT_BUTTON(wxID_CANCEL, InstConsoleWindow::OnKillMC)
 	EVT_CLOSE( InstConsoleWindow::OnWindowClosed )
 	EVT_IDLE(InstConsoleWindow::OnIdle)
@@ -519,4 +539,6 @@ END_EVENT_TABLE()
 BEGIN_EVENT_TABLE(InstConsoleWindow::ConsoleIcon, wxTaskBarIcon)
 	EVT_MENU(ID_SHOW_CONSOLE, InstConsoleWindow::ConsoleIcon::OnShowConsole)
 	EVT_MENU(ID_KILL_MC, InstConsoleWindow::ConsoleIcon::OnKillMC)
+	EVT_TASKBAR_LEFT_DOWN(InstConsoleWindow::ConsoleIcon::TaskBarLeft)
+	
 END_EVENT_TABLE()

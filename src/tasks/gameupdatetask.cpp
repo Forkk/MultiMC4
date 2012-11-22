@@ -15,7 +15,7 @@
 //
 
 #include "gameupdatetask.h"
-#include <apputils.h>
+
 
 #include <wx/wfstream.h>
 #include <wx/sstream.h>
@@ -26,7 +26,8 @@
 
 #include <md5/md5.h>
 
-#include "curlutils.h"
+#include "utils/curlutils.h"
+#include "utils/apputils.h"
 
 DEFINE_EVENT_TYPE(wxEVT_GAME_UPDATE_COMPLETE)
 

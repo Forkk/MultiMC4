@@ -15,12 +15,12 @@
 //
 
 #include "appsettings.h"
-#include <apputils.h>
+#include "utils/apputils.h"
 #include <boost/property_tree/ini_parser.hpp>
 
 #include "version.h"
 
-#include "langutils.h"
+#include "utils/langutils.h"
 
 AppSettings *settings;
 

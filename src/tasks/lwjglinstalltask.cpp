@@ -15,17 +15,15 @@
 //
 
 #include "lwjglinstalltask.h"
-#include <fsutils.h>
 #include <wx/wfstream.h>
 #include <wx/dir.h>
-
-#include <apputils.h>
 
 #include <set>
 #include <memory>
 
 #include "instance.h"
-#include "apputils.h"
+#include "utils/apputils.h"
+#include "utils/fsutils.h"
 
 LWJGLInstallTask::LWJGLInstallTask(Instance *inst, const wxString &path)
 {

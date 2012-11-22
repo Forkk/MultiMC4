@@ -19,9 +19,9 @@
 #include <wx/wfstream.h>
 #include <wx/sstream.h>
 
-#include "curlutils.h"
-#include "apputils.h"
-#include "fsutils.h"
+#include "utils/curlutils.h"
+#include "utils/apputils.h"
+#include "utils/fsutils.h"
 
 PastebinTask::PastebinTask(const wxString& content, const wxString& author)
 	: Task(), m_content(content), m_author(author)

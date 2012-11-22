@@ -24,8 +24,8 @@
 #include <string>
 #include <sstream>
 
-#include "apputils.h"
-#include "httputils.h"
+#include "utils/apputils.h"
+#include "utils/httputils.h"
 #include "taskprogressdialog.h"
 #include "lambdatask.h"
 

@@ -20,8 +20,8 @@
 #include <wx/dir.h>
 #include <wx/valnum.h>
 
-#include <apputils.h>
-#include <fsutils.h>
+#include <utils/apputils.h>
+#include <utils/fsutils.h>
 
 #include "multimc.h"
 #include "instance.h"
@@ -639,7 +639,7 @@ Are you sure you want to use dev builds?"),
 			bool languageSet = false;
 			wxString langName = langSelectorBox->GetStringSelection();
 			const LanguageArray* langs = wxGetApp().localeHelper.GetLanguages();
-			for (int i = 0; i < langs->size(); i++)
+			for (unsigned i = 0; i < langs->size(); i++)
 			{
 				if (langs->operator[](i).m_name == langName &&
 					langs->operator[](i).m_canonicalName != currentSettings->GetLanguage())
@@ -796,7 +796,7 @@ void SettingsDialog::LoadSettings()
 
 		int selectedIndex = -1;
 		const LanguageArray* langs = wxGetApp().localeHelper.GetLanguages();
-		for (int i = 0; i < langs->size(); i++)
+		for (unsigned i = 0; i < langs->size(); i++)
 		{
 			wxString langCName = langs->operator[](i).m_canonicalName;
 			langSelectorBox->Append(langs->operator[](i).m_name);

@@ -14,9 +14,10 @@
 //    limitations under the License.
 //
 
-#include "apputils.h"
 #include <wx/wx.h>
 #include <wx/arrstr.h>
+
+#include "apputils.h"
 #include "osutils.h"
 
 void Utils::OpenFolder(wxFileName path)

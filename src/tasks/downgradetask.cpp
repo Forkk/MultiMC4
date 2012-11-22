@@ -24,9 +24,9 @@
 #include "md5/md5.h"
 #include "bspatch.h"
 
-#include "curlutils.h"
-#include "httputils.h"
-#include "apputils.h"
+#include "utils/curlutils.h"
+#include "utils/httputils.h"
+#include "utils/apputils.h"
 
 const wxString mcnwebURL = "http://sonicrules.org/mcnweb.py";
 

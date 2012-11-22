@@ -166,7 +166,7 @@ public:
 		auto buf = str.ToAscii();
 
 		const wxString numbers = "1234567890";
-		for (int i = 0; i < str.Length(); i++)
+		for (unsigned i = 0; i < str.Length(); i++)
 		{
 			if (!numbers.Contains(str[i]))
 			{

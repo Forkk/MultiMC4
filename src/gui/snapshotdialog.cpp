@@ -80,7 +80,7 @@ void SnapshotDialog::LoadList()
 
 		LambdaTask *lTask = new LambdaTask(func);
 		TaskProgressDialog taskDlg(this);
-		success = taskDlg.ShowModal(lTask);
+		success = taskDlg.ShowModal(lTask) > 0;
 		delete lTask;
 	}
 	else

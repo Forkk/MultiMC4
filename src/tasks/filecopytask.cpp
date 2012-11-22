@@ -16,8 +16,8 @@
 
 #include "filecopytask.h"
 
-#include "apputils.h"
-#include "fsutils.h"
+#include "utils/apputils.h"
+#include "utils/fsutils.h"
 
 #include <wx/string.h>
 #include <wx/dir.h>

@@ -15,12 +15,12 @@
 //
 
 #include "logintask.h"
-#include <apputils.h>
+#include <utils/apputils.h>
 #include <wx/tokenzr.h>
 #include <wx/url.h>
 #include <wx/sstream.h>
 #include <sstream>
-#include "curlutils.h"
+#include "utils/curlutils.h"
 
 #include "config.h"
 

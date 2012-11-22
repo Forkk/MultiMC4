@@ -24,8 +24,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifdef _WIN32
+#ifdef _MSC_VER
+	// bogus 'secure' nonsense
 	#define _CRT_SECURE_NO_WARNINGS
+	// bogus signed/unsigned mismatch
+	#pragma warning( disable: 4018)
+#endif
+
+#ifdef _WIN32
 	#include <sys/types.h>
 	#define ssize_t size_t
 #else

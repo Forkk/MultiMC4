@@ -18,8 +18,8 @@
 
 #include <wx/dir.h>
 
-#include "apputils.h"
-#include "httputils.h"
+#include "utils/apputils.h"
+#include "utils/httputils.h"
 
 SelectFTBDialog::SelectFTBDialog(wxWindow *parent, const wxString& ftbDir)
 	: ListSelectDialog(parent, _("Select FTB pack to import"))
@@ -50,6 +50,7 @@ bool SelectFTBDialog::DoLoadList()
 			sList.Add(filename);
 		}
 	}
+	return true;
 }
 
 wxString SelectFTBDialog::GetSelectedFolder() const

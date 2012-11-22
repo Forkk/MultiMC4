@@ -35,7 +35,7 @@
 #include "importpackwizard.h"
 #include "downgradedialog.h"
 #include "downgradetask.h"
-#include "fsutils.h"
+#include "utils/fsutils.h"
 #include "aboutdlg.h"
 #include "updatepromptdlg.h"
 #include "taskprogressdialog.h"
@@ -1004,7 +1004,7 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 		{
 			Show(false);
 			cwin->Show(settings->GetShowConsole());
-			//instListCtrl->ReloadAll(); // why?
+			instListCtrl->ReloadAll();
 		}
 		else
 		{

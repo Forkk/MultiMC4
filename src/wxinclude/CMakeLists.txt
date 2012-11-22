@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
-project (wxinclude)
+project (wxinclude CXX)
 
 IF(UNIX)
   # assume GCC, add C++0x/C++11 stuff

@@ -23,9 +23,9 @@ TaskProgressDialog::TaskProgressDialog ( wxWindow* parent)
 {
 	wxClientDC dc(this);
 	dc.SetFont(wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT));
-	long widthText = 0;
-	long heightText = 0;
-	long lineHeight = 0;
+	wxCoord widthText = 0;
+	wxCoord heightText = 0;
+	wxCoord lineHeight = 0;
 	dc.GetTextExtent(initial_text, &widthText, &heightText, NULL, NULL, NULL);
 	dc.GetTextExtent("ABEND", NULL, &lineHeight, NULL, NULL, NULL);
 	

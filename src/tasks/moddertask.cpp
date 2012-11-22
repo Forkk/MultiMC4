@@ -15,10 +15,10 @@
 //
 
 #include "moddertask.h"
-#include <fsutils.h>
+#include <utils/fsutils.h>
 #include <wx/wfstream.h>
 #include <wx/fs_mem.h>
-#include <apputils.h>
+#include <utils/apputils.h>
 
 #include <set>
 #include <memory>

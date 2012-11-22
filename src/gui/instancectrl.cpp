@@ -2,12 +2,12 @@
  * Derived from the thumbnail control example by Julian Smart
  */
 
-// For compilers that support precompilation, includes "wx.h".
-#include "wx/wxprec.h"
 
-#ifndef WX_PRECOMP
-#include "wx/wx.h"
-#endif
+
+
+#include "multimc_pragma.h"
+#include <wx/wx.h>
+
 
 #include "instancectrl.h"
 
@@ -618,7 +618,7 @@ bool InstanceCtrl::InstCtrlDropTarget::OnDropText(wxCoord x, wxCoord y, const wx
 	GroupVisual *gv = m_parent->GetGroup(coord);
 	if (gv)
 	{
-		for (int i = 0; i < m_parent->m_instList->size(); i++)
+		for (unsigned i = 0; i < m_parent->m_instList->size(); i++)
 		{
 			Instance * inst = m_parent->m_instList->at(i);
 			if (inst->GetInstID() == data)
@@ -919,7 +919,7 @@ bool InstanceCtrl::Navigate(int keyCode, int flags)
 		else
 		{
 			// go to first item of first visible group
-			for(int i = 0; i < m_groups.size(); i++)
+			for(unsigned i = 0; i < m_groups.size(); i++)
 			{
 				if(m_groups[i].IsExpanded())
 				{
@@ -1105,14 +1105,14 @@ void InstanceCtrl::HitTest( const wxPoint& pt, VisualCoord& n )
 	GetViewStart(& startX, & startY);
 	GetScrollPixelsPerUnit(& ppuX, & ppuY);
 	
-	int perRow = GetItemsPerRow();
+	unsigned perRow = GetItemsPerRow();
 	
-	int colPos = (int)(pt.x / (m_itemWidth + m_spacing));
-	int rowPos = 0;
+	unsigned colPos = (int)(pt.x / (m_itemWidth + m_spacing));
+	unsigned rowPos = 0;
 	int actualY = pt.y + startY * ppuY;
 	
 	GroupVisual * found = nullptr;
-	int grpIdx = 0;
+	unsigned grpIdx = 0;
 	for(; grpIdx < m_groups.size(); grpIdx++)
 	{
 		GroupVisual & gv = m_groups[grpIdx];
@@ -1146,8 +1146,8 @@ void InstanceCtrl::HitTest( const wxPoint& pt, VisualCoord& n )
 		rowPos++;
 	rowPos--;
 	
-	int itemN = (rowPos * perRow + colPos);
-	if (itemN >= found->items.size() || itemN < 0)
+	unsigned itemN = (rowPos * perRow + colPos);
+	if (itemN >= found->items.size())
 		return;
 		
 	wxRect rect;
@@ -1248,7 +1248,7 @@ void GroupVisual::Reflow ( int perRow, int spacing, int margin, int lineHeight, 
 void InstanceCtrl::ReflowAll()
 {
 	int progressive_y = 0;
-	for(int i = 0; i < m_groups.size(); i++)
+	for(unsigned i = 0; i < m_groups.size(); i++)
 	{
 		GroupVisual & gv = m_groups[i];
 		gv.Reflow(m_itemsPerRow,m_spacing,m_itemMargin,m_itemTextHeight,m_ImageSize.GetHeight(), progressive_y);
@@ -1278,7 +1278,7 @@ void InstanceVisual::updateName()
 	text_lines = 0;
 	name_wrapped = wxString();
 	
-	for (int i = 0; i < extents.size(); i++)
+	for (unsigned i = 0; i < extents.size(); i++)
 	{
 		if (raw_name[i] == wxT(' '))
 		{
@@ -1499,11 +1499,11 @@ void InstanceCtrl::ReloadAll()
 	
 	// sort the groups and construct a mapping from IDs to indexes
 	m_groups.Sort(NameSort);
-	for(int i = 0; i < m_groups.size(); i++)
+	for(unsigned i = 0; i < m_groups.size(); i++)
 	{
 		GroupVisual & grp = m_groups[i];
 		grp.SetIndex(i);
-		for(int j = 0; j < grp.items.size(); j++)
+		for(unsigned j = 0; j < grp.items.size(); j++)
 		{
 			InstanceVisual & iv = grp.items[j];
 			int ID = iv.GetID();
@@ -1529,7 +1529,7 @@ void InstanceCtrl::ReloadAll()
 	// Disable group headers in single column mode. Groups are still there, but their existence is hidden.
 	if (GetWindowStyle() & wxINST_SINGLE_COLUMN)
 	{
-		for (int i = 0; i < m_groups.size(); i++)
+		for (unsigned i = 0; i < m_groups.size(); i++)
 		{
 			m_groups[i].no_header = true;
 			m_groups[i].always_show = true;
