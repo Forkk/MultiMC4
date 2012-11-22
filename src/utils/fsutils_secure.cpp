@@ -66,7 +66,7 @@ BOOL CreateMyDACL(SECURITY_ATTRIBUTES * pSA)
 #ifdef MSVC
 	swprintf(long_str, 1024, TEXT("D:P(A;OI;GA;;;%s)"), pszSID);
 #else
-	swprintf(long_str, TEXT("D:P(A;OI;GA;;;%s)"), pszSID);
+	swprintf(long_str, L"D:P(A;OI;GA;;;%s)", pszSID);
 #endif
 	if(pSA == NULL)
 	{
