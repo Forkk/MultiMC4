@@ -100,13 +100,13 @@ void definefile ( std::ostringstream& data, std::ifstream& input, std::string& n
 	/* Define array */
 	data << "static" << ( useconst ? " const " : " " ) << "unsigned char " << name << "[] = {" << std::endl;
 
-	int size = input.tellg();
+	unsigned size = input.tellg();
 	input.seekg ( 0, std::ios::beg );
 
 	int c = 0;
 	int col = 0;
 
-	for ( int i = 1; i <= size; ++i )
+	for ( unsigned i = 1; i <= size; ++i )
 	{
 		/* Get character and add to array */
 		c = input.get();

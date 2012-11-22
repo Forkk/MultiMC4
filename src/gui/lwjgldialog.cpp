@@ -24,8 +24,8 @@
 #include <wx/regex.h>
 #include <wx/numformatter.h>
 
-#include "httputils.h"
-#include "apputils.h"
+#include "utils/httputils.h"
+#include "utils/apputils.h"
 
 const wxString rssURL = "http://sourceforge.net/api/file/index/project-id/58488/mtime/desc/rss";
 
@@ -59,7 +59,7 @@ bool ChooseLWJGLDialog::DoLoadList()
 		std::stringstream inStream(stdStr(rssXML), std::ios::in);
 		read_xml(inStream, pt);
 
-		wxRegEx lwjglRegex(wxT("^lwjgl-([0-9]\.?)+\.zip$"));
+		wxRegEx lwjglRegex(wxT("^lwjgl-([0-9]\\.?)+\\.zip$"));
 
 		BOOST_FOREACH(const ptree::value_type& v, pt.get_child("rss.channel"))
 		{

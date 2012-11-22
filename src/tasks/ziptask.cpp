@@ -15,11 +15,12 @@
 //
 
 #include "ziptask.h"
-#include <fsutils.h>
+
 #include <wx/wfstream.h>
 #include <wx/dir.h>
 
-#include <apputils.h>
+#include "utils/apputils.h"
+#include "utils/fsutils.h"
 
 #include <set>
 #include <memory>

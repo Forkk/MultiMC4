@@ -15,12 +15,12 @@
 //
 
 #include "logintask.h"
-#include <apputils.h>
+#include <utils/apputils.h>
 #include <wx/tokenzr.h>
 #include <wx/url.h>
 #include <wx/sstream.h>
 #include <sstream>
-#include "curlutils.h"
+#include "utils/curlutils.h"
 
 #include "config.h"
 
@@ -36,7 +36,7 @@ wxThread::ExitCode LoginTask::TaskStart()
 {
 	SetStatus(_("Logging in..."));
 
-	CURL *curl = curl_easy_init();
+	CURL *curl = InitCurlHandle();
 	// Get http://login.minecraft.net/?username=<username>&password=<password>&version=1337
 	wxCharBuffer login = m_userInfo.username.ToUTF8();
 	wxCharBuffer passwd = m_userInfo.password.ToUTF8();

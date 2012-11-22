@@ -17,8 +17,8 @@
 #include "modeditwindow.h"
 #include <wx/notebook.h>
 #include <wx/clipbrd.h>
-#include <apputils.h>
-#include <fsutils.h>
+#include "utils/apputils.h"
+#include "utils/fsutils.h"
 
 #include "exportinstwizard.h"
 
@@ -268,10 +268,6 @@ wxString ModEditWindow::ModListCtrl::OnGetItemText(long int item, long int colum
 
 wxListItemAttr* ModEditWindow::ModListCtrl::OnGetItemAttr ( long int item ) const
 {
-	if(item >= GetModList()->size())
-	{
-		//BUG: this should never happen! (yet it does)
-	}
 	return nullptr;
 }
 
@@ -1148,10 +1144,6 @@ wxString ModEditWindow::TexturePackListCtrl::OnGetItemText(long int item, long i
 
 wxListItemAttr *ModEditWindow::TexturePackListCtrl::OnGetItemAttr(long int item) const
 {
-	if(item >= GetTPList()->size())
-	{
-		//BUG: this should never happen! (yet it does)
-	}
 	return nullptr;
 }
 

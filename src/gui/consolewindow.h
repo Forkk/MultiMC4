@@ -20,18 +20,19 @@
 
 #include "instance.h"
 
+class MinecraftProcess;
+
 class InstConsoleWindow : public wxFrame
 {
+	enum timertype
+	{
+		wakeupidle=5000
+	};
+
 public:
 	InstConsoleWindow(Instance* inst, wxWindow* mainWin, bool quitAppOnClose = false);
 	virtual ~InstConsoleWindow();
 	
-	virtual bool Show(bool show = true);
-	bool Start();
-	
-	Instance *GetInstance();
-	void StopListening();
-
 	// Returns a "crash report" string that contains console logs, FML logs, 
 	// and ML logs as well as other useful info.
 	wxString GetCrashReport();
@@ -40,17 +41,21 @@ public:
 	// them to be "masked" in the user's crash report.
 	void SetUserInfo(wxString username, wxString sessID);
 	
-protected:
-	wxString m_username, m_sessID;
-
-	bool m_quitAppOnClose;
-
 	enum MessageType
 	{
 		MSGT_SYSTEM,
 		MSGT_STDOUT,
 		MSGT_STDERR,
 	};
+	void AppendMessage(const wxString &msg, MessageType msgT = MSGT_SYSTEM);
+	
+	bool LinkProcess(MinecraftProcess *process);
+	void OnProcessExit(bool killed, int status);
+	
+protected:
+	wxString m_username, m_sessID;
+
+	bool m_quitAppOnClose;
 
 	class ConsoleIcon : public wxTaskBarIcon
 	{
@@ -61,6 +66,8 @@ protected:
 		
 		void OnShowConsole(wxCommandEvent &event);
 		void OnKillMC(wxCommandEvent &event);
+		void TaskBarLeft(wxTaskBarIconEvent &e);
+
 	protected:
 		
 		InstConsoleWindow *m_console;
@@ -74,50 +81,28 @@ protected:
 	wxTextCtrl *consoleTextCtrl;
 	
 	wxButton *closeButton;
-	wxCheckBox *showConsoleCheckbox;
+	wxButton *killButton;
 	
 	wxWindow *m_mainWin;
 	Instance *m_inst;
-	
-	class InstConsoleListener : public wxThread
-	{
-	public:
-		enum Type
-		{
-			LISTENER_STDOUT,
-			LISTENER_STDERR,
-		};
 
-		InstConsoleListener(Instance* inst, InstConsoleWindow* console, 
-			Type lType = LISTENER_STDOUT);
-		
-		virtual void* Entry();
-		
-	protected:
-		Instance *m_inst;
-		wxProcess *instProc;
-		Type m_lType;
-		
-		InstConsoleWindow *console;
-		InstConsoleWindow* m_console;
-	} stdoutListener, stderrListener;
+	// Scans the output for common problems and alerts the user.
+	bool CheckCommonProblems(const wxString& output);
 	
-	void AppendMessage(const wxString &msg, MessageType msgT = MSGT_SYSTEM);
-	
-	void OnInstExit(wxProcessEvent &event);
-	void OnCloseClicked(wxCommandEvent &event);
+	// Called by timer to generate wakeupidle events
+	void OnProcessTimer(wxTimerEvent& event);
+	void OnIdle(wxIdleEvent& event);
+
 	void OnWindowClosed(wxCloseEvent &event);
-	void OnInstOutput(InstOutputEvent &event);
 
 	void OnGenReportClicked(wxCommandEvent& event);
 	void OnPastebinClicked(wxCommandEvent& event);
-	
-	void AllowClose(bool allow = true);
+	void OnKillMC(wxCommandEvent &event);
+	void OnCloseButton(wxCommandEvent &event);
 	
 	void Close();
+	void SetCloseIsHide(bool isHide);
 
-	void KillMinecraft(int tries = 0);
-	
 	enum State
 	{
 		STATE_OK,
@@ -125,10 +110,10 @@ protected:
 	};
 	void SetState(State newstate);
 	
-	bool m_closeAllowed;
-	bool instListenerStarted;
-	bool killedInst;
+	bool closeIsHide;
 	bool crashReportIsOpen;
+	wxTimer m_timerIdleWakeUp;
+	MinecraftProcess* m_running;
 	
 	DECLARE_EVENT_TABLE()
 };

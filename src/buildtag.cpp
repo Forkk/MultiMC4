@@ -23,7 +23,7 @@
 #include <string>
 #include <cstdlib>
 
-#include "apputils.h"
+#include "utils/apputils.h"
 
 const BuildTag AppBuildTag(_T(JENKINS_BUILD_TAG));
 

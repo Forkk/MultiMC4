@@ -15,6 +15,7 @@ struct initme
 			return;
 		}
 		// messy versioning
+		bm["6.4.0*"] = "1.4.5";
 		bm["6.3.0*"] = "1.4.4";
 		bm["6.2.1*"] = "1.4.3";
 		bm["6.0*"] = "1.4.2";

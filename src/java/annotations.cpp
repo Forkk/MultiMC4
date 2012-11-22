@@ -9,7 +9,7 @@ namespace java
 		std::ostringstream ss;
 		ss << "Annotation type : " << type_index << " - " << pool[type_index].str_data << std::endl;
 		ss << "Contains " << name_val_pairs.size() << " pairs:" << std::endl;
-		for(int i = 0; i < name_val_pairs.size(); i++)
+		for(unsigned i = 0; i < name_val_pairs.size(); i++)
 		{
 			std::pair<uint16_t, element_value *> &val = name_val_pairs[i];
 			auto name_idx = val.first;

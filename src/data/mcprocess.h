@@ -15,23 +15,28 @@
 //
 
 #pragma once
-#include <wx/wx.h>
-#include <wx/zipstrm.h>
 
-namespace fsutils
+#include <wx/process.h>
+
+class InstConsoleWindow;
+class Instance;
+
+class MinecraftProcess : public wxProcess
 {
-	// tests if a is subset of b
-	bool isSubsetOf(wxFileName a, wxFileName b);
-	
-	bool CopyDir(wxString sFrom, wxString sTo);
-	void CopyFileList(const wxArrayString &filenames, wxFileName targetDir);
+public:
+	static wxProcess *Launch(Instance * source, InstConsoleWindow* parent, wxString username, wxString sessionID);
 
-	bool RecursiveDelete(const wxString &path);
-
-	bool CreateAllDirs(const wxFileName &dir);
-
-	void ExtractZipArchive(wxInputStream &stream, const wxString &dest);
-	void TransferZipArchive(wxInputStream &stream, wxZipOutputStream &out);
-
-	bool CompressZipArchive(wxOutputStream &stream, const wxString &srcDir);
-}
+public:
+	bool ProcessInput();
+	void KillMinecraft();
+	bool AlreadyKilled() const
+	{
+		return m_wasKilled;
+	}
+protected:
+	MinecraftProcess(Instance * source, InstConsoleWindow* parent);
+	void OnTerminate ( int pid, int status );
+	bool m_wasKilled;
+	InstConsoleWindow* m_parent;
+	Instance * m_source;
+};

@@ -19,7 +19,7 @@
 #include <wx/stattext.h>
 #include <wx/button.h>
 
-#include "apputils.h"
+#include "utils/apputils.h"
 #include "config.h"
 
 UpdatePromptDialog::UpdatePromptDialog(wxWindow *parent, const wxString &updateMsg)

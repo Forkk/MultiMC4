@@ -18,7 +18,7 @@
 
 #include <wx/filename.h>
 
-#include "apputils.h"
+#include "utils/apputils.h"
 #include "appsettings.h"
 
 enum

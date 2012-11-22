@@ -1,4 +1,8 @@
-FILE(GLOB PO_FILES *.po)
+SET(PO_FILES
+en_US.po
+en_GB.po
+ru_RU.po
+)
 
 # Compiling .po files.
 FOREACH (FILE ${PO_FILES})

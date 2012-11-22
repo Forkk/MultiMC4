@@ -80,7 +80,8 @@ namespace Utils
 	// (this is based on the amount of free memory on the users computer)
 	int GetMaxAllowedMemAlloc();
 	
-	wxString RemoveInvalidPathChars(wxString path, wxChar replaceWith = wxT('-'));
+	wxString RemoveInvalidPathChars(wxString path, wxChar replaceWith = '-', bool allowExclamationMark = true);
+	bool ContainsInvalidPathChars(wxString path, bool allowExclamationMark = true);
 	
 	wxString ExecutePost(const wxString &address, const wxString &requestString, 
 		wxProtocolError *error);
@@ -98,3 +99,5 @@ namespace Path
 }
 
 wxString FindJavaPath(const wxString& def = "java");
+
+bool CreateShortcut(wxString path, wxString dest, wxString args);

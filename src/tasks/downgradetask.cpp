@@ -24,9 +24,9 @@
 #include "md5/md5.h"
 #include "bspatch.h"
 
-#include "curlutils.h"
-#include "httputils.h"
-#include "apputils.h"
+#include "utils/curlutils.h"
+#include "utils/httputils.h"
+#include "utils/apputils.h"
 
 const wxString mcnwebURL = "http://sonicrules.org/mcnweb.py";
 
@@ -64,13 +64,13 @@ bool DowngradeTask::DownloadPatches()
 {
 	SetStep(STEP_DOWNLOAD_PATCHES);
 
-	const int patchURLCount = 5;
+	const int patchURLCount = 2;
 	const wxString patchURLs[patchURLCount] =
 	{ 
 		"minecraft.ptch", 
-		"lwjgl.ptch",
+		/*"lwjgl.ptch",
 		"lwjgl_util.ptch",
-		"jinput.ptch",
+		"jinput.ptch",*/
 		"checksum.json",
 	};
 
@@ -87,7 +87,7 @@ bool DowngradeTask::DownloadPatches()
 		wxString downloadURL = baseURL + "/" + patchURLs[i];
 		wxString dest = Path::Combine("patches", patchURLs[i]);
 
-		CURL *curl = curl_easy_init();
+		CURL *curl = InitCurlHandle();
 
 		curl_easy_setopt(curl, CURLOPT_URL, TOASCII(downloadURL));
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
@@ -145,13 +145,13 @@ bool DowngradeTask::VerifyOriginalFiles()
 {
 	SetStep(STEP_VERIFY_FILES);
 
-	const int patchFileCount = 4;
+	const int patchFileCount = 1;
 	const wxString patchFiles[] =
 	{ 
 		"minecraft", 
-		"lwjgl",
+		/*"lwjgl",
 		"lwjgl_util",
-		"jinput",
+		"jinput",*/
 	};
 
 	using namespace boost::property_tree;
@@ -206,13 +206,13 @@ bool DowngradeTask::VerifyOriginalFiles()
 
 bool DowngradeTask::ApplyPatches()
 {
-	const int patchFileCount = 4;
+	const int patchFileCount = 1;
 	const wxString patchFiles[] =
 	{ 
 		"minecraft", 
-		"lwjgl",
+		/*"lwjgl",
 		"lwjgl_util",
-		"jinput",
+		"jinput",*/
 	};
 
 	SetStep(STEP_APPLY_PATCHES);
@@ -262,13 +262,13 @@ bool DowngradeTask::VerifyPatchedFiles()
 
 	SetStep(STEP_VERIFY_FILES2);
 
-	const int patchFileCount = 4;
+	const int patchFileCount = 1;
 	const wxString patchFiles[] =
 	{ 
 		"minecraft", 
-		"lwjgl",
+		/*"lwjgl",
 		"lwjgl_util",
-		"jinput",
+		"jinput",*/
 	};
 
 	using namespace boost::property_tree;

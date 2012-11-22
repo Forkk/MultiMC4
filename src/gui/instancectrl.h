@@ -334,7 +334,7 @@ public:
 	int GetTotalHeight() const
 	{
 		int total = 0;
-		for(int i = 0; i < m_groups.size(); i++)
+		for(unsigned i = 0; i < m_groups.size(); i++)
 		{
 			GroupVisual & grp = m_groups[i];
 			total += grp.total_height;

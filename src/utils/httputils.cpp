@@ -22,7 +22,7 @@
 
 bool DownloadString(const wxString &url, wxString *output)
 {
-	CURL *curl = curl_easy_init();
+	CURL *curl = InitCurlHandle();
 	
 	curl_easy_setopt(curl, CURLOPT_URL, TOASCII(url));
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);

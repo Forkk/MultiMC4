@@ -126,7 +126,7 @@ long LocaleHelper::FindClosestMatch(long langID, bool exactMatch)
 	if (!langInfo)
 		return wxLANGUAGE_UNKNOWN;
 
-	for (int i = 0; i < m_langDefs.size(); i++)
+	for (unsigned i = 0; i < m_langDefs.size(); i++)
 	{
 		LanguageDef* langDef = &m_langDefs.operator[](i);
 
@@ -157,7 +157,7 @@ long LocaleHelper::FindClosestMatch(long langID, bool exactMatch)
 
 bool LocaleHelper::IsLanguageSupported(long langID) const
 {
-	for (int i = 0; i < m_langDefs.size(); i++)
+	for (unsigned i = 0; i < m_langDefs.size(); i++)
 	{
 		if (m_langDefs.operator[](i).m_id == langID)
 		{
@@ -213,7 +213,8 @@ bool InstallLangFiles()
 	{
 		DEFINE_LANGFILE(en_us),
 		DEFINE_LANGFILE(en_gb),
-		DEFINE_LANGFILE(es_mx),
+		DEFINE_LANGFILE(ru_ru),
+		// DEFINE_LANGFILE(es_mx), translation is not complete yet
 	};
 
 	for (int i = 0; i < langFileCount; i++)
@@ -232,4 +233,5 @@ bool InstallLangFiles()
 		wxFFileOutputStream outStream(moFileName);
 		outStream.Write(inStream);
 	}
+	return true;
 }

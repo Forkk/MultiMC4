@@ -52,7 +52,7 @@ bool IsValidInstance(wxFileName rootDir);
 	virtual bool Get ## overrideName ## Override() const { return GetSetting<bool>(STR_VALUE(Override ## overrideName), false); } \
 	virtual void Set ## overrideName ## Override( bool value ) {  SetSetting<bool>(STR_VALUE(Override ## overrideName), value); }
 
-class Instance : public wxEvtHandler, public SettingsBase
+class Instance : public SettingsBase
 {
 public:
 	enum Type
@@ -91,8 +91,6 @@ public:
 	wxFileName GetMCBackup() const;
 	wxFileName GetModListFile() const;
 	
-	bool IsRunning() const;
-	
 	int64_t ReadVersionFile();
 	void WriteVersionFile(const int64_t contents);
 	
@@ -110,14 +108,7 @@ public:
 
 	virtual Type GetType() const = 0;
 	
-	wxProcess *GetInstProcess() const;
-	
-	wxString GetLastLaunchCommand() const;
-	
-	void SetEvtHandler(wxEvtHandler *handler);
-	
 	bool HasBinaries();
-	wxProcess* Launch(wxString username, wxString sessionID, bool redirectOutput = false);
 	
 	ModList *GetModList();
 	ModList *GetMLModList();
@@ -143,7 +134,7 @@ public:
 	DEFINE_IGNORED_SETTING(InstSortMode, InstSortMode);
 
 	// and these are overrides
-	DEFINE_OVERRIDDEN_SETTING_ADVANCED(JavaPath, "JPath", wxString);
+	DEFINE_OVERRIDDEN_SETTING_ADVANCED(JavaPath, JPATH_FIELD_NAME, wxString);
 	DEFINE_OVERRIDDEN_SETTING(JvmArgs, wxString);
 
 	DEFINE_OVERRIDDEN_SETTING_ADVANCED(MaxMemAlloc, "MaxMemoryAlloc", int);
@@ -175,7 +166,7 @@ public:
 		auto buf = str.ToAscii();
 
 		const wxString numbers = "1234567890";
-		for (int i = 0; i < str.Length(); i++)
+		for (unsigned i = 0; i < str.Length(); i++)
 		{
 			if (!numbers.Contains(str[i]))
 			{
@@ -287,46 +278,12 @@ protected:
 	wxString version;
 	wxString group;
 	
-	wxProcess *instProc;
 	bool m_running;
 	bool modloader_list_inited;
 	bool coremod_list_inited;
 	bool jar_list_inited;
 	bool world_list_initialized;
 	bool tp_list_initialized;
-	wxString m_lastLaunchCommand;
-	
-	wxEvtHandler *evtHandler;
 	
 	void MkDirs();
-	void ExtractLauncher();
-	
-	void OnInstProcExited(wxProcessEvent &event);
-	DECLARE_EVENT_TABLE()
 };
-
-
-DECLARE_EVENT_TYPE(wxEVT_INST_OUTPUT, -1)
-
-struct InstOutputEvent : wxThreadEvent
-{
-	InstOutputEvent(Instance *inst, wxString output, bool stdErr = false) 
-		: wxThreadEvent(wxEVT_INST_OUTPUT) 
-		{ m_inst = inst; m_output = output; m_stdErr = stdErr; }
-	
-	Instance *m_inst;
-	wxString m_output;
-	bool m_stdErr;
-	virtual wxEvent *Clone() const
-	{
-		return new InstOutputEvent(m_inst, m_output, m_stdErr);
-	}
-};
-
-typedef void (wxEvtHandler::*InstOutputEventFunction)(InstOutputEvent&);
-
-#define EVT_INST_OUTPUT(fn)\
-	DECLARE_EVENT_TABLE_ENTRY(wxEVT_INST_OUTPUT, wxID_ANY, -1,\
-		(wxObjectEventFunction)(InstOutputEventFunction)\
-		(InstOutputEventFunction) &fn, (wxObject*) NULL),
-

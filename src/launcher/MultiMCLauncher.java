@@ -50,7 +50,8 @@ public class MultiMCLauncher
 		String sessionId = args[1];
 		String windowtitle = args[2];
 		String cwd = System.getProperty("user.dir");
-		System.out.println("Minecraft started from: " + cwd);
+		String encoding = System.getProperty("file.encoding");
+		System.out.println("File encoding: " + encoding);
 		
 		Dimension winSize = new Dimension(854, 480);
 		boolean maximize = false;
@@ -231,11 +232,6 @@ public class MultiMCLauncher
 			String[] mcArgs = new String[2];
 			mcArgs[0] = userName;
 			mcArgs[1] = sessionId;
-
-			//String mcDir = 	mc.getMethod("a", String.class).invoke(null, (Object) "minecraft").toString();
-			String mcDir = 	mc.getMethod("b").invoke(null).toString();
-
-			System.out.println("MCDIR: " + mcDir);
 			
 			if (compatMode)
 			{

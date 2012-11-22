@@ -19,8 +19,8 @@
 #include <wx/gbsizer.h>
 #include <wx/regex.h>
 
-#include "apputils.h"
-#include "httputils.h"
+#include "utils/apputils.h"
+#include "utils/httputils.h"
 #include "forgeversions.h"
 
 InstallForgeDialog::InstallForgeDialog(wxWindow *parent)

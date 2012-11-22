@@ -35,7 +35,7 @@
 #include "importpackwizard.h"
 #include "downgradedialog.h"
 #include "downgradetask.h"
-#include "fsutils.h"
+#include "utils/fsutils.h"
 #include "aboutdlg.h"
 #include "updatepromptdlg.h"
 #include "taskprogressdialog.h"
@@ -44,6 +44,7 @@
 #include "savemgrwindow.h"
 #include "stdinstance.h"
 #include <mcversionlist.h>
+#include <mcprocess.h>
 #include "lwjglinstalltask.h"
 #include "ftbselectdialog.h"
 
@@ -297,6 +298,7 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_ChangeIcon, _("&Change Icon"), _("Change this instance's icon."));
 	instMenu->Append(ID_EditNotes, _("&Notes"), _("View / edit this instance's notes."));
 	instMenu->Append(ID_Configure, _("&Settings"), _("Change instance settings."));
+	instMenu->Append(ID_MakeDesktopLink, _("Make Desktop Shortcut"), _("Makes a shortcut on the desktop to launch this instance."));
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_ManageSaves, _("&Manage Saves"), _("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _("&Edit Mods"), _("Install or remove mods."));
@@ -538,11 +540,11 @@ Retry:
 	}
 
 	int num = 0;
-	wxString dirName = Utils::RemoveInvalidPathChars(newInstName);
+	wxString dirName = Utils::RemoveInvalidPathChars(newInstName, '-', false);
 	while (wxDirExists(Path::Combine(settings->GetInstDir(), dirName)))
 	{
 		num++;
-		dirName = Utils::RemoveInvalidPathChars(newInstName) + wxString::Format("_%i", num);
+		dirName = Utils::RemoveInvalidPathChars(newInstName, '-', false) + wxString::Format("_%i", num);
 
 		// If it's over 9000
 		if (num > 9000)
@@ -617,7 +619,7 @@ void MainWindow::OnImportMCFolder(wxCommandEvent& event)
 	if (!GetNewInstName(&instName, &instDirName, _("Import existing Minecraft folder")))
 		return;
 
-	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName));
+	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName, '-', false));
 
 	wxMkdir(instDirName);
 
@@ -992,16 +994,16 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 			delete task;
 		}
 		
-		if(inst->Launch(result.username, result.sessionID, true) != nullptr)
+		InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, !launchInstance.IsEmpty());
+		cwin->SetUserInfo(result.username, result.sessionID);
+		cwin->SetName(wxT("InstConsoleWindow"));
+		if (!wxPersistenceManager::Get().RegisterAndRestore(cwin))
+			cwin->CenterOnScreen();
+		
+		if(MinecraftProcess::Launch(inst, cwin, result.username, result.sessionID) != nullptr)
 		{
 			Show(false);
-			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, 
-				!launchInstance.IsEmpty());
-			cwin->SetUserInfo(result.username, result.sessionID);
-			cwin->SetName(wxT("InstConsoleWindow"));
-			if (!wxPersistenceManager::Get().RegisterAndRestore(cwin))
-				cwin->CenterOnScreen();
-			cwin->Start();
+			cwin->Show(settings->GetShowConsole());
 			instListCtrl->ReloadAll();
 		}
 		else
@@ -1101,7 +1103,7 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	if (!GetNewInstName(&instName, &instDirName, _("Copy existing instance")))
 		return;
 
-	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName));
+	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName, '-', false));
 
 	wxMkdir(instDirName);
 	auto task = new FileCopyTask (currentInstance->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));
@@ -1112,6 +1114,54 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	Instance *newInst = new StdInstance(instDirName);
 	newInst->SetName(instName);
 	AddInstance(newInst);
+}
+
+void MainWindow::OnMakeDesktopLinkClicked(wxCommandEvent& event)
+{
+	auto currentInst = instItems.GetSelectedInstance();
+	if (!currentInst)
+		return;
+
+#if WINDOWS
+	// Find the Desktop folder.
+	wxString desktopDir;
+	if (!wxGetEnv("USERPROFILE", &desktopDir))
+	{
+		wxLogError(_("Can't create desktop shortcut. Failed to find home folder."));
+		return;
+	}
+	desktopDir = Path::Combine(desktopDir, "Desktop");
+
+	wxString shortcutName;
+AskAgain:
+	shortcutName = wxGetTextFromUser(_("Enter a name for the shortcut: "), 
+		_("Name Shortcut"), shortcutName, this);
+
+	if (shortcutName.IsEmpty())
+	{
+		return;
+	}
+	else if (Utils::ContainsInvalidPathChars(shortcutName, true))
+	{
+		wxMessageBox(wxString::Format(
+			_("Shortcut name cannot contain any invalid characters (such as '%s')."), wxFileName::GetForbiddenChars()),
+			_("Invalid Shortcut Name"));
+		goto AskAgain;
+	}
+
+	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+	if (exePath.IsEmpty())
+		exePath = wxGetApp().argv[0];
+
+	if (!CreateShortcut(Path::Combine(desktopDir, shortcutName + ".lnk"), 
+		exePath, wxString::Format("-l \"%s\"", currentInst->GetInstID().c_str())))
+	{
+		wxLogError(_("Failed to create desktop shortcut. An unknown error occurred."));
+		return;
+	}
+#else
+	wxMessageBox(_("Sorry, desktop shortcuts are only supported on Windows."), _("Not Supported"));
+#endif
 }
 
 void MainWindow::OnInstanceSettingsClicked ( wxCommandEvent& event )
@@ -1559,6 +1609,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_SetGroup, MainWindow::OnChangeGroupClicked)
 	EVT_MENU(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
 	EVT_MENU(ID_EditNotes, MainWindow::OnNotesClicked)
+	EVT_MENU(ID_MakeDesktopLink, MainWindow::OnMakeDesktopLinkClicked)
 	EVT_MENU(ID_Configure, MainWindow::OnInstanceSettingsClicked)
 	
 	EVT_MENU(ID_ManageSaves, MainWindow::OnManageSavesClicked)

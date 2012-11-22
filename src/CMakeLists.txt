@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
-project (MultiMC)
+project (MultiMC CXX)
 
 # Stupid FindOpenSSL fix...
 SET(CMAKE_CROSS_COMPILING ${CMAKE_CROSSCOMPILING})
@@ -54,7 +54,7 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 
 set(MultiMC_VERSION_MAJOR		4)
 set(MultiMC_VERSION_MINOR		2)
-set(MultiMC_VERSION_REV			0)
+set(MultiMC_VERSION_REV			1)
 
 IF (DEFINED MultiMC_VERSION_BUILD)
 	message(STATUS "MultiMC build #${MultiMC_VERSION_BUILD}")
@@ -107,6 +107,8 @@ ENDIF ()
 # Set the sources and headers variables.
 set(SRCS 
 multimc.cpp
+version.cpp
+buildtag.cpp
 
 gui/mainwindow.cpp
 gui/settingsdialog.cpp
@@ -132,6 +134,7 @@ gui/ftbselectdialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
+data/mcprocess.cpp
 data/userinfo.cpp
 data/mod.cpp
 data/modlist.cpp
@@ -144,6 +147,7 @@ data/texturepacklist.cpp
 data/stdinstance.cpp
 data/instancemodel.cpp
 data/forgeversions.cpp
+data/insticonlist.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
@@ -162,21 +166,20 @@ tasks/lwjglinstalltask.cpp
 java/javautils.cpp
 java/annotations.cpp
 
-apputils.cpp
-curlutils.cpp
-datautils.cpp
-fsutils.cpp
-httputils.cpp
-langutils.cpp
-
-version.cpp
-buildtag.cpp
-
-insticonlist.cpp
+utils/apputils.cpp
+utils/curlutils.cpp
+utils/datautils.cpp
+utils/fsutils.cpp
+utils/fsutils_secure.cpp
+utils/httputils.cpp
+utils/langutils.cpp
 )
 
 set (INCS
 multimc.h
+multimc_pragma.h
+version.h
+buildtag.h
 
 gui/mainwindow.h
 gui/settingsdialog.h
@@ -214,6 +217,7 @@ data/texturepacklist.h
 data/stdinstance.h
 data/instancemodel.h
 data/forgeversions.h
+data/insticonlist.h
 
 tasks/task.h
 tasks/logintask.h
@@ -237,18 +241,14 @@ java/errors.h
 java/javautils.h
 java/membuffer.h
 
-apputils.h
-curlutils.h
-osutils.h
-datautils.h
-fsutils.h
-httputils.h
-langutils.h
+utils/apputils.h
+utils/curlutils.h
+utils/osutils.h
+utils/datautils.h
+utils/fsutils.h
+utils/httputils.h
+utils/langutils.h
 
-version.h
-buildtag.h
-
-insticonlist.h
 ${CMAKE_BINARY_DIR}/resources/insticons.h
 ${CMAKE_BINARY_DIR}/resources/toolbaricons.h
 ${CMAKE_BINARY_DIR}/launcher/launcherdata.h

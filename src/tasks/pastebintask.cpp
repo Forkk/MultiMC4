@@ -19,9 +19,9 @@
 #include <wx/wfstream.h>
 #include <wx/sstream.h>
 
-#include "curlutils.h"
-#include "apputils.h"
-#include "fsutils.h"
+#include "utils/curlutils.h"
+#include "utils/apputils.h"
+#include "utils/fsutils.h"
 
 PastebinTask::PastebinTask(const wxString& content, const wxString& author)
 	: Task(), m_content(content), m_author(author)
@@ -34,7 +34,7 @@ wxThread::ExitCode PastebinTask::TaskStart()
 	SetStatus(_("Sending to pastebin..."));
 
 	// Create handle
-	CURL *curl = curl_easy_init();
+	CURL *curl = InitCurlHandle();
 	char errBuffer[CURL_ERROR_SIZE];
 
 	// URL encode
@@ -68,7 +68,7 @@ wxThread::ExitCode PastebinTask::TaskStart()
 	{
 		// Parse the response header for the redirect location.
 		m_pasteURL = outString.Mid(outString.Find("Location: ") + 10);
-		m_pasteURL = m_pasteURL.Mid(0, m_pasteURL.Find('\n'));
+		m_pasteURL = m_pasteURL.Mid(0, m_pasteURL.Find('\r'));
 		return (ExitCode)1;
 	}
 	else

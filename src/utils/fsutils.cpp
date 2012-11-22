@@ -53,7 +53,7 @@ bool isSubsetOf ( wxFileName a, wxFileName b )
 		return false;
 	
 	// now we compare from the start... 'b' is the same size or shorter than 'a', use 'b's length as a limit
-	for(int i = 0; i < bdirs.size(); i++)
+	for(unsigned i = 0; i < bdirs.size(); i++)
 	{
 		// any difference = failure
 		if(adirs[i] != bdirs[i])

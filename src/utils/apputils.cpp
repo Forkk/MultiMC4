@@ -14,9 +14,10 @@
 //    limitations under the License.
 //
 
-#include "apputils.h"
 #include <wx/wx.h>
 #include <wx/arrstr.h>
+
+#include "apputils.h"
 #include "osutils.h"
 
 void Utils::OpenFolder(wxFileName path)
@@ -65,16 +66,28 @@ int Utils::GetMaxAllowedMemAlloc()
 	return 65536;
 }
 
-wxString Utils::RemoveInvalidPathChars(wxString path, wxChar replaceWith)
+wxString Utils::RemoveInvalidPathChars(wxString path, wxChar replaceWith, bool allowExclamationMark)
 {
 	for (size_t i = 0; i < path.Len(); i++)
 	{
-		if (wxFileName::GetForbiddenChars().Contains(path[i]) || path[i] == wxT('!'))
+		if (wxFileName::GetForbiddenChars().Contains(path[i]) || !(allowExclamationMark || path[i] != '!'))
 		{
 			path[i] = replaceWith;
 		}
 	}
 	return path;
+}
+
+bool Utils::ContainsInvalidPathChars(wxString path, bool allowExclamationMark)
+{
+	for (size_t i = 0; i < path.Len(); i++)
+	{
+		if (wxFileName::GetForbiddenChars().Contains(path[i]) || !(allowExclamationMark || path[i] != '!'))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 wxString Path::Combine(const wxFileName& path, const wxString& str)
@@ -199,6 +212,78 @@ wxString FindJavaPath(const wxString& def)
 		}
 	}
 	return def;
+}
+
+#endif
+
+// Win32 crap
+#ifdef WIN32
+
+#include <windows.h>
+#include <winnls.h>
+#include <shobjidl.h>
+#include <objbase.h>
+#include <objidl.h>
+#include <shlguid.h>
+
+bool called_coinit = false;
+
+HRESULT CreateLink(LPCSTR linkPath, LPCWSTR targetPath, LPCWSTR args)
+{
+	HRESULT hres;
+
+	if (!called_coinit)
+	{
+		hres = CoInitialize(NULL);
+		called_coinit = true;
+
+		if (!SUCCEEDED(hres))
+		{
+			wxLogError(_("Failed to initialize COM. Error 0x%08X"), hres);
+			return hres;
+		}
+	}
+
+
+	IShellLink* link;
+	hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&link);
+
+	if (SUCCEEDED(hres))
+	{
+		IPersistFile* persistFile; 
+
+		link->SetPath(targetPath); 
+		link->SetArguments(args);
+
+		hres = link->QueryInterface(IID_IPersistFile, (LPVOID*)&persistFile);
+		if (SUCCEEDED(hres))
+		{
+			WCHAR wstr[MAX_PATH];
+
+			MultiByteToWideChar(CP_ACP, 0, linkPath, -1, wstr, MAX_PATH);
+
+			hres = persistFile->Save(wstr, TRUE);
+			persistFile->Release();
+		}
+		link->Release();
+	}
+	return hres;
+}
+
+bool CreateShortcut(wxString path, wxString dest, wxString args)
+{
+	wxFileName pathFileName(path);
+	pathFileName.MakeAbsolute();
+	path = pathFileName.GetFullPath();
+	return SUCCEEDED(CreateLink(cStr(path), dest.wchar_str().data(), args.wchar_str().data()));
+}
+
+#else
+
+bool CreateShortcut(wxString path, wxString dest, wxString args)
+{
+	wxMessageBox(_("This feature is only supported on Windows."), _("Not Supported"));
+	return false;
 }
 
 #endif

@@ -23,9 +23,10 @@
 
 #include <wx/regex.h>
 #include <wx/numformatter.h>
+#include <wx/datetime.h>
 
-#include "httputils.h"
-#include "apputils.h"
+#include "utils/httputils.h"
+#include "utils/apputils.h"
 
 //#define PRINT_CRUD
 
@@ -209,7 +210,7 @@ bool MCVersionList::Reload()
 		return false;
 	}
 	std::sort(versions.begin(), versions.end(),compareVersions);
-	for(int i = 0; i < versions.size();i++)
+	for(unsigned i = 0; i < versions.size();i++)
 	{
 		if(versions[i].type == CurrentStable)
 		{

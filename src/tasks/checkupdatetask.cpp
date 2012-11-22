@@ -13,11 +13,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-
+#include "multimc_pragma.h"
 #include "checkupdatetask.h"
-#include "httputils.h"
-#include "apputils.h"
-#include "osutils.h"
+#include "utils/httputils.h"
+#include "utils/apputils.h"
+#include "utils/osutils.h"
 #include "config.h"
 #include "appsettings.h"
 

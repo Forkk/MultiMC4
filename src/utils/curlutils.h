@@ -14,24 +14,15 @@
 //    limitations under the License.
 //
 
-#include "world.h"
+#pragma once
+#include <functional>
+#include <curl/curl.h>
+#include <curl/easy.h>
 
-#include "utils/apputils.h"
+size_t CurlBlankCallback(void *buffer, size_t size, size_t nmemb, void *userp);
 
-#include <wx/filename.h>
+typedef std::function<size_t (void *buffer, size_t size)> CurlLambdaCallbackFunction;
+size_t CurlLambdaCallback(void *buffer, size_t size, size_t nmemb, void *userp);
 
-World::World(const wxString &dir)
-	: m_dir(dir), m_name(wxFileName(dir).GetFullName())
-{
-
-}
-
-wxString World::GetSaveDir() const
-{
-	return m_dir;
-}
-
-wxString World::GetSaveName() const
-{
-	return m_name;
-}
+// Returns a CURL handle initialized with the default things such as proxy settings.
+CURL* InitCurlHandle();

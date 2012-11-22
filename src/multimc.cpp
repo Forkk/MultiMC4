@@ -30,8 +30,8 @@
 
 #include "mainwindow.h"
 
-#include "apputils.h"
-#include "osutils.h"
+#include "utils/apputils.h"
+#include "utils/osutils.h"
 
 #ifdef wx29
 #include <wx/persist/toplevel.h>
@@ -167,9 +167,9 @@ bool MultiMC::OnInit()
 			{
 				mainWin->CenterOnScreen();
 			}
-			mainWin->Show();
 			mainWin->launchInstance = launchInstance;
 			mainWin->OnStartup();
+			mainWin->Hide();
 			return true;
 		}
 

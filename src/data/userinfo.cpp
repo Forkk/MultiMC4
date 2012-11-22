@@ -19,6 +19,9 @@
 #include <stdio.h>
 
 #include <wx/sstream.h>
+#include <wx/filename.h>
+
+#include "utils/fsutils.h"
 
 UserInfo::UserInfo(LoginDialog& loginDlg)
 {
@@ -67,6 +70,7 @@ void UserInfo::SaveToFile(const char * filename) const
 	}
 	fflush(passfile);
 	fclose(passfile);
+	fsutils::SecureFile(filename);
 }
 
 void UserInfo::LoadFromFile(const char * filename)
