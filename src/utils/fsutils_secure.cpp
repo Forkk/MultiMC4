@@ -63,7 +63,11 @@ BOOL CreateMyDACL(SECURITY_ATTRIBUTES * pSA)
 	// 1024 bytes is enough for everyone. This is final.
 	wchar_t long_str[1024];
 	// give full access to the file to the user running this process and nobody else
-	swprintf(long_str, 1024 ,TEXT("D:P(A;OI;GA;;;%s)"),pszSID);
+#ifdef MSVC
+	swprintf(long_str, 1024, TEXT("D:P(A;OI;GA;;;%s)"), pszSID);
+#else
+	swprintf(long_str, TEXT("D:P(A;OI;GA;;;%s)"), pszSID);
+#endif
 	if(pSA == NULL)
 	{
 		free(pTokenUser);
