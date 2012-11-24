@@ -3,5 +3,5 @@
 
 namespace forgeutils
 {
-	wxString MCVersionFromForgeFilename(wxString filename);
+	wxString MCVersionFromForgeVersion(wxString filename);
 }

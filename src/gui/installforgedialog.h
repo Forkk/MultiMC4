@@ -16,6 +16,17 @@
 
 #pragma once
 #include "listselectdialog.h"
+#include <vector>
+
+struct ForgeVersionItem
+{
+	ForgeVersionItem(wxString _Filename, wxString _MCVersion, wxString _ForgeVersion)
+	:Filename(_Filename),MCVersion(_MCVersion),ForgeVersion(_ForgeVersion){};
+	wxString Filename;
+	wxString MCVersion;
+	wxString ForgeVersion;
+	//TODO: maybe define a sorting predicate.
+};
 
 class InstallForgeDialog : public ListSelectDialog
 {
@@ -25,4 +36,7 @@ public:
 protected:
 	virtual bool DoLoadList();
 	virtual wxString OnGetItemText(long item, long column);
+	
+	virtual void UpdateListCount();
+	std::vector<ForgeVersionItem> items;
 };
