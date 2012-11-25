@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
-project (MultiMC CXX)
+project (MultiMC CXX C)
 
 # Stupid FindOpenSSL fix...
 SET(CMAKE_CROSS_COMPILING ${CMAKE_CROSSCOMPILING})
