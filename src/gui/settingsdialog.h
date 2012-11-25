@@ -29,11 +29,13 @@ public:
 	SettingsDialog(wxWindow *parent, wxWindowID id, SettingsBase *s = settings);
 	bool GetForceUpdateMultiMC() const;
 
+	bool ShouldRestartNow() const;
+
 protected:
 	void OnBrowseInstDirClicked(wxCommandEvent& event);
 	void OnBrowseModsDirClicked(wxCommandEvent& event);
 	void OnDetectJavaPathClicked(wxCommandEvent& event);
-	void OnUpdateMCTabCheckboxes(wxCommandEvent& event);
+	void OnUpdateCheckboxes(wxCommandEvent& event);
 	void OnOKClicked(wxCommandEvent& event);
 
 	void UpdateCheckboxStuff();
@@ -56,7 +58,10 @@ protected:
 	wxCheckBox *autoUpdateCheck;
 	wxCheckBox *useDevBuildsCheck;
 	wxToggleButton *forceUpdateToggle;
-	wxComboBox *guiStyleDropDown;
+	wxRadioBox *guiStyleBox;
+	wxRadioBox *sortModeBox;
+	wxComboBox *langSelectorBox;
+	wxCheckBox *useSystemLangCheck;
 	wxTextCtrl *instDirTextBox;
 	wxTextCtrl *modsDirTextBox;
 	
@@ -90,6 +95,23 @@ protected:
 	wxCheckBox *loginUseDefs;
 	wxCheckBox *autoLoginCheck;
 
+
+	// Network tab stuff
+	wxRadioButton* noProxyRBtn;
+	wxRadioButton* httpProxyRBtn;
+	wxRadioButton* socks4ProxyRBtn;
+	wxRadioButton* socks5ProxyRBtn;
+	wxTextCtrl* proxyHostTextbox;
+	wxTextCtrl* proxyPortTextbox;
+	wxTextCtrl* proxyUserTextbox;
+	wxTextCtrl* proxyPassTextbox;
+
+	long proxyPortValue;
+
+
+	// Other stuff
+	bool m_shouldRestartMMC;
+
 	DECLARE_EVENT_TABLE()
 };
 
@@ -106,4 +128,8 @@ enum
 	ID_OverrideUpdate,
 	ID_OverrideMemory,
 	ID_OverrideLogin,
+
+	ID_UseSystemLang,
+
+	ID_UseProxy,
 };

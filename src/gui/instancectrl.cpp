@@ -2,12 +2,12 @@
  * Derived from the thumbnail control example by Julian Smart
  */
 
-// For compilers that support precompilation, includes "wx.h".
-#include "wx/wxprec.h"
 
-#ifndef WX_PRECOMP
-#include "wx/wx.h"
-#endif
+
+
+#include "multimc_pragma.h"
+#include <wx/wx.h>
+
 
 #include "instancectrl.h"
 
@@ -74,6 +74,7 @@ bool InstanceCtrl::Create(wxWindow* parent, InstanceModel *instList, wxWindowID 
 	SetFont(wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT));
 	CalculateOverallItemSize();
 	m_itemsPerRow = CalculateItemsPerRow();
+	m_intended_column = 0;
 	
 	SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);
@@ -205,6 +206,7 @@ bool InstanceCtrl::GetGroupRect ( int group, wxRect& rect, bool view_relative )
 		}
 		return true;
 	}
+	return false;
 }
 
 
@@ -486,8 +488,9 @@ void InstanceCtrl::OnLeftClick(wxMouseEvent& event)
 		if (event.AltDown())
 			flags |= wxINST_ALT_DOWN;
 			
-		//EnsureVisible(clickedIndex);
+		EnsureVisible(clickedIndex);
 		DoSelection(clickedIndex);
+		SetIntendedColumn(clickedIndex);
 	}
 	else if(clickedIndex.isHeaderTicker())
 	{
@@ -511,8 +514,9 @@ void InstanceCtrl::OnRightClick(wxMouseEvent& event)
 	HitTest(event.GetPosition(), clickedIndex);
 	if (clickedIndex.isItem())
 	{
-		//EnsureVisible(clickedIndex);
+		EnsureVisible(clickedIndex);
 		DoSelection(clickedIndex);
+		SetIntendedColumn(clickedIndex);
 	}
 	else
 	{
@@ -614,7 +618,7 @@ bool InstanceCtrl::InstCtrlDropTarget::OnDropText(wxCoord x, wxCoord y, const wx
 	GroupVisual *gv = m_parent->GetGroup(coord);
 	if (gv)
 	{
-		for (int i = 0; i < m_parent->m_instList->size(); i++)
+		for (unsigned i = 0; i < m_parent->m_instList->size(); i++)
 		{
 			Instance * inst = m_parent->m_instList->at(i);
 			if (inst->GetInstID() == data)
@@ -675,6 +679,18 @@ void InstanceCtrl::OnChar(wxKeyEvent& event)
 		flags |= wxINST_SHIFT_DOWN;
 	if (event.AltDown())
 		flags |= wxINST_ALT_DOWN;
+	
+	if (event.GetKeyCode() == WXK_LEFT ||
+	    event.GetKeyCode() == WXK_RIGHT ||
+	    event.GetKeyCode() == WXK_UP ||
+	    event.GetKeyCode() == WXK_DOWN ||
+	    event.GetKeyCode() == WXK_HOME ||
+	    event.GetKeyCode() == WXK_PAGEUP ||
+	    event.GetKeyCode() == WXK_PAGEDOWN ||
+	    event.GetKeyCode() == WXK_END)
+	{
+		Navigate(event.GetKeyCode(), flags);
+	}
 
 	if (event.GetKeyCode() == WXK_RETURN)
 	{
@@ -705,6 +721,257 @@ void InstanceCtrl::OnChar(wxKeyEvent& event)
 	}
 	else
 		event.Skip();
+}
+
+void InstanceCtrl::SetIntendedColumn ( VisualCoord coord )
+{
+	int row, col;
+	if( GetRowCol(coord, row, col) )
+		m_intended_column = col;
+	else
+		m_intended_column = 0;
+}
+
+
+/// Keyboard navigation
+bool InstanceCtrl::Navigate(int keyCode, int flags)
+{
+	if (GetCount() == 0)
+		return false;
+	
+	wxSize clientSize = GetClientSize();
+	int perRow = GetItemsPerRow();
+	
+	VisualCoord focus = m_focusItem;
+	if (focus.isVoid())
+		focus = m_selectedItem;
+	
+	if (focus.isVoid())
+	{
+		m_selectedItem = VisualCoord(0,0);
+		DoSelection(m_selectedItem);
+		EnsureVisible(m_selectedItem);
+		SetIntendedColumn(m_selectedItem);
+		Refresh();
+		return true;
+	}
+	VisualCoord next = focus;
+	
+	GroupVisual & gv = m_groups[next.groupIndex];
+	
+	if (keyCode == WXK_RIGHT)
+	{
+		if(next.itemIndex < gv.items.Count() - 1)
+		{
+			next.itemIndex ++;
+		}
+		else if(next.groupIndex < m_groups.size() - 1)
+		{
+			next.itemIndex = 0;
+			while(next.groupIndex < m_groups.size() - 1)
+			{
+				next.groupIndex++;
+				if(m_groups[next.groupIndex].IsExpanded())
+				{
+					DoSelection(next);
+					EnsureVisible(next);
+					SetIntendedColumn(next);
+					return true;
+				}
+			}
+			return false;
+		}
+		else
+		{
+			return false;
+		}
+		DoSelection(next);
+		EnsureVisible(next);
+		SetIntendedColumn(next);
+	}
+	else if (keyCode == WXK_LEFT)
+	{
+		if(next.itemIndex > 0)
+		{
+			next.itemIndex --;
+		}
+		else if(next.groupIndex > 0)
+		{
+			while (next.groupIndex > 0)
+			{
+				next.groupIndex--;
+				next.itemIndex = m_groups[next.groupIndex].items.size() - 1;
+				if(m_groups[next.groupIndex].IsExpanded())
+				{
+					DoSelection(next);
+					EnsureVisible(next);
+					SetIntendedColumn(next);
+					return true;
+				}
+			}
+			return false;
+		}
+		else
+		{
+			return false;
+		}
+		DoSelection(next);
+		EnsureVisible(next);
+		SetIntendedColumn(next);
+	}
+	else if (keyCode == WXK_UP)
+	{
+		if (next.itemIndex >= m_itemsPerRow)
+		{
+			int row = next.itemIndex / m_itemsPerRow;
+			int prev = row - 1;
+			next.itemIndex = prev * m_itemsPerRow + m_intended_column;
+		}
+		else if(next.groupIndex > 0)
+		{
+			while(next.groupIndex > 0)
+			{
+				next.groupIndex--;
+				if(!m_groups[next.groupIndex].IsExpanded())
+					continue;
+				int num_items = m_groups[next.groupIndex].items.size();
+				int lastRowItems = num_items % m_itemsPerRow;
+				int lastRow = num_items / m_itemsPerRow;
+				if(!lastRowItems)
+				{
+					lastRowItems = m_itemsPerRow;
+					lastRow --;
+				}
+				if(m_intended_column < lastRowItems)
+				{
+					next.itemIndex = lastRow * m_itemsPerRow + m_intended_column;
+				}
+				else
+				{
+					next.itemIndex = num_items - 1;
+				}
+				DoSelection(next);
+				EnsureVisible(next);
+				return true;
+			}
+			return false;
+		}
+		else
+		{
+			return false;
+		}
+		DoSelection(next);
+		EnsureVisible(next);
+	}
+	else if (keyCode == WXK_DOWN)
+	{
+		// some fun little numbers that decide what to do
+		int numitems = gv.items.size();
+		int rows = numitems / m_itemsPerRow + (numitems % m_itemsPerRow != 0);
+		int row = next.itemIndex / m_itemsPerRow;
+		//int rowpos = next.itemIndex % m_itemsPerRow;
+		
+		if (next.itemIndex + m_itemsPerRow < gv.items.size())
+		{
+			next.itemIndex += m_itemsPerRow;
+		}
+		// there is an another row in this group, but it's not full. move to the last item in group
+		else if(row < rows - 1)
+		{
+			next.itemIndex = gv.items.size() - 1;
+		}
+		else if(next.groupIndex < m_groups.size() - 1)
+		{
+			while (next.groupIndex < m_groups.size() - 1)
+			{
+				next.groupIndex ++;
+				if(!m_groups[next.groupIndex].IsExpanded())
+					continue;
+				int num_items = m_groups[next.groupIndex].items.size();
+				if(m_intended_column < num_items)
+				{
+					next.itemIndex = m_intended_column;
+				}
+				else
+				{
+					next.itemIndex = num_items - 1;
+				}
+				DoSelection(next);
+				EnsureVisible(next);
+				return true;
+			}
+			return false;
+		}
+		else
+		{
+			return false;
+		}
+		DoSelection(next);
+		EnsureVisible(next);
+	}
+	else if (keyCode == WXK_HOME)
+	{
+		if(next.itemIndex != 0 && gv.IsExpanded())
+		{
+			// go to start of this group
+			next.itemIndex = 0;
+		}
+		else
+		{
+			// go to first item of first visible group
+			for(unsigned i = 0; i < m_groups.size(); i++)
+			{
+				if(m_groups[i].IsExpanded())
+				{
+					next.groupIndex = i;
+					next.itemIndex = 0;
+					break;
+				}
+			}
+		}
+		DoSelection(next);
+		EnsureVisible(next);
+		SetIntendedColumn(next);
+	}
+	else if (keyCode == WXK_END)
+	{
+		if(next.itemIndex != gv.items.size() - 1 && gv.IsExpanded())
+		{
+			// go to end of this group
+			next.itemIndex = gv.items.size() - 1;
+		}
+		else
+		{
+			// go to last item of last visible group
+			for(int i = m_groups.size() - 1; i >=0 ; i--)
+			{
+				if(m_groups[i].IsExpanded())
+				{
+					next.groupIndex = i;
+					next.itemIndex = m_groups[i].items.size() - 1;
+					break;
+				}
+			}
+		}
+		DoSelection(next);
+		EnsureVisible(next);
+		SetIntendedColumn(next);
+	}
+	/*
+	else if (keyCode == WXK_TAB)
+	{
+		int next = focus;
+		if (flags & wxINST_SHIFT_DOWN)
+			next --;
+		else
+			next ++;
+		if (next >= 0 && next < GetCount())
+		{
+			DoSelection(next);
+			ScrollIntoView(next, keyCode);
+		}
+	}*/
+	return true;
 }
 
 /// Sizing
@@ -758,6 +1025,50 @@ void InstanceCtrl::SetupScrollbars()
 	              0, wxMin(maxPositionY, startY));
 }
 
+void InstanceCtrl::EnsureRectVisible ( wxRect rect )
+{
+	int ppuX, ppuY;
+	GetScrollPixelsPerUnit(& ppuX, & ppuY);
+	if (ppuY == 0)
+		return;
+	int startX, startY;
+	GetViewStart(& startX, & startY);
+	startX = 0;
+	startY = startY * ppuY;
+	int sx, sy;
+	GetVirtualSize(& sx, & sy);
+	sx = 0;
+	if (ppuY != 0)
+		sy = sy / ppuY;
+	wxSize clientSize = GetClientSize();
+	if ((rect.y + rect.height) > (clientSize.y + startY))
+	{
+		// Make it scroll so this item is at the bottom
+		// of the window
+		int y = rect.y - (clientSize.y - rect.height - m_spacing) ;
+		SetScrollbars(ppuX, ppuY, sx, sy, 0, (int)(0.5 + y / ppuY));
+	}
+	else if (rect.y < startY)
+	{
+		// Make it scroll so this item is at the top
+		// of the window
+		int y = rect.y ;
+		SetScrollbars(ppuX, ppuY, sx, sy, 0, (int)(0.5 + y / ppuY));
+	}
+}
+
+
+void InstanceCtrl::EnsureVisible ( VisualCoord coord )
+{
+	if(coord.isItem())
+	{
+		wxRect rect;
+		GetItemRect(coord, rect, false);
+		EnsureRectVisible(rect);
+	}
+	// possibly add more for groups, headers, etc.
+}
+
 int InstanceCtrl::IDFromIndex ( VisualCoord index ) const
 {
 	if (!index.isItem())
@@ -794,14 +1105,14 @@ void InstanceCtrl::HitTest( const wxPoint& pt, VisualCoord& n )
 	GetViewStart(& startX, & startY);
 	GetScrollPixelsPerUnit(& ppuX, & ppuY);
 	
-	int perRow = GetItemsPerRow();
+	unsigned perRow = GetItemsPerRow();
 	
-	int colPos = (int)(pt.x / (m_itemWidth + m_spacing));
-	int rowPos = 0;
+	unsigned colPos = (int)(pt.x / (m_itemWidth + m_spacing));
+	unsigned rowPos = 0;
 	int actualY = pt.y + startY * ppuY;
 	
 	GroupVisual * found = nullptr;
-	int grpIdx = 0;
+	unsigned grpIdx = 0;
 	for(; grpIdx < m_groups.size(); grpIdx++)
 	{
 		GroupVisual & gv = m_groups[grpIdx];
@@ -835,8 +1146,8 @@ void InstanceCtrl::HitTest( const wxPoint& pt, VisualCoord& n )
 		rowPos++;
 	rowPos--;
 	
-	int itemN = (rowPos * perRow + colPos);
-	if (itemN >= found->items.size() || itemN < 0)
+	unsigned itemN = (rowPos * perRow + colPos);
+	if (itemN >= found->items.size())
 		return;
 		
 	wxRect rect;
@@ -937,7 +1248,7 @@ void GroupVisual::Reflow ( int perRow, int spacing, int margin, int lineHeight, 
 void InstanceCtrl::ReflowAll()
 {
 	int progressive_y = 0;
-	for(int i = 0; i < m_groups.size(); i++)
+	for(unsigned i = 0; i < m_groups.size(); i++)
 	{
 		GroupVisual & gv = m_groups[i];
 		gv.Reflow(m_itemsPerRow,m_spacing,m_itemMargin,m_itemTextHeight,m_ImageSize.GetHeight(), progressive_y);
@@ -967,7 +1278,7 @@ void InstanceVisual::updateName()
 	text_lines = 0;
 	name_wrapped = wxString();
 	
-	for (int i = 0; i < extents.size(); i++)
+	for (unsigned i = 0; i < extents.size(); i++)
 	{
 		if (raw_name[i] == wxT(' '))
 		{
@@ -1000,7 +1311,7 @@ void InstanceVisual::updateName()
 				name_wrapped.Append(raw_name.SubString(linestart, i - 1));
 				text_lines++;
 				if (i + 1 != extents.size())
-					name_wrapped.Append(_("\n"));
+					name_wrapped.Append("\n");
 					
 				if (size > text_width)
 					text_width = size;
@@ -1108,6 +1419,18 @@ int NameSort(InstanceVisual **first, InstanceVisual **second)
 	return (*first)->GetName().CmpNoCase((*second)->GetName());
 };
 
+int LastLaunchSort(InstanceVisual **first, InstanceVisual **second)
+{
+	if ((*first)->GetInstance()->GetLastLaunch() < 
+		(*second)->GetInstance()->GetLastLaunch())
+		return 1;
+	else if ((*first)->GetInstance()->GetLastLaunch() > 
+		(*second)->GetInstance()->GetLastLaunch())
+		return -1;
+	else
+		return NameSort(first, second);
+};
+
 int NameSort(GroupVisual **first, GroupVisual **second)
 {
 	if (!(*first)->m_group)
@@ -1158,18 +1481,29 @@ void InstanceCtrl::ReloadAll()
 		
 		GroupVisual grpv(group);
 		grpv.items = (*iter).second;
-		grpv.items.Sort(NameSort);
+
+		switch (settings->GetInstSortMode())
+		{
+		case Sort_Name:
+			grpv.items.Sort(NameSort);
+			break;
+
+		case Sort_LastLaunch:
+			grpv.items.Sort(LastLaunchSort);
+			break;
+		}
+
 		m_groups.Add(grpv);
 		iter++;
 	}
 	
 	// sort the groups and construct a mapping from IDs to indexes
 	m_groups.Sort(NameSort);
-	for(int i = 0; i < m_groups.size(); i++)
+	for(unsigned i = 0; i < m_groups.size(); i++)
 	{
 		GroupVisual & grp = m_groups[i];
 		grp.SetIndex(i);
-		for(int j = 0; j < grp.items.size(); j++)
+		for(unsigned j = 0; j < grp.items.size(); j++)
 		{
 			InstanceVisual & iv = grp.items[j];
 			int ID = iv.GetID();
@@ -1195,7 +1529,7 @@ void InstanceCtrl::ReloadAll()
 	// Disable group headers in single column mode. Groups are still there, but their existence is hidden.
 	if (GetWindowStyle() & wxINST_SINGLE_COLUMN)
 	{
-		for (int i = 0; i < m_groups.size(); i++)
+		for (unsigned i = 0; i < m_groups.size(); i++)
 		{
 			m_groups[i].no_header = true;
 			m_groups[i].always_show = true;
@@ -1206,6 +1540,11 @@ void InstanceCtrl::ReloadAll()
 	ReflowAll();
 	SetupScrollbars();
 	Refresh();
+	
+	// and reset the intended navigation column
+	int row, col;
+	GetRowCol(m_selectedItem, row, col);
+	m_intended_column = col;
 }
 
 void InstanceCtrl::HighlightGroup(const VisualCoord& coord)

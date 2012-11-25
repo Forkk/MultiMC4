@@ -25,7 +25,7 @@
 #include <string>
 #include <sstream>
 
-#include "apputils.h"
+#include "utils/apputils.h"
 
 ExportPackTask::ExportPackTask(Instance *inst, const wxString &packName, 
 	const wxString &packNotes, const wxString &filename, wxArrayString &includedConfigs)
@@ -99,7 +99,7 @@ wxThread::ExitCode ExportPackTask::TaskStart()
 	write_json(jsonOut, pt);
 	wxString json = wxStr(jsonOut.str());
 
-	zipOut.PutNextEntry(_("modpack.json"));
+	zipOut.PutNextEntry("modpack.json");
 	wxStringInputStream jsonIn(json);
 	zipOut.Write(jsonIn);
 	return (ExitCode)1;

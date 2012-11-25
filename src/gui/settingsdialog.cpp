@@ -15,10 +15,15 @@
 //
 
 #include "settingsdialog.h"
+
 #include <wx/gbsizer.h>
 #include <wx/dir.h>
-#include <apputils.h>
-#include <fsutils.h>
+#include <wx/valnum.h>
+
+#include <utils/apputils.h>
+#include <utils/fsutils.h>
+
+#include "multimc.h"
 #include "instance.h"
 
 const wxString guiModeFancy = _("Fancy");
@@ -33,9 +38,13 @@ but it will disable certain features such as setting Minecraft's window\
 size and icon."
 );
 
+const wxString sortModeName = _("By Name");
+const wxString sortModeLastLaunch = _("By Last Launched");
+
 SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s /* = settings */)
-	: wxDialog(parent, id, _T("Settings"), wxDefaultPosition, wxSize(500, 450))
+	: wxDialog(parent, id, _("Settings"), wxDefaultPosition, wxSize(500, 450))
 {
+	m_shouldRestartMMC = false;
 	currentSettings = s;
 	wxBoxSizer *mainBox = new wxBoxSizer(wxVERTICAL);
 	SetSizer(mainBox);
@@ -68,74 +77,179 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 	#define GBexpandingItemsFlags wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 4
 	
 	
-	// MultiMC tab
 	if(!instanceMode)
 	{
-		auto multimcPanel = new wxPanel(tabCtrl, -1);
-		auto multimcSizer = new wxBoxSizer(wxVERTICAL);
-		multimcPanel->SetSizer(multimcSizer);
-		tabCtrl->AddPage(multimcPanel, _T("MultiMC"), true);
-		// Visual settings group box
+		// MultiMC tab
 		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _T("Visual Settings"));
-			auto styleSz = new wxBoxSizer(wxHORIZONTAL);
-			auto styleLabel = new wxStaticText(box->GetStaticBox(), -1, _("GUI Style (requires restart): "));
-			styleSz->Add(styleLabel, itemsFlags);
-			
-			wxArrayString choices;
-			choices.Add(guiModeSimple);
-			choices.Add(guiModeFancy);
-			guiStyleDropDown = new wxComboBox(box->GetStaticBox(), -1, wxEmptyString,
-				wxDefaultPosition, wxDefaultSize, choices, wxCB_DROPDOWN | wxCB_READONLY);
-			
-			styleSz->Add(guiStyleDropDown, expandingItemsFlags);
-			box->Add(styleSz, staticBoxInnerFlags);
-			multimcSizer->Add(box, staticBoxOuterFlags);
-		}
-		// Update settings group box
-		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _T("Update Settings"));
-			useDevBuildsCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Use development builds."));
-			box->Add(useDevBuildsCheck, itemFlags);
-			autoUpdateCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Check for updates when MultiMC starts?"));
-			box->Add(autoUpdateCheck, itemFlags);
-			forceUpdateToggle = new wxToggleButton(box->GetStaticBox(), -1, _T("Force-update MultiMC"));
-			box->Add(forceUpdateToggle, itemFlags);
-			multimcSizer->Add(box, staticBoxOuterFlags);
-		}
-		// Directory group box
-		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _T("Folders"));
-			auto dirsSizer = new wxGridBagSizer();
-			int row = 0;
+			auto multimcPanel = new wxPanel(tabCtrl, -1);
+			auto multimcSizer = new wxBoxSizer(wxVERTICAL);
+			multimcPanel->SetSizer(multimcSizer);
+			tabCtrl->AddPage(multimcPanel, _T("MultiMC"), true);
+
+			// Visual settings group box
 			{
-				auto instDirLabel = new wxStaticText(box->GetStaticBox(), -1, _("Instances: "));
-				dirsSizer->Add(instDirLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
-
-				instDirTextBox = new wxTextCtrl(box->GetStaticBox(), -1);
-				dirsSizer->Add(instDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
-
-				wxButton *instDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseInstDir, _T("Browse..."));
-				dirsSizer->Add(instDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
-			}
-			row++;
-			{
-				auto modsDirLabel = new wxStaticText(box->GetStaticBox(), -1, _("Mods: "));
-				dirsSizer->Add(modsDirLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
-
-				modsDirTextBox = new wxTextCtrl(box->GetStaticBox(), -1);
-				dirsSizer->Add(modsDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
-
-				auto modDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseModDir, _T("Browse..."));
-				dirsSizer->Add(modDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
+				wxArrayString guiModeChoices;
+				guiModeChoices.Add(guiModeSimple);
+				guiModeChoices.Add(guiModeFancy);
+				guiStyleBox = new wxRadioBox(multimcPanel, -1, 
+					_("GUI Style (requires restart)"), wxDefaultPosition, 
+					wxDefaultSize, guiModeChoices);
+				multimcSizer->Add(guiStyleBox, staticBoxOuterFlags);
 			}
 
-			dirsSizer->AddGrowableCol(1);
+			// Sort mode group box
+			{
+				wxArrayString sortModeChoices;
+				sortModeChoices.Add(sortModeName);
+				sortModeChoices.Add(sortModeLastLaunch);
+				sortModeBox = new wxRadioBox(multimcPanel, -1, _("Sorting Mode"), 
+					wxDefaultPosition, wxDefaultSize, sortModeChoices);
+				multimcSizer->Add(sortModeBox, staticBoxOuterFlags);
+			}
 
-			box->Add(dirsSizer, staticBoxInnerFlags);
-			multimcSizer->Add(box, staticBoxOuterFlags);
+			// Language combo box
+			{
+				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _("Language"));
+				useSystemLangCheck = new wxCheckBox(box->GetStaticBox(), ID_UseSystemLang, 
+					_("Use the system language?"));
+				box->Add(useSystemLangCheck, itemsFlags);
+
+				langSelectorBox = new wxComboBox(box->GetStaticBox(), -1, 
+					wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, 
+					wxCB_DROPDOWN | wxCB_READONLY);
+				box->Add(langSelectorBox, expandingItemFlags);
+
+				multimcSizer->Add(box, staticBoxOuterFlags);
+			}
+
+			// Update settings group box
+			{
+				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _("Update Settings"));
+				useDevBuildsCheck = new wxCheckBox(box->GetStaticBox(), -1, _("Use development builds."));
+				box->Add(useDevBuildsCheck, itemFlags);
+				autoUpdateCheck = new wxCheckBox(box->GetStaticBox(), -1, _("Check for updates when MultiMC starts?"));
+				box->Add(autoUpdateCheck, itemFlags);
+				forceUpdateToggle = new wxToggleButton(box->GetStaticBox(), -1, _("Force-update MultiMC"));
+				box->Add(forceUpdateToggle, itemFlags);
+				multimcSizer->Add(box, staticBoxOuterFlags);
+			}
+
+			// Directory group box
+			{
+				auto box = new wxStaticBoxSizer(wxVERTICAL, multimcPanel, _("Folders"));
+				auto dirsSizer = new wxGridBagSizer();
+				int row = 0;
+				{
+					auto instDirLabel = new wxStaticText(box->GetStaticBox(), -1, _("Instances: "));
+					dirsSizer->Add(instDirLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
+
+					instDirTextBox = new wxTextCtrl(box->GetStaticBox(), -1);
+					dirsSizer->Add(instDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+					wxButton *instDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseInstDir, _("Browse..."));
+					dirsSizer->Add(instDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
+				}
+				row++;
+				{
+					auto modsDirLabel = new wxStaticText(box->GetStaticBox(), -1, _("Mods: "));
+					dirsSizer->Add(modsDirLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
+
+					modsDirTextBox = new wxTextCtrl(box->GetStaticBox(), -1);
+					dirsSizer->Add(modsDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+					auto modDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseModDir, _("Browse..."));
+					dirsSizer->Add(modDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
+				}
+
+				dirsSizer->AddGrowableCol(1);
+
+				box->Add(dirsSizer, staticBoxInnerFlags);
+				multimcSizer->Add(box, staticBoxOuterFlags);
+			}
+			multimcSizer->SetSizeHints(multimcPanel);
 		}
-		multimcSizer->SetSizeHints(multimcPanel);
+	}
+
+	// Network tab
+	if (!instanceMode)
+	{
+		auto networkPanel = new wxPanel(tabCtrl, -1);
+		auto networkSz = new wxBoxSizer(wxVERTICAL);
+		networkPanel->SetSizer(networkSz);
+		tabCtrl->AddPage(networkPanel, _("Network"), false);
+
+		// Proxy settings box
+		{
+			auto box = new wxStaticBoxSizer(wxVERTICAL, networkPanel, _("Proxy"));
+
+			// Proxy type
+			box->AddSpacer(4);
+			wxStaticText* proxyTypeLabel = new wxStaticText(box->GetStaticBox(), 
+				-1, _("Proxy Type: "));
+			box->Add(proxyTypeLabel, wxSizerFlags().Border(wxLEFT, 4));
+
+			wxBoxSizer* pTypeSz = new wxBoxSizer(wxHORIZONTAL);
+			box->Add(pTypeSz, wxSizerFlags(1).Border(wxBOTTOM | wxLEFT | wxRIGHT, 4).Expand());
+
+			auto rbtnSzFlags = itemFlags.Align(wxALIGN_TOP);
+			noProxyRBtn = new wxRadioButton(box->GetStaticBox(), ID_UseProxy, _("None"), 
+				wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+			pTypeSz->Add(noProxyRBtn, rbtnSzFlags);
+			httpProxyRBtn = new wxRadioButton(box->GetStaticBox(), ID_UseProxy, _("HTTP"));
+			pTypeSz->Add(httpProxyRBtn, rbtnSzFlags);
+			socks4ProxyRBtn = new wxRadioButton(box->GetStaticBox(), ID_UseProxy, _("SOCKS4"));
+			pTypeSz->Add(socks4ProxyRBtn, rbtnSzFlags);
+			socks5ProxyRBtn = new wxRadioButton(box->GetStaticBox(), ID_UseProxy, _("SOCKS5"));
+			pTypeSz->Add(socks5ProxyRBtn, rbtnSzFlags);
+
+
+			// Host / port
+			box->AddSpacer(4);
+			wxStaticText* hostPortLabel = new wxStaticText(box->GetStaticBox(), 
+				-1, _("Hostname / IP and Port:"));
+			box->Add(hostPortLabel, wxSizerFlags().Border(wxLEFT, 4));
+
+			wxBoxSizer* hostPortSz = new wxBoxSizer(wxHORIZONTAL);
+			box->Add(hostPortSz, wxSizerFlags(1).Border(wxBOTTOM | wxLEFT | wxRIGHT, 4).Expand());
+
+			proxyHostTextbox = new wxTextCtrl(box->GetStaticBox(), -1);
+			hostPortSz->Add(proxyHostTextbox, expandingItemsFlags);
+
+			proxyPortTextbox = new wxTextCtrl(box->GetStaticBox(), -1);
+			wxIntegerValidator<long> portValidator(&proxyPortValue);
+			portValidator.SetMin(1);
+			portValidator.SetMax(65535);
+			proxyPortTextbox->SetValidator(portValidator);
+			hostPortSz->Add(proxyPortTextbox, itemsFlags);
+
+			
+			// Username / password
+			box->AddSpacer(4);
+			wxGridBagSizer* credentialsSz = new wxGridBagSizer();
+			box->Add(credentialsSz, staticBoxInnerFlags);
+
+			wxStaticText* proxyUserLabel = new wxStaticText(box->GetStaticBox(), 
+				-1, _("Username:"));
+			credentialsSz->Add(proxyUserLabel, wxGBPosition(0, 0), wxGBSpan(1, 1), GBitemsFlags);
+			proxyUserTextbox = new wxTextCtrl(box->GetStaticBox(), -1);
+			credentialsSz->Add(proxyUserTextbox, wxGBPosition(0, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+			wxStaticText* proxyPassLabel = new wxStaticText(box->GetStaticBox(), 
+				-1, _("Password:"));
+			credentialsSz->Add(proxyPassLabel, wxGBPosition(1, 0), wxGBSpan(1, 1), GBitemsFlags);
+			proxyPassTextbox = new wxTextCtrl(box->GetStaticBox(), -1, wxEmptyString, 
+				wxDefaultPosition, wxDefaultSize, wxTE_PASSWORD);
+			credentialsSz->Add(proxyPassTextbox, wxGBPosition(1, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+			wxStaticText* passwarnLabel = new wxStaticText(box->GetStaticBox(), -1, 
+				_("Warning: Proxy password is stored in plaintext!"));
+			passwarnLabel->SetForegroundColour(wxColor("red"));
+			credentialsSz->Add(passwarnLabel, wxGBPosition(2, 0), wxGBSpan(1, 2), GBitemsFlags);
+
+			credentialsSz->AddGrowableCol(1);
+
+			networkSz->Add(box, staticBoxOuterFlags);
+		}
 	}
 
 	// Console tab
@@ -144,13 +258,13 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 		auto consolePanel = new wxPanel(tabCtrl, -1);
 		auto consoleSizer = new wxBoxSizer(wxVERTICAL);
 		consolePanel->SetSizer(consoleSizer);
-		tabCtrl->AddPage(consolePanel, _T("Error console"), false);
+		tabCtrl->AddPage(consolePanel, _("Console"), false);
 		// Console settings group box
 		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, consolePanel, _T("Console Settings"));
-			showConsoleCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Show console while an instance is running."));
+			auto box = new wxStaticBoxSizer(wxVERTICAL, consolePanel, _("Console Settings"));
+			showConsoleCheck = new wxCheckBox(box->GetStaticBox(), -1, _("Show console while an instance is running."));
 			box->Add(showConsoleCheck, itemFlags);
-			autoCloseConsoleCheck = new wxCheckBox(box->GetStaticBox(), -1, _T("Automatically close console when the game quits."));
+			autoCloseConsoleCheck = new wxCheckBox(box->GetStaticBox(), -1, _("Automatically close console when the game quits."));
 			box->Add(autoCloseConsoleCheck, itemFlags);
 			consoleSizer->Add(box, staticBoxOuterFlags);
 		}
@@ -189,11 +303,11 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 		auto mcPanel = new wxPanel(tabCtrl, -1);
 		auto mcBox = new wxBoxSizer(wxVERTICAL);
 		mcPanel->SetSizer(mcBox);
-		tabCtrl->AddPage(mcPanel, _T("Minecraft"), false);
+		tabCtrl->AddPage(mcPanel, _("Minecraft"), false);
 
 		// Updates group box
 		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _T("Updates"));
+			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Updates"));
 			
 			// Override
 			if(instanceMode)
@@ -281,10 +395,10 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 		auto mcPanel = new wxPanel(tabCtrl, -1);
 		auto mcBox = new wxBoxSizer(wxVERTICAL);
 		mcPanel->SetSizer(mcBox);
-		tabCtrl->AddPage(mcPanel, _T("Java"), false);
+		tabCtrl->AddPage(mcPanel, _("Java"), false);
 		// Memory group box
 		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _T("Memory"));
+			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Memory"));
 			auto sizer = new wxGridBagSizer();
 			int row = 0;
 			
@@ -297,7 +411,7 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			}
 			
 			// Min memory
-			minMemLabel = new wxStaticText(mcPanel, -1, _T("Minimum memory allocation: "));
+			minMemLabel = new wxStaticText(mcPanel, -1, _("Minimum memory allocation: "));
 			sizer->Add(minMemLabel, wxGBPosition(row,0), wxGBSpan(1,1),GBitemsFlags);
 			minMemorySpin = new wxSpinCtrl(mcPanel, -1);
 			minMemorySpin->SetRange(256, Utils::GetMaxAllowedMemAlloc());
@@ -306,7 +420,7 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			row++;
 			
 			// Max memory
-			maxMemLabel = new wxStaticText(mcPanel, -1, _T("Maximum memory allocation: "));
+			maxMemLabel = new wxStaticText(mcPanel, -1, _("Maximum memory allocation: "));
 			sizer->Add(maxMemLabel,wxGBPosition(row,0), wxGBSpan(1,1),GBitemsFlags);
 			maxMemorySpin = new wxSpinCtrl(mcPanel, -1);
 			maxMemorySpin->SetRange(512, Utils::GetMaxAllowedMemAlloc());
@@ -320,7 +434,7 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 		
 		// Java path
 		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _T("Java Settings"));
+			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Java Settings"));
 			auto sizer = new wxGridBagSizer();
 
 			int row = 0;
@@ -412,6 +526,9 @@ bool SettingsDialog::FolderMove ( wxFileName oldDir, wxFileName newDir, wxString
 
 bool SettingsDialog::ApplySettings()
 {
+	// True if MultiMC needs to restart to apply the settings.
+	bool needsRestart = false;
+
 	if(!instanceMode)
 	{
 		wxFileName newInstDir = wxFileName::DirName(instDirTextBox->GetValue());
@@ -419,7 +536,7 @@ bool SettingsDialog::ApplySettings()
 		wxFileName test = newInstDir;
 		test.MakeAbsolute();
 		wxString tests = test.GetFullPath();
-		if(tests.Contains(_("!")))
+		if(tests.Contains("!"))
 		{
 			wxLogError(_("The chosen instance path contains a ! character.\nThis would make Minecraft crash. Please change it."), tests.c_str());
 			return false;
@@ -427,8 +544,8 @@ bool SettingsDialog::ApplySettings()
 		if (!oldInstDir.SameAs(newInstDir))
 		{
 			if(!FolderMove(oldInstDir, newInstDir,
-				_T("You've changed your instance directory, would you like to transfer all of your instances?"),
-				_T("Instance directory changed.")))
+				_("You've changed your instance directory, would you like to transfer all of your instances?"),
+				_("Instance directory changed.")))
 			{
 				return false;
 			}
@@ -439,8 +556,8 @@ bool SettingsDialog::ApplySettings()
 		if (!oldModDir.SameAs(newModDir))
 		{
 			if(!FolderMove(oldModDir, newModDir,
-				_T("You've changed your central mods directory, would you like to transfer all of your mods?"),
-				_T("Central mods directory changed.")))
+				_("You've changed your central mods directory, would you like to transfer all of your mods?"),
+				_("Central mods directory changed.")))
 			{
 				return false;
 			}
@@ -448,17 +565,21 @@ bool SettingsDialog::ApplySettings()
 		currentSettings->SetModsDir(newModDir);
 		
 		GUIMode newGUIMode;
-		if (guiStyleDropDown->GetValue() == guiModeFancy)
+		if (guiStyleBox->GetStringSelection() == guiModeFancy)
 			newGUIMode = GUI_Fancy;
-		else if (guiStyleDropDown->GetValue() == guiModeSimple)
+		else if (guiStyleBox->GetStringSelection() == guiModeSimple)
 			newGUIMode = GUI_Simple;
 		
 		if (newGUIMode != currentSettings->GetGUIMode())
 		{
 			currentSettings->SetGUIMode(newGUIMode);
-			wxMessageBox(_("Changing the GUI style requires a restart in order to take effect. Please restart MultiMC."),
-				_("Restart Required"));
+			needsRestart = true;
 		}
+
+		if (sortModeBox->GetStringSelection() == sortModeName)
+			currentSettings->SetInstSortMode(Sort_Name);
+		else if (sortModeBox->GetStringSelection() == sortModeLastLaunch)
+			currentSettings->SetInstSortMode(Sort_LastLaunch);
 		
 		currentSettings->SetShowConsole(showConsoleCheck->IsChecked());
 		currentSettings->SetAutoCloseConsole(autoCloseConsoleCheck->IsChecked());
@@ -506,6 +627,46 @@ Are you sure you want to use dev builds?"),
 		{
 			currentSettings->SetUseDevBuilds(useDevBuildsCheck->GetValue());
 		}
+
+
+		// Apply language settings.
+		if (currentSettings->GetUseSystemLang() != useSystemLangCheck->GetValue())
+			needsRestart = true;
+
+		currentSettings->SetUseSystemLang(useSystemLangCheck->GetValue());
+		if (!useSystemLangCheck->GetValue())
+		{
+			bool languageSet = false;
+			wxString langName = langSelectorBox->GetStringSelection();
+			const LanguageArray* langs = wxGetApp().localeHelper.GetLanguages();
+			for (unsigned i = 0; i < langs->size(); i++)
+			{
+				if (langs->operator[](i).m_name == langName &&
+					langs->operator[](i).m_canonicalName != currentSettings->GetLanguage())
+				{
+					// Set the language.
+					currentSettings->SetLanguage(langs->operator[](i).m_canonicalName);
+					needsRestart = true;
+				}
+			}
+		}
+
+		// Proxy settings
+		if (noProxyRBtn->GetValue())
+			currentSettings->SetProxyType(Proxy_None);
+		else if (httpProxyRBtn->GetValue())
+			currentSettings->SetProxyType(Proxy_HTTP);
+		else if (socks4ProxyRBtn->GetValue())
+			currentSettings->SetProxyType(Proxy_SOCKS4);
+		else if (socks5ProxyRBtn->GetValue())
+			currentSettings->SetProxyType(Proxy_SOCKS5);
+
+		currentSettings->SetProxyHostName(proxyHostTextbox->GetValue());
+		proxyPortTextbox->GetValidator()->TransferFromWindow();
+		currentSettings->SetProxyPort(proxyPortValue);
+
+		currentSettings->SetProxyUsername(proxyUserTextbox->GetValue());
+		currentSettings->SetProxyPassword(proxyPassTextbox->GetValue());
 	}
 	else
 	{
@@ -579,6 +740,17 @@ Are you sure you want to use dev builds?"),
 			currentSettings->ResetAutoLogin();
 		}
 	}
+	
+	if (needsRestart)
+	{
+		if (wxMessageBox(
+			_("Some settings were changed that require MultiMC to restart before they take effect. "
+			  "Would you like to restart MultiMC now?"),
+			_("Restart Required"), wxYES_NO) == wxYES)
+		{
+			m_shouldRestartMMC = true;
+		}
+	}
 
 	return true;
 }
@@ -603,13 +775,69 @@ void SettingsDialog::LoadSettings()
 		switch (currentSettings->GetGUIMode())
 		{
 		case GUI_Simple:
-			guiStyleDropDown->SetValue(guiModeSimple);
+			guiStyleBox->SetStringSelection(guiModeSimple);
 			break;
 			
 		case GUI_Fancy:
-			guiStyleDropDown->SetValue(guiModeFancy);
+			guiStyleBox->SetStringSelection(guiModeFancy);
 			break;
 		}
+
+		switch (currentSettings->GetInstSortMode())
+		{
+		case Sort_Name:
+			sortModeBox->SetStringSelection(sortModeName);
+			break;
+
+		case Sort_LastLaunch:
+			sortModeBox->SetStringSelection(sortModeLastLaunch);
+			break;
+		}
+
+		int selectedIndex = -1;
+		const LanguageArray* langs = wxGetApp().localeHelper.GetLanguages();
+		for (unsigned i = 0; i < langs->size(); i++)
+		{
+			wxString langCName = langs->operator[](i).m_canonicalName;
+			langSelectorBox->Append(langs->operator[](i).m_name);
+			if (langCName == currentSettings->GetLanguage())
+				selectedIndex = i;
+		}
+		if (selectedIndex == -1)
+		{
+			langSelectorBox->Insert(_("Unsupported Language"), 0);
+			selectedIndex = 0;
+		}
+		langSelectorBox->SetSelection(selectedIndex);
+
+		useSystemLangCheck->SetValue(currentSettings->GetUseSystemLang());
+
+		// Proxy settings
+		switch (currentSettings->GetProxyType())
+		{
+		case Proxy_None:
+			noProxyRBtn->SetValue(true);
+			break;
+
+		case Proxy_HTTP:
+			httpProxyRBtn->SetValue(true);
+			break;
+
+		case Proxy_SOCKS4:
+			socks4ProxyRBtn->SetValue(true);
+			break;
+
+		case Proxy_SOCKS5:
+			socks5ProxyRBtn->SetValue(true);
+			break;
+		}
+
+		proxyHostTextbox->SetValue(currentSettings->GetProxyHostName());
+		proxyPortValue = currentSettings->GetProxyPort();
+		proxyPortTextbox->GetValidator()->TransferToWindow();
+
+		proxyUserTextbox->SetValue(currentSettings->GetProxyUsername());
+		proxyPassTextbox->SetValue(currentSettings->GetProxyPassword());
 	}
 	else
 	{
@@ -657,7 +885,7 @@ void SettingsDialog::OnBrowseInstDirClicked(wxCommandEvent& event)
 			a.MakeRelativeTo();
 		if(a.SameAs(wxGetCwd()))
 		{
-			instDirTextBox->ChangeValue(_("."));
+			instDirTextBox->ChangeValue(".");
 		}
 		else
 		{
@@ -676,7 +904,7 @@ void SettingsDialog::OnBrowseModsDirClicked(wxCommandEvent& event)
 			a.MakeRelativeTo();
 		if(a.SameAs(wxGetCwd()))
 		{
-			modsDirTextBox->ChangeValue(_("."));
+			modsDirTextBox->ChangeValue(".");
 		}
 		else
 		{
@@ -692,7 +920,7 @@ void SettingsDialog::OnDetectJavaPathClicked(wxCommandEvent& event)
 }
 
 
-void SettingsDialog::OnUpdateMCTabCheckboxes(wxCommandEvent& event)
+void SettingsDialog::OnUpdateCheckboxes(wxCommandEvent& event)
 {
 	UpdateCheckboxStuff();
 }
@@ -739,12 +967,24 @@ void SettingsDialog::UpdateCheckboxStuff()
 
 		winWidthSpin->Enable(!(winMaxCheckbox->GetValue() || compatCheckbox->GetValue()));
 		winHeightSpin->Enable(!(winMaxCheckbox->GetValue() || compatCheckbox->GetValue()));
+
+		langSelectorBox->Enable(!useSystemLangCheck->GetValue());
+
+		proxyHostTextbox->Enable(!noProxyRBtn->GetValue());
+		proxyPortTextbox->Enable(!noProxyRBtn->GetValue());
+		proxyUserTextbox->Enable(!noProxyRBtn->GetValue());
+		proxyPassTextbox->Enable(!noProxyRBtn->GetValue());
 	}
 }
 
 bool SettingsDialog::GetForceUpdateMultiMC() const
 {
 	return !instanceMode && forceUpdateToggle->GetValue();
+}
+
+bool SettingsDialog::ShouldRestartNow() const
+{
+	return m_shouldRestartMMC;
 }
 
 
@@ -754,11 +994,13 @@ BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_BUTTON(ID_DetectJavaPath, SettingsDialog::OnDetectJavaPathClicked)
 	EVT_BUTTON(wxID_OK, SettingsDialog::OnOKClicked)
 
-	EVT_CHECKBOX(ID_MCMaximizeCheckbox, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_CHECKBOX(ID_CompatModeCheckbox, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_CHECKBOX(ID_OverrideJava, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_CHECKBOX(ID_OverrideWindow, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_CHECKBOX(ID_OverrideUpdate, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_CHECKBOX(ID_OverrideMemory, SettingsDialog::OnUpdateMCTabCheckboxes)
-	EVT_CHECKBOX(ID_OverrideLogin, SettingsDialog::OnUpdateMCTabCheckboxes)
+	EVT_CHECKBOX(ID_MCMaximizeCheckbox, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_CompatModeCheckbox, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_UseSystemLang, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_OverrideJava, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_OverrideWindow, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_OverrideUpdate, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_OverrideMemory, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_OverrideLogin, SettingsDialog::OnUpdateCheckboxes)
+	EVT_RADIOBUTTON(ID_UseProxy, SettingsDialog::OnUpdateCheckboxes)
 END_EVENT_TABLE()

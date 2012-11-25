@@ -35,13 +35,18 @@
 #include "importpackwizard.h"
 #include "downgradedialog.h"
 #include "downgradetask.h"
-#include "fsutils.h"
+#include "utils/fsutils.h"
 #include "aboutdlg.h"
 #include "updatepromptdlg.h"
 #include "taskprogressdialog.h"
 #include "snapshotdialog.h"
+#include "lwjgldialog.h"
 #include "savemgrwindow.h"
 #include "stdinstance.h"
+#include <mcversionlist.h>
+#include <mcprocess.h>
+#include "lwjglinstalltask.h"
+#include "ftbselectdialog.h"
 
 #include "instancectrl.h"
 
@@ -140,6 +145,7 @@ MainWindow::MainWindow(void)
 		addInstMenu->Append(ID_CopyInst, _("Copy selected instance."));
 		addInstMenu->Append(ID_ImportInst, _("Import existing .minecraft folder"));
 		addInstMenu->Append(ID_ImportCP, _("Import config pack"));
+		addInstMenu->Append(ID_ImportFTB, _("Import from FTB launcher."));
 
 		auto tool = mainToolBar->AddTool(ID_AddInst, _("Add instance"), newInstIcon, _("Add a new instance."), wxITEM_DROPDOWN);
 		tool->SetDropdownMenu(addInstMenu);
@@ -213,7 +219,7 @@ MainWindow::MainWindow(void)
 		break;
 	}
 
-	launchInstance = _("");
+	launchInstance = wxEmptyString;
 
 	// This breaks the windows version and is pretty much alien on linux.
 	// AWAY WITH YOU, FOUL CODE, INTO THE LANDS OF IFDEF AND SPINNING BEACHBALLS!
@@ -240,7 +246,7 @@ void MainWindow::OnStartup()
 	LoadInstanceList();
 
 	// Automatically auto-detect the Java path.
-	if (settings->GetJavaPath() == _("java"))
+	if (settings->GetJavaPath() == "java")
 	{
 		settings->SetJavaPath(FindJavaPath());
 	}
@@ -253,13 +259,9 @@ void MainWindow::OnStartup()
 
 	if(!launchInstance.empty())
 	{
-		//FIXME: broken by instance model changes
-		/*
-		wxFileName instanceDir = settings->GetInstDir();
-		instanceDir.AppendDir(launchInstance);
-		currentInstance = Instance::LoadInstance(instanceDir);
-
-		if(currentInstance == nullptr)
+		instItems.SelectInstanceByID(launchInstance);
+		Instance * inst = instItems.GetSelectedInstance();
+		if(inst == nullptr)
 		{
 			wxString output = _("Couldn't find the instance you tried to load: ");
 			output.append(launchInstance);
@@ -270,7 +272,6 @@ void MainWindow::OnStartup()
 		{
 			LoginClicked();
 		}
-		*/
 	}
 }
 
@@ -290,22 +291,24 @@ void MainWindow::InitInstMenu()
 {
 	// Build the instance context menu
 	instMenu = new wxMenu();
-	instMenu->Append(ID_Play, _T("&Play"), _T("Launch the instance."));
+	instMenu->Append(ID_Play, _("&Play"), _("Launch the instance."));
 	instMenu->AppendSeparator();
-	instMenu->Append(ID_Rename, _T("&Rename"), _T("Change the instance's name."));
-	instMenu->Append(ID_SetGroup, _T("Change Group"), _T("Change the instance's group."));
-	instMenu->Append(ID_ChangeIcon, _T("&Change Icon"), _T("Change this instance's icon."));
-	instMenu->Append(ID_EditNotes, _T("&Notes"), _T("View / edit this instance's notes."));
-	instMenu->Append(ID_Configure, _T("&Settings"), _T("Change instance settings."));
+	instMenu->Append(ID_Rename, _("&Rename"), _("Change the instance's name."));
+	instMenu->Append(ID_SetGroup, _("Change Group"), _("Change the instance's group."));
+	instMenu->Append(ID_ChangeIcon, _("&Change Icon"), _("Change this instance's icon."));
+	instMenu->Append(ID_EditNotes, _("&Notes"), _("View / edit this instance's notes."));
+	instMenu->Append(ID_Configure, _("&Settings"), _("Change instance settings."));
+	instMenu->Append(ID_MakeDesktopLink, _("Make Desktop Shortcut"), _("Makes a shortcut on the desktop to launch this instance."));
 	instMenu->AppendSeparator();
-	instMenu->Append(ID_ManageSaves, _T("&Manage Saves"), _T("Backup / restore your saves."));
-	instMenu->Append(ID_EditMods, _T("&Edit Mods"), _T("Install or remove mods."));
-	instMenu->Append(ID_DowngradeInst, _T("Downgrade"), _T("Use MCNostalgia to downgrade this instance."));
-	instMenu->Append(ID_UseSnapshot, _T("Snapshot"), _T("Install a snapshot."));
-	instMenu->Append(ID_RebuildJar, _T("Re&build Jar"), _T("Reinstall all the instance's jar mods."));
-	instMenu->Append(ID_ViewInstFolder, _T("&View Folder"), _T("Open the instance's folder."));
+	instMenu->Append(ID_ManageSaves, _("&Manage Saves"), _("Backup / restore your saves."));
+	instMenu->Append(ID_EditMods, _("&Edit Mods"), _("Install or remove mods."));
+	instMenu->Append(ID_DowngradeInst, _("Downgrade"), _("Use MCNostalgia to downgrade this instance."));
+	instMenu->Append(ID_UseSnapshot, _("Snapshot"), _("Install a snapshot."));
+	instMenu->Append(ID_ChangeLWJGL, _("Change LWJGL"), _("Use a different version of LWJGL with this instance."));
+	instMenu->Append(ID_RebuildJar, _("Re&build Jar"), _("Reinstall all the instance's jar mods."));
+	instMenu->Append(ID_ViewInstFolder, _("&View Folder"), _("Open the instance's folder."));
 	instMenu->AppendSeparator();
-	instMenu->Append(ID_DeleteInst, _T("Delete"), _T("Delete this instance."));
+	instMenu->Append(ID_DeleteInst, _("Delete"), _("Delete this instance."));
 
 	// Build the group context menu.
 	groupMenu = new wxMenu();
@@ -344,7 +347,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	instNameEditor->SetFont(nameEditFont);
 	instNameSz->Add(instNameEditor, wxSizerFlags(0).Align(wxALIGN_CENTER).Expand());
 	
-	instNameLabel = new wxStaticText(instPanel, -1, _("InstName"), 
+	instNameLabel = new wxStaticText(instPanel, -1, "InstName", 
 		wxDefaultPosition, wxDefaultSize);
 	instNameLabel->SetFont(titleFont);
 	instNameSz->Add(instNameLabel, wxSizerFlags(0).Align(wxALIGN_CENTER));
@@ -420,7 +423,7 @@ void MainWindow::UpdateInstNameLabel(Instance *inst)
 		{
 			instName.Truncate(instNameLengthLimit);
 			instName.Trim();
-			instName.Append(_("..."));
+			instName.Append("...");
 		}
 		instNameLabel->SetLabel(instName);
 	}
@@ -450,7 +453,7 @@ void MainWindow::LoadInstanceList(wxFileName instDir)
 	{
 		if (!instDir.Mkdir())
 		{
-			wxLogError(_T("Failed to create instance directory."));
+			wxLogError(_("Failed to create instance directory."));
 			return;
 		}
 	}
@@ -523,7 +526,7 @@ bool MainWindow::GetNewInstName(wxString *instName, wxString *instDirName, const
 {
 	wxString newInstName = wxEmptyString;
 Retry:
-	newInstName = wxGetTextFromUser(_T("Instance name:"), 
+	newInstName = wxGetTextFromUser(_("Instance name:"), 
 		title, newInstName, this);
 
 	if (newInstName.empty())
@@ -532,21 +535,21 @@ Retry:
 	}
 	else if (newInstName.Len() > instNameLengthLimit)
 	{
-		wxMessageBox(_T("Sorry, that name is too long."), _T("Error"), wxOK | wxCENTER, this);
+		wxMessageBox(_("Sorry, that name is too long."), _("Error"), wxOK | wxCENTER, this);
 		goto Retry;
 	}
 
 	int num = 0;
-	wxString dirName = Utils::RemoveInvalidPathChars(newInstName);
+	wxString dirName = Utils::RemoveInvalidPathChars(newInstName, '-', false);
 	while (wxDirExists(Path::Combine(settings->GetInstDir(), dirName)))
 	{
 		num++;
-		dirName = Utils::RemoveInvalidPathChars(newInstName) + wxString::Format(_("_%i"), num);
+		dirName = Utils::RemoveInvalidPathChars(newInstName, '-', false) + wxString::Format("_%i", num);
 
 		// If it's over 9000
 		if (num > 9000)
 		{
-			wxLogError(_T("Couldn't create instance folder: %s"),
+			wxLogError(_("Couldn't create instance folder: %s"),
 				Path::Combine(settings->GetInstDir(), dirName).c_str());
 			goto Retry;
 		}
@@ -569,6 +572,7 @@ void MainWindow::OnAddInstClicked(wxCommandEvent& event)
 	addInstMenu->Append(ID_CopyInst, _("Copy selected instance."));
 	addInstMenu->Append(ID_ImportInst, _("Import existing .minecraft folder"));
 	addInstMenu->Append(ID_ImportCP, _("Import config pack"));
+	addInstMenu->Append(ID_ImportFTB, _("Import from FTB launcher."));
 	PopupMenu(addInstMenu);
 	wxDELETE(addInstMenu);
 #endif
@@ -585,12 +589,12 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 	
 	Instance *inst = new StdInstance(instDir);
 	UserInfo lastLogin;
-	if (wxFileExists(_("lastlogin4")))
+	if (wxFileExists("lastlogin4"))
 	{
 		lastLogin.LoadFromFile("lastlogin4");
-		if(lastLogin.username.Lower().Contains(_("direwolf")))
+		if(lastLogin.username.Lower().Contains("direwolf"))
 		{
-			inst->SetIconKey(_("enderman"));
+			inst->SetIconKey("enderman");
 		}
 		else if (lastLogin.username.Lower().Contains("rootbear75"))
 		{
@@ -615,7 +619,7 @@ void MainWindow::OnImportMCFolder(wxCommandEvent& event)
 	if (!GetNewInstName(&instName, &instDirName, _("Import existing Minecraft folder")))
 		return;
 
-	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName));
+	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName, '-', false));
 
 	wxMkdir(instDirName);
 
@@ -632,7 +636,7 @@ void MainWindow::OnImportMCFolder(wxCommandEvent& event)
 void MainWindow::OnImportCPClicked(wxCommandEvent& event)
 {
 	wxFileDialog fileDlg(this, _("Choose a pack to import."),
-		wxEmptyString, wxEmptyString, _("*.zip"), wxFD_OPEN);
+		wxEmptyString, wxEmptyString, "*.zip", wxFD_OPEN);
 	fileDlg.CenterOnParent();
 	if (fileDlg.ShowModal() == wxID_OK)
 	{
@@ -645,6 +649,58 @@ void MainWindow::OnImportCPClicked(wxCommandEvent& event)
 		else
 		{
 			wxLogError(_("This is not a valid config pack!"));
+		}
+	}
+}
+
+void MainWindow::OnImportFTBClicked(wxCommandEvent& event)
+{
+	// Select the launcher folder.
+	wxDirDialog dirDlg(this, _("Please select your FTB launcher folder."));
+	dirDlg.CenterOnParent();
+	if (dirDlg.ShowModal() == wxID_OK && wxDirExists(dirDlg.GetPath()))
+	{
+		// Choose a pack to import.
+		SelectFTBDialog selDialog(this, dirDlg.GetPath());
+		selDialog.CenterOnParent();
+		if (selDialog.ShowModal() == wxID_OK)
+		{
+			// Name the instance.
+			wxString instName;
+			wxString instDirName;
+			if (GetNewInstName(&instName, &instDirName, _("Import FTB pack.")))
+			{
+				instDirName = Path::Combine(settings->GetInstDir(), instDirName);
+
+				// Create the instance.
+				wxMkdir(instDirName);
+
+				Instance *inst = new StdInstance(instDirName);
+				inst->SetName(instName);
+				
+				// Just to be safe...
+				wxRmDir(inst->GetMCDir().GetFullPath());
+
+				// Copy the pack to its new instance folder.
+				FileCopyTask *copyTask = new FileCopyTask(
+					selDialog.GetSelectedFolder(), instDirName);
+				StartTask(copyTask);
+				delete copyTask;
+
+				// Make some corrections
+				if (!wxFileExists(inst->GetVersionFile().GetFullPath()) &&
+					wxFileExists(Path::Combine(inst->GetRootDir().GetFullPath(), "version")))
+				{
+					wxRenameFile(Path::Combine(inst->GetRootDir().GetFullPath(), "version"),
+						inst->GetVersionFile().GetFullPath());
+				}
+
+				// Set needs rebuild.
+				inst->SetNeedsRebuild();
+
+				// Add the instance.
+				AddInstance(inst);
+			}
 		}
 	}
 }
@@ -683,21 +739,28 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 		{
 			LoadInstanceList();
 		}
+		instListCtrl->ReloadAll();
 		
 		if (settingsDlg.GetForceUpdateMultiMC())
 		{
 			wxString ciURL(_T(JENKINS_JOB_URL));
 
 #if WINDOWS
-			wxString dlFileName = _("MultiMC.exe");
+			wxString dlFileName = "MultiMC.exe";
 #else
-			wxString dlFileName = _("MultiMC");
+			wxString dlFileName = "MultiMC";
 #endif
 
 			wxString dlURL = wxString::Format(
-				_("%s/lastStableBuild/artifact/%s"),
+				"%s/lastStableBuild/artifact/%s",
 				ciURL.c_str(), dlFileName.c_str());
 			DownloadInstallUpdates(dlURL);
+		}
+
+		if (settingsDlg.ShouldRestartNow())
+		{
+			wxGetApp().exitAction = MultiMC::EXIT_RESTART;
+			Close(false);
 		}
 	}
 }
@@ -723,26 +786,43 @@ void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 
 		UpdatePromptDialog updatePrompt (this, updateMsg);
 		updatePrompt.CenterOnParent();
-		if (updatePrompt.ShowModal() == wxID_OK)
+		int response = updatePrompt.ShowModal();
+		if (response == ID_UpdateNow)
 		{
 			DownloadInstallUpdates(event.m_downloadURL);
+		}
+		else if (response == ID_UpdateLater)
+		{
+			DownloadInstallUpdates(event.m_downloadURL, false);
 		}
 	}
 }
 
-void MainWindow::DownloadInstallUpdates(const wxString &downloadURL)
+void MainWindow::DownloadInstallUpdates(const wxString &downloadURL, bool installNow)
 {
 #if WINDOWS
-	wxString updaterFileName = _("MultiMCUpdate.exe");
+	wxString updaterFileName = "MultiMCUpdate.exe";
 #else
-	wxString updaterFileName = _("MultiMCUpdate");
+	wxString updaterFileName = "MultiMCUpdate";
 #endif
 
 	auto dlTask = new FileDownloadTask(downloadURL, wxFileName(updaterFileName), _("Downloading updates..."));
-	wxGetApp().updateOnExit = true;
-	StartTask(dlTask);
-	delete dlTask;
-	Close(false);
+
+	if (installNow)
+	{
+		// Download and install in the foreground.
+		StartTask(dlTask);
+		delete dlTask;
+		wxGetApp().exitAction = MultiMC::EXIT_UPDATE_RESTART;
+		Close(false);
+	}
+	else
+	{
+		// Download in the background and install on exit.
+		// FIXME: If MultiMC closes before the download finishes, the update will not install.
+		dlTask->Start(this, false);
+		wxGetApp().exitAction = MultiMC::EXIT_UPDATE;
+	}
 }
 
 void MainWindow::OnHelpClicked(wxCommandEvent& event)
@@ -755,11 +835,11 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 #ifdef __WXGTK__
 	wxAboutDialogInfo info;
 	info.SetName(_("MultiMC"));
-	info.SetVersion(wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
+	info.SetVersion(wxString::Format("%s - %s", AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str()));
 	info.SetDescription(_("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once."));
 	info.SetCopyright(_("(C) 2012 MultiMC Contributors"));
 	
-	info.SetWebSite(_("http://forkk.net/MultiMC4"));
+	info.SetWebSite("http://forkk.net/MultiMC4");
 	info.SetLicense(licenseText);
 	
 	info.SetIcon(wxGetApp().GetAppIcons().GetIcon(wxSize(64, 64)));
@@ -772,11 +852,11 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 	AboutDlgInfo info;
 
 	info.name = _("MultiMC");
-	info.version = wxString::Format(_("%s - %s"), AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str());
+	info.version = wxString::Format("%s - %s", AppVersion.ToString().c_str(), AppBuildTag.ToString().c_str());
 	info.description = _("MultiMC is a custom launcher that makes managing Minecraft easier by allowing you to have multiple installations of Minecraft at once.");
 	info.copyright = _("(C) 2012 MultiMC Contributors");
 
-	info.website = _("http://forkk.net/MultiMC4");
+	info.website = "http://forkk.net/MultiMC4";
 	info.license = licenseText;
 
 	info.icon = wxGetApp().GetAppIcons().GetIcon(wxSize(64, 64));
@@ -789,18 +869,18 @@ void MainWindow::OnAboutClicked(wxCommandEvent& event)
 
 void MainWindow::OnBugReportClicked ( wxCommandEvent& event )
 {
-	if(!Utils::OpenURL(_("http://bugs.forkk.net/")))
+	if(!Utils::OpenURL("http://bugs.forkk.net/"))
 	{
-		wxMessageBox(_T("MultiMC was unable to run your web browser.\n\nTo report bugs, visit:\nhttp://bugs.forkk.net/"), 
-		_T("Error"), wxOK | wxCENTER | wxICON_ERROR, this);
+		wxMessageBox(_("MultiMC was unable to run your web browser.\n\nTo report bugs, visit:\nhttp://bugs.forkk.net/"), 
+		_("Error"), wxOK | wxCENTER | wxICON_ERROR, this);
 	}
 }
 
 
 void MainWindow::NotImplemented()
 {
-	wxMessageBox(_T("This feature has not yet been implemented."), 
-		_T("Not implemented"), wxOK | wxCENTER, this);
+	wxMessageBox(_("This feature has not yet been implemented."), 
+		_("Not implemented"), wxOK | wxCENTER, this);
 }
 
 
@@ -823,7 +903,7 @@ void MainWindow::LoginClicked()
 		return;
 	}
 
-	if (currentInstance->GetAutoLogin() && wxFileExists(_("lastlogin4")))
+	if (currentInstance->GetAutoLogin() && wxFileExists("lastlogin4"))
 	{
 		UserInfo lastLogin;
 		lastLogin.LoadFromFile("lastlogin4");
@@ -831,7 +911,7 @@ void MainWindow::LoginClicked()
 	}
 	else
 	{
-		ShowLoginDlg(_(""));
+		ShowLoginDlg(wxEmptyString);
 	}
 }
 
@@ -865,7 +945,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 	}
 
 	UserInfo lastLogin;
-	if (wxFileExists(_("lastlogin4")))
+	if (wxFileExists("lastlogin4"))
 	{
 		lastLogin.LoadFromFile("lastlogin4");
 	}
@@ -898,7 +978,7 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 		// If the session ID is empty, the game updater will not be run.
 		wxString sessionID = result.sessionID;
 		sessionID.Trim();
-		if (!result.playOffline && !sessionID.IsEmpty() && sessionID != _("Offline"))
+		if (!result.playOffline && !sessionID.IsEmpty() && sessionID != "Offline")
 		{
 			auto task = new GameUpdateTask(inst, result.latestVersion, result.forceUpdate);
 			StartTask(task);
@@ -914,16 +994,17 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 			delete task;
 		}
 		
-		if(inst->Launch(result.username, result.sessionID, true) != nullptr)
+		InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, !launchInstance.IsEmpty());
+		cwin->SetUserInfo(result.username, result.sessionID);
+		cwin->SetName(wxT("InstConsoleWindow"));
+		if (!wxPersistenceManager::Get().RegisterAndRestore(cwin))
+			cwin->CenterOnScreen();
+		
+		if(MinecraftProcess::Launch(inst, cwin, result.username, result.sessionID) != nullptr)
 		{
 			Show(false);
-			InstConsoleWindow *cwin = new InstConsoleWindow(inst, this, 
-				!launchInstance.IsEmpty());
-			cwin->SetUserInfo(result.username, result.sessionID);
-			cwin->SetName(wxT("InstConsoleWindow"));
-			if (!wxPersistenceManager::Get().RegisterAndRestore(cwin))
-				cwin->CenterOnScreen();
-			cwin->Start();
+			cwin->Show(settings->GetShowConsole());
+			instListCtrl->ReloadAll();
 		}
 		else
 		{
@@ -961,7 +1042,7 @@ void MainWindow::RenameEvent()
 			wxString str = textDlg.GetValue();
 			if(str.length() > 25)
 			{
-				wxMessageBox(_T("Sorry, that name is too long. 25 characters is the limit."), _T("Error"), wxOK | wxCENTER, this);
+				wxMessageBox(_("Sorry, that name is too long. 25 characters is the limit."), _("Error"), wxOK | wxCENTER, this);
 				continue;
 			}
 			//FIXME: this should be handled and passed on by the model
@@ -1022,7 +1103,7 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	if (!GetNewInstName(&instName, &instDirName, _("Copy existing instance")))
 		return;
 
-	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName));
+	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName, '-', false));
 
 	wxMkdir(instDirName);
 	auto task = new FileCopyTask (currentInstance->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));
@@ -1033,6 +1114,54 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	Instance *newInst = new StdInstance(instDirName);
 	newInst->SetName(instName);
 	AddInstance(newInst);
+}
+
+void MainWindow::OnMakeDesktopLinkClicked(wxCommandEvent& event)
+{
+	auto currentInst = instItems.GetSelectedInstance();
+	if (!currentInst)
+		return;
+
+#if WINDOWS
+	// Find the Desktop folder.
+	wxString desktopDir;
+	if (!wxGetEnv("USERPROFILE", &desktopDir))
+	{
+		wxLogError(_("Can't create desktop shortcut. Failed to find home folder."));
+		return;
+	}
+	desktopDir = Path::Combine(desktopDir, "Desktop");
+
+	wxString shortcutName;
+AskAgain:
+	shortcutName = wxGetTextFromUser(_("Enter a name for the shortcut: "), 
+		_("Name Shortcut"), shortcutName, this);
+
+	if (shortcutName.IsEmpty())
+	{
+		return;
+	}
+	else if (Utils::ContainsInvalidPathChars(shortcutName, true))
+	{
+		wxMessageBox(wxString::Format(
+			_("Shortcut name cannot contain any invalid characters (such as '%s')."), wxFileName::GetForbiddenChars()),
+			_("Invalid Shortcut Name"));
+		goto AskAgain;
+	}
+
+	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+	if (exePath.IsEmpty())
+		exePath = wxGetApp().argv[0];
+
+	if (!CreateShortcut(Path::Combine(desktopDir, shortcutName + ".lnk"), 
+		exePath, wxString::Format("-l \"%s\"", currentInst->GetInstID().c_str())))
+	{
+		wxLogError(_("Failed to create desktop shortcut. An unknown error occurred."));
+		return;
+	}
+#else
+	wxMessageBox(_("Sorry, desktop shortcuts are only supported on Windows."), _("Not Supported"));
+#endif
 }
 
 void MainWindow::OnInstanceSettingsClicked ( wxCommandEvent& event )
@@ -1211,10 +1340,10 @@ void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
 	{
 		DowngradeDialog downDlg(this);
 		downDlg.CenterOnParent();
-		if (downDlg.ShowModal() == wxID_OK && !downDlg.GetSelectedVersion().IsEmpty())
+		if (downDlg.ShowModal() == wxID_OK && !downDlg.GetSelection().IsEmpty())
 		{
-			if (downDlg.GetSelectedVersion().Contains(wxT("indev")) ||
-				downDlg.GetSelectedVersion().Contains(wxT("infdev")))
+			if (downDlg.GetSelection().Contains(wxT("indev")) ||
+				downDlg.GetSelection().Contains(wxT("infdev")))
 			{
 				if (wxMessageBox(_("MultiMC is currently incompatible with \
 indev and infdev. Are you sure you would like to downgrade to this version?"), 
@@ -1224,7 +1353,7 @@ indev and infdev. Are you sure you would like to downgrade to this version?"),
 				}
 			}
 
-			auto task = new DowngradeTask (currentInstance, downDlg.GetSelectedVersion());
+			auto task = new DowngradeTask (currentInstance, downDlg.GetSelection());
 			StartTask(task);
 			delete task;
 			UpdateInstPanel();
@@ -1246,10 +1375,10 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 	{
 		SnapshotDialog snapDlg(this);
 		snapDlg.CenterOnParent();
-		if (snapDlg.ShowModal() == wxID_OK && !snapDlg.GetSelectedSnapshot().IsEmpty())
+		MCVersion ver;
+		if (snapDlg.ShowModal() == wxID_OK && snapDlg.GetSelectedVersion(ver))
 		{
-			wxString snapURL = wxString::Format(wxT("assets.minecraft.net/%s/minecraft.jar"), 
-				snapDlg.GetSelectedSnapshot().c_str());
+			wxString snapURL = ver.dlURL + "minecraft.jar";
 
 			wxString snapshotJar = Path::Combine(currentInstance->GetBinDir(), wxT("snapshot.jar"));
 			FileDownloadTask task(snapURL, snapshotJar);
@@ -1273,6 +1402,27 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 	else
 	{
 		wxLogError(_("You must run this instance at least once to download minecraft before you can downgrade it!"));
+	}
+}
+
+void MainWindow::OnChangeLWJGLClicked(wxCommandEvent& event)
+{
+	ChooseLWJGLDialog lwjglDlg(this);
+	lwjglDlg.CenterOnParent();
+	if (lwjglDlg.ShowModal() == wxID_OK && !lwjglDlg.GetSelection().IsEmpty())
+	{
+		// Download LWJGL
+		FileDownloadTask *dlTask = new FileDownloadTask(lwjglDlg.GetSelectedURL(),
+			wxFileName("lwjgl.zip"), _("Downloading LWJGL..."));
+		TaskProgressDialog tDialog(this);
+		if (!tDialog.ShowModal(dlTask))
+			return;
+		delete dlTask;
+
+		LWJGLInstallTask *installTask = new LWJGLInstallTask(
+			instItems.GetSelectedInstance(), "lwjgl.zip");
+		tDialog.ShowModal(installTask);
+		delete installTask;
 	}
 }
 
@@ -1394,6 +1544,7 @@ int MainWindow::StartTask ( Task* task )
 
 void MainWindow::OnWindowClosed(wxCloseEvent& event)
 {
+	wxPersistenceManager::Get().SaveAndUnregister(this);
 	if(instNotesEditor)
 	{
 		// Save instance notes on exit.
@@ -1450,6 +1601,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_CopyInst, MainWindow::OnCopyInstClicked)
 	EVT_MENU(ID_ImportInst, MainWindow::OnImportMCFolder)
 	EVT_MENU(ID_ImportCP, MainWindow::OnImportCPClicked)
+	EVT_MENU(ID_ImportFTB, MainWindow::OnImportFTBClicked)
 
 	EVT_MENU(ID_Play, MainWindow::OnPlayClicked)
 	
@@ -1457,12 +1609,14 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_SetGroup, MainWindow::OnChangeGroupClicked)
 	EVT_MENU(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
 	EVT_MENU(ID_EditNotes, MainWindow::OnNotesClicked)
+	EVT_MENU(ID_MakeDesktopLink, MainWindow::OnMakeDesktopLinkClicked)
 	EVT_MENU(ID_Configure, MainWindow::OnInstanceSettingsClicked)
 	
 	EVT_MENU(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_MENU(ID_EditMods, MainWindow::OnEditModsClicked)
 	EVT_MENU(ID_DowngradeInst, MainWindow::OnDowngradeInstClicked)
 	EVT_MENU(ID_UseSnapshot, MainWindow::OnSnapshotClicked)
+	EVT_MENU(ID_ChangeLWJGL, MainWindow::OnChangeLWJGLClicked)
 	EVT_MENU(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_MENU(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
 

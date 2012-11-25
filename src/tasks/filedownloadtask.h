@@ -22,7 +22,7 @@
 class FileDownloadTask : public Task
 {
 public:
-	FileDownloadTask(const wxString &src, const wxFileName &dest, const wxString &message = _(""));
+	FileDownloadTask(const wxString &src, const wxFileName &dest, const wxString &message = wxEmptyString);
 	
 	virtual ExitCode TaskStart();
 	

@@ -19,16 +19,11 @@
 #include <wx/stattext.h>
 #include <wx/button.h>
 
-#include "apputils.h"
+#include "utils/apputils.h"
 #include "config.h"
 
-enum
-{
-	ID_Changelog,
-};
-
 UpdatePromptDialog::UpdatePromptDialog(wxWindow *parent, const wxString &updateMsg)
-	: wxDialog(parent, -1, _("Update Avaliable"), wxDefaultPosition, wxDefaultSize)
+	: wxDialog(parent, -1, _("Update Available"), wxDefaultPosition, wxDefaultSize)
 {
 	wxBoxSizer *mainSz = new wxBoxSizer(wxVERTICAL);
 	SetSizer(mainSz);
@@ -37,12 +32,26 @@ UpdatePromptDialog::UpdatePromptDialog(wxWindow *parent, const wxString &updateM
 	mainSz->Add(msgLabel, wxSizerFlags(1).Expand().
 		Align(wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL).Border(wxTOP | wxLEFT | wxRIGHT, 8));
 
-	wxSizer *btnSz = CreateButtonSizer(wxOK | wxCANCEL);
+	wxBoxSizer *btnSz = new wxBoxSizer(wxHORIZONTAL);
 
 	wxButton *changelogBtn = new wxButton(this, ID_Changelog, _("&Changelog"));
-	btnSz->Insert(0, changelogBtn, wxSizerFlags().Align(wxALIGN_RIGHT).Border(wxLEFT | wxRIGHT, 4));
+	btnSz->Add(changelogBtn, wxSizerFlags().Align(wxALIGN_LEFT).Border(wxLEFT | wxRIGHT, 4));
 
-	mainSz->Add(btnSz, wxSizerFlags().Align(wxALIGN_RIGHT).Border(wxBOTTOM | wxRIGHT | wxTOP, 8));
+	btnSz->AddStretchSpacer();
+
+	wxButton* cancelButton = new wxButton(this, wxID_CANCEL, _("Cancel"));
+	btnSz->Add(cancelButton);
+
+	wxButton* updateLaterBtn = new wxButton(this, ID_UpdateLater, _("When MultiMC Exits"));
+	btnSz->Add(updateLaterBtn, wxSizerFlags().Align(wxALIGN_RIGHT).Border(wxLEFT | wxRIGHT, 4));
+
+	wxButton* updateNowBtn = new wxButton(this, ID_UpdateNow, _("Update Now"));
+	btnSz->Add(updateNowBtn, wxSizerFlags().Align(wxALIGN_RIGHT).Border(wxLEFT | wxRIGHT, 4));
+
+	mainSz->Add(btnSz, wxSizerFlags().Align(wxALIGN_RIGHT).Border(wxBOTTOM | wxRIGHT | wxLEFT | wxTOP, 8));
+
+	SetAffirmativeId(ID_UpdateNow);
+	updateNowBtn->SetFocus();
 
 	Fit();
 }
@@ -53,6 +62,18 @@ void UpdatePromptDialog::OnChangelogClicked(wxCommandEvent &event)
 	Utils::OpenURL(url.Append(wxT("changes")));
 }
 
+void UpdatePromptDialog::OnUpdateNowClicked(wxCommandEvent& event)
+{
+	EndModal(ID_UpdateNow);
+}
+
+void UpdatePromptDialog::OnUpdateLaterClicked(wxCommandEvent& event)
+{
+	EndModal(ID_UpdateLater);
+}
+
 BEGIN_EVENT_TABLE(UpdatePromptDialog, wxDialog)
 	EVT_BUTTON(ID_Changelog, UpdatePromptDialog::OnChangelogClicked)
+	EVT_BUTTON(ID_UpdateNow, UpdatePromptDialog::OnUpdateNowClicked)
+	EVT_BUTTON(ID_UpdateLater, UpdatePromptDialog::OnUpdateLaterClicked)
 END_EVENT_TABLE()

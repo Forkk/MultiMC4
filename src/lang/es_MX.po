@@ -1,0 +1,1644 @@
+#
+# Copyright 2012 MultiMC Contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: MultiMC Translation\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-11-11 21:17-0600\n"
+"PO-Revision-Date: 2012-11-11 21:22-0600\n"
+"Last-Translator: Andrew Okin <forkk@forkk.net>\n"
+"Language-Team: MultiMC\n"
+"Language: Spanish\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
+
+#: gui/modeditwindow.cpp:63 gui/modeditwindow.cpp:102
+#: gui/modeditwindow.cpp:133 gui/modeditwindow.cpp:163
+#: gui/savemgrwindow.cpp:67
+msgid "&Add"
+msgstr "&Agregar"
+
+#: gui/changeicondialog.cpp:42
+msgid "&Add Icon"
+msgstr "&Agregar Icono"
+
+#: gui/consolewindow.cpp:670
+msgid "&Cancel"
+msgstr "&Cancelar"
+
+#: gui/mainwindow.cpp:297
+msgid "&Change Icon"
+msgstr "&Cambiar Icono"
+
+#: gui/updatepromptdlg.cpp:37
+msgid "&Changelog"
+msgstr "&Cambios"
+
+#: gui/aboutdlg.cpp:76 gui/consolewindow.cpp:77 gui/modeditwindow.cpp:193
+#: gui/savemgrwindow.cpp:98
+msgid "&Close"
+msgstr "&Cerrar"
+
+#: gui/savemgrwindow.cpp:70
+msgid "&Delete"
+msgstr "&Eliminar"
+
+#: gui/mainwindow.cpp:302
+msgid "&Edit Mods"
+msgstr "&Editar Mods"
+
+#: gui/modeditwindow.cpp:187
+msgid "&Export"
+msgstr "&Exportar"
+
+#: gui/logindialog.cpp:59
+msgid "&Force update"
+msgstr "&Forzar Actualizacion"
+
+#: gui/aboutdlg.cpp:73
+msgid "&Licenses"
+msgstr "&Licensia"
+
+#: gui/mainwindow.cpp:301
+msgid "&Manage Saves"
+msgstr "&Administrar Guardados"
+
+#: gui/mainwindow.cpp:298
+msgid "&Notes"
+msgstr "&Notas"
+
+#: gui/mainwindow.cpp:293 gui/mainwindow.cpp:365
+msgid "&Play"
+msgstr "&Iniciar"
+
+#: gui/importpackwizard.cpp:76 gui/listselectdialog.cpp:54
+#: gui/savemgrwindow.cpp:93
+msgid "&Refresh"
+msgstr "&Actualizar"
+
+#: gui/modeditwindow.cpp:183
+msgid "&Reload"
+msgstr "&Recargar"
+
+#: gui/changeicondialog.cpp:48
+msgid "&Reload Icons"
+msgstr "&Recargar Iconos"
+
+#: gui/logindialog.cpp:62
+msgid "&Remember username?"
+msgstr "&¿Recordar nombre de usuario?"
+
+#: gui/modeditwindow.cpp:67 gui/modeditwindow.cpp:106
+#: gui/modeditwindow.cpp:137 gui/modeditwindow.cpp:167
+msgid "&Remove"
+msgstr "&Eliminar"
+
+#: gui/changeicondialog.cpp:45
+msgid "&Remove Icon"
+msgstr "&Eliminar Icono"
+
+#: gui/mainwindow.cpp:295 gui/mainwindow.cpp:313 gui/mainwindow.cpp:371
+msgid "&Rename"
+msgstr "&Renombrar"
+
+#: gui/mainwindow.cpp:299
+msgid "&Settings"
+msgstr "&Opciones"
+
+#: gui/importpackwizard.cpp:73
+msgid "&View Central Mods Folder"
+msgstr "&Ver Folder Central de Mods"
+
+#: gui/mainwindow.cpp:307 gui/mainwindow.cpp:390 gui/modeditwindow.cpp:112
+#: gui/modeditwindow.cpp:143 gui/modeditwindow.cpp:173
+msgid "&View Folder"
+msgstr "&Ver Folder"
+
+#: gui/mainwindow.cpp:838 gui/mainwindow.cpp:855
+msgid "(C) 2012 MultiMC Contributors"
+msgstr "(C) Contribuidores 2012 MultiMC "
+
+#: gui/mainwindow.cpp:267
+msgid ". Make sure it exists!"
+msgstr ""
+
+#: tasks/logintask.cpp:92
+msgid "503 - login servers unavailable. Check help.mojang.com!"
+msgstr "503 - Servidores de sesión inaccesibles. Revisa help.mojang.com !"
+
+#: gui/consolewindow.cpp:672
+msgid "A crash report has been generated. What would you like to do with it?"
+msgstr "Un reporte de error a sido generado. ¿Que quieres hacer con el?"
+
+#: multimc.cpp:343
+msgid ""
+"A fatal error has occurred and MultiMC has to exit. Sorry for the "
+"inconvenience."
+msgstr ""
+"Un error fatal ha ocurrido y MultiMC a tenido que cerrar. Perdone la "
+"inconveniencia."
+
+#: gui/mainwindow.cpp:194
+msgid "About"
+msgstr "Acerca de"
+
+#: gui/aboutdlg.cpp:30 gui/mainwindow.cpp:196
+msgid "About MultiMC"
+msgstr "Acerca MultiMC"
+
+#: gui/mainwindow.cpp:154
+msgid "Add"
+msgstr "Añadir"
+
+#: gui/modeditwindow.cpp:64
+msgid "Add a jar mod."
+msgstr "Añadir un mod a jar"
+
+#: gui/mainwindow.cpp:156
+msgid "Add a new Minecraft instance."
+msgstr "Añadir una nueva instancia de Minecraft"
+
+#: gui/modeditwindow.cpp:103
+msgid "Add a new forge core mod."
+msgstr "Añadir un nuevo mod de Core Forge"
+
+#: gui/mainwindow.cpp:143 gui/mainwindow.cpp:149 gui/mainwindow.cpp:156
+#: gui/mainwindow.cpp:569
+msgid "Add a new instance."
+msgstr "Añadir una nueva instancia."
+
+#: gui/modeditwindow.cpp:134
+msgid "Add a new modloader mod."
+msgstr "Añadir un nuevo mod de Modloader"
+
+#: gui/modeditwindow.cpp:164
+msgid "Add a new texture pack."
+msgstr "Añadir un nuevo paquete de texturas."
+
+#: gui/mainwindow.cpp:149
+msgid "Add instance"
+msgstr "Añadir Instancia."
+
+#: tasks/exportpacktask.cpp:42
+msgid "Adding config files..."
+msgstr "Añadiendo archivo de configuraciones..."
+
+#: tasks/filedownloadtask.cpp:43
+msgid "An error occurred when downloading the file.\n"
+msgstr "Un error a ocurrido cuando descargando el archivo.\n"
+
+#: gui/mainwindow.cpp:845
+msgid "Andrew Okin <forkk@forkk.net>"
+msgstr "Andrew Okin <forkk@forkk.net>"
+
+#: gui/consolewindow.cpp:396 gui/settingsdialog.cpp:532
+msgid "Are you sure?"
+msgstr "¿Estas seguro?"
+
+#: gui/settingsdialog.cpp:364
+msgid "Auto-detect"
+msgstr "Autodetectar"
+
+#: gui/settingsdialog.cpp:178
+msgid "Automatically close console when the game quits."
+msgstr "Cerrar automaticamente la consola cuando el juego cierre."
+
+#: gui/mainwindow.cpp:301
+msgid "Backup / restore your saves."
+msgstr "Copia de seguridad / Restorar tus salvados."
+
+#: gui/settingsdialog.cpp:142 gui/settingsdialog.cpp:153
+msgid "Browse..."
+msgstr "Buscar"
+
+#: gui/mainwindow.cpp:782
+#, c-format
+msgid "Build #%i is available. Would you like to download and install it?"
+msgstr ""
+"Compilacion #%i esta disponible. ¿Quieres descargarlo e instalarlo ahora?"
+
+#: gui/settingsdialog.cpp:39
+msgid "By Last Launched"
+msgstr "Por ultimo abierto"
+
+#: gui/settingsdialog.cpp:38
+msgid "By Name"
+msgstr "Por Nombre"
+
+#: data/mod.cpp:97
+msgid "Can't fine mod info file. Failed to open mod folder."
+msgstr "No puedo encontrar archivo de mod. Falla al abrir el folder de mod."
+
+#: langutils.cpp:182
+msgid "Can't install localizations. Failed to create directory."
+msgstr ""
+
+#: tasks/downgradetask.cpp:191
+#, c-format
+msgid "Can't patch because %s has been modified. Try force updating."
+msgstr ""
+"No se puede parchear porque %s a sido modificado. Intenta forzar "
+"actualizacion."
+
+#: gui/updatepromptdlg.cpp:42
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: gui/settingsdialog.cpp:471
+msgid "Central mods directory changed."
+msgstr "Folder de mods centrales cambiado."
+
+#: gui/mainwindow.cpp:373
+msgid "Change &Icon"
+msgstr "Cambiar &Icono"
+
+#: gui/mainwindow.cpp:296 gui/mainwindow.cpp:1071
+msgid "Change Group"
+msgstr "Cambiar Grupo"
+
+#: gui/changeicondialog.cpp:32
+msgid "Change Icon"
+msgstr "Cambiar Icono"
+
+#: gui/mainwindow.cpp:305
+msgid "Change LWJGL"
+msgstr "Cambiar LWJGL"
+
+#: gui/mainwindow.cpp:177
+msgid "Change MultiMC or Minecraft settings."
+msgstr "Cambiar MultiMC u opciones de Minecraft "
+
+#: gui/mainwindow.cpp:299
+msgid "Change instance settings."
+msgstr "Cambiar opciones de instancia."
+
+#: gui/mainwindow.cpp:296
+msgid "Change the instance's group."
+msgstr ""
+
+#: gui/mainwindow.cpp:295
+msgid "Change the instance's name."
+msgstr ""
+
+#: gui/mainwindow.cpp:297
+msgid "Change this instance's icon."
+msgstr ""
+
+#: gui/mainwindow.cpp:181
+msgid "Check for MultiMC updates."
+msgstr ""
+
+#: gui/mainwindow.cpp:179
+msgid "Check for updates"
+msgstr ""
+
+#: gui/settingsdialog.cpp:123
+msgid "Check for updates when MultiMC starts?"
+msgstr ""
+
+#: tasks/gameupdatetask.cpp:358
+msgid "Checking cache for existing files..."
+msgstr ""
+
+#: tasks/gameupdatetask.cpp:360
+msgid "Checking cache for existing files: "
+msgstr ""
+
+#: gui/exportinstwizard.cpp:59
+msgid "Choose Included Configs"
+msgstr ""
+
+#: gui/lwjgldialog.cpp:33
+msgid "Choose LWJGL Version"
+msgstr ""
+
+#: gui/mainwindow.cpp:636
+msgid "Choose a pack to import."
+msgstr ""
+
+#: gui/changeicondialog.cpp:110
+msgid "Choose an icon to add."
+msgstr ""
+
+#: gui/modeditwindow.cpp:194
+msgid "Close this window."
+msgstr ""
+
+#: gui/settingsdialog.cpp:31
+msgid ""
+"Compatibility mode launches Minecraftusing the old Minecraft.main() method, "
+"rather than using MultiMC'sAppletWrapper. This should help fix a few issues "
+"with certain mods,but it will disable certain features such as setting "
+"Minecraft's windowsize and icon."
+msgstr ""
+
+#: gui/settingsdialog.cpp:256
+msgid "Compatibility mode?"
+msgstr ""
+
+#: gui/exportinstwizard.cpp:34
+msgid "Config Pack Info"
+msgstr ""
+
+#: gui/settingsdialog.cpp:175
+msgid "Console Settings"
+msgstr ""
+
+#: gui/mainwindow.cpp:1300
+msgid "Continue?"
+msgstr ""
+
+#: gui/mainwindow.cpp:375
+msgid "Copy Instance"
+msgstr ""
+
+#: gui/mainwindow.cpp:1101
+msgid "Copy existing instance"
+msgstr ""
+
+#: gui/mainwindow.cpp:144 gui/mainwindow.cpp:570
+msgid "Copy selected instance."
+msgstr ""
+
+#: gui/consolewindow.cpp:669
+msgid "Copy to Clipboard"
+msgstr ""
+
+#: tasks/filecopytask.cpp:43
+#, c-format
+msgid "Copying %i files..."
+msgstr ""
+
+#: gui/modeditwindow.cpp:91
+msgid "Coremods Folder"
+msgstr ""
+
+#: gui/mainwindow.cpp:550
+#, c-format
+msgid "Couldn't create instance folder: %s"
+msgstr ""
+
+#: gui/mainwindow.cpp:265
+msgid "Couldn't find the instance you tried to load: "
+msgstr ""
+
+#: gui/consolewindow.cpp:673
+msgid "Crash Report"
+msgstr ""
+
+#: gui/mainwindow.h:125
+msgid "Create new instance"
+msgstr ""
+
+#: gui/snapshotdialog.cpp:27
+msgid "Current version"
+msgstr ""
+
+#: gui/mainwindow.cpp:309 gui/mainwindow.cpp:314
+msgid "Delete"
+msgstr ""
+
+#: gui/mainwindow.cpp:314
+msgid "Delete this group, ungrouping all instances in it."
+msgstr ""
+
+#: gui/mainwindow.cpp:309
+msgid "Delete this instance."
+msgstr ""
+
+#: tasks/gameupdatetask.cpp:351
+msgid "Determining packages to load..."
+msgstr ""
+
+#: tasks/gameupdatetask.cpp:353
+msgid "Determining packages to load: "
+msgstr ""
+
+#: tasks/filecopytask.cpp:34
+msgid "Discovering files..."
+msgstr ""
+
+#: tasks/downgradetask.cpp:361
+msgid "Done!"
+msgstr ""
+
+#: tasks/downgradetask.cpp:383
+msgid "Done: "
+msgstr ""
+
+#: gui/mainwindow.cpp:303 gui/mainwindow.cpp:384
+msgid "Downgrade"
+msgstr ""
+
+#: gui/downgradedialog.cpp:35
+msgid "Downgrade Instance"
+msgstr ""
+
+#: gui/modeditwindow.cpp:72
+msgid "Download and install Minecraft Forge"
+msgstr ""
+
+#: tasks/filedownloadtask.cpp:95
+msgid "Download failed."
+msgstr ""
+
+#: tasks/downgradetask.cpp:86
+msgid "Downloading "
+msgstr ""
+
+#: gui/mainwindow.cpp:1366
+msgid "Downloading LWJGL..."
+msgstr ""
+
+#: tasks/filedownloadtask.cpp:34
+#, c-format
+msgid "Downloading file from %s..."
+msgstr ""
+
+#: tasks/gameupdatetask.cpp:365
+msgid "Downloading packages..."
+msgstr ""
+
+#: tasks/gameupdatetask.cpp:367
+msgid "Downloading packages: "
+msgstr ""
+
+#: tasks/downgradetask.cpp:348
+msgid "Downloading patches..."
+msgstr ""
+
+#: tasks/downgradetask.cpp:370
+msgid "Downloading patches: "
+msgstr ""
+
+#: gui/mainwindow.cpp:807
+msgid "Downloading updates..."
+msgstr ""
+
+#: tasks/filedownloadtask.cpp:85
+#, c-format
+msgid ""
+"Downloading...\n"
+"(%skB/%skB)"
+msgstr ""
+
+#: gui/mainwindow.cpp:380
+msgid "Edit &Mods"
+msgstr ""
+
+#: gui/modeditwindow.cpp:32
+msgid "Edit Mods"
+msgstr ""
+
+#: gui/modeditwindow.cpp:37
+#, c-format
+msgid "Edit Mods for %s"
+msgstr ""
+
+#: gui/mainwindow.cpp:1070
+msgid "Enter a new group for this instance."
+msgstr ""
+
+#: gui/mainwindow.cpp:1457
+msgid "Enter a new name for this group."
+msgstr ""
+
+#: gui/mainwindow.cpp:1032
+msgid "Enter a new name for this instance."
+msgstr ""
+
+#: gui/consolewindow.cpp:693 gui/mainwindow.cpp:536 gui/mainwindow.cpp:873
+#: gui/mainwindow.cpp:1043
+msgid "Error"
+msgstr ""
+
+#: gui/consolewindow.cpp:536
+#, c-format
+msgid "Error %i (%s) when killing process %i!"
+msgstr ""
+
+#: tasks/filedownloadtask.cpp:47
+msgid "Error 404, the page could not be found."
+msgstr ""
+
+#: gui/settingsdialog.cpp:172
+msgid "Error console"
+msgstr ""
+
+#: gui/settingsdialog.cpp:201
+msgid "Error message color: "
+msgstr ""
+
+#: gui/exportinstwizard.cpp:22
+msgid "Export Instance"
+msgstr ""
+
+#: gui/modeditwindow.cpp:188
+msgid "Export the instance to a config pack."
+msgstr ""
+
+#: gui/savemgrwindow.cpp:75
+msgid "Export to Zip"
+msgstr ""
+
+#: tasks/gameupdatetask.cpp:372
+msgid "Extracting downloaded packages..."
+msgstr ""
+
+#: tasks/gameupdatetask.cpp:374
+msgid "Extracting downloaded packages: "
+msgstr ""
+
+#: gui/consolewindow.cpp:451
+#, c-format
+msgid "Failed terminate process. Error 0x%08X: access denied."
+msgstr ""
+
+#: tasks/moddertask.cpp:45
+msgid "Failed to back up minecraft.jar"
+msgstr ""
+
+#: tasks/downgradetask.cpp:199 tasks/downgradetask.cpp:315
+#, c-format
+msgid ""
+"Failed to check file MD5.\n"
+"JSON parser error at line %i: %s"
+msgstr ""
+
+#: tasks/checkupdatetask.cpp:66
+msgid "Failed to check for updates. Please check your internet connection."
+msgstr ""
+
+#: gui/mainwindow.cpp:454
+msgid "Failed to create instance directory."
+msgstr ""
+
+#: gui/settingsdialog.cpp:416
+#, c-format
+msgid "Failed to create the new folder: %s"
+msgstr ""
+
+#: data/modlist.cpp:226 data/texturepacklist.cpp:96
+msgid "Failed to delete mod."
+msgstr ""
+
+#: tasks/moddertask.cpp:51
+msgid "Failed to delete old minecraft.jar"
+msgstr ""
+
+#: tasks/gameupdatetask.cpp:220
+msgid "Failed to download "
+msgstr ""
+
+#: tasks/downgradetask.cpp:108
+#, c-format
+msgid "Failed to download patch %s."
+msgstr ""
+
+#: gui/ftbselectdialog.cpp:36
+msgid "Failed to get FTB pack list. Could not open directory."
+msgstr ""
+
+#: gui/lwjgldialog.cpp:51
+msgid "Failed to get RSS feed. Check your internet connection."
+msgstr ""
+
+#: tasks/downgradetask.cpp:132
+#, c-format
+msgid ""
+"Failed to get patch URL.\n"
+"JSON parser error at line %i: %s"
+msgstr ""
+
+#: gui/consolewindow.cpp:431
+#, c-format
+msgid "Failed to get process handle. Error 0x%08X: access denied."
+msgstr ""
+
+#: data/mcversionlist.cpp:72 data/mcversionlist.cpp:115
+msgid "Failed to get snapshot list. Check your internet connection."
+msgstr ""
+
+#: gui/downgradedialog.cpp:79
+msgid ""
+"Failed to get version list. Check your internet connection and try again "
+"later."
+msgstr ""
+
+#: multimc.cpp:87
+msgid "Failed to initialize settings."
+msgstr ""
+
+#: multimc.cpp:249
+#, c-format
+msgid ""
+"Failed to install updates. Tried %i times. \n"
+"This is probably because the file that is supposed to be updated is in "
+"use. \n"
+"Please check to make sure there are no other running MultiMC processes \n"
+"and that MultiMC's updater has sufficient permissions to replace the file \n"
+"%s and then try again."
+msgstr ""
+
+#: gui/consolewindow.cpp:521
+msgid "Failed to kill the process. Trying again..."
+msgstr ""
+
+#: gui/installforgedialog.cpp:70
+msgid "Failed to load build list. Check your internet connection."
+msgstr ""
+
+#: langutils.cpp:53
+msgid "Failed to load the langauge list. Couldn't open language directory."
+msgstr ""
+
+#: gui/settingsdialog.cpp:430
+#, c-format
+msgid "Failed to move: %s"
+msgstr ""
+
+#: data/instance.cpp:658 data/modlist.cpp:71 data/texturepacklist.cpp:63
+#: data/worldlist.cpp:63
+msgid "Failed to open directory: "
+msgstr ""
+
+#: gui/lwjgldialog.cpp:87
+#, c-format
+msgid ""
+"Failed to parse LWJGL list.\n"
+"XML parser error at line %i: %s"
+msgstr ""
+
+#: data/mcversionlist.cpp:93 data/mcversionlist.cpp:138
+msgid "Failed to parse date/time."
+msgstr ""
+
+#: tasks/gameupdatetask.cpp:135
+#, c-format
+msgid ""
+"Failed to parse md5s file.\n"
+"INI parser error at line %i: %s"
+msgstr ""
+
+#: data/mcversionlist.cpp:106 data/mcversionlist.cpp:207
+#, c-format
+msgid ""
+"Failed to parse snapshot list.\n"
+"XML parser error at line %i: %s"
+msgstr ""
+
+#: tasks/downgradetask.cpp:247
+#, c-format
+msgid "Failed to patch %s.jar. Patch is corrupt."
+msgstr ""
+
+#: tasks/downgradetask.cpp:251
+#, c-format
+msgid "Failed to patch %s.jar. Unknown error."
+msgstr ""
+
+#: data/instancemodel.cpp:205 data/instancemodel.cpp:265
+#, c-format
+msgid ""
+"Failed to read group list.\n"
+"JSON parser error at line %i: %s"
+msgstr ""
+
+#: data/instancemodel.cpp:211
+msgid "Failed to read group list. Unknown ptree error."
+msgstr ""
+
+#: tasks/filecopytask.cpp:39
+msgid "Failed to read source directory."
+msgstr ""
+
+#: gui/downgradedialog.cpp:72
+#, c-format
+msgid ""
+"Failed to read version list.\n"
+"JSON parser error at line %i: %s"
+msgstr ""
+
+#: data/instancemodel.cpp:271
+msgid "Failed to save group list. Unknown ptree error."
+msgstr ""
+
+#: gui/consolewindow.cpp:692
+msgid ""
+"Failed to send the crash report to pastebin. Please check your internet "
+"connection."
+msgstr ""
+
+#: multimc.cpp:100
+msgid "Failed to set language. Language set to English."
+msgstr ""
+
+#: data/appsettings.h:183 data/appsettings.h:203
+#, c-format
+msgid "Failed to write config setting %s"
+msgstr ""
+
+#: gui/settingsdialog.cpp:26
+msgid "Fancy"
+msgstr ""
+
+#: gui/savemgrwindow.cpp:322
+msgid "File already exists."
+msgstr ""
+
+#: gui/installforgedialog.cpp:33
+msgid "Filename"
+msgstr ""
+
+#: gui/settingsdialog.cpp:132
+msgid "Folders"
+msgstr ""
+
+#: gui/settingsdialog.cpp:125
+msgid "Force-update MultiMC"
+msgstr ""
+
+#: gui/settingsdialog.cpp:92
+msgid "GUI Style (requires restart)"
+msgstr ""
+
+#: gui/consolewindow.cpp:72
+msgid "Generate Crash &Report"
+msgstr ""
+
+#: tasks/downgradetask.cpp:79
+msgid "Getting patch URLs."
+msgstr ""
+
+#: tasks/checkupdatetask.cpp:40
+msgid "Getting version info..."
+msgstr ""
+
+#: gui/mainwindow.cpp:188 gui/mainwindow.cpp:190
+msgid "Help"
+msgstr ""
+
+#: insticonlist.cpp:114
+#, c-format
+msgid "Image %d %s has no alpha."
+msgstr ""
+
+#: insticonlist.cpp:163
+#, c-format
+msgid "Image %s has no alpha after rescaling."
+msgstr ""
+
+#: gui/importpackwizard.cpp:32
+msgid "Import Config Pack"
+msgstr ""
+
+#: gui/mainwindow.cpp:669
+msgid "Import FTB pack."
+msgstr ""
+
+#: gui/importpackwizard.cpp:91 gui/mainwindow.cpp:146 gui/mainwindow.cpp:572
+msgid "Import config pack"
+msgstr ""
+
+#: gui/mainwindow.cpp:145 gui/mainwindow.cpp:571
+msgid "Import existing .minecraft folder"
+msgstr ""
+
+#: gui/mainwindow.cpp:617
+msgid "Import existing Minecraft folder"
+msgstr ""
+
+#: gui/mainwindow.cpp:147 gui/mainwindow.cpp:573
+msgid "Import from FTB launcher."
+msgstr ""
+
+#: tasks/gameupdatetask.cpp:344
+msgid "Initializing..."
+msgstr ""
+
+#: tasks/gameupdatetask.cpp:346
+msgid "Initializing: "
+msgstr ""
+
+#: gui/installforgedialog.cpp:27
+msgid "Install Minecraft Forge"
+msgstr ""
+
+#: gui/mainwindow.cpp:304
+msgid "Install a snapshot."
+msgstr ""
+
+#: gui/mainwindow.cpp:302
+msgid "Install or remove mods."
+msgstr ""
+
+#: tasks/moddertask.cpp:73
+msgid "Installing mods - Adding "
+msgstr ""
+
+#: tasks/moddertask.cpp:69
+msgid "Installing mods - Adding mod files..."
+msgstr ""
+
+#: tasks/moddertask.cpp:58
+msgid "Installing mods - Opening minecraft.jar"
+msgstr ""
+
+#: tasks/moddertask.cpp:131
+msgid "Installing mods - Recompressing jar..."
+msgstr ""
+
+#: tasks/moddertask.cpp:42
+msgid "Installing mods - backing up minecraft.jar..."
+msgstr ""
+
+#: tasks/lwjglinstalltask.cpp:79
+msgid "Installing new LWJGL - Extracting "
+msgstr ""
+
+#: tasks/lwjglinstalltask.cpp:38
+msgid "Installing new LWJGL..."
+msgstr ""
+
+#: multimc.cpp:230
+msgid "Installing updates..."
+msgstr ""
+
+#: gui/settingsdialog.cpp:184
+msgid "Instance Console Colors"
+msgstr ""
+
+#: gui/mainwindow.cpp:377
+msgid "Instance Settings"
+msgstr ""
+
+#: gui/consolewindow.cpp:303
+#, c-format
+msgid "Instance closed its output %d."
+msgstr ""
+
+#: gui/settingsdialog.cpp:459
+msgid "Instance directory changed."
+msgstr ""
+
+#: gui/consolewindow.cpp:147
+#, c-format
+msgid "Instance exited with code %i."
+msgstr ""
+
+#: gui/mainwindow.cpp:527
+msgid "Instance name:"
+msgstr ""
+
+#: gui/mainwindow.cpp:1134
+msgid "Instance notes"
+msgstr ""
+
+#: gui/consolewindow.cpp:104
+#, c-format
+msgid "Instance started with command: %s\n"
+msgstr ""
+
+#: gui/consolewindow.cpp:159
+msgid "Instance was killed."
+msgstr ""
+
+#: gui/settingsdialog.cpp:136
+msgid "Instances: "
+msgstr ""
+
+#: data/configpack.cpp:110
+msgid "Invalid config pack."
+msgstr ""
+
+#: data/configpack.cpp:104
+#, c-format
+msgid "Invalid config pack. Failed to parse JSON. At line %i: %s"
+msgstr ""
+
+#: tasks/logintask.cpp:137
+msgid "Invalid username or password."
+msgstr ""
+
+#: gui/settingsdialog.cpp:370
+msgid "JVM Arguments: "
+msgstr ""
+
+#: gui/settingsdialog.cpp:309
+msgid "Java"
+msgstr ""
+
+#: gui/settingsdialog.cpp:360
+msgid "Java Path: "
+msgstr ""
+
+#: gui/settingsdialog.cpp:348
+msgid "Java Settings"
+msgstr ""
+
+#: gui/consolewindow.cpp:383
+msgid "Kill Minecraft"
+msgstr ""
+
+#: gui/consolewindow.cpp:543
+#, c-format
+msgid "Killed Minecraft (pid: %i)"
+msgstr ""
+
+#: gui/consolewindow.cpp:395
+msgid ""
+"Killing Minecraft may damage saves. You should only do this if the game is "
+"frozen."
+msgstr ""
+
+#: gui/consolewindow.cpp:383
+msgid "Kills Minecraft's process."
+msgstr ""
+
+#: gui/settingsdialog.cpp:109
+msgid "Language"
+msgstr ""
+
+#: gui/mainwindow.cpp:293
+msgid "Launch the instance."
+msgstr ""
+
+#: tasks/logintask.cpp:139
+msgid "Launcher outdated, please update."
+msgstr ""
+
+#: gui/aboutdlg.cpp:88
+msgid "License"
+msgstr ""
+
+#: gui/mainwindow.cpp:497
+#, c-format
+msgid "Loaded %i instances..."
+msgstr ""
+
+#: gui/snapshotdialog.cpp:77
+msgid "Loading Minecraft version list..."
+msgstr ""
+
+#: gui/mainwindow.cpp:1514
+msgid "Loading central mods list..."
+msgstr ""
+
+#: gui/mainwindow.cpp:448
+msgid "Loading instances..."
+msgstr ""
+
+#: gui/settingsdialog.cpp:299
+msgid "Log in automatically when I launch an instance."
+msgstr ""
+
+#: tasks/logintask.cpp:37
+msgid "Logging in..."
+msgstr ""
+
+#: gui/logindialog.cpp:21 gui/settingsdialog.cpp:289
+msgid "Login"
+msgstr ""
+
+#: tasks/logintask.cpp:141
+msgid "Login failed: "
+msgstr ""
+
+#: gui/modeditwindow.cpp:71
+msgid "MCForge"
+msgstr ""
+
+#: gui/mainwindow.cpp:382
+msgid "Manage Saves"
+msgstr ""
+
+#: gui/savemgrwindow.cpp:49
+#, c-format
+msgid "Manage Saves for %s"
+msgstr ""
+
+#: gui/settingsdialog.cpp:334
+msgid "Maximum memory allocation: "
+msgstr ""
+
+#: gui/settingsdialog.cpp:312
+msgid "Memory"
+msgstr ""
+
+#: gui/settingsdialog.cpp:217
+msgid "Minecraft"
+msgstr ""
+
+#: gui/installforgedialog.cpp:34 gui/snapshotdialog.cpp:60
+msgid "Minecraft Version"
+msgstr ""
+
+#: gui/settingsdialog.cpp:243
+msgid "Minecraft Window Size"
+msgstr ""
+
+#: gui/mainwindow.cpp:1009
+msgid "Minecraft failed to launch. Check your Java path."
+msgstr ""
+
+#: gui/consolewindow.cpp:153
+msgid "Minecraft has crashed!"
+msgstr ""
+
+#: gui/modeditwindow.cpp:52
+msgid "Minecraft.jar"
+msgstr ""
+
+#: gui/settingsdialog.cpp:325
+msgid "Minimum memory allocation: "
+msgstr ""
+
+#: gui/importpackwizard.cpp:109
+#, c-format
+msgid "Missing jar mod %s."
+msgstr ""
+
+#: gui/importpackwizard.cpp:123 gui/importpackwizard.cpp:137
+#, c-format
+msgid "Missing modloader mod %s."
+msgstr ""
+
+#: gui/modeditwindow.cpp:55 gui/modeditwindow.cpp:94 gui/modeditwindow.cpp:125
+msgid "Mod Name"
+msgstr ""
+
+#: gui/modeditwindow.cpp:56 gui/modeditwindow.cpp:95 gui/modeditwindow.cpp:126
+msgid "Mod Version"
+msgstr ""
+
+#: gui/modeditwindow.cpp:122
+msgid "Mods Folder"
+msgstr ""
+
+#: gui/settingsdialog.cpp:147
+msgid "Mods: "
+msgstr ""
+
+#: gui/modeditwindow.cpp:81
+msgid "Move &Down"
+msgstr ""
+
+#: gui/modeditwindow.cpp:77
+msgid "Move &Up"
+msgstr ""
+
+#: gui/modeditwindow.cpp:82
+msgid "Move the selected jar mod down"
+msgstr ""
+
+#: gui/modeditwindow.cpp:78
+msgid "Move the selected jar mod up."
+msgstr ""
+
+#: multimc.cpp:91 data/appsettings.cpp:35 gui/mainwindow.cpp:835
+#: gui/mainwindow.cpp:852
+msgid "MultiMC"
+msgstr ""
+
+#: gui/mainwindow.cpp:88
+#, c-format
+msgid "MultiMC %d.%d.%d %s"
+msgstr ""
+
+#: gui/consolewindow.cpp:46
+msgid "MultiMC Console"
+msgstr ""
+
+#: multimc.cpp:106
+#, c-format
+msgid ""
+"MultiMC has been started from a path that contains '!':\n"
+"%s\n"
+"This would break Minecraft. Please move it to a different place."
+msgstr ""
+
+#: gui/mainwindow.cpp:837 gui/mainwindow.cpp:854
+msgid ""
+"MultiMC is a custom launcher that makes managing Minecraft easier by "
+"allowing you to have multiple installations of Minecraft at once."
+msgstr ""
+
+#: gui/mainwindow.cpp:1298
+msgid ""
+"MultiMC is currently incompatible with indev and infdev. Are you sure you "
+"would like to downgrade to this version?"
+msgstr ""
+
+#: gui/mainwindow.cpp:1340
+msgid "MultiMC was unable to replace the old .jar with the new snapshot."
+msgstr ""
+
+#: gui/mainwindow.cpp:872
+msgid ""
+"MultiMC was unable to run your web browser.\n"
+"\n"
+"To report bugs, visit:\n"
+"http://bugs.forkk.net/"
+msgstr ""
+
+#: gui/modeditwindow.cpp:156
+msgid "Name"
+msgstr ""
+
+#: gui/exportinstwizard.cpp:38
+msgid "Name: "
+msgstr ""
+
+#: gui/savemgrwindow.cpp:304
+msgid "Not a valid save."
+msgstr ""
+
+#: gui/mainwindow.cpp:881
+msgid "Not implemented"
+msgstr ""
+
+#: gui/mainwindow.cpp:1134
+msgid "Notes"
+msgstr ""
+
+#: gui/exportinstwizard.cpp:44
+msgid "Notes: "
+msgstr ""
+
+#: multimc.cpp:344
+msgid "Oh no!"
+msgstr ""
+
+#: gui/snapshotdialog.cpp:25
+msgid "Old snapshot"
+msgstr ""
+
+#: gui/snapshotdialog.cpp:26
+msgid "Old version"
+msgstr ""
+
+#: gui/mainwindow.cpp:171
+msgid "Open the central mods folder."
+msgstr ""
+
+#: gui/modeditwindow.cpp:113
+msgid "Open the core mod folder in your file browser."
+msgstr ""
+
+#: gui/mainwindow.cpp:167
+msgid "Open the instance folder."
+msgstr ""
+
+#: gui/mainwindow.cpp:307
+msgid "Open the instance's folder."
+msgstr ""
+
+#: gui/modeditwindow.cpp:144
+msgid "Open the modloader mods folder in your file browser."
+msgstr ""
+
+#: gui/modeditwindow.cpp:174
+msgid "Open the texture packs folder in your file browser."
+msgstr ""
+
+#: gui/settingsdialog.cpp:195
+msgid "Output message color: "
+msgstr ""
+
+#: gui/consolewindow.cpp:260
+msgid "Output not redirected!\n"
+msgstr ""
+
+#: gui/logindialog.cpp:48
+msgid "Password: "
+msgstr ""
+
+#: tasks/downgradetask.cpp:357
+msgid "Patching files..."
+msgstr ""
+
+#: tasks/downgradetask.cpp:379
+msgid "Patching files: "
+msgstr ""
+
+#: gui/mainwindow.cpp:846
+msgid "Petr MrГЎzek <peterix@gmail.com>"
+msgstr ""
+
+#: gui/logindialog.cpp:73
+msgid "Play &Offline"
+msgstr ""
+
+#: gui/importpackwizard.cpp:64
+msgid ""
+"Please add the mods listed below to your central mods folder and click "
+"refresh."
+msgstr ""
+
+#: gui/mainwindow.cpp:657
+msgid "Please select your FTB launcher folder."
+msgstr ""
+
+#: gui/taskprogressdialog.cpp:22
+msgid "Please wait..."
+msgstr ""
+
+#: gui/downgradedialog.cpp:38
+msgid "Powered by MCNostalgia"
+msgstr ""
+
+#: gui/logindialog.cpp:67
+msgid "R&emember password?"
+msgstr ""
+
+#: gui/mainwindow.cpp:306 gui/mainwindow.cpp:388
+msgid "Re&build Jar"
+msgstr ""
+
+#: gui/mainwindow.cpp:161
+msgid "Refresh"
+msgstr ""
+
+#: gui/mainwindow.cpp:306
+msgid "Reinstall all the instance's jar mods."
+msgstr ""
+
+#: gui/mainwindow.cpp:163
+msgid "Reload ALL the instances!"
+msgstr ""
+
+#: gui/modeditwindow.cpp:184
+msgid "Reload the mod lists."
+msgstr ""
+
+#: gui/modeditwindow.cpp:107
+msgid "Remove the selected core mod"
+msgstr ""
+
+#: gui/modeditwindow.cpp:68
+msgid "Remove the selected jar mod."
+msgstr ""
+
+#: gui/modeditwindow.cpp:138
+msgid "Remove the selected modloader mod."
+msgstr ""
+
+#: gui/modeditwindow.cpp:168
+msgid "Remove the selected texture pack."
+msgstr ""
+
+#: gui/mainwindow.cpp:1458
+msgid "Rename Group"
+msgstr ""
+
+#: gui/mainwindow.cpp:1033
+msgid "Rename Instance"
+msgstr ""
+
+#: gui/mainwindow.cpp:313
+msgid "Rename the group."
+msgstr ""
+
+#: gui/mainwindow.cpp:1180
+#, c-format
+msgid "Renaming instance '%s'... (Press enter to finish)"
+msgstr ""
+
+#: gui/mainwindow.cpp:185 gui/mainwindow.cpp:187
+msgid "Report bug"
+msgstr ""
+
+#: gui/settingsdialog.cpp:635
+msgid "Restart Required"
+msgstr ""
+
+#: gui/consolewindow.cpp:699
+msgid "Save Crash Report"
+msgstr ""
+
+#: gui/consolewindow.cpp:668
+msgid "Save to File"
+msgstr ""
+
+#: gui/ftbselectdialog.cpp:25
+msgid "Select FTB pack to import"
+msgstr ""
+
+#: gui/snapshotdialog.cpp:32
+msgid "Select Minecraft version"
+msgstr ""
+
+#: gui/mainwindow.cpp:608
+msgid "Select a Minecraft folder to import"
+msgstr ""
+
+#: gui/mainwindow.cpp:430
+msgid "Select an instance"
+msgstr ""
+
+#: gui/consolewindow.cpp:667
+msgid "Send to Pastebin"
+msgstr ""
+
+#: tasks/pastebintask.cpp:34
+msgid "Sending to pastebin..."
+msgstr ""
+
+#: gui/mainwindow.cpp:175 gui/mainwindow.cpp:177 gui/settingsdialog.cpp:42
+msgid "Settings"
+msgstr ""
+
+#: gui/consolewindow.cpp:381
+msgid "Show Console"
+msgstr ""
+
+#: gui/settingsdialog.cpp:176
+msgid "Show console while an instance is running."
+msgstr ""
+
+#: gui/snapshotdialog.cpp:38
+msgid "Show old snapshots"
+msgstr ""
+
+#: gui/consolewindow.cpp:381
+msgid "Shows or hides the console."
+msgstr ""
+
+#: gui/settingsdialog.cpp:27
+msgid "Simple"
+msgstr ""
+
+#: gui/mainwindow.cpp:304 gui/mainwindow.cpp:386 gui/snapshotdialog.cpp:28
+msgid "Snapshot"
+msgstr ""
+
+#: gui/settingsdialog.cpp:633
+msgid ""
+"Some settings were changed that require MultiMC to restart before they take "
+"effect. Would you like to restart MultiMC now?"
+msgstr ""
+
+#: gui/mainwindow.cpp:536
+msgid "Sorry, that name is too long."
+msgstr ""
+
+#: gui/mainwindow.cpp:1043
+msgid "Sorry, that name is too long. 25 characters is the limit."
+msgstr ""
+
+#: gui/settingsdialog.cpp:102
+msgid "Sorting Mode"
+msgstr ""
+
+#: gui/settingsdialog.cpp:262
+msgid "Start Minecraft maximized?"
+msgstr ""
+
+#: gui/consolewindow.cpp:686
+msgid "Success"
+msgstr ""
+
+#: gui/settingsdialog.cpp:189
+msgid "System message color: "
+msgstr ""
+
+#: gui/modeditwindow.cpp:153
+msgid "Texture Packs"
+msgstr ""
+
+#: tasks/downgradetask.cpp:308
+#, c-format
+msgid ""
+"The MD5 sum of %s didn't match what it was supposed to be after patching!"
+msgstr ""
+
+#: gui/settingsdialog.cpp:452
+msgid ""
+"The chosen instance path contains a ! character.\n"
+"This would make Minecraft crash. Please change it."
+msgstr ""
+
+#: gui/savemgrwindow.cpp:320
+#, c-format
+msgid "There's already a save with the filename '%s'. Copy to '%s' instead?"
+msgstr ""
+
+#: gui/mainwindow.cpp:880
+msgid "This feature has not yet been implemented."
+msgstr ""
+
+#: gui/savemgrwindow.cpp:303
+msgid "This folder does not contain a level.dat file. Continue?"
+msgstr ""
+
+#: gui/mainwindow.cpp:649
+msgid "This is not a valid config pack!"
+msgstr ""
+
+#: gui/taskprogressdialog.cpp:19
+msgid ""
+"This text represents the size of the dialog and the area\n"
+"reserved for any possible status text."
+msgstr ""
+
+#: gui/snapshotdialog.cpp:61
+msgid "Type"
+msgstr ""
+
+#: tasks/logintask.cpp:97
+#, c-format
+msgid "Unknown HTTP error %i occurred."
+msgstr ""
+
+#: tasks/filedownloadtask.cpp:51
+#, c-format
+msgid "Unknown error %i occurred."
+msgstr ""
+
+#: gui/consolewindow.cpp:435
+#, c-format
+msgid "Unknown error 0x%08X occurred when getting process handle."
+msgstr ""
+
+#: gui/consolewindow.cpp:455
+#, c-format
+msgid "Unknown error 0x%08X occurred when terminating the process."
+msgstr ""
+
+#: gui/consolewindow.cpp:477
+#, c-format
+msgid "Unknown error 0x%08X occurred when waiting for process to exit."
+msgstr ""
+
+#: gui/consolewindow.cpp:532
+msgid "Unknown error."
+msgstr ""
+
+#: data/instance.cpp:331
+msgid "Unnamed Instance"
+msgstr ""
+
+#: gui/updatepromptdlg.cpp:26
+msgid "Update Available"
+msgstr ""
+
+#: gui/updatepromptdlg.cpp:48
+msgid "Update Now"
+msgstr ""
+
+#: gui/settingsdialog.cpp:120
+msgid "Update Settings"
+msgstr ""
+
+#: multimc.cpp:259
+msgid "Update installed successfully. Starting MultiMC..."
+msgstr ""
+
+#: gui/settingsdialog.cpp:221
+msgid "Updates"
+msgstr ""
+
+#: gui/mainwindow.cpp:303
+msgid "Use MCNostalgia to downgrade this instance."
+msgstr ""
+
+#: gui/mainwindow.cpp:305
+msgid "Use a different version of LWJGL with this instance."
+msgstr ""
+
+#: gui/settingsdialog.cpp:226 gui/settingsdialog.cpp:251
+#: gui/settingsdialog.cpp:294 gui/settingsdialog.cpp:319
+#: gui/settingsdialog.cpp:355
+msgid "Use defaults?"
+msgstr ""
+
+#: gui/settingsdialog.cpp:121
+msgid "Use development builds."
+msgstr ""
+
+#: gui/logindialog.cpp:37
+msgid "Username: "
+msgstr ""
+
+#: tasks/downgradetask.cpp:165 tasks/downgradetask.cpp:282
+msgid "Verifying "
+msgstr ""
+
+#: tasks/downgradetask.cpp:353
+msgid "Verifying files..."
+msgstr ""
+
+#: tasks/downgradetask.cpp:375
+msgid "Verifying files: "
+msgstr ""
+
+#: gui/mainwindow.cpp:298
+msgid "View / edit this instance's notes."
+msgstr ""
+
+#: gui/mainwindow.cpp:169
+msgid "View Central mods folder"
+msgstr ""
+
+#: gui/savemgrwindow.cpp:90
+msgid "View Folder"
+msgstr ""
+
+#: gui/mainwindow.cpp:165
+msgid "View folder"
+msgstr ""
+
+#: multimc.cpp:231
+msgid "Waiting for old version to exit..."
+msgstr ""
+
+#: multimc.cpp:236
+#, c-format
+msgid "Waiting for old version to exit... Try #%i."
+msgstr ""
+
+#: gui/settingsdialog.cpp:529
+msgid ""
+"Warning: Dev builds contain incomplete, experimental, and possibly unstable "
+"features. Some may be extremely buggy, and others may not work at all. Use "
+"these at your own risk. Are you sure you want to use dev builds?"
+msgstr ""
+
+#: gui/updatepromptdlg.cpp:45
+msgid "When MultiMC Exits"
+msgstr ""
+
+#: gui/settingsdialog.cpp:275
+msgid "Window height: "
+msgstr ""
+
+#: gui/settingsdialog.cpp:267
+msgid "Window width: "
+msgstr ""
+
+#: gui/savemgrwindow.cpp:55
+msgid "World Name"
+msgstr ""
+
+#: tasks/exportpacktask.cpp:53
+msgid "Writing metadata..."
+msgstr ""
+
+#: gui/mainwindow.cpp:1314 gui/mainwindow.cpp:1354
+msgid ""
+"You must run this instance at least once to download minecraft before you "
+"can downgrade it!"
+msgstr ""
+
+#: gui/settingsdialog.cpp:470
+msgid ""
+"You've changed your central mods directory, would you like to transfer all "
+"of your mods?"
+msgstr ""
+
+#: gui/settingsdialog.cpp:458
+msgid ""
+"You've changed your instance directory, would you like to transfer all of "
+"your instances?"
+msgstr ""
+
+#: gui/consolewindow.cpp:685
+msgid "Your error report has been sent to the URL listed below."
+msgstr ""
+
+#: multimc.h:90
+msgid "displays help on command line parameters"
+msgstr ""
+
+#: multimc.h:96
+msgid "doesn't restart MultiMC after installing updates"
+msgstr ""
+
+#: multimc.h:93
+msgid "replaces the given file with the running executable"
+msgstr ""
+
+#: multimc.h:99
+msgid "tries to launch the given instance"
+msgstr ""
+
+#: multimc.h:102
+msgid ""
+"use the supplied directory as MultiMC root instead of the binary location "
+"(use '.' for current)"
+msgstr ""

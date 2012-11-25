@@ -18,7 +18,7 @@
 
 #include <wx/filename.h>
 
-#include "apputils.h"
+#include "utils/apputils.h"
 #include "appsettings.h"
 
 enum
@@ -73,7 +73,7 @@ wxString ChangeIconDialog::GetSelectedIconKey() const
 		
 		return iconListCtrl->GetItemText(item);
 	}
-	return _("default");
+	return "default";
 }
 
 ChangeIconDialog::InstIconListCtrl::InstIconListCtrl(wxWindow *parent)

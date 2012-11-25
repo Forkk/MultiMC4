@@ -37,7 +37,22 @@ class InstanceModel;
 
 bool IsValidInstance(wxFileName rootDir);
 
-class Instance : public wxEvtHandler, public SettingsBase
+// Defines an "ignored" setting. These are settings where the instance just 
+// returns their value in the global application settings.
+#define DEFINE_IGNORED_SETTING(settingName, typeName) \
+	virtual typeName Get ## settingName() const { return settings->Get ## settingName(); };
+
+#define DEFINE_OVERRIDDEN_SETTING_ADVANCED(funcName, cfgEntryName, typeName) \
+	typeName Get ## funcName() const { return GetSetting<typeName>(cfgEntryName, settings->Get ## funcName()); }
+
+#define DEFINE_OVERRIDDEN_SETTING(settingName, typeName) \
+	DEFINE_OVERRIDDEN_SETTING_ADVANCED(settingName, STR_VALUE(settingName), typeName)
+
+#define DEFINE_OVERRIDE_SETTING(overrideName) \
+	virtual bool Get ## overrideName ## Override() const { return GetSetting<bool>(STR_VALUE(Override ## overrideName), false); } \
+	virtual void Set ## overrideName ## Override( bool value ) {  SetSetting<bool>(STR_VALUE(Override ## overrideName), value); }
+
+class Instance : public SettingsBase
 {
 public:
 	enum Type
@@ -76,8 +91,6 @@ public:
 	wxFileName GetMCBackup() const;
 	wxFileName GetModListFile() const;
 	
-	bool IsRunning() const;
-	
 	int64_t ReadVersionFile();
 	void WriteVersionFile(const int64_t contents);
 	
@@ -90,23 +103,12 @@ public:
 	wxString GetNotes() const;
 	void SetNotes(wxString notes);
 
-	wxDateTime GetLastLaunch() const;
-	void SetLastLaunch(wxDateTime time);
-	void SetLastLaunch() { SetLastLaunch(wxDateTime::Now()); }
-	
 	bool ShouldRebuild() const;
 	void SetNeedsRebuild(bool value = true);
 
 	virtual Type GetType() const = 0;
 	
-	wxProcess *GetInstProcess() const;
-	
-	wxString GetLastLaunchCommand() const;
-	
-	void SetEvtHandler(wxEvtHandler *handler);
-	
 	bool HasBinaries();
-	wxProcess* Launch(wxString username, wxString sessionID, bool redirectOutput = false);
 	
 	ModList *GetModList();
 	ModList *GetMLModList();
@@ -119,47 +121,80 @@ public:
 	void GetPossibleConfigFiles(wxArrayString *array, wxString dir = wxEmptyString);
 	
 	// these just pass on through
-	virtual bool GetAutoCloseConsole() const { return settings->GetAutoCloseConsole(); };
-	virtual bool GetAutoUpdate() const { return settings->GetAutoUpdate(); };
-	virtual wxColour GetConsoleStderrColor() const { return settings->GetConsoleStderrColor(); };
-	virtual wxColour GetConsoleStdoutColor() const { return settings->GetConsoleStdoutColor(); };
-	virtual wxColour GetConsoleSysMsgColor() const { return settings->GetConsoleSysMsgColor(); };
-	virtual GUIMode GetGUIMode() const { return settings->GetGUIMode(); };
-	virtual wxFileName GetIconsDir() const { return settings->GetIconsDir(); };
-	virtual wxFileName GetInstDir() const { return settings->GetInstDir(); };
-	virtual wxFileName GetModsDir() const { return settings->GetModsDir(); };
-	virtual bool GetShowConsole() const { return settings->GetShowConsole(); };
-	
+	DEFINE_IGNORED_SETTING(AutoCloseConsole, bool);
+	DEFINE_IGNORED_SETTING(AutoUpdate, bool);
+	DEFINE_IGNORED_SETTING(ConsoleStderrColor, wxColour);
+	DEFINE_IGNORED_SETTING(ConsoleStdoutColor, wxColour);
+	DEFINE_IGNORED_SETTING(ConsoleSysMsgColor, wxColour);
+	DEFINE_IGNORED_SETTING(GUIMode, GUIMode);
+	DEFINE_IGNORED_SETTING(IconsDir, wxFileName);
+	DEFINE_IGNORED_SETTING(InstDir, wxFileName);
+	DEFINE_IGNORED_SETTING(ModsDir, wxFileName);
+	DEFINE_IGNORED_SETTING(ShowConsole, bool);
+	DEFINE_IGNORED_SETTING(InstSortMode, InstSortMode);
+
 	// and these are overrides
-	wxString GetJavaPath() const { return GetSetting<wxString>("JPath",settings->GetJavaPath()); };
-	wxString GetJvmArgs() const { return GetSetting<wxString>("JvmArgs",settings->GetJvmArgs()); };
-	int GetMaxMemAlloc() const { return GetSetting<int>("MaxMemoryAlloc",settings->GetMaxMemAlloc()); };
-	int GetMinMemAlloc() const { return GetSetting<int>("MinMemoryAlloc",settings->GetMinMemAlloc()); };
-	int GetMCWindowHeight() const { return GetSetting<int>("MCWindowHeight",settings->GetMCWindowHeight()); };
-	int GetMCWindowWidth() const { return GetSetting<int>("MCWindowWidth",settings->GetMCWindowWidth()); };
-	bool GetMCWindowMaximize() const { return GetSetting<bool>("MCWindowMaximize",settings->GetMCWindowMaximize()); };
-	bool GetUseAppletWrapper() const { return GetSetting<bool>("UseAppletWrapper",settings->GetUseAppletWrapper()); };
-	UpdateMode GetUpdateMode() const { return (UpdateMode) GetSetting<int>("UpdateMode",settings->GetUpdateMode()); };
-	virtual bool GetAutoLogin() const { return GetSetting<bool>("AutoLogin", settings->GetAutoLogin()); }
+	DEFINE_OVERRIDDEN_SETTING_ADVANCED(JavaPath, JPATH_FIELD_NAME, wxString);
+	DEFINE_OVERRIDDEN_SETTING(JvmArgs, wxString);
 
-	virtual bool GetJavaOverride() const { return GetSetting<bool>(_("OverrideJava"), false); };
-	virtual void SetJavaOverride( bool value ) {  SetSetting<bool>(_("OverrideJava"), value); };
+	DEFINE_OVERRIDDEN_SETTING_ADVANCED(MaxMemAlloc, "MaxMemoryAlloc", int);
+	DEFINE_OVERRIDDEN_SETTING_ADVANCED(MinMemAlloc, "MinMemoryAlloc", int);
 
-	virtual bool GetMemoryOverride() const { return GetSetting<bool>(_("OverrideMemory"), false); };
-	virtual void SetMemoryOverride( bool value ) {  SetSetting<bool>(_("OverrideMemory"), value); };
+	DEFINE_OVERRIDDEN_SETTING(MCWindowHeight, int);
+	DEFINE_OVERRIDDEN_SETTING(MCWindowWidth, int);
+	DEFINE_OVERRIDDEN_SETTING(MCWindowMaximize, bool);
+	DEFINE_OVERRIDDEN_SETTING(UseAppletWrapper, bool);
 
-	virtual bool GetWindowOverride() const { return GetSetting<bool>(_("OverrideWindow"), false); };
-	virtual void SetWindowOverride( bool value ) {  SetSetting<bool>(_("OverrideWindow"), value); };
+	UpdateMode GetUpdateMode() const { return (UpdateMode)GetSetting<int>("UpdateMode", settings->GetUpdateMode()); };
 
-	virtual bool GetUpdatesOverride() const { return GetSetting<bool>(_("OverrideUpdates"), false); };
-	virtual void SetUpdatesOverride( bool value ) {  SetSetting<bool>(_("OverrideUpdates"), value); };
+	DEFINE_OVERRIDDEN_SETTING(AutoLogin, bool);
 
-	virtual bool GetLoginOverride() const { return GetSetting<bool>("OverrideLogin", false); }
-	virtual void SetLoginOverride(bool value) {    SetSetting<bool>("OverrideLogin", value); }
+	DEFINE_OVERRIDE_SETTING(Java);
+	DEFINE_OVERRIDE_SETTING(Memory);
+	DEFINE_OVERRIDE_SETTING(Window);
+	DEFINE_OVERRIDE_SETTING(Updates);
+	DEFINE_OVERRIDE_SETTING(Login);
 	
 	// and these are specific to instances only
 	wxString GetJarVersion() const { return GetSetting<wxString>("JarVersion","Unknown"); };
 	void SetJarVersion( wxString value ) {  SetSetting<wxString>("JarVersion", value); };
+
+	uint64_t GetLastLaunch() const
+	{
+		// no 64bit type support in wxConfig. This code is very 'meh', but works
+		wxString str = GetSetting<wxString>("lastLaunch", "0").Trim(true).Trim(false);
+		auto buf = str.ToAscii();
+
+		const wxString numbers = "1234567890";
+		for (unsigned i = 0; i < str.Length(); i++)
+		{
+			if (!numbers.Contains(str[i]))
+			{
+				return 0;
+			}
+		}
+
+		const char * asciidata = buf.data();
+		std::istringstream reader(asciidata);
+		uint64_t data;
+		reader >> data;
+		return data;
+	}
+
+	void SetLastLaunch(uint64_t value)
+	{
+		// same as above.
+		std::ostringstream writer;
+		writer << value;
+		std::string str = writer.str();
+		wxString finalstr = wxString::FromAscii(str.c_str());
+		SetSetting<wxString>("lastLaunch", finalstr);
+	}
+
+	void SetLastLaunchNow()
+	{
+		SetLastLaunch(wxDateTime::Now().GetTicks());
+	}
 	
 	uint64_t GetJarTimestamp() const
 	{
@@ -243,46 +278,12 @@ protected:
 	wxString version;
 	wxString group;
 	
-	wxProcess *instProc;
 	bool m_running;
 	bool modloader_list_inited;
 	bool coremod_list_inited;
 	bool jar_list_inited;
 	bool world_list_initialized;
 	bool tp_list_initialized;
-	wxString m_lastLaunchCommand;
-	
-	wxEvtHandler *evtHandler;
 	
 	void MkDirs();
-	void ExtractLauncher();
-	
-	void OnInstProcExited(wxProcessEvent &event);
-	DECLARE_EVENT_TABLE()
 };
-
-
-DECLARE_EVENT_TYPE(wxEVT_INST_OUTPUT, -1)
-
-struct InstOutputEvent : wxThreadEvent
-{
-	InstOutputEvent(Instance *inst, wxString output, bool stdErr = false) 
-		: wxThreadEvent(wxEVT_INST_OUTPUT) 
-		{ m_inst = inst; m_output = output; m_stdErr = stdErr; }
-	
-	Instance *m_inst;
-	wxString m_output;
-	bool m_stdErr;
-	virtual wxEvent *Clone() const
-	{
-		return new InstOutputEvent(m_inst, m_output, m_stdErr);
-	}
-};
-
-typedef void (wxEvtHandler::*InstOutputEventFunction)(InstOutputEvent&);
-
-#define EVT_INST_OUTPUT(fn)\
-	DECLARE_EVENT_TABLE_ENTRY(wxEVT_INST_OUTPUT, wxID_ANY, -1,\
-		(wxObjectEventFunction)(InstOutputEventFunction)\
-		(InstOutputEventFunction) &fn, (wxObject*) NULL),
-

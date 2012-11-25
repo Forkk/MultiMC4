@@ -15,10 +15,12 @@
 //
 
 #include "appsettings.h"
-#include <apputils.h>
+#include "utils/apputils.h"
 #include <boost/property_tree/ini_parser.hpp>
 
 #include "version.h"
+
+#include "utils/langutils.h"
 
 AppSettings *settings;
 
@@ -30,9 +32,24 @@ bool InitAppSettings(void)
 
 AppSettings::AppSettings()
 {
-	config = new wxFileConfig(_("MultiMC"), wxEmptyString, _("multimc.cfg"), wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
+	config = new wxFileConfig(_("MultiMC"), wxEmptyString, "multimc.cfg", wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
 }
 AppSettings::~AppSettings()
 {
 	delete config;
+}
+
+// Put this here because we don't want everything to recompile when langutils.h changes.
+wxString SettingsBase::GetLanguage() const
+{
+	return GetSetting<wxString>("Language", wxLocale::GetLanguageInfo(GetDefaultLanguage())->CanonicalName);
+}
+
+long SettingsBase::GetLanguageID() const
+{
+	const wxLanguageInfo* info = wxLocale::FindLanguageInfo(GetLanguage());
+	if (info)
+		return info->Language;
+	else
+		return wxLANGUAGE_UNKNOWN;
 }

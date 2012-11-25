@@ -43,8 +43,6 @@ class InstanceCtrl;
 // The item itself has the focus
 #define wxINST_IS_FOCUS    0x08
 
-const wxDataFormat DATA_FORMAT_INSTANCE("instance");
-
 class InstanceCtrlEvent;
 
 class InstanceVisual
@@ -336,7 +334,7 @@ public:
 	int GetTotalHeight() const
 	{
 		int total = 0;
-		for(int i = 0; i < m_groups.size(); i++)
+		for(unsigned i = 0; i < m_groups.size(); i++)
 		{
 			GroupVisual & grp = m_groups[i];
 			total += grp.total_height;
@@ -397,6 +395,18 @@ private:
 	/// Set up scrollbars, e.g. after a resize
 	void SetupScrollbars();
 	
+	/// Scroll an item into the view by VisualCoord
+	void EnsureVisible(VisualCoord coord);
+	
+	/// Scroll a rectangle in absolute coordinates into view
+	void EnsureRectVisible(wxRect rect);
+	
+	/// Keyboard input navigation
+	bool Navigate(int keyCode, int flags);
+	
+	/// Set the intended navigation column based on coord
+	void SetIntendedColumn( VisualCoord coord );
+	
 	/// Calculate the outer item size based
 	/// on font used for text and inner size
 	void CalculateOverallItemSize();
@@ -412,10 +422,18 @@ private:
 		return m_itemsPerRow;
 	}
 	
-	/// Get the current items per row value
+	/// Set the current items per row value
 	void SetItemsPerRow(int itpw)
 	{
 		m_itemsPerRow = itpw;
+		if(m_intended_column != -1)
+		{
+			int row, col;
+			if(GetRowCol(m_selectedItem, row, col))
+			{
+				m_intended_column = col;
+			}
+		}
 	}
 	
 	/// Do (de)selection
@@ -452,6 +470,9 @@ private:
 	
 	/// The currently selected item
 	VisualCoord              m_selectedItem;
+	
+	/// Which column is intended for navigation (up/down)
+	int                      m_intended_column;
 	
 	/// Focus item - doesn't have to be a real item (can be group header, etc.)
 	VisualCoord              m_focusItem;

@@ -13,11 +13,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-
+#include "multimc_pragma.h"
 #include "checkupdatetask.h"
-#include "httputils.h"
-#include "apputils.h"
-#include "osutils.h"
+#include "utils/httputils.h"
+#include "utils/apputils.h"
+#include "utils/osutils.h"
 #include "config.h"
 #include "appsettings.h"
 
@@ -61,7 +61,7 @@ wxThread::ExitCode CheckUpdateTask::TaskStart()
 		jobURL.Append("/");
 
 	wxString mainPageJSON;
-	if (!DownloadString(jobURL + _("api/json"), &mainPageJSON))
+	if (!DownloadString(jobURL + "api/json", &mainPageJSON))
 	{
 		wxLogError(_("Failed to check for updates. Please check your internet connection."));
 		return (ExitCode)0;
@@ -88,16 +88,16 @@ wxThread::ExitCode CheckUpdateTask::TaskStart()
 	
 	// Figure out where to download the latest update.
 #if WINDOWS
-	wxString dlFileName = _("MultiMC.exe");
+	wxString dlFileName = "MultiMC.exe";
 #else
-	wxString dlFileName = _("MultiMC");
+	wxString dlFileName = "MultiMC";
 #endif
 
 	wxString newCIURL = ciURL;
 	if (newCIURL.EndsWith("/"))
 		newCIURL.RemoveLast();
 	
-	wxString dlURL = wxString::Format(_("%s/%i/artifact/%s"), newCIURL.c_str(), buildNumber, dlFileName.c_str());
+	wxString dlURL = wxString::Format("%s/%i/artifact/%s", newCIURL.c_str(), buildNumber, dlFileName.c_str());
 	
 	SetProgress(75);
 	OnCheckComplete(buildNumber, dlURL);

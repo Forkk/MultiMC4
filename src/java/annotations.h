@@ -84,7 +84,7 @@ namespace java
 		annotation(uint16_t type_index, constant_pool& pool):type_index(type_index), pool(pool) {};
 		~annotation()
 		{
-			for(int i = 0 ; i < name_val_pairs.size(); i++)
+			for(unsigned i = 0 ; i < name_val_pairs.size(); i++)
 			{
 				delete name_val_pairs[i].second;
 			}
@@ -231,7 +231,7 @@ namespace java
 		{};
 		~element_value_array ()
 		{
-			for(int i = 0; i < values.size();i++)
+			for(unsigned i = 0; i < values.size();i++)
 			{
 				delete values[i];
 			}

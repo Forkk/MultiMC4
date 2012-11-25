@@ -15,29 +15,22 @@
 //
 
 #pragma once
-
-#include <wx/arrstr.h>
+#include "task.h"
 
 #include <wx/string.h>
+#include <wx/stream.h>
+#include <wx/zipstrm.h>
 
-class SnapshotList : public wxArrayString
+class Instance;
+
+class LWJGLInstallTask : public Task
 {
 public:
-	SnapshotList();
-
-	bool LoadFromURL(wxString url);
-
-	void Sort(bool descending = false);
-
-	static int CompareSnapshots(wxString *first, wxString *second, bool reverse = false);
-
-	static inline int CompareSnapshotsAscending(wxString *first, wxString *second)
-	{
-		return CompareSnapshots(first, second);
-	}
-
-	static inline int CompareSnapshotsDescending(wxString *first, wxString *second)
-	{
-		return CompareSnapshots(first, second, true);
-	}
+	LWJGLInstallTask(Instance *inst, const wxString &path);
+	
+	virtual ExitCode TaskStart();
+	
+protected:
+	wxString m_path;
+	Instance *m_inst;
 };

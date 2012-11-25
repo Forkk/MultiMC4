@@ -13,7 +13,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-
+#include "multimc_pragma.h"
 #include "worldlist.h"
 
 #include <wx/filename.h>
@@ -21,7 +21,7 @@
 
 #include <wx/log.h>
 
-#include "apputils.h"
+#include "utils/apputils.h"
 
 WorldList::WorldList(const wxString& dir)
 	: m_worldsDir(dir)

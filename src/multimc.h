@@ -23,6 +23,8 @@
 
 #include <wx/cmdline.h>
 
+#include "utils/langutils.h"
+
 extern const wxString licenseText;
 
 class MultiMC : public wxApp
@@ -36,11 +38,29 @@ public:
 	virtual void OnUnhandledException();
 	
 	const wxIconBundle &GetAppIcons() const;
+
+	enum ExitAction
+	{
+		// Do nothing on exit.
+		EXIT_NORMAL,
+
+		// Installs updates when MultiMC exits without restarting MultiMC when the update is done.
+		EXIT_UPDATE,
+
+		// Installs updates when MultiMC exits and restarts MultiMC when the update is done.
+		EXIT_UPDATE_RESTART,
+
+		// Restarts MultiMC on exit.
+		EXIT_RESTART,
+	} exitAction;
 	
-	bool updateOnExit;
 	bool useProvidedDir;
 	wxFileName providedDir;
+
+	LocaleHelper localeHelper;
 protected:
+	wxLocale* m_locale;
+
 	wxIconBundle AppIcons;
 
 	wxString thisFileName;
@@ -61,20 +81,25 @@ protected:
 		// Launches an instance on start.
 		START_LAUNCH_INSTANCE
 	} startMode;
+
+	bool updateQuiet;
 };
 
 const wxCmdLineEntryDesc cmdLineDesc[] = 
 {
-	{ wxCMD_LINE_SWITCH, _("h"), _("help"), _("displays help on command line parameters"), 
+	{ wxCMD_LINE_SWITCH, "h", "help", _("displays help on command line parameters"), 
 		wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
 
-	{ wxCMD_LINE_OPTION, _("u"), _("update"), _("replaces the given file with the running executable"),
+	{ wxCMD_LINE_OPTION, "u", "update", _("replaces the given file with the running executable"),
 		wxCMD_LINE_VAL_STRING },
 
-	{ wxCMD_LINE_OPTION, _("l"), _("launch"), _("tries to launch the given instance"),
+	{ wxCMD_LINE_SWITCH, "U", "quietupdate", _("doesn't restart MultiMC after installing updates"),
+		wxCMD_LINE_VAL_NONE },
+
+	{ wxCMD_LINE_OPTION, "l", "launch", _("tries to launch the given instance"),
 		wxCMD_LINE_VAL_STRING },
 	
-	{ wxCMD_LINE_OPTION, _("d"), _("dir"), _("use the supplied directory as MultiMC root instead of the binary location (use '.' for current)"),
+	{ wxCMD_LINE_OPTION, "d", "dir", _("use the supplied directory as MultiMC root instead of the binary location (use '.' for current)"),
 		wxCMD_LINE_VAL_STRING },
 
 	{ wxCMD_LINE_NONE }

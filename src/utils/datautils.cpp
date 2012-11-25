@@ -14,6 +14,7 @@
 //    limitations under the License.
 //
 
+#include "multimc_pragma.h"
 #include "datautils.h"
 #include <wx/sstream.h>
 #include <wx/tokenzr.h>
@@ -40,7 +41,7 @@ wxString ReadAllText(wxInputStream& input)
 wxStringList ReadAllLines(wxInputStream& input)
 {
 	wxString text = ReadAllText(input);
-	wxStringTokenizer tokenizer(text, _("\r\n"));
+	wxStringTokenizer tokenizer(text, "\r\n");
 	wxStringList lineList;
 	while (tokenizer.HasMoreTokens())
 	{

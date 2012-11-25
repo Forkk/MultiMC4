@@ -26,14 +26,16 @@
 #include <wx/app.h>
 #include <wx/sysopt.h>
 #include <wx/progdlg.h>
+#include <wx/intl.h>
 
 #include "mainwindow.h"
 
-#include "apputils.h"
-#include "osutils.h"
+#include "utils/apputils.h"
+#include "utils/osutils.h"
 
 #ifdef wx29
 #include <wx/persist/toplevel.h>
+#include <wx/dir.h>
 #endif
 
 #include "resources/windowicon.h"
@@ -47,10 +49,11 @@ bool MultiMC::OnInit()
 	// Only works with Linux GCC or MSVC
 	wxHandleFatalExceptions();
 #endif
-	updateOnExit = false;
+	exitAction = EXIT_NORMAL;
 	startMode = START_NORMAL;
+	updateQuiet = false;
 	useProvidedDir = false;
-	
+
 	// This is necessary for the update system since it calls OnInitCmdLine
 	// to set up the command line arguments that the update system uses.
 	if (!wxApp::OnInit())
@@ -84,16 +87,38 @@ bool MultiMC::OnInit()
 		wxLogError(_("Failed to initialize settings."));
 		return false;
 	}
+
+	SetAppName(_("MultiMC"));
+	InstallLangFiles();
+	localeHelper.UpdateLangList();
+
+	// Load language.
+	long langID = wxLANGUAGE_UNKNOWN;
+	if (settings->GetUseSystemLang())
+		langID = wxLocale::GetSystemLanguage();
+	else
+		langID = settings->GetLanguageID();
+	langID = localeHelper.FindClosestMatch(langID);
+
+	// If no matching language is found, use English.
+	if (langID == wxLANGUAGE_UNKNOWN)
+	{
+		langID = wxLANGUAGE_ENGLISH_US;
+	}
+
+	if (!localeHelper.SetLanguage((wxLanguage)langID))
+	{
+		localeHelper.SetLanguage(wxLANGUAGE_ENGLISH_US);
+		wxLogError(_("Failed to set language. Language set to English."));
+	}
 	
 	wxString cwd = wxGetCwd();
-	if(cwd.Contains(_("!")))
+	if(cwd.Contains("!"))
 	{
 		wxLogError(_("MultiMC has been started from a path that contains '!':\n%s\nThis would break Minecraft. Please move it to a different place."), cwd.c_str());
 		return false;
 	}
 
-	SetAppName(_("MultiMC"));
-	
 	wxInitAllImageHandlers();
 	wxSocketBase::Initialize();
 	
@@ -126,7 +151,9 @@ bool MultiMC::OnInit()
 			MainWindow *mainWin = new MainWindow();
 			mainWin->SetName(wxT("MainWindow"));
 			if (!wxPersistenceManager::Get().RegisterAndRestore(mainWin))
+			{
 				mainWin->CenterOnScreen();
+			}
 			mainWin->Show();
 			mainWin->OnStartup();
 			return true;
@@ -137,10 +164,12 @@ bool MultiMC::OnInit()
 			MainWindow *mainWin = new MainWindow();
 			mainWin->SetName(wxT("MainWindow"));
 			if (!wxPersistenceManager::Get().RegisterAndRestore(mainWin))
+			{
 				mainWin->CenterOnScreen();
-			mainWin->Show();
+			}
 			mainWin->launchInstance = launchInstance;
 			mainWin->OnStartup();
+			mainWin->Hide();
 			return true;
 		}
 
@@ -155,7 +184,7 @@ bool MultiMC::OnInit()
 void MultiMC::OnInitCmdLine(wxCmdLineParser &parser)
 {
 	parser.SetDesc(cmdLineDesc);
-	parser.SetSwitchChars(_("-"));
+	parser.SetSwitchChars("-");
 }
 
 bool MultiMC::OnCmdLineParsed(wxCmdLineParser& parser)
@@ -176,14 +205,16 @@ bool MultiMC::OnCmdLineParsed(wxCmdLineParser& parser)
 		}
 		useProvidedDir = true;
 	}
-	if (parser.Found(_("u"), &parsedOption))
+	if (parser.Found("u", &parsedOption))
 	{
+		updateQuiet = parser.Found("U");
+
 		thisFileName = wxStandardPaths::Get().GetExecutablePath();
 		updateTarget = parsedOption;
 		startMode = START_INSTALL_UPDATE;
 		return true;
 	}
-	else if(parser.Found(_("l"), &parsedOption))
+	else if(parser.Found("l", &parsedOption))
 	{
 		launchInstance = parsedOption;
 		startMode = START_LAUNCH_INSTANCE;
@@ -243,9 +274,13 @@ and that MultiMC's updater has sufficient permissions to replace the file \n\
 	wxYieldIfNeeded();
 	
 	targetFile.MakeAbsolute();
-	wxProcess proc;
-	wxExecute("\"" + targetFile.GetFullPath() + "\"", wxEXEC_ASYNC, &proc);
-	proc.Detach();
+
+	if (!updateQuiet)
+	{
+		wxProcess proc;
+		wxExecute("\"" + targetFile.GetFullPath() + "\"", wxEXEC_ASYNC, &proc);
+		proc.Detach();
+	}
 	progDlg->Destroy();
 }
 
@@ -262,16 +297,17 @@ void MultiMC::YieldSleep(int secs)
 int MultiMC::OnExit()
 {
 #ifdef WINDOWS
-	wxString updaterFileName = _("MultiMCUpdate.exe");
+	wxString updaterFileName = "MultiMCUpdate.exe";
 #else
-	wxString updaterFileName = _("MultiMCUpdate");
+	wxString updaterFileName = "MultiMCUpdate";
 #endif
 
-	if (updateOnExit && wxFileExists(updaterFileName))
+	if ((exitAction == EXIT_UPDATE_RESTART || exitAction == EXIT_UPDATE) && 
+		wxFileExists(updaterFileName))
 	{
 		wxFileName updateFile(updaterFileName);
 #if LINUX || OSX
-			wxExecute(_("chmod +x ") + updateFile.GetFullPath());
+			wxExecute("chmod +x " + updateFile.GetFullPath());
 			updateFile.MakeAbsolute();
 #endif
 
@@ -281,15 +317,29 @@ int MultiMC::OnExit()
 		wxString thisFilePath = wxStandardPaths::Get().GetExecutablePath();
 
 #if WINDOWS
-		wxString launchCmd = wxString::Format(_("cmd /C %s -u \"%s\""),
+		wxString launchCmd = wxString::Format("cmd /C %s -u \"%s\"",
 			updateFilePath.c_str(), thisFilePath.c_str());
 #else
-		updateFilePath.Replace(_(" "), _("\\ "));
-		thisFilePath.Replace(_(" "), _("\\ "));
+		updateFilePath.Replace(" ", "\\ ");
+		thisFilePath.Replace(" ", "\\ ");
 
-		wxString launchCmd = wxString::Format(_("%s -u:%s"),
+		wxString launchCmd = wxString::Format("%s -u:%s",
 			updateFilePath.c_str(), thisFilePath.c_str());
 #endif
+
+		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
+		proc.Detach();
+	}
+	else if (exitAction == EXIT_RESTART)
+	{
+		wxProcess proc;
+
+		// Put together the command that MultiMC launched with.
+		wxString launchCmd;
+		for (int i = 0; i < argc; i++)
+		{
+			launchCmd += wxString::Format("%s ", argv[i]);
+		}
 
 		wxExecute(launchCmd, wxEXEC_ASYNC, &proc);
 		proc.Detach();
@@ -316,7 +366,7 @@ const wxIconBundle &MultiMC::GetAppIcons() const
 	return AppIcons;
 }
 
-const wxString licenseText = _(
+const wxString licenseText =
 "Copyright 2012 MultiMC Contributors\n\
 Licensed under the Apache License, Version 2.0 (the \"License\");\n\
 you may not use this file except in compliance with the License.\n\
@@ -353,4 +403,4 @@ OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n\
 HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n\
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING\n\
 IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n\
-POSSIBILITY OF SUCH DAMAGE.");
+POSSIBILITY OF SUCH DAMAGE.";

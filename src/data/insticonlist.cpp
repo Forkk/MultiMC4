@@ -18,7 +18,7 @@
 
 #include "resources/insticons.h"
 
-#include "apputils.h"
+#include "utils/apputils.h"
 
 #include <wx/filename.h>
 #include <wx/dir.h>

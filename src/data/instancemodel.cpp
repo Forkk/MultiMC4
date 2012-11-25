@@ -18,7 +18,7 @@
 
 #include "data/instance.h"
 #include "instancectrl.h"
-#include "fsutils.h"
+#include "utils/fsutils.h"
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
@@ -52,15 +52,30 @@ Instance * InstanceModel::operator[](const std::size_t index) const
 	return at(index);
 }
 
+bool InstanceModel::SelectInstanceByID ( wxString select )
+{
+	for(unsigned i = 0; i < m_instances.size(); i++)
+	{
+		Instance * inst = m_instances[i];
+		if(inst->GetInstID() == select)
+		{
+			LogicSelectInstance(i);
+			return true;
+		}
+	}
+	return false;
+}
+
+
 void InstanceModel::Clear()
 {
-	for(int i = 0; i < size(); i++)
+	for(unsigned i = 0; i < size(); i++)
 		delete m_instances[i];
 	m_instances.clear();
 	m_previousIndex = -1;
 	m_selectedIndex = -1;
 
-	for (int i = 0; i < m_groups.size(); i++)
+	for (unsigned i = 0; i < m_groups.size(); i++)
 		delete m_groups[i];
 	m_groups.clear();
 	
@@ -320,6 +335,7 @@ InstanceGroup* InstanceModel::GetGroupByName(wxString name) const
 		if ((*iter)->GetName() == name)
 			return *iter;
 	}
+	return nullptr;
 }
 
 InstanceGroup* InstanceModel::GetGroupByIndex(int index) const

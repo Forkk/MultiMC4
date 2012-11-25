@@ -23,8 +23,8 @@
 
 #include "mainwindow.h"
 
-#include "apputils.h"
-#include "fsutils.h"
+#include "utils/apputils.h"
+#include "utils/fsutils.h"
 
 #include "ziptask.h"
 #include "filecopytask.h"

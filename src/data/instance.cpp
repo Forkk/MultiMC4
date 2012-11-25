@@ -13,7 +13,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-
+#include "multimc_pragma.h"
 #include "instance.h"
 #include "stdinstance.h"
 
@@ -27,39 +27,14 @@
 #include <memory>
 #include <sstream>
 
-#include "launcher/launcherdata.h"
-#include "osutils.h"
-#include "datautils.h"
+#include "utils/osutils.h"
+#include "utils/datautils.h"
 #include "insticonlist.h"
 #include "java/javautils.h"
 #include "instancemodel.h"
+#include "mcprocess.h"
 
-DEFINE_EVENT_TYPE(wxEVT_INST_OUTPUT)
-
-// macro for adding "" around strings
-#define DQuote(X) "\"" << X << "\""
-
-const wxString cfgFileName = _("instance.cfg");
-
-/* HACK HACK HACK HACK HACK HACK HACK HACK*
- * This is a workaround for a wxWidgets bug
- * HACK HACK HACK HACK HACK HACK HACK HACK*/
-class MinecraftProcess : public wxProcess
-{
-public:
-	MinecraftProcess ( wxEvtHandler* parent = 0 )
-	:wxProcess(nullptr,wxID_ANY)
-	{
-		myParent = parent;
-	}
-protected:
-	virtual void OnTerminate ( int pid, int status )
-	{
-		wxProcessEvent ev(wxID_ANY,pid, status);
-		myParent->AddPendingEvent(ev);
-	};
-	wxEvtHandler * myParent;
-};
+const wxString cfgFileName = "instance.cfg";
 
 bool IsValidInstance(wxFileName rootDir)
 {
@@ -101,7 +76,6 @@ Instance::Instance(const wxString &rootDir)
 		this->rootDir = wxFileName::DirName(rootDir);
 	config = new wxFileConfig(wxEmptyString, wxEmptyString, GetConfigPath().GetFullPath(), wxEmptyString,
 		wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
-	evtHandler = NULL;
 	MkDirs();
 
 	// initialize empty mod lists - they are filled later and only if requested (see apropriate Get* methods)
@@ -122,10 +96,6 @@ Instance::Instance(const wxString &rootDir)
 Instance::~Instance(void)
 {
 	delete config;
-	if (IsRunning())
-	{
-		instProc->Detach();
-	}
 	Save();
 }
 
@@ -231,63 +201,63 @@ wxFileName Instance::GetMCDir() const
 
 wxFileName Instance::GetBinDir() const
 {
-	return wxFileName::DirName(GetMCDir().GetFullPath() + _("/bin"));
+	return wxFileName::DirName(GetMCDir().GetFullPath() + "/bin");
 }
 
 wxFileName Instance::GetCoreModsDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("coremods")));
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), "coremods"));
 }
 
 wxFileName Instance::GetMLModsDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("mods")));
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), "mods"));
 }
 
 wxFileName Instance::GetResourceDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("resources")));
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), "resources"));
 }
 
 wxFileName Instance::GetSavesDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("saves")));
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), "saves"));
 }
 
 wxFileName Instance::GetScreenshotsDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("screenshots")));
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), "screenshots"));
 }
 
 wxFileName Instance::GetTexturePacksDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), _("texturepacks")));
+	return wxFileName::DirName(Path::Combine(GetMCDir().GetFullPath(), "texturepacks"));
 }
 
 
 wxFileName Instance::GetInstModsDir() const
 {
-	return wxFileName::DirName(Path::Combine(GetRootDir().GetFullPath(), _("instMods")));
+	return wxFileName::DirName(Path::Combine(GetRootDir().GetFullPath(), "instMods"));
 }
 
 wxFileName Instance::GetVersionFile() const
 {
-	return wxFileName::FileName(GetBinDir().GetFullPath() + _("/version"));
+	return wxFileName::FileName(GetBinDir().GetFullPath() + "/version");
 }
 
 wxFileName Instance::GetMCBackup() const
 {
-	return wxFileName::FileName(GetBinDir().GetFullPath() + _("/mcbackup.jar"));
+	return wxFileName::FileName(GetBinDir().GetFullPath() + "/mcbackup.jar");
 }
 
 wxFileName Instance::GetMCJar() const
 {
-	return wxFileName::FileName(GetBinDir().GetFullPath() + _("/minecraft.jar"));
+	return wxFileName::FileName(GetBinDir().GetFullPath() + "/minecraft.jar");
 }
 
 wxFileName Instance::GetModListFile() const
 {
-	return wxFileName::FileName(Path::Combine(GetRootDir(), _("modlist")));
+	return wxFileName::FileName(Path::Combine(GetRootDir(), "modlist"));
 }
 
 
@@ -328,34 +298,19 @@ void Instance::WriteVersionFile(int64_t number)
 
 wxString Instance::GetName() const
 {
-	return GetSetting<wxString>(_("name"), _("Unnamed Instance"));
+	return GetSetting<wxString>("name", _("Unnamed Instance"));
 }
 
 void Instance::SetName(wxString name)
 {
-	SetSetting<wxString>(_("name"), name);
+	SetSetting<wxString>("name", name);
 	if(parentModel)
 		parentModel->InstanceRenamed(this);
 }
 
-wxDateTime Instance::GetLastLaunch() const
-{
-	wxString dtStr = GetSetting<wxString>(_("lastLaunch"), wxEmptyString);
-	wxDateTime dt;
-	if (dt.ParseFormat(dtStr) != NULL)
-		return dt;
-	else
-		return wxDateTime::Now();
-}
-
-void Instance::SetLastLaunch(wxDateTime time)
-{
-	SetSetting<wxString>(_("lastLaunch"), time.Format());
-}
-
 wxString Instance::GetIconKey() const
 {
-	wxString iconKey = GetSetting<wxString>(_("iconKey"), _("default"));
+	wxString iconKey = GetSetting<wxString>("iconKey", "default");
 
 	if (iconKey == "default")
 	{
@@ -376,27 +331,27 @@ wxString Instance::GetIconKey() const
 
 void Instance::SetIconKey(wxString iconKey)
 {
-	SetSetting<wxString>(_("iconKey"), iconKey);
+	SetSetting<wxString>("iconKey", iconKey);
 }
 
 wxString Instance::GetNotes() const
 {
-	return GetSetting<wxString>(_("notes"), _(""));
+	return GetSetting<wxString>("notes", wxEmptyString);
 }
 
 void Instance::SetNotes(wxString notes)
 {
-	SetSetting<wxString>(_("notes"), notes);
+	SetSetting<wxString>("notes", notes);
 }
 
 bool Instance::ShouldRebuild() const
 {
-	return GetSetting<bool>(_("NeedsRebuild"), false);
+	return GetSetting<bool>("NeedsRebuild", false);
 }
 
 void Instance::SetNeedsRebuild(bool value)
 {
-	SetSetting<bool>(_("NeedsRebuild"), value);
+	SetSetting<bool>("NeedsRebuild", value);
 }
 
 bool Instance::HasBinaries()
@@ -405,117 +360,6 @@ bool Instance::HasBinaries()
 	isOK &= GetMCJar().FileExists();
 	// FIXME: add more here, as needed
 	return isOK;
-}
-
-void Instance::ExtractLauncher()
-{
-	wxMemoryInputStream launcherInputStream(multimclauncher, sizeof(multimclauncher));
-	wxZipInputStream dezipper(launcherInputStream);
-	wxFFileOutputStream launcherOutStream( Path::Combine(GetMCDir(),"MultiMCLauncher.jar") );
-	wxZipOutputStream zipper(launcherOutStream);
-	std::auto_ptr<wxZipEntry> entry;
-	// copy all files from the old zip file
-	while (entry.reset(dezipper.GetNextEntry()), entry.get() != NULL)
-		if (!zipper.CopyEntry(entry.release(), dezipper))
-			break;
-	// add the icon file
-	zipper.PutNextEntry(_("icon.png"));
-	InstIconList * iconList = InstIconList::Instance();
-	//FIXME: what if there is no such image?
-	wxImage &img =  iconList->getImageForKey(GetIconKey());
-	img.SaveFile(zipper,wxBITMAP_TYPE_PNG);
-}
-
-wxProcess *Instance::Launch(wxString username, wxString sessionID, bool redirectOutput)
-{
-	// Set lastLaunch
-	SetLastLaunch();
-
-	if (username.IsEmpty())
-		username = _("Offline");
-	
-	if (sessionID.IsEmpty())
-		sessionID = _("Offline");
-	
-	ExtractLauncher();
-	
-	// window size parameter (depends on some flags also)
-	wxString winSizeArg;
-	if (!GetUseAppletWrapper())
-		winSizeArg = "compatmode";
-	else if (GetMCWindowMaximize())
-		winSizeArg = "max";
-	else
-		winSizeArg << GetMCWindowWidth() << "x" << GetMCWindowHeight();
-	
-	// putting together the window title
-	wxString windowTitle;
-	windowTitle << "MultiMC: " << GetName();
-	
-	// now put together the launch command in the form:
-	// "%java%" %extra_args% -Xms%min_memory%m -Xmx%max_memory%m -jar MultiMCLauncher.jar "%user_name%" "%session_id%" "%window_title%" "%window_size%"
-	wxString launchCmd;
-	launchCmd << DQuote(GetJavaPath()) << " " << GetJvmArgs() << " -Xms" << GetMinMemAlloc() << "m" << " -Xmx" << GetMaxMemAlloc() << "m"
-	          << " -jar MultiMCLauncher.jar "
-	          << " " << DQuote(username) << " " << DQuote(sessionID) << " " << DQuote(windowTitle) << " " << DQuote(winSizeArg);
-	m_lastLaunchCommand = launchCmd;
-	
-	// create a (custom) process object!
-	instProc = new MinecraftProcess(this);
-	if (redirectOutput)
-		instProc->Redirect();
-	
-	// set up environment path
-	wxExecuteEnv env;
-	wxFileName mcDir = GetMCDir();
-	mcDir.MakeAbsolute();
-	env.cwd = GetMCDir().GetFullPath();
-	
-	// run minecraft using the stuff above :)
-	int pid = wxExecute(launchCmd,wxEXEC_ASYNC|wxEXEC_HIDE_CONSOLE,instProc,&env);
-	if(pid > 0)
-	{
-		m_running = true;
-	}
-	else
-	{
-		m_running = false;
-		delete instProc;
-		instProc = nullptr;
-	}
-	return instProc;
-}
-
-void Instance::OnInstProcExited(wxProcessEvent& event)
-{
-	m_running = false;
-	printf("Instance exited with code %i.\n", event.GetExitCode());
-	delete instProc;
-	instProc = nullptr;
-	if (evtHandler != NULL)
-	{
-		evtHandler->AddPendingEvent(event);
-	}
-}
-
-void Instance::SetEvtHandler(wxEvtHandler* handler)
-{
-	evtHandler = handler;
-}
-
-bool Instance::IsRunning() const
-{
-	return m_running;
-}
-
-wxProcess* Instance::GetInstProcess() const
-{
-	return instProc;
-}
-
-wxString Instance::GetLastLaunchCommand() const
-{
-	return m_lastLaunchCommand;
 }
 
 ModList *Instance::GetModList()
@@ -592,20 +436,20 @@ void Instance::GetPossibleConfigFiles(wxArrayString *array, wxString dir)
 			
 			if (wxDirExists(fileName.GetFullPath()))
 			{
-				if (currentFile != _("saves"))
+				if (currentFile != "saves")
 					GetPossibleConfigFiles(array, fileName.GetFullPath());
 			}
-			else if (fileName.GetExt() == _("cfg") || 
-				fileName.GetExt() == _("conf") || 
-				fileName.GetExt() == _("config") || 
-				fileName.GetExt() == _("props") || 
-				fileName.GetExt() == _("properties") ||
-				fileName.GetExt() == _("xml") ||
-				fileName.GetExt() == _("yml") ||
-				fileName.GetFullPath().Contains(_("options")) ||
-				fileName.GetPath().Contains(_("config")) ||
-				fileName.GetName().Contains(_("config")) ||
-				fileName.GetName().Contains(_("options")))
+			else if (fileName.GetExt() == "cfg" || 
+				fileName.GetExt() == "conf" || 
+				fileName.GetExt() == "config" || 
+				fileName.GetExt() == "props" || 
+				fileName.GetExt() == "properties" ||
+				fileName.GetExt() == "xml" ||
+				fileName.GetExt() == "yml" ||
+				fileName.GetFullPath().Contains("options") ||
+				fileName.GetPath().Contains("config") ||
+				fileName.GetName().Contains("config") ||
+				fileName.GetName().Contains("options"))
 			{
 				fileName.MakeRelativeTo(GetRootDir().GetFullPath());
 				array->Add(fileName.GetFullPath());
@@ -715,9 +559,3 @@ void Instance::SetGroup ( const wxString& group )
 {
 	parentModel->SetInstanceGroup(this, group);
 }
-
-
-
-BEGIN_EVENT_TABLE(Instance, wxEvtHandler)
-	EVT_END_PROCESS(wxID_ANY, Instance::OnInstProcExited)
-END_EVENT_TABLE()

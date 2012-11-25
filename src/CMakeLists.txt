@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
-project (MultiMC)
+project (MultiMC CXX C)
 
 # Stupid FindOpenSSL fix...
 SET(CMAKE_CROSS_COMPILING ${CMAKE_CROSSCOMPILING})
@@ -54,7 +54,7 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 
 set(MultiMC_VERSION_MAJOR		4)
 set(MultiMC_VERSION_MINOR		2)
-set(MultiMC_VERSION_REV			0)
+set(MultiMC_VERSION_REV			1)
 
 IF (DEFINED MultiMC_VERSION_BUILD)
 	message(STATUS "MultiMC build #${MultiMC_VERSION_BUILD}")
@@ -107,6 +107,8 @@ ENDIF ()
 # Set the sources and headers variables.
 set(SRCS 
 multimc.cpp
+version.cpp
+buildtag.cpp
 
 gui/mainwindow.cpp
 gui/settingsdialog.cpp
@@ -126,14 +128,18 @@ gui/installforgedialog.cpp
 gui/savemgrwindow.cpp
 gui/textdisplaydialog.cpp
 gui/advancedmsgdlg.cpp
+gui/listselectdialog.cpp
+gui/lwjgldialog.cpp
+gui/ftbselectdialog.cpp
 
 data/appsettings.cpp
 data/instance.cpp
+data/mcprocess.cpp
 data/userinfo.cpp
 data/mod.cpp
 data/modlist.cpp
 data/configpack.cpp
-data/snapshotlist.cpp
+data/mcversionlist.cpp
 data/worldlist.cpp
 data/world.cpp
 data/texturepack.cpp
@@ -141,6 +147,7 @@ data/texturepacklist.cpp
 data/stdinstance.cpp
 data/instancemodel.cpp
 data/forgeversions.cpp
+data/insticonlist.cpp
 
 tasks/task.cpp
 tasks/logintask.cpp
@@ -154,24 +161,25 @@ tasks/downgradetask.cpp
 tasks/ziptask.cpp
 tasks/pastebintask.cpp
 tasks/lambdatask.cpp
+tasks/lwjglinstalltask.cpp
 
 java/javautils.cpp
 java/annotations.cpp
 
-apputils.cpp
-curlutils.cpp
-datautils.cpp
-fsutils.cpp
-httputils.cpp
-
-version.cpp
-buildtag.cpp
-
-insticonlist.cpp
+utils/apputils.cpp
+utils/curlutils.cpp
+utils/datautils.cpp
+utils/fsutils.cpp
+utils/fsutils_secure.cpp
+utils/httputils.cpp
+utils/langutils.cpp
 )
 
 set (INCS
 multimc.h
+multimc_pragma.h
+version.h
+buildtag.h
 
 gui/mainwindow.h
 gui/settingsdialog.h
@@ -191,6 +199,9 @@ gui/installforgedialog.h
 gui/savemgrwindow.h
 gui/textdisplaydialog.h
 gui/advancedmsgdlg.h
+gui/listselectdialog.h
+gui/lwjgldialog.h
+gui/ftbselectdialog.h
 
 data/appsettings.h
 data/instance.h
@@ -198,7 +209,7 @@ data/userinfo.h
 data/mod.h
 data/modlist.h
 data/configpack.h
-data/snapshotlist.h
+data/mcversionlist.h
 data/worldlist.h
 data/world.h
 data/texturepack.h
@@ -206,6 +217,7 @@ data/texturepacklist.h
 data/stdinstance.h
 data/instancemodel.h
 data/forgeversions.h
+data/insticonlist.h
 
 tasks/task.h
 tasks/logintask.h
@@ -219,6 +231,7 @@ tasks/downgradetask.h
 tasks/ziptask.h
 tasks/pastebintask.h
 tasks/lambdatask.h
+tasks/lwjglinstalltask.h
 
 java/annotations.h
 java/classfile.h
@@ -228,17 +241,14 @@ java/errors.h
 java/javautils.h
 java/membuffer.h
 
-apputils.h
-curlutils.h
-osutils.h
-datautils.h
-fsutils.h
-httputils.h
+utils/apputils.h
+utils/curlutils.h
+utils/osutils.h
+utils/datautils.h
+utils/fsutils.h
+utils/httputils.h
+utils/langutils.h
 
-version.h
-buildtag.h
-
-insticonlist.h
 ${CMAKE_BINARY_DIR}/resources/insticons.h
 ${CMAKE_BINARY_DIR}/resources/toolbaricons.h
 ${CMAKE_BINARY_DIR}/launcher/launcherdata.h
@@ -311,6 +321,9 @@ endif ()
 add_subdirectory(resources)
 add_subdirectory(launcher)
 
+# Compile localizations.
+add_subdirectory(lang)
+
 include_directories("${PROJECT_BINARY_DIR}")
 
 include_directories(
@@ -327,7 +340,7 @@ endif()
 
 # Add the executable.
 add_executable(MultiMC WIN32 ${SRCS} ${INCS})
-add_dependencies(MultiMC generate_headers generate_launcher)
+add_dependencies(MultiMC generate_headers generate_launcher generate_langheader)
 
 # Link the libraries.
 target_link_libraries(MultiMC

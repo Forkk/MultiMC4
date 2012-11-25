@@ -14,6 +14,7 @@
 //    limitations under the License.
 //
 
+#include "multimc_pragma.h"
 #include "modlist.h"
 
 #include <wx/dir.h>
@@ -23,9 +24,9 @@
 #include <algorithm>
 #include <functional>
 
-#include "apputils.h"
-#include "osutils.h"
-#include "datautils.h"
+#include "utils/apputils.h"
+#include "utils/osutils.h"
+#include "utils/datautils.h"
 
 ModList::ModList(const wxString &dir)
 	: modsFolder(dir)
@@ -171,7 +172,7 @@ void ModList::SaveToFile(const wxString& file)
 		wxFileName modFile = iter->GetFileName();
 		modFile.MakeRelativeTo(modsFolder);
 		text.Append(modFile.GetFullPath());
-		text.Append(_("\n"));
+		text.Append("\n");
 	}
 
 	wxTempFileOutputStream out(file);

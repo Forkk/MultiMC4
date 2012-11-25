@@ -45,6 +45,7 @@ public:
 	// Toolbar
 	void OnAddInstClicked(wxCommandEvent& event);
 	void OnImportCPClicked(wxCommandEvent& event);
+	void OnImportFTBClicked(wxCommandEvent& event);
 	void OnViewFolderClicked(wxCommandEvent& event);
 	void OnViewCMFolderClicked(wxCommandEvent& event);
 	void OnRefreshClicked(wxCommandEvent& event);
@@ -69,11 +70,13 @@ public:
 	void OnChangeIconClicked(wxCommandEvent& event);
 	void OnNotesClicked(wxCommandEvent& event);
 	void OnInstanceSettingsClicked(wxCommandEvent& event);
+	void OnMakeDesktopLinkClicked(wxCommandEvent& event);
 
 	void OnManageSavesClicked(wxCommandEvent& event);
 	void OnEditModsClicked(wxCommandEvent& event);
 	void OnDowngradeInstClicked(wxCommandEvent& event);
 	void OnSnapshotClicked(wxCommandEvent& event);
+	void OnChangeLWJGLClicked(wxCommandEvent& event);
 	void OnRebuildJarClicked(wxCommandEvent& event);
 	void OnViewInstFolderClicked(wxCommandEvent& event);
 	
@@ -110,7 +113,7 @@ public:
 	void DoLogin(UserInfo info, bool playOffline = false, bool forceUpdate = false);
 	void ShowLoginDlg(wxString errorMsg);
 
-	void DownloadInstallUpdates(const wxString &downloadURL);
+	void DownloadInstallUpdates(const wxString &downloadURL, bool installNow = true);
 	
 	void LoadInstanceList(wxFileName instDir = settings->GetInstDir());
 	void LoadCentralModList();
@@ -213,6 +216,7 @@ enum
 	ID_NewInst,
 	ID_ImportInst,
 	ID_ImportCP,
+	ID_ImportFTB,
 	ID_ViewFolder,
 	ID_ViewCMFolder,
 	ID_ModsFolder,
@@ -235,11 +239,13 @@ enum
 	ID_EditNotes,
 	ID_Cancel_EditNotes,
 	ID_Configure,
+	ID_MakeDesktopLink,
 
 	ID_ManageSaves,
 	ID_EditMods,
 	ID_DowngradeInst,
 	ID_UseSnapshot,
+	ID_ChangeLWJGL,
 	ID_RebuildJar,
 	ID_ViewInstFolder,
 

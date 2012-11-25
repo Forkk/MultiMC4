@@ -17,8 +17,8 @@
 #include "modeditwindow.h"
 #include <wx/notebook.h>
 #include <wx/clipbrd.h>
-#include <apputils.h>
-#include <fsutils.h>
+#include "utils/apputils.h"
+#include "utils/fsutils.h"
 
 #include "exportinstwizard.h"
 
@@ -49,7 +49,7 @@ ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 		wxPanel *jarModPanel = new wxPanel(modEditNotebook, -1);
 		wxBoxSizer *jarModSizer = new wxBoxSizer(wxHORIZONTAL);
 		jarModPanel->SetSizer(jarModSizer);
-		modEditNotebook->AddPage(jarModPanel, _("Jar Mods"), true);
+		modEditNotebook->AddPage(jarModPanel, _("Minecraft.jar"), true);
 		
 		jarModList = new JarModListCtrl(jarModPanel, ID_JAR_MOD_LIST, inst);
 		jarModList->InsertColumn(0, _("Mod Name"));
@@ -268,10 +268,6 @@ wxString ModEditWindow::ModListCtrl::OnGetItemText(long int item, long int colum
 
 wxListItemAttr* ModEditWindow::ModListCtrl::OnGetItemAttr ( long int item ) const
 {
-	if(item >= GetModList()->size())
-	{
-		//BUG: this should never happen! (yet it does)
-	}
 	return nullptr;
 }
 
@@ -658,7 +654,7 @@ void ModEditWindow::ModListCtrl::DrawInsertMark(int index)
 	}
 	
 	wxWindowDC dc(listMainWin);
-	dc.SetPen(wxPen(wxColour(_("white")), 2, wxSOLID));
+	dc.SetPen(wxPen(wxColour("white"), 2, wxSOLID));
 	
 	const wxBrush *brush = wxTRANSPARENT_BRUSH;
 	dc.SetBrush(*brush);
@@ -906,7 +902,7 @@ void ModEditWindow::OnExportClicked(wxCommandEvent& event)
 	if (chooseFileDlg.ShowModal() == wxID_OK)
 	{
 		file = chooseFileDlg.GetPath();
-		file.SetExt(_("zip"));
+		file.SetExt("zip");
 		if(file.FileExists())
 		{
 			int res = wxMessageBox("Do you want to overwrite the original file?","Overwrite file?",wxYES_NO|wxICON_QUESTION,this);
@@ -955,7 +951,7 @@ void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
 	InstallForgeDialog installDlg (this);
 	if (installDlg.ShowModal() == wxID_OK)
 	{
-		wxString dl = installDlg.GetSelectedBuild();
+		wxString dl = installDlg.GetSelection();
 		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), dl);
 		
 		auto dlTask = new FileDownloadTask("http://files.minecraftforge.net/" + dl, forgePath);
@@ -1148,10 +1144,6 @@ wxString ModEditWindow::TexturePackListCtrl::OnGetItemText(long int item, long i
 
 wxListItemAttr *ModEditWindow::TexturePackListCtrl::OnGetItemAttr(long int item) const
 {
-	if(item >= GetTPList()->size())
-	{
-		//BUG: this should never happen! (yet it does)
-	}
 	return nullptr;
 }
 

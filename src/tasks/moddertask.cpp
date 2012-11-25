@@ -15,10 +15,10 @@
 //
 
 #include "moddertask.h"
-#include <fsutils.h>
+#include <utils/fsutils.h>
 #include <wx/wfstream.h>
 #include <wx/fs_mem.h>
-#include <apputils.h>
+#include <utils/apputils.h>
 
 #include <set>
 #include <memory>
@@ -116,7 +116,7 @@ wxThread::ExitCode ModderTask::TaskStart()
 		{
 			wxString name = entry->GetName();
 
-			if (!name.Matches(_("META-INF*")) &&
+			if (!name.Matches("META-INF*") &&
 				addedFiles.count(name) == 0)
 			{
 				if (!zipOut.CopyEntry(entry.release(), zipIn))

@@ -13,7 +13,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-
+#include "multimc_pragma.h"
 #include "task.h"
 
 DEFINE_EVENT_TYPE(wxEVT_TASK_START)
@@ -26,7 +26,7 @@ DEFINE_EVENT_TYPE(wxEVT_TASK_ERRORMSG)
 Task::Task()
 	: wxThread(wxTHREAD_JOINABLE)
 {
-	m_status = _("");
+	m_status = wxEmptyString;
 	m_progress = 0;
 	m_modal = false;
 	ended = false;

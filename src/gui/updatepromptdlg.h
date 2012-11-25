@@ -24,7 +24,16 @@ public:
 	UpdatePromptDialog(wxWindow *parent, const wxString &updateMsg);
 
 protected:
-	void OnChangelogClicked(wxCommandEvent &event);
-
+	void OnChangelogClicked(wxCommandEvent& event);
+	void OnUpdateNowClicked(wxCommandEvent& event);
+	void OnUpdateLaterClicked(wxCommandEvent& event);
+	
 	DECLARE_EVENT_TABLE()
+};
+
+enum 
+{
+	ID_UpdateNow,
+	ID_UpdateLater,
+	ID_Changelog,
 };

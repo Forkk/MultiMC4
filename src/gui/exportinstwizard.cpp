@@ -65,10 +65,10 @@ ExportInstWizard::ExportInstWizard(wxWindow *parent, Instance *inst)
 	inst->GetPossibleConfigFiles(&configList);
 	cfgListCtrl = new wxCheckListBox(chooseConfigFilesPage, -1,
 		wxDefaultPosition, wxDefaultSize, configList);
-	for (int i = 0; i < cfgListCtrl->GetCount(); i++)
+	for (unsigned i = 0; i < cfgListCtrl->GetCount(); i++)
 	{
-		if (!cfgListCtrl->GetString(i).Contains(_("options.txt")) &&
-			!cfgListCtrl->GetString(i).Contains(_("optionsof.txt")))
+		if (!cfgListCtrl->GetString(i).Contains("options.txt") &&
+			!cfgListCtrl->GetString(i).Contains("optionsof.txt"))
 				cfgListCtrl->Check(i, true);
 	}
 	configPageSz->Add(cfgListCtrl, wxGBPosition(1, 0), wxGBSpan(1, 1), wxALIGN_CENTER | wxALL | wxEXPAND, 4);
@@ -92,7 +92,7 @@ wxString ExportInstWizard::GetPackNotes()
 
 void ExportInstWizard::GetIncludedConfigs(wxArrayString *out)
 {
-	for (int i = 0; i < cfgListCtrl->GetCount(); i++)
+	for (unsigned i = 0; i < cfgListCtrl->GetCount(); i++)
 	{
 		if (cfgListCtrl->IsChecked(i))
 		{

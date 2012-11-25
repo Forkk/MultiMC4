@@ -22,6 +22,8 @@
 #include <wx/wfstream.h>
 #include <wx/msgdlg.h>
 #include <wx/clipbrd.h>
+#include <wx/persist.h>
+#include <wx/regex.h>
 
 #include <gui/mainwindow.h>
 
@@ -36,22 +38,20 @@
 
 #include "multimc.h"
 #include "resources/consoleicon.h"
-#include "apputils.h"
-#include "osutils.h"
+#include "utils/apputils.h"
+#include "utils/osutils.h"
 #include "version.h"
 #include "buildtag.h"
+#include "mcprocess.h"
 
 InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin, bool quitAppOnClose)
-	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250)),
-	  stdoutListener(inst, this, InstConsoleListener::LISTENER_STDOUT), 
-	  stderrListener(inst, this, InstConsoleListener::LISTENER_STDERR)
+	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250))
 {
 	m_quitAppOnClose = quitAppOnClose;
-	instListenerStarted = false;
-	killedInst = false;
 	m_mainWin = mainWin;
+	m_running = nullptr;
 	m_inst = inst;
-	inst->SetEvtHandler(this);
+	crashReportIsOpen = false;
 	
 	wxPanel *mainPanel = new wxPanel(this, -1);
 	wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
@@ -72,11 +72,13 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin, bool qui
 
 	btnBox->AddStretchSpacer();
 	
+	killButton = new wxButton(mainPanel, wxID_DELETE, _("&Kill Minecraft"));
+	btnBox->Add(killButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
 	closeButton = new wxButton(mainPanel, wxID_CLOSE, _("&Close"));
 	btnBox->Add(closeButton, wxSizerFlags(0).Align(wxALIGN_RIGHT));
-	
-	// disable close button and the X button provided by the window manager
-	AllowClose(false);
+
+	// close is close at this point. there is no linked process yet.
+	SetCloseIsHide(false);
 	
 	consoleIcons = new wxIconArray();
 	wxMemoryInputStream iconInput1(console, sizeof(console));
@@ -96,26 +98,17 @@ InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin, bool qui
 	// Create the task bar icon.
 	trayIcon = new ConsoleIcon(this);
 	SetState(STATE_OK);
-	
-	inst->GetInstProcess()->SetNextHandler(this);
-
-	AppendMessage(wxString::Format(_("Instance started with command: %s\n"), 
-		inst->GetLastLaunchCommand().c_str()));
-	
-	stdoutListener.Create();
-	stderrListener.Create();
-	
 	CenterOnScreen();
 }
 
-InstConsoleWindow::~InstConsoleWindow()
-{
-	stdoutListener.Delete();
-	stderrListener.Delete();
-}
+InstConsoleWindow::~InstConsoleWindow() {}
 
 void InstConsoleWindow::AppendMessage(const wxString& msg, MessageType msgT)
 {
+	// Prevent some red spam
+	if (msg.Contains("[STDOUT]") || msg.Contains("[ForgeModLoader]"))
+		msgT = MSGT_STDOUT;
+
 	switch (msgT)
 	{
 	case MSGT_SYSTEM:
@@ -134,222 +127,131 @@ void InstConsoleWindow::AppendMessage(const wxString& msg, MessageType msgT)
 		break;
 	}
 
-	(*consoleTextCtrl) << msg << _("\n");
+	(*consoleTextCtrl) << msg << "\n";
 
 	consoleTextCtrl->SetDefaultStyle(wxTextAttr(
 		wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT)));
 }
 
-void InstConsoleWindow::OnInstExit(wxProcessEvent& event)
+void InstConsoleWindow::OnProcessExit( bool killed, int status )
 {
-	AppendMessage(wxString::Format(_("Instance exited with code %i."), 
-		event.GetExitCode()));
+	m_timerIdleWakeUp.Stop();
+	//FIXME: what are the exact semantics of this?
+	if(killed)
+		delete m_running;
+	else
+		m_running->Detach();
+	m_running = nullptr;
+	SetCloseIsHide(false);
 	
-	AllowClose();
-	if (event.GetExitCode() != 0)
+	AppendMessage(wxString::Format(_("Minecraft exited with code %i."), status));
+
+	bool keepOpen = CheckCommonProblems(consoleTextCtrl->GetValue());
+
+	if (killed)
+	{
+		AppendMessage(_("Minecraft was killed."));
+		SetState(STATE_BAD);
+		Show();
+		Raise();
+	}
+	else if (status != 0)
 	{
 		AppendMessage(_("Minecraft has crashed!"));
 		SetState(STATE_BAD);
 		Show();
+		Raise();
 	}
-	else if (killedInst)
-	{
-		AppendMessage(_("Instance was killed."));
-		SetState(STATE_BAD);
-		Show();
-	}
-	else if (settings->GetAutoCloseConsole())
+	else if ((settings->GetAutoCloseConsole() || !IsShown() ) && !crashReportIsOpen && !keepOpen)
 	{
 		Close();
 	}
 	else
 	{
 		Show();
+		Raise();
 	}
 }
 
-void InstConsoleWindow::AllowClose(bool allow)
+void InstConsoleWindow::SetCloseIsHide ( bool isHide )
 {
-	if(allow)
+	closeIsHide = isHide;
+	killButton->Enable(isHide);
+	if(closeIsHide)
 	{
-		EnableCloseButton(true);
-		m_closeAllowed = true;
-		closeButton->Enable();
+		closeButton->SetLabel("&Hide");
 	}
 	else
 	{
-		EnableCloseButton(false);
-		m_closeAllowed = false;
-		closeButton->Enable(false);
+		closeButton->SetLabel("&Close");
 	}
 }
+
 
 void InstConsoleWindow::Close()
 {
+	if(crashReportIsOpen)
+		return;
+	
+	//FIXME: is this actually intended? This calls OnWindowClosed() via wxFrame
 	wxFrame::Close();
+}
+
+
+//NOTE: indirectly called by Close()
+void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
+{
+	if(closeIsHide && event.CanVeto())
+	{
+		event.Veto(true);
+		Show(false);
+		return;
+	}
+	auto & persist = wxPersistenceManager::Get();
+	if(persist.Find(this) != nullptr)
+	{
+		persist.SaveAndUnregister(this);
+	}
 	if (trayIcon->IsIconInstalled())
 		trayIcon->RemoveIcon();
-	m_mainWin->Show();
-}
-
-bool InstConsoleWindow::Show(bool show)
-{
-	bool retval = wxFrame::Show(show);
-	if (!instListenerStarted)
+	Destroy();
+	
+	if (m_quitAppOnClose)
 	{
-		instListenerStarted = true;
-		stdoutListener.Run();
-		stderrListener.Run();
+		m_mainWin->Destroy();
+		wxGetApp().ExitMainLoop();
 	}
-	return retval;
+	else
+	{
+		m_mainWin->Show();
+		m_mainWin->Raise();
+	}
 }
 
-bool InstConsoleWindow::Start()
-{
-	return Show(settings->GetShowConsole());
-}
-
-
-void InstConsoleWindow::OnCloseClicked(wxCommandEvent& event)
+void InstConsoleWindow::OnCloseButton ( wxCommandEvent& event )
 {
 	Close();
 }
 
-void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
-{
-	if (event.CanVeto() && !m_closeAllowed)
-	{
-		event.Veto();
-	}
-	else
-	{
-		if (trayIcon->IsIconInstalled())
-			trayIcon->RemoveIcon();
-		m_mainWin->Show();
-		Destroy();
-		if (m_quitAppOnClose)
-		{
-			m_mainWin->Destroy();
-			wxGetApp().ExitMainLoop();
-		}
-	}
-}
-
-InstConsoleWindow::InstConsoleListener::InstConsoleListener(Instance* inst, InstConsoleWindow *console, Type lType)
-	: wxThread(wxTHREAD_JOINABLE)
-{
-	m_inst = inst;
-	m_console = console;
-	m_lType = lType;
-	instProc = inst->GetInstProcess();
-}
-
-void* InstConsoleWindow::InstConsoleListener::Entry()
-{
-	if (!instProc->IsRedirected())
-	{
-		printf("Output not redirected!\n");
-		m_console->AppendMessage(_("Output not redirected!\n"));
-		return NULL;
-	}
-	
-	int instPid = instProc->GetPid();
-	
-	wxInputStream *consoleStream;
-	if (m_lType == LISTENER_STDERR)
-		consoleStream = instProc->GetErrorStream();
-	else
-		consoleStream = instProc->GetInputStream();
-
-	wxString outputBuffer;
-	
-	const size_t bufSize = 1024;
-	char *buffer = new char[bufSize];
-	
-	size_t readSize = 0;
-	while (m_inst->IsRunning() && !TestDestroy() && wxProcess::Exists(instPid))
-	{
-		if (TestDestroy())
-			break;
-		
-		// Read from input
-		wxString temp;
-		wxStringOutputStream tempStream(&temp);
-
-		if (!consoleStream->CanRead())
-		{
-			wxMilliSleep(100);
-			continue;
-		}
-
-		consoleStream->Read(buffer, bufSize);
-		readSize = consoleStream->LastRead();
-		
-		/*
-		 * readSize of 0 signifies that consoleStream reached EOF
-		 * This means it has been closed by minecraft.
-		 * Do not continue trying to read.
-		 */
-		if(readSize == 0)
-		{
-			InstOutputEvent event(m_inst, wxString::Format(_("Instance closed its output %d."), m_lType), true);
-			m_console->AddPendingEvent(event);
-			break;
-		}
-		
-		tempStream.Write(buffer, readSize);
-		outputBuffer.Append(temp);
-		
-		// Pass lines to the console
-		size_t newlinePos;
-		wxString lines;
-		while ((newlinePos = outputBuffer.First('\n')) != wxString::npos)
-		{
-			wxString line = outputBuffer.Left(newlinePos);
-			if (line.EndsWith(_("\n")) || line.EndsWith(_("\r")))
-				line = line.Left(line.size() - 1);
-			if (line.EndsWith(_("\r\n")))
-				line = line.Left(line.size() - 2);
-			outputBuffer = outputBuffer.Mid(newlinePos + 1);
-
-			if (lines != wxEmptyString)
-				lines = lines.Append(wxT("\n"));
-			lines = lines.Append(line);
-		}
-
-		InstOutputEvent event(m_inst, lines, m_lType == LISTENER_STDERR);
-		m_console->AddPendingEvent(event);
-	}
-
-	return NULL;
-}
-
-void InstConsoleWindow::OnInstOutput(InstOutputEvent& event)
-{
-	MessageType msgT = (event.m_stdErr ? MSGT_STDERR : MSGT_STDOUT);
-
-	if (msgT == MSGT_STDERR && (event.m_output.Contains(_("[STDOUT]")) || 
-		event.m_output.Contains(_("[ForgeModLoader]"))))
-		msgT = MSGT_STDOUT;
-
-	AppendMessage(event.m_output, msgT);
-}
 
 InstConsoleWindow::ConsoleIcon::ConsoleIcon(InstConsoleWindow *console)
 {
 	m_console = console;
 }
 
-Instance *InstConsoleWindow::GetInstance()
+void InstConsoleWindow::ConsoleIcon::TaskBarLeft ( wxTaskBarIconEvent& e )
 {
-	return m_inst;
+	if(!m_console->IsShown() || m_console->IsIconized())
+	{
+		m_console->Show();
+		m_console->Raise();
+	}
+	else
+	{
+		m_console->Iconize();
+	}
 }
 
-void InstConsoleWindow::StopListening()
-{
-	stdoutListener.Pause();
-	stderrListener.Pause();
-}
 
 void InstConsoleWindow::SetState ( InstConsoleWindow::State newstate )
 {
@@ -380,162 +282,48 @@ wxMenu *InstConsoleWindow::ConsoleIcon::CreatePopupMenu()
 void InstConsoleWindow::ConsoleIcon::OnShowConsole(wxCommandEvent &event)
 {
 	m_console->Show(event.IsChecked());
+	if(event.IsChecked())
+		m_console->Raise();
 }
 
 void InstConsoleWindow::ConsoleIcon::OnKillMC(wxCommandEvent &event)
 {
+	m_console->OnKillMC(event);
+}
+
+void InstConsoleWindow::OnKillMC ( wxCommandEvent& event )
+{
+	if(m_running == nullptr)
+		return;
 	if (wxMessageBox(_("Killing Minecraft may damage saves. You should only do this if the game is frozen."),
-		_("Are you sure?"), wxOK | wxCANCEL | wxCENTER) == wxOK)
+		_("Are you sure?"), wxOK | wxCANCEL | wxCENTER, this) == wxOK)
 	{
-		m_console->KillMinecraft();
+		m_running->KillMinecraft();
 	}
 }
 
-void InstConsoleWindow::KillMinecraft(int tries)
+void InstConsoleWindow::OnProcessTimer(wxTimerEvent& WXUNUSED(event))
 {
-	wxProcess *instProc = GetInstance()->GetInstProcess();
-	
-	// if there is no instance process anymore, it's DEAD. ABORT!
-	if(!instProc)
-		return;
-	
-	int pid = instProc->GetPid();
-	if (pid == 0)
-		return;
+	wxWakeUpIdle();
+}
 
-	// Stop listening for output from the process
-	StopListening();
-
-#ifdef WIN32
-	// On Windows, use Win32's TerminateProcess()
-
-	// Get a handle to the process.
-	HANDLE pHandle = OpenProcess(PROCESS_TERMINATE | SYNCHRONIZE, true, pid);
-
-	if (pHandle == NULL)
+bool InstConsoleWindow::LinkProcess(MinecraftProcess *process)
+{
+	if (m_running==NULL)
 	{
-		// An error occurred.
-		DWORD error = GetLastError();
+		m_running = process;
+		m_timerIdleWakeUp.Start(100);
+		SetCloseIsHide(true);
+		return true;
+	}
+	return false;
+}
 
-		switch (error)
-		{
-		case ERROR_ACCESS_DENIED:
-			AppendMessage(wxString::Format(_("Failed to get process handle. Error 0x%08X: access denied."), error));
-			break;
-
-		default:
-			AppendMessage(wxString::Format(_("Unknown error 0x%08X occurred when getting process handle."), error));
-			break;
-		}
-
+void InstConsoleWindow::OnIdle(wxIdleEvent& event)
+{
+	if (m_running==NULL)
 		return;
-	}
-
-	// Terminate the process.
-	if (!TerminateProcess(pHandle, 0))
-	{
-		// An error occurred.
-		DWORD error = GetLastError();
-
-		switch (error)
-		{
-		case ERROR_ACCESS_DENIED:
-			AppendMessage(wxString::Format(_("Failed terminate process. Error 0x%08X: access denied."), error));
-			break;
-
-		default:
-			AppendMessage(wxString::Format(_("Unknown error 0x%08X occurred when terminating the process."), error));
-			break;
-		}
-
-		return;
-	}
-
-	// Wait for the process to actually exit. If it hasn't exited after 3 seconds, display an error message.
-	for (int i = 0; i < 60; i++)
-	{
-		wxSafeYield(nullptr, true);
-
-		DWORD waitResult = WaitForSingleObject(pHandle, 50);
-
-		// The process exited successfully.
-		if (waitResult == WAIT_OBJECT_0)
-		{
-			break;
-		}
-		else if (waitResult == WAIT_FAILED)
-		{
-			DWORD error = GetLastError();
-			AppendMessage(wxString::Format(_("Unknown error 0x%08X occurred when waiting for process to exit."), error));
-			CloseHandle(pHandle);
-			return;
-		}
-	}
-
-	// Close the handle.
-	CloseHandle(pHandle);
-
-#else
-	// On other OSes, use wxProcess::Kill()
-	wxKillError error = wxProcess::Kill(pid, wxSIGTERM);
-	if (error != wxKILL_OK)
-	{
-		wxString errorName;
-		switch (error)
-		{
-		case wxKILL_ACCESS_DENIED:
-			errorName = _("wxKILL_ACCESS_DENIED");
-			break;
-
-		case wxKILL_BAD_SIGNAL:
-			errorName = _("wxKILL_BAD_SIGNAL");
-			break;
-
-		case wxKILL_ERROR:
-			errorName = _("wxKILL_ERROR");
-
-			// Wait to see if the process kills.
-			for (int i = 0; i < 20; i++)
-			{
-				wxSafeYield(nullptr, true);
-				wxMilliSleep(100);
-
-				if (!wxProcess::Exists(pid))
-				{
-					goto KillSuccess;
-					break;
-				}
-			}
-
-			if (tries == 0)
-			{
-				// Try again
-				AppendMessage(_("Failed to kill the process. Trying again..."));
-				KillMinecraft(1);
-				return;
-			}
-			break;
-
-		case wxKILL_NO_PROCESS:
-			errorName = _("wxKILL_NO_PROCESS");
-			break;
-
-		default:
-			errorName = _("Unknown error.");
-		}
-
-		AppendMessage(wxString::Format(
-			_("Error %i (%s) when killing process %i!"), error, errorName.c_str(), 
-			GetInstance()->GetInstProcess()->GetPid()));
-		return;
-	}
-
-KillSuccess:
-#endif
-	AppendMessage(wxString::Format(_("Killed Minecraft (pid: %i)"), pid));
-	killedInst = true;
-	//wxProcessEvent fakeEvent(0, pid, -1);
-	//OnInstExit(fakeEvent);
+	m_running->ProcessInput();
 }
 
 void InstConsoleWindow::SetUserInfo(wxString username, wxString sessID)
@@ -641,16 +429,6 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 {
 	wxString crashReportString = GetCrashReport();
 
-	//wxMessageDialog msgDlg(this, _("A crash report has been generated. "
-	//	"What would you like to do with it?"), _("Crash Report"), 
-	//	wxYES | wxNO | wxCANCEL | wxCENTER);
-
-	//// This is kinda hacky, but meh.
-	//// wxID_YES corresponds to "Send to Pastebin", 
-	//// wxID_NO corresponds to "Save to File",
-	//// wxID_CANCEL corresponds to "Cancel"
-	//msgDlg.SetYesNoCancelLabels(_("Send to Pastebin"), _("Save to File"), wxID_CANCEL);
-
 	const int id_pastebin = 1;
 	const int id_file = 2;
 	const int id_clipboard = 3;
@@ -665,7 +443,10 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 		"What would you like to do with it?"), btns, _("Crash Report"));
 
 
+	crashReportIsOpen = true;
+	msgDlg.CenterOnParent();
 	int response = msgDlg.ShowModal();
+	crashReportIsOpen = false;
 	if (response == id_pastebin) // Pastebin
 	{
 		PastebinTask *task = new PastebinTask(crashReportString);
@@ -684,7 +465,7 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 		}
 		delete task;
 	}
-	else if (response == id_pastebin) // Save to file
+	else if (response == id_file) // Save to file
 	{
 		wxFileDialog saveReportDlg(this, _("Save Crash Report"), wxGetCwd(), 
 			wxDateTime::Now().Format("MultiMC_Report_%m-%d-%Y_%H-%M-%S.txt"), 
@@ -706,17 +487,58 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 	}
 }
 
+bool InstConsoleWindow::CheckCommonProblems(const wxString& output)
+{
+	wxRegEx idConflictRegex("([0-9]+) is already occupied by ([A-Za-z0-9.]+)@[A-Za-z0-9]+ when adding ([A-Za-z0-9.]+)@[A-Za-z0-9]+");
+
+	if (!idConflictRegex.IsValid())
+	{
+		wxLogError(_("ID conflict regex is invalid!"));
+		return false;
+	}
+
+	if (idConflictRegex.Matches(output))
+	{
+		// We have an ID conflict.
+		wxArrayString values;
+
+		for (unsigned i = 0; i < idConflictRegex.GetMatchCount(); i++)
+		{
+			values.Add(idConflictRegex.GetMatch(output, i));
+		}
+
+		if (values.Count() < 4)
+		{
+			// Something's wrong here...
+			wxLogError(_("Not enough values matched ID conflict regex!"));
+			return false;
+		}
+
+		// Alert the user.
+		AppendMessage(wxString::Format(
+			_("MultiMC found a block or item ID conflict. %s and %s are both using the same block ID (%s)."), 
+			values[2].c_str(), values[3].c_str(), values[1].c_str()), MSGT_SYSTEM);
+		return true;
+	}
+
+	// No common problems found.
+	return false;
+}
+
 
 BEGIN_EVENT_TABLE(InstConsoleWindow, wxFrame)
-	EVT_END_PROCESS(-1, InstConsoleWindow::OnInstExit)
-	EVT_BUTTON(wxID_CLOSE, InstConsoleWindow::OnCloseClicked)
+	EVT_BUTTON(wxID_CLOSE, InstConsoleWindow::OnCloseButton)
+	EVT_BUTTON(wxID_CANCEL, InstConsoleWindow::OnKillMC)
 	EVT_CLOSE( InstConsoleWindow::OnWindowClosed )
-	EVT_INST_OUTPUT(InstConsoleWindow::OnInstOutput)
-
+	EVT_IDLE(InstConsoleWindow::OnIdle)
+	EVT_TIMER(wakeupidle, InstConsoleWindow::OnProcessTimer)
+	
 	EVT_BUTTON(ID_GENREPORT, InstConsoleWindow::OnGenReportClicked)
 END_EVENT_TABLE()
 
 BEGIN_EVENT_TABLE(InstConsoleWindow::ConsoleIcon, wxTaskBarIcon)
 	EVT_MENU(ID_SHOW_CONSOLE, InstConsoleWindow::ConsoleIcon::OnShowConsole)
 	EVT_MENU(ID_KILL_MC, InstConsoleWindow::ConsoleIcon::OnKillMC)
+	EVT_TASKBAR_LEFT_DOWN(InstConsoleWindow::ConsoleIcon::TaskBarLeft)
+	
 END_EVENT_TABLE()
