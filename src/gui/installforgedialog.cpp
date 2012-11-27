@@ -41,11 +41,13 @@ bool InstallForgeDialog::DoLoadList()
 {
 	wxString dlURL = "http://files.minecraftforge.net";
 
+	items.clear();
+	
 	wxString buildListText;
 	if (DownloadString(dlURL, &buildListText))
 	{
 		wxRegEx forgeRegex;
-		if (!forgeRegex.Compile("minecraftforge-(universal|client)-([0-9]+.[0-9]+.[0-9]+.[0-9]+).zip"))
+		if (!forgeRegex.Compile("minecraftforge-(universal|client)-([0-9]+\\.[0-9]+\\.[0-9]+)?-?([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+).zip"))
 		{
 			wxLogError("Regex failed to compile.");
 			return false;
@@ -54,14 +56,28 @@ bool InstallForgeDialog::DoLoadList()
 		while (forgeRegex.Matches(buildListText))
 		{
 			size_t start, len;
-			forgeRegex.GetMatch(&start, &len);
-
-			wxString fileName = buildListText.Mid(start, len);
-			if (sList.IsEmpty() || sList.Last() != fileName)
+			int count = forgeRegex.GetMatchCount();
+			wxString fileName, MCVersion, forgeVersion;
+			for(std::size_t i = 0; i < count; i++)
 			{
-				sList.push_back(fileName);
+				forgeRegex.GetMatch(&start, &len, i);
+				wxString str = buildListText.Mid(start, len);
+				if(i == 0)
+					fileName = str;
+				if(i == 2)
+					MCVersion = str;
+				if(i == 3)
+					forgeVersion = str;
 			}
-
+			
+			if(items.empty() || items.back().Filename != fileName)
+			{
+				if(MCVersion.empty())
+				{
+					MCVersion = forgeutils::MCVersionFromForgeVersion(forgeVersion);
+				}
+				items.push_back(ForgeVersionItem(fileName, MCVersion, forgeVersion));
+			}
 			forgeRegex.ReplaceFirst(&buildListText, wxEmptyString);
 		}
 	}
@@ -74,14 +90,20 @@ bool InstallForgeDialog::DoLoadList()
 	return true;
 }
 
+void InstallForgeDialog::UpdateListCount()
+{
+	listCtrl->SetItemCount(items.size());
+}
+
+
 wxString InstallForgeDialog::OnGetItemText(long item, long column)
 {
 	switch (column)
 	{
 	case 1:
-		return forgeutils::MCVersionFromForgeFilename(sList[item]);
+		return items[item].MCVersion;
 
 	default:
-		return ListSelectDialog::OnGetItemText(item, column);
+		return items[item].Filename;
 	}
 }

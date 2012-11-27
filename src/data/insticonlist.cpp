@@ -225,16 +225,28 @@ int InstIconList::GetCount() const
 
 wxImage& InstIconList::getImageForKey(wxString key)
 {
+	if(!iconMap.count(key))
+	{
+		return iconMap["default"].m_image;
+	}
 	return iconMap[key].m_image;
 }
 
 wxImage& InstIconList::getHLImageForKey(wxString key)
 {
+	if(!iconMap.count(key))
+	{
+		return iconMap["default"].m_hlImage;
+	}
 	return iconMap[key].m_hlImage;
 }
 
 wxString& InstIconList::getFileNameForKey(wxString key)
 {
+	if(!iconMap.count(key))
+	{
+		return iconMap["default"].m_fileName;
+	}
 	return iconMap[key].m_fileName;
 }
 
