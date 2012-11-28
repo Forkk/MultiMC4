@@ -354,12 +354,14 @@ void Instance::SetNeedsRebuild(bool value)
 	SetSetting<bool>("NeedsRebuild", value);
 }
 
-bool Instance::HasBinaries()
+bool Instance::HasMCJar()
 {
-	bool isOK = true;
-	isOK &= GetMCJar().FileExists();
-	// FIXME: add more here, as needed
-	return isOK;
+	return GetMCJar().FileExists();
+}
+
+bool Instance::HasMCBackup()
+{
+	return GetMCBackup().FileExists();
 }
 
 ModList *Instance::GetModList()

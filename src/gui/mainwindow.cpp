@@ -49,6 +49,7 @@
 #include "ftbselectdialog.h"
 
 #include "instancectrl.h"
+#include "newinstancedlg.h"
 
 #include <wx/filesys.h>
 #include <wx/dir.h>
@@ -200,7 +201,7 @@ MainWindow::MainWindow(void)
 	
 	// Create the status bar
 	auto sbar = CreateStatusBar(1);
-	sbar->SetFieldsCount(2);
+	sbar->SetFieldsCount(3);
 	SetStatusBarPane(0);
 	
 	// Set up the main panel and sizers
@@ -439,7 +440,8 @@ void MainWindow::OnInstSelected(InstanceCtrlEvent &event)
 		SaveNotesBox(false);
 	auto currentInstance = instItems.GetSelectedInstance();
 	SetStatusText(wxT("Minecraft Version: ") + currentInstance->GetJarVersion());
-	SetStatusText(wxT("Instance ID: ") + currentInstance->GetInstID(), 1);
+	SetStatusText(wxT("Intended Version: ") + currentInstance->GetIntendedJarVersion(),1);
+	SetStatusText(wxT("Instance ID: ") + currentInstance->GetInstID(), 2);
 
 	if(GetGUIMode() == GUI_Fancy)
 		UpdateInstPanel();
@@ -539,22 +541,14 @@ Retry:
 		goto Retry;
 	}
 
-	int num = 0;
-	wxString dirName = Utils::RemoveInvalidPathChars(newInstName, '-', false);
-	while (wxDirExists(Path::Combine(settings->GetInstDir(), dirName)))
+	wxString dirName;
+	if(!fsutils::GetValidInstanceFolderName(newInstName, dirName))
 	{
-		num++;
-		dirName = Utils::RemoveInvalidPathChars(newInstName, '-', false) + wxString::Format("_%i", num);
-
-		// If it's over 9000
-		if (num > 9000)
-		{
-			wxLogError(_("Couldn't create instance folder: %s"),
-				Path::Combine(settings->GetInstDir(), dirName).c_str());
-			goto Retry;
-		}
+		wxLogError(_("Couldn't create instance folder: %s"),
+			Path::Combine(settings->GetInstDir(), dirName).c_str());
+		goto Retry;
 	}
-
+	
 	*instName = newInstName;
 	*instDirName = dirName;
 	return true;
@@ -582,9 +576,14 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 {
 	wxString instName;
 	wxString instDirName;
-	if (!GetNewInstName(&instName, &instDirName))
+	NewInstanceDialog dlg(this);
+	if (dlg.ShowModal() != wxID_OK)
 		return;
 
+	instName = dlg.GetInstanceName();
+	if(!fsutils::GetValidInstanceFolderName(instName, instDirName))
+		return;
+	
 	wxString instDir = Path::Combine(settings->GetInstDir(), instDirName);
 	
 	Instance *inst = new StdInstance(instDir);
@@ -603,6 +602,7 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 	}
 	inst->SetName(instName);
 	AddInstance(inst);
+	inst->SetIntendedJarVersion(dlg.GetInstanceMCVersion());
 }
 
 void MainWindow::OnImportMCFolder(wxCommandEvent& event)
@@ -950,7 +950,7 @@ void MainWindow::ShowLoginDlg(wxString errorMsg)
 		lastLogin.LoadFromFile("lastlogin4");
 	}
 
-	bool canPlayOffline = currentInstance->HasBinaries();
+	bool canPlayOffline = currentInstance->HasMCJar() || currentInstance->HasMCBackup();
 	LoginDialog loginDialog(this, errorMsg, lastLogin, canPlayOffline);
 	loginDialog.CenterOnParent();
 	int response = loginDialog.ShowModal();

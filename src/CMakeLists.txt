@@ -122,6 +122,7 @@ gui/downgradedialog.cpp
 gui/instancectrl.cpp
 gui/aboutdlg.cpp
 gui/updatepromptdlg.cpp
+gui/newinstancedlg.cpp
 gui/taskprogressdialog.cpp
 gui/snapshotdialog.cpp
 gui/installforgedialog.cpp
@@ -193,6 +194,7 @@ gui/downgradedialog.h
 gui/instancectrl.h
 gui/aboutdlg.h
 gui/updatepromptdlg.h
+gui/newinstancedlg.h
 gui/taskprogressdialog.h
 gui/snapshotdialog.h
 gui/installforgedialog.h

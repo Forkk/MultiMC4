@@ -108,7 +108,8 @@ public:
 
 	virtual Type GetType() const = 0;
 	
-	bool HasBinaries();
+	bool HasMCJar();
+	bool HasMCBackup();
 	
 	ModList *GetModList();
 	ModList *GetMLModList();
@@ -159,6 +160,9 @@ public:
 	wxString GetJarVersion() const { return GetSetting<wxString>("JarVersion","Unknown"); };
 	void SetJarVersion( wxString value ) {  SetSetting<wxString>("JarVersion", value); };
 
+	wxString GetIntendedJarVersion() const { return GetSetting<wxString>("IntendedJarVersion",GetJarVersion()); };
+	void SetIntendedJarVersion( wxString value ) {  SetSetting<wxString>("IntendedJarVersion", value); };
+	
 	uint64_t GetLastLaunch() const
 	{
 		// no 64bit type support in wxConfig. This code is very 'meh', but works
