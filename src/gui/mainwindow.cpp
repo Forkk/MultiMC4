@@ -117,7 +117,7 @@ MainWindow::MainWindow(void)
 	instNameLabel = nullptr;
 	instNameEditor = nullptr;
 	//SetMinSize(minSize);
-	
+
 	SetIcons(wxGetApp().GetAppIcons());
 	
 	wxToolBar *mainToolBar = CreateToolBar(/*wxTB_HORIZONTAL| wxTB_NO_TOOLTIPS*/);
@@ -809,11 +809,10 @@ void MainWindow::DownloadInstallUpdates(const wxString &downloadURL, bool instal
 	wxString updaterFileName = "MultiMCUpdate";
 #endif
 
-	auto dlTask = new FileDownloadTask(downloadURL, wxFileName(updaterFileName), _("Downloading updates..."));
-
 	if (installNow)
 	{
-		// Download and install in the foreground.
+		// Download and install.
+		auto dlTask = new FileDownloadTask(downloadURL, wxFileName(updaterFileName), _("Downloading updates..."));
 		StartTask(dlTask);
 		delete dlTask;
 		wxGetApp().exitAction = MultiMC::EXIT_UPDATE_RESTART;
@@ -821,10 +820,8 @@ void MainWindow::DownloadInstallUpdates(const wxString &downloadURL, bool instal
 	}
 	else
 	{
-		// Download in the background and install on exit.
-		// FIXME: If MultiMC closes before the download finishes, the update will not install.
-		dlTask->Start(this, false);
-		wxGetApp().exitAction = MultiMC::EXIT_UPDATE;
+		// Download and install on exit.
+		wxGetApp().updateLaterURL = downloadURL;
 	}
 }
 
