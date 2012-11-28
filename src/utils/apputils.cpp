@@ -225,6 +225,7 @@ wxString FindJavaPath(const wxString& def)
 #include <objbase.h>
 #include <objidl.h>
 #include <shlguid.h>
+#include <shlobj.h>
 
 bool called_coinit = false;
 
@@ -270,6 +271,14 @@ HRESULT CreateLink(LPCSTR linkPath, LPCWSTR targetPath, LPCWSTR args)
 	return hres;
 }
 
+wxString Path::GetDesktopDir()
+{
+	TCHAR buf[MAX_PATH + 1];
+	SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_DEFAULT, buf);
+	wxString dir(buf);
+	return dir;
+}
+
 bool CreateShortcut(wxString path, wxString dest, wxString args)
 {
 	wxFileName pathFileName(path);
@@ -284,6 +293,16 @@ bool CreateShortcut(wxString path, wxString dest, wxString args)
 {
 	wxMessageBox(_("This feature is only supported on Windows."), _("Not Supported"));
 	return false;
+}
+
+wxString Path::GetDesktopDir()
+{
+	wxString homeDir;
+
+	if (wxGetEnv("HOME", &homeDir))
+		return Path::Combine(homeDir, "Desktop");
+	else
+		return wxEmptyString;
 }
 
 #endif

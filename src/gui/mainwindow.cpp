@@ -1127,13 +1127,7 @@ void MainWindow::OnMakeDesktopLinkClicked(wxCommandEvent& event)
 
 #if WINDOWS
 	// Find the Desktop folder.
-	wxString desktopDir;
-	if (!wxGetEnv("USERPROFILE", &desktopDir))
-	{
-		wxLogError(_("Can't create desktop shortcut. Failed to find home folder."));
-		return;
-	}
-	desktopDir = Path::Combine(desktopDir, "Desktop");
+	wxString desktopDir = Path::GetDesktopDir();
 
 	wxString shortcutName;
 AskAgain:
