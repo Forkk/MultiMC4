@@ -82,7 +82,8 @@ wxThread::ExitCode FileDownloadTask::TaskStart()
 		}
 
 		wxString sDownloadSize = wxString::Format(wxT("%.0f"), (float)(downloadSize / 1000));
-		SetStatus(wxString::Format(_("Downloading...\n(%skB/%skB)"), sDownloadedSize.c_str(), sDownloadSize.c_str()));
+		SetStatus(wxString::Format(_("%s (%skB/%skB)"), 
+			m_message.c_str(), sDownloadedSize.c_str(), sDownloadSize.c_str()));
 		return outStream.LastWrite();
 	};
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curlWrite);
