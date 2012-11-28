@@ -299,7 +299,10 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_ChangeIcon, _("&Change Icon"), _("Change this instance's icon."));
 	instMenu->Append(ID_EditNotes, _("&Notes"), _("View / edit this instance's notes."));
 	instMenu->Append(ID_Configure, _("&Settings"), _("Change instance settings."));
+#if WINDOWS
+	// Only works on Windows.
 	instMenu->Append(ID_MakeDesktopLink, _("Make Desktop Shortcut"), _("Makes a shortcut on the desktop to launch this instance."));
+#endif
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_ManageSaves, _("&Manage Saves"), _("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _("&Edit Mods"), _("Install or remove mods."));
@@ -1143,13 +1146,7 @@ void MainWindow::OnMakeDesktopLinkClicked(wxCommandEvent& event)
 
 #if WINDOWS
 	// Find the Desktop folder.
-	wxString desktopDir;
-	if (!wxGetEnv("USERPROFILE", &desktopDir))
-	{
-		wxLogError(_("Can't create desktop shortcut. Failed to find home folder."));
-		return;
-	}
-	desktopDir = Path::Combine(desktopDir, "Desktop");
+	wxString desktopDir = Path::GetDesktopDir();
 
 	wxString shortcutName;
 AskAgain:
