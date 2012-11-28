@@ -1544,13 +1544,13 @@ int MainWindow::StartTask ( Task* task )
 
 void MainWindow::OnWindowClosed(wxCloseEvent& event)
 {
-	wxPersistenceManager::Get().SaveAndUnregister(this);
 	if(instNotesEditor)
 	{
 		// Save instance notes on exit.
 		SaveNotesBox(true);
 	}
-	wxTheApp->Exit();
+
+	Destroy();
 }
 
 void MainWindow::BuildConfPack(Instance *inst, const wxString &packName, 
