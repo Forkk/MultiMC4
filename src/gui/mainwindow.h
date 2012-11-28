@@ -18,6 +18,8 @@
 #include <wx/wx.h>
 #include <wx/gbsizer.h>
 
+#include <queue>
+#include <functional>
 #include <map>
 
 #include "task.h"
@@ -106,6 +108,64 @@ public:
 		TASK_BACKGROUND,
 		TASK_MODAL
 	};
+
+
+	// States
+	// These specify what MultiMC is currently doing.
+	enum GUIState
+	{
+		// Indicates that the GUI is currently idle. This allows things such
+		// as the update dialog and other notifications to pop up.
+		STATE_IDLE,
+
+		// Indicates that the GUI is busy with something unspecified.
+		STATE_BUSY,
+
+		// Indicates that an instance is running. In most cases, this should
+		// be treated the same as STATE_BUSY.
+		STATE_INST_RUNNING,
+	};
+
+	GUIState GetGUIState() const;
+	void SetGUIState(GUIState state);
+
+	// Defines a function that should be called when the GUI becomes idle.
+	typedef std::function<void (void)> DeferredEventFunc;
+
+	// Calls the given function when the GUI is idle.
+	// If the GUI is currently idle, the function is called immediately. 
+	// Otherwise, the function is added to the idle event queue and processed 
+	// next time the GUI's state is changed to idle.
+	void CallWhenIdle(DeferredEventFunc func);
+
+	// Helper class that sets the GUI to a given state until it gets 
+	// deleted (similarly to wxMutexLocker).
+	struct StateLocker
+	{
+		StateLocker(MainWindow* parent, GUIState state)
+		{
+			m_revertState = true;
+			m_parent = parent;
+			m_parent->SetGUIState(state);
+		}
+
+		~StateLocker()
+		{
+			if (m_revertState)
+				m_parent->SetGUIState(STATE_IDLE);
+		}
+
+		MainWindow* m_parent;
+
+		// If false, doesn't revert the state when the locker is deleted.
+		// For example, if an instance launches successfully, this is
+		// set to false so the state stays as STATE_INST_RUNNING. If it doesn't
+		// launch successfully, this remains set to true, and the state changes
+		// back when the object is deleted.
+		bool m_revertState;
+	};
+
+
 	// Other functions
 
 	int StartTask(Task *task);
@@ -129,6 +189,9 @@ public:
 	
 	void OnNewInstance(wxCommandEvent& event);
 	void OnImportMCFolder(wxCommandEvent& event);
+	
+	// Called when the console closes. Reopens the main window and sets state back to idle.
+	void ReturnToMainWindow();
 
 	wxString launchInstance;
 	
@@ -139,6 +202,25 @@ protected:
 	wxMenu *groupMenu;
 	
 	GUIMode m_guiMode;
+
+	// GUI state stuff
+	
+	// Stores the current GUI state. Do *not* use this to check the GUI 
+	// state! Use GetGUIState() instead.
+	GUIState m_guiState;
+
+	// Queue that holds all of the functions that are to be called when the 
+	// GUI's state is changed to idle.
+	std::queue<DeferredEventFunc> m_idleQueue;
+
+	// Called when the GUI's state changes to idle. Calls all of the 
+	// functions in the queue. Stops if the state is no longer idle after
+	// one of the functions is called.
+	void CallIdleFunctions();
+
+	// Calls the next idle function in the queue and then removes it.
+	void ProcessNextIdleFunction();
+
 
 	Instance* GetLinkedInst(int id);
 
