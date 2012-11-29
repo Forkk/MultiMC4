@@ -117,7 +117,7 @@ MainWindow::MainWindow(void)
 	instNameLabel = nullptr;
 	instNameEditor = nullptr;
 	//SetMinSize(minSize);
-	
+
 	SetIcons(wxGetApp().GetAppIcons());
 	
 	wxToolBar *mainToolBar = CreateToolBar(/*wxTB_HORIZONTAL| wxTB_NO_TOOLTIPS*/);
@@ -298,7 +298,10 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_ChangeIcon, _("&Change Icon"), _("Change this instance's icon."));
 	instMenu->Append(ID_EditNotes, _("&Notes"), _("View / edit this instance's notes."));
 	instMenu->Append(ID_Configure, _("&Settings"), _("Change instance settings."));
+#if WINDOWS
+	// Only works on Windows.
 	instMenu->Append(ID_MakeDesktopLink, _("Make Desktop Shortcut"), _("Makes a shortcut on the desktop to launch this instance."));
+#endif
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_ManageSaves, _("&Manage Saves"), _("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _("&Edit Mods"), _("Install or remove mods."));
@@ -806,11 +809,10 @@ void MainWindow::DownloadInstallUpdates(const wxString &downloadURL, bool instal
 	wxString updaterFileName = "MultiMCUpdate";
 #endif
 
-	auto dlTask = new FileDownloadTask(downloadURL, wxFileName(updaterFileName), _("Downloading updates..."));
-
 	if (installNow)
 	{
-		// Download and install in the foreground.
+		// Download and install.
+		auto dlTask = new FileDownloadTask(downloadURL, wxFileName(updaterFileName), _("Downloading updates..."));
 		StartTask(dlTask);
 		delete dlTask;
 		wxGetApp().exitAction = MultiMC::EXIT_UPDATE_RESTART;
@@ -818,10 +820,8 @@ void MainWindow::DownloadInstallUpdates(const wxString &downloadURL, bool instal
 	}
 	else
 	{
-		// Download in the background and install on exit.
-		// FIXME: If MultiMC closes before the download finishes, the update will not install.
-		dlTask->Start(this, false);
-		wxGetApp().exitAction = MultiMC::EXIT_UPDATE;
+		// Download and install on exit.
+		wxGetApp().updateLaterURL = downloadURL;
 	}
 }
 
@@ -1124,13 +1124,7 @@ void MainWindow::OnMakeDesktopLinkClicked(wxCommandEvent& event)
 
 #if WINDOWS
 	// Find the Desktop folder.
-	wxString desktopDir;
-	if (!wxGetEnv("USERPROFILE", &desktopDir))
-	{
-		wxLogError(_("Can't create desktop shortcut. Failed to find home folder."));
-		return;
-	}
-	desktopDir = Path::Combine(desktopDir, "Desktop");
+	wxString desktopDir = Path::GetDesktopDir();
 
 	wxString shortcutName;
 AskAgain:
@@ -1544,13 +1538,13 @@ int MainWindow::StartTask ( Task* task )
 
 void MainWindow::OnWindowClosed(wxCloseEvent& event)
 {
-	wxPersistenceManager::Get().SaveAndUnregister(this);
 	if(instNotesEditor)
 	{
 		// Save instance notes on exit.
 		SaveNotesBox(true);
 	}
-	wxTheApp->Exit();
+
+	Destroy();
 }
 
 void MainWindow::BuildConfPack(Instance *inst, const wxString &packName, 

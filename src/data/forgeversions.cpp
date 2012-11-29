@@ -38,13 +38,14 @@ struct initme
 	bool valid;
 } versions;
 
-wxString forgeutils::MCVersionFromForgeFilename ( wxString filename )
+wxString forgeutils::MCVersionFromForgeVersion ( wxString forgeVersion )
 {
-	if(versions.valid && versions.forgeRegex.Matches(filename))
+	if(versions.valid && versions.forgeRegex.Matches(forgeVersion))
 	{
-		wxString version = versions.forgeRegex.GetMatch(filename,0);
+		wxString version = versions.forgeRegex.GetMatch(forgeVersion,0);
 		// Really, a vector would suffice... but ... whatever.
 		// I like the smell of abused red-black trees in the morning :P
+		
 		for(auto iter = versions.bm.begin(); iter != versions.bm.end(); iter++)
 		{
 			if(version.Matches((*iter).first))

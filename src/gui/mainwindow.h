@@ -204,7 +204,7 @@ protected:
 	ModList centralModList;
 
 	InstanceGroup *lastClickedGroup;
-	
+
 private:
 	void NotImplemented();
 };

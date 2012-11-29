@@ -58,6 +58,8 @@ public:
 	wxFileName providedDir;
 
 	LocaleHelper localeHelper;
+
+	wxString updateLaterURL;
 protected:
 	wxLocale* m_locale;
 

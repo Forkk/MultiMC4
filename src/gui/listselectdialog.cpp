@@ -82,12 +82,18 @@ void ListSelectDialog::LoadList()
 	taskDlg.ShowModal(lTask);
 	delete lTask;
 
-	listCtrl->SetItemCount(sList.GetCount());
+	UpdateListCount();
 	listCtrl->Refresh();
 	listCtrl->Update();
 
 	UpdateOKBtn();
 }
+
+void ListSelectDialog::UpdateListCount()
+{
+	listCtrl->SetItemCount(sList.GetCount());
+}
+
 
 void ListSelectDialog::OnRefreshListClicked(wxCommandEvent& event)
 {

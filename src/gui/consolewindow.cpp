@@ -207,19 +207,13 @@ void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
 		Show(false);
 		return;
 	}
-	auto & persist = wxPersistenceManager::Get();
-	if(persist.Find(this) != nullptr)
-	{
-		persist.SaveAndUnregister(this);
-	}
 	if (trayIcon->IsIconInstalled())
 		trayIcon->RemoveIcon();
 	Destroy();
 	
 	if (m_quitAppOnClose)
 	{
-		m_mainWin->Destroy();
-		wxGetApp().ExitMainLoop();
+		m_mainWin->Close();
 	}
 	else
 	{
