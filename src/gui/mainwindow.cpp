@@ -93,6 +93,7 @@ MainWindow::MainWindow(void)
 		centralModList(settings->GetModsDir().GetFullPath())
 {
 	// initialize variables to sane values
+	m_guiState = STATE_IDLE;
 	renamingInst = false;
 	instActionsEnabled = true;
 	instMenu = nullptr;
@@ -782,23 +783,33 @@ void MainWindow::OnCheckUpdateClicked(wxCommandEvent& event)
 
 void MainWindow::OnCheckUpdateComplete(CheckUpdateEvent &event)
 {
-	if (event.m_latestBuildNumber != AppVersion.GetBuild())
-	{
-		wxString updateMsg = wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
-			event.m_latestBuildNumber);
+	// Clone the event so that we can keep it. We need to do this because 
+	// if an instance is running, by the time processLater() is called, the 
+	// original event will have been deleted.
+	CheckUpdateEvent* newEvent = (CheckUpdateEvent*)event.Clone();
 
-		UpdatePromptDialog updatePrompt (this, updateMsg);
-		updatePrompt.CenterOnParent();
-		int response = updatePrompt.ShowModal();
-		if (response == ID_UpdateNow)
+	DeferredEventFunc processLater = [&, newEvent] ()
+	{
+		if (newEvent->m_latestBuildNumber != AppVersion.GetBuild())
 		{
-			DownloadInstallUpdates(event.m_downloadURL);
+			wxString updateMsg = wxString::Format(_("Build #%i is available. Would you like to download and install it?"), 
+				newEvent->m_latestBuildNumber);
+
+			UpdatePromptDialog updatePrompt (this, updateMsg);
+			updatePrompt.CenterOnParent();
+			int response = updatePrompt.ShowModal();
+			if (response == ID_UpdateNow)
+			{
+				DownloadInstallUpdates(newEvent->m_downloadURL);
+			}
+			else if (response == ID_UpdateLater)
+			{
+				DownloadInstallUpdates(newEvent->m_downloadURL, false);
+			}
+			delete newEvent;
 		}
-		else if (response == ID_UpdateLater)
-		{
-			DownloadInstallUpdates(event.m_downloadURL, false);
-		}
-	}
+	};
+	CallWhenIdle(processLater);
 }
 
 void MainWindow::DownloadInstallUpdates(const wxString &downloadURL, bool installNow)
@@ -1000,11 +1011,12 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 		if (!wxPersistenceManager::Get().RegisterAndRestore(cwin))
 			cwin->CenterOnScreen();
 		
-		if(MinecraftProcess::Launch(inst, cwin, result.username, result.sessionID) != nullptr)
+		if (MinecraftProcess::Launch(inst, cwin, result.username, result.sessionID) != nullptr)
 		{
 			Show(false);
 			cwin->Show(settings->GetShowConsole());
 			instListCtrl->ReloadAll();
+			SetGUIState(STATE_INST_RUNNING);
 		}
 		else
 		{
@@ -1016,6 +1028,13 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 		// Login failed
 		ShowLoginDlg(result.errorMessage);
 	}
+}
+
+void MainWindow::ReturnToMainWindow()
+{
+	Show();
+	Raise();
+	SetGUIState(STATE_IDLE);
 }
 
 void MainWindow::RenameEvent()
@@ -1576,6 +1595,48 @@ void MainWindow::OnNotesLostFocus(wxFocusEvent& event)
 	event.Skip();
 }
 */
+
+MainWindow::GUIState MainWindow::GetGUIState() const
+{
+	return m_guiState;
+}
+
+void MainWindow::SetGUIState(MainWindow::GUIState state)
+{
+	m_guiState = state;
+
+	if (m_guiState == STATE_IDLE)
+	{
+		// If idle, call idle functions.
+		CallIdleFunctions();
+	}
+}
+
+void MainWindow::CallWhenIdle(DeferredEventFunc func)
+{
+	// If idle right now, call the function.
+	// Otherwise, add it to the queue.
+	if (GetGUIState() == STATE_IDLE)
+		func();
+	else
+		m_idleQueue.push(func);
+}
+
+void MainWindow::CallIdleFunctions()
+{
+	while (!m_idleQueue.empty() && GetGUIState() == STATE_IDLE)
+	{
+		ProcessNextIdleFunction();
+	}
+}
+
+void MainWindow::ProcessNextIdleFunction()
+{
+	// Pop before calling the function to avoid possible infinite recursion.
+	DeferredEventFunc func = m_idleQueue.front();
+	m_idleQueue.pop();
+	func();
+}
 
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)

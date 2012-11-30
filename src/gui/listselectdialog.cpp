@@ -41,8 +41,11 @@ inline void SetControlEnable(wxWindow *parentWin, int id, bool state)
 }
 
 ListSelectDialog::ListSelectDialog(wxWindow *parent, const wxString& title)
-	: wxDialog(parent, wxID_ANY, title, wxDefaultPosition, wxSize(400, 420))
+	: wxDialog(parent, wxID_ANY, title, wxDefaultPosition, wxSize(400, 420), 
+		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
+	SetMinSize(wxSize(400, 420));
+
 	dlgSizer = new wxBoxSizer(wxVERTICAL);
 	SetSizer(dlgSizer);
 
@@ -50,13 +53,15 @@ ListSelectDialog::ListSelectDialog(wxWindow *parent, const wxString& title)
 	listCtrl->AppendColumn(wxEmptyString, wxLIST_FORMAT_LEFT);
 	dlgSizer->Add(listCtrl,1, wxEXPAND | wxALL, 4);
 
+	wxSizerFlags btnSzFlags = wxSizerFlags(0).Border(wxBOTTOM, 4);
 	wxSizer* btnSz = new wxBoxSizer(wxHORIZONTAL);
 	refreshButton = new wxButton(this, ID_RefreshList, _("&Refresh"));
-	btnSz->Add(refreshButton);
-	btnSz->AddSpacer(8);
+	btnSz->Add(refreshButton, btnSzFlags.Align(wxALIGN_LEFT));
+	btnSz->AddStretchSpacer();
 	btnSz->Add(new wxButton(this, wxID_CANCEL));
 	btnSz->Add(new wxButton(this, wxID_OK));
-	dlgSizer->Add(btnSz, wxSizerFlags(0).Border(wxBOTTOM | wxRIGHT, 8).Align(wxALIGN_RIGHT | wxALIGN_BOTTOM));
+	dlgSizer->Add(btnSz, wxSizerFlags(0).Border(wxBOTTOM | wxRIGHT | wxLEFT, 4).
+		Align(wxALIGN_BOTTOM).Expand());
 
 	SetControlEnable(this, wxID_OK, false);
 }

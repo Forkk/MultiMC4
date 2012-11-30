@@ -43,8 +43,9 @@
 #include "version.h"
 #include "buildtag.h"
 #include "mcprocess.h"
+#include "mainwindow.h"
 
-InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin, bool quitAppOnClose)
+InstConsoleWindow::InstConsoleWindow(Instance *inst, MainWindow* mainWin, bool quitAppOnClose)
 	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250))
 {
 	m_quitAppOnClose = quitAppOnClose;
@@ -217,8 +218,7 @@ void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
 	}
 	else
 	{
-		m_mainWin->Show();
-		m_mainWin->Raise();
+		m_mainWin->ReturnToMainWindow();
 	}
 }
 
