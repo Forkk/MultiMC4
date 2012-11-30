@@ -716,6 +716,19 @@ void MainWindow::OnImportFTBClicked(wxCommandEvent& event)
 				// Set needs rebuild.
 				inst->SetNeedsRebuild();
 
+				// Set a random FTB icon.
+				int icon = rand() % 2;
+				switch (icon)
+				{
+				case 0:
+					inst->SetIconKey("ftb-logo");
+					break;
+
+				case 1:
+					inst->SetIconKey("ftb-glow");
+					break;
+				}
+
 				// Add the instance.
 				AddInstance(inst);
 			}
