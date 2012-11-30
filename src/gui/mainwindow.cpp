@@ -233,6 +233,20 @@ MainWindow::MainWindow(void)
 	SetAcceleratorTable(accel);
 #endif
 #endif
+
+	// Is it November 30th?
+	const wxDateTime originalReleaseDate(30, wxDateTime::Month::Nov, 2011, 17, 54);
+	if (wxDateTime::Now().GetDay() == originalReleaseDate.GetDay() &&
+		wxDateTime::Now().GetMonth() == originalReleaseDate.GetMonth())
+	{
+		// Calculate how many years old MultiMC is.
+		int yearsOld = wxDateTime::Now().GetYear() - originalReleaseDate.GetYear();
+
+		wxString yearStr = (yearsOld == 1 ? _("year") : _("years"));
+		wxString titleMsg = wxString::Format(_("Happy Birthday, MultiMC! %i %s old!"),
+			yearsOld, yearStr.c_str());
+		SetTitle(titleMsg);
+	}
 	
 	CenterOnScreen();
 }
