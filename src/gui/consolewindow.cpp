@@ -210,6 +210,7 @@ void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
 	}
 	if (trayIcon->IsIconInstalled())
 		trayIcon->RemoveIcon();
+	delete trayIcon;
 	Destroy();
 	
 	if (m_quitAppOnClose)
