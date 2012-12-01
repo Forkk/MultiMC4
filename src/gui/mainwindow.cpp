@@ -647,6 +647,7 @@ void MainWindow::OnImportMCFolder(wxCommandEvent& event)
 	auto task = new FileCopyTask(existingMCDir, inst->GetMCDir());
 	StartTask(task);
 	delete task;
+	// FIXME: respond to errors in task.
 	
 	AddInstance(inst);
 }
@@ -704,6 +705,7 @@ void MainWindow::OnImportFTBClicked(wxCommandEvent& event)
 					selDialog.GetSelectedFolder(), instDirName);
 				StartTask(copyTask);
 				delete copyTask;
+				// FIXME: respond to errors in task.
 
 				// Make some corrections
 				if (!wxFileExists(inst->GetVersionFile().GetFullPath()) &&
@@ -852,9 +854,18 @@ void MainWindow::DownloadInstallUpdates(const wxString &downloadURL, bool instal
 		// Download and install.
 		auto dlTask = new FileDownloadTask(downloadURL, wxFileName(updaterFileName), _("Downloading updates..."));
 		StartTask(dlTask);
+		bool OK = dlTask->WasSuccessful();
 		delete dlTask;
-		wxGetApp().exitAction = MultiMC::EXIT_UPDATE_RESTART;
-		Close(false);
+		if(OK)
+		{
+			wxGetApp().exitAction = MultiMC::EXIT_UPDATE_RESTART;
+			Close(false);
+		}
+		else
+		{
+			wxMessageBox(_("Update download failed.\nThis may be due to missing internet connection or server problems.\nTry again later."),
+			             _("Error"), wxOK | wxCENTER | wxICON_ERROR, this);
+		}
 	}
 	else
 	{
@@ -1018,6 +1029,7 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 		sessionID.Trim();
 		if (!result.playOffline && !sessionID.IsEmpty() && sessionID != "Offline")
 		{
+			// FIXME: respond to errors in task.
 			auto task = new GameUpdateTask(inst, result.latestVersion, result.forceUpdate);
 			StartTask(task);
 			delete task;
@@ -1027,6 +1039,7 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 		
 		if (inst->ShouldRebuild())
 		{
+			// FIXME: respond to errors in task.
 			auto task = new ModderTask (inst);
 			StartTask(task);
 			delete task;
@@ -1152,11 +1165,11 @@ void MainWindow::OnCopyInstClicked(wxCommandEvent &event)
 	instDirName = Path::Combine(settings->GetInstDir(), Utils::RemoveInvalidPathChars(instDirName, '-', false));
 
 	wxMkdir(instDirName);
+	// FIXME: respond to errors in task.
 	auto task = new FileCopyTask (currentInstance->GetRootDir().GetFullPath(), wxFileName::DirName(instDirName));
 	StartTask(task);
 	delete task;
 
-	//FIXME: I wouldn't be so sure about *THIS*
 	Instance *newInst = new StdInstance(instDirName);
 	newInst->SetName(instName);
 	AddInstance(newInst);
@@ -1392,7 +1405,7 @@ indev and infdev. Are you sure you would like to downgrade to this version?"),
 					return;
 				}
 			}
-
+			// FIXME: respond to errors in task.
 			auto task = new DowngradeTask (currentInstance, downDlg.GetSelection());
 			StartTask(task);
 			delete task;
@@ -1471,6 +1484,7 @@ void MainWindow::OnRebuildJarClicked(wxCommandEvent& event)
 	auto currentInstance = instItems.GetSelectedInstance();
 	if(currentInstance == nullptr)
 		return;
+	// FIXME: respond to errors in task.
 	auto task = new ModderTask(currentInstance);
 	StartTask(task);
 	delete task;
