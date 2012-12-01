@@ -1424,38 +1424,51 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 	if(currentInstance == nullptr)
 		return;
 
-	if (currentInstance->GetVersionFile().FileExists())
-	{
-		SnapshotDialog snapDlg(this);
-		snapDlg.CenterOnParent();
-		MCVersion ver;
-		if (snapDlg.ShowModal() == wxID_OK && snapDlg.GetSelectedVersion(ver))
-		{
-			wxString snapURL = ver.dlURL + "minecraft.jar";
-
-			wxString snapshotJar = Path::Combine(currentInstance->GetBinDir(), wxT("snapshot.jar"));
-			FileDownloadTask task(snapURL, snapshotJar);
-			if (StartTask(&task))
-			{
-				if (wxFileExists(currentInstance->GetMCBackup().GetFullPath()) &&
-					!wxRemoveFile(currentInstance->GetMCBackup().GetFullPath()))
-				{
-					wxLogError(_("MultiMC was unable to replace the old .jar with the new snapshot."));
-					return;
-				}
-
-				if (wxCopyFile(snapshotJar, currentInstance->GetMCJar().GetFullPath()))
-				{
-					currentInstance->UpdateVersion();
-					UpdateInstPanel();
-				}
-			}
-		}
-	}
-	else
+	if (!currentInstance->GetVersionFile().FileExists())
 	{
 		wxLogError(_("You must run this instance at least once to download minecraft before you can downgrade it!"));
+		return;
 	}
+	SnapshotDialog snapDlg(this);
+	snapDlg.CenterOnParent();
+	MCVersion ver;
+	if(!snapDlg.ShowModal() == wxID_OK || !snapDlg.GetSelectedVersion(ver))
+		return;
+	
+	wxString snapURL = ver.dlURL + "minecraft.jar";
+
+	wxString snapshotJar = Path::Combine(currentInstance->GetBinDir(), wxT("snapshot.jar"));
+	FileDownloadTask task(snapURL, snapshotJar);
+	if (!StartTask(&task))
+	{
+		wxLogError(_("MultiMC failed to download the new minecraft.jar"));
+		return;
+	}
+	
+	// if there is a backup, this signifies that we need to reinstall current mods into the new jar
+	// we nuke the backup regardless and replace the minecraft.jar
+	wxString failMSG = _("MultiMC was unable to replace the old .jar with the new snapshot.");
+	wxString mcbackup = currentInstance->GetMCBackup().GetFullPath();
+	if(wxFileExists(mcbackup))
+	{
+		if(!wxRemoveFile(currentInstance->GetMCBackup().GetFullPath()))
+		{
+			wxLogError(failMSG);
+			return;
+		}
+		else
+		{
+			currentInstance->SetNeedsRebuild();
+		}
+	}
+	// yep
+	if (wxCopyFile(snapshotJar, currentInstance->GetMCJar().GetFullPath()))
+	{
+		currentInstance->UpdateVersion();
+		UpdateInstPanel();
+	}
+	else
+		wxLogError(failMSG); // badness. and snake jars. let the user know.
 }
 
 void MainWindow::OnChangeLWJGLClicked(wxCommandEvent& event)
