@@ -33,6 +33,10 @@
 #include "utils/apputils.h"
 #include "utils/osutils.h"
 
+#include "filedownloadtask.h"
+
+#include "taskprogressdialog.h"
+
 #ifdef wx29
 #include <wx/persist/toplevel.h>
 #include <wx/dir.h>
@@ -154,6 +158,7 @@ bool MultiMC::OnInit()
 			{
 				mainWin->CenterOnScreen();
 			}
+			SetTopWindow(mainWin);
 			mainWin->Show();
 			mainWin->OnStartup();
 			return true;
@@ -167,6 +172,7 @@ bool MultiMC::OnInit()
 			{
 				mainWin->CenterOnScreen();
 			}
+			SetTopWindow(mainWin);
 			mainWin->launchInstance = launchInstance;
 			mainWin->OnStartup();
 			mainWin->Hide();
@@ -302,6 +308,21 @@ int MultiMC::OnExit()
 	wxString updaterFileName = "MultiMCUpdate";
 #endif
 
+	// If we chose to update on exit, download updates.
+	if (!updateLaterURL.IsEmpty())
+	{
+		auto dlTask = new FileDownloadTask(updateLaterURL, 
+			wxFileName(updaterFileName), _("Downloading updates..."));
+		TaskProgressDialog dlg(NULL);
+		if (dlg.ShowModal(dlTask))
+			exitAction = EXIT_UPDATE;
+		else
+		{
+			wxLogError(_("Failed to download updates from %s."), 
+				updateLaterURL);
+		}
+	}
+
 	if ((exitAction == EXIT_UPDATE_RESTART || exitAction == EXIT_UPDATE) && 
 		wxFileExists(updaterFileName))
 	{
@@ -315,10 +336,16 @@ int MultiMC::OnExit()
 		
 		wxString updateFilePath = updateFile.GetFullPath();
 		wxString thisFilePath = wxStandardPaths::Get().GetExecutablePath();
+		wxString additionalArgs;
+
+		if (exitAction == EXIT_UPDATE)
+		{
+			additionalArgs = "-U";
+		}
 
 #if WINDOWS
-		wxString launchCmd = wxString::Format("cmd /C %s -u \"%s\"",
-			updateFilePath.c_str(), thisFilePath.c_str());
+		wxString launchCmd = wxString::Format("cmd /C %s %s -u \"%s\"",
+			updateFilePath.c_str(), additionalArgs.c_str(), thisFilePath.c_str());
 #else
 		updateFilePath.Replace(" ", "\\ ");
 		thisFilePath.Replace(" ", "\\ ");

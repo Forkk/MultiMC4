@@ -55,7 +55,14 @@ wxThread::ExitCode DowngradeTask::TaskStart()
 
 	// if mcbackup.jar exists, we updated that anyway. The version update won't pick that up.
 	if(!wxFileExists(Path::Combine(m_inst->GetBinDir(), "mcbackup.jar")))
+	{
 		m_inst->UpdateVersion();
+	}
+	else
+	{
+		// if there already is a backup (which we now replaced), reinstall all mods
+		m_inst->SetNeedsRebuild();
+	}
 	SetStep(STEP_DONE);
 	return (ExitCode)1;
 }

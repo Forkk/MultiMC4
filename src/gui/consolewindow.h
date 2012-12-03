@@ -21,6 +21,7 @@
 #include "instance.h"
 
 class MinecraftProcess;
+class MainWindow;
 
 class InstConsoleWindow : public wxFrame
 {
@@ -30,7 +31,7 @@ class InstConsoleWindow : public wxFrame
 	};
 
 public:
-	InstConsoleWindow(Instance* inst, wxWindow* mainWin, bool quitAppOnClose = false);
+	InstConsoleWindow(Instance* inst, MainWindow* mainWin, bool quitAppOnClose = false);
 	virtual ~InstConsoleWindow();
 	
 	// Returns a "crash report" string that contains console logs, FML logs, 
@@ -83,7 +84,7 @@ protected:
 	wxButton *closeButton;
 	wxButton *killButton;
 	
-	wxWindow *m_mainWin;
+	MainWindow *m_mainWin;
 	Instance *m_inst;
 
 	// Scans the output for common problems and alerts the user.

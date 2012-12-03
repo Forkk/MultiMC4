@@ -43,8 +43,9 @@
 #include "version.h"
 #include "buildtag.h"
 #include "mcprocess.h"
+#include "mainwindow.h"
 
-InstConsoleWindow::InstConsoleWindow(Instance *inst, wxWindow* mainWin, bool quitAppOnClose)
+InstConsoleWindow::InstConsoleWindow(Instance *inst, MainWindow* mainWin, bool quitAppOnClose)
 	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250))
 {
 	m_quitAppOnClose = quitAppOnClose;
@@ -207,24 +208,18 @@ void InstConsoleWindow::OnWindowClosed(wxCloseEvent& event)
 		Show(false);
 		return;
 	}
-	auto & persist = wxPersistenceManager::Get();
-	if(persist.Find(this) != nullptr)
-	{
-		persist.SaveAndUnregister(this);
-	}
 	if (trayIcon->IsIconInstalled())
 		trayIcon->RemoveIcon();
+	delete trayIcon;
 	Destroy();
 	
 	if (m_quitAppOnClose)
 	{
-		m_mainWin->Destroy();
-		wxGetApp().ExitMainLoop();
+		m_mainWin->Close();
 	}
 	else
 	{
-		m_mainWin->Show();
-		m_mainWin->Raise();
+		m_mainWin->ReturnToMainWindow();
 	}
 }
 
