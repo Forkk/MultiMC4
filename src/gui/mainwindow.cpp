@@ -1432,7 +1432,7 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 	SnapshotDialog snapDlg(this);
 	snapDlg.CenterOnParent();
 	MCVersion ver;
-	if(!snapDlg.ShowModal() == wxID_OK || !snapDlg.GetSelectedVersion(ver))
+	if(snapDlg.ShowModal() != wxID_OK || !snapDlg.GetSelectedVersion(ver))
 		return;
 	
 	wxString snapURL = ver.dlURL + "minecraft.jar";
