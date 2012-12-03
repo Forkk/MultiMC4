@@ -274,7 +274,7 @@ HRESULT CreateLink(LPCSTR linkPath, LPCWSTR targetPath, LPCWSTR args)
 wxString Path::GetDesktopDir()
 {
 	TCHAR buf[MAX_PATH + 1];
-	SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_DEFAULT, buf);
+	SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, buf);
 	wxString dir(buf);
 	return dir;
 }
