@@ -32,12 +32,14 @@ InstIconList* InstIconList::pInstance = 0;
 
 struct InstIconDef
 {
-	InstIconDef(wxString key, wxImage image)
+	InstIconDef(wxString key, wxString name, wxImage image)
 	{
+		this->name = name;
 		this->key = key;
 		this->image = image;
 	}
-
+	
+	wxString name;
 	wxString key;
 	wxImage image;
 };
@@ -81,28 +83,30 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 	
 	const InstIconDef builtInIcons[] =
 	{
-		InstIconDef(_T("default"), wxMEMORY_IMAGE(grass)),
-		InstIconDef(_T("grass"), wxMEMORY_IMAGE(grass)),
-		InstIconDef(_T("dirt"), wxMEMORY_IMAGE(dirt)),
-		InstIconDef(_T("stone"), wxMEMORY_IMAGE(stone)),
-		InstIconDef(_T("planks"), wxMEMORY_IMAGE(planks)),
-		InstIconDef(_T("iron"), wxMEMORY_IMAGE(iron)),
-		InstIconDef(_T("gold"), wxMEMORY_IMAGE(gold)),
-		InstIconDef(_T("diamond"), wxMEMORY_IMAGE(diamond)),
-		InstIconDef(_T("tnt"), wxMEMORY_IMAGE(tnt)),
-		InstIconDef(_T("enderman"), wxMEMORY_IMAGE(enderman)),
-		InstIconDef(_T("ftb-logo"), wxMEMORY_IMAGE(ftb_logo)),
-		InstIconDef(_T("ftb-glow"), wxMEMORY_IMAGE(ftb_glow)),
-		InstIconDef(_T("infinity"), wxMEMORY_IMAGE(infinity)),
-		InstIconDef(_T("creeper"), wxMEMORY_IMAGE(creeper)),
-		InstIconDef(_T("square creeper"), wxMEMORY_IMAGE(squarecreeper)),
-		InstIconDef(_T("skeleton"), wxMEMORY_IMAGE(skeleton)),
-		InstIconDef(_T("enderpearl"), wxMEMORY_IMAGE(enderpearl)),
-		InstIconDef(_T("herobrine"), wxMEMORY_IMAGE(herobrine)),
-		InstIconDef(_T("meat"), wxMEMORY_IMAGE(meat)),
-		InstIconDef(_T("chicken"), wxMEMORY_IMAGE(chicken)),
-		InstIconDef(_T("steve"), wxMEMORY_IMAGE(steve)),
-		InstIconDef(_T("derp"), wxMEMORY_IMAGE(derp)),
+		InstIconDef("default", _("Default icon"), wxMEMORY_IMAGE(grass)),
+		InstIconDef("grass", _("Grass block"), wxMEMORY_IMAGE(grass)),
+		InstIconDef("dirt", _("Dirt block"), wxMEMORY_IMAGE(dirt)),
+		InstIconDef("stone", _("Stone block"), wxMEMORY_IMAGE(stone)),
+		InstIconDef("planks", _("Planks"), wxMEMORY_IMAGE(planks)),
+		InstIconDef("iron", _("Solid iron"), wxMEMORY_IMAGE(iron)),
+		InstIconDef("gold", _("Shiny gold"), wxMEMORY_IMAGE(gold)),
+		InstIconDef("diamond", _("Diamond!"), wxMEMORY_IMAGE(diamond)),
+		InstIconDef("tnt", _("TNT"), wxMEMORY_IMAGE(tnt)),
+		InstIconDef("enderman",_("Enderman"), wxMEMORY_IMAGE(enderman)),
+		InstIconDef("ftb-logo",_("FTB logo"), wxMEMORY_IMAGE(ftb_logo)),
+		InstIconDef("ftb-glow",_("FTB glow"), wxMEMORY_IMAGE(ftb_glow)),
+		InstIconDef("infinity",_("Infinity"), wxMEMORY_IMAGE(infinity)),
+		InstIconDef("creeper",_("Creeper"), wxMEMORY_IMAGE(creeper)),
+		InstIconDef("square creeper",_("Square creeper"), wxMEMORY_IMAGE(squarecreeper)),
+		InstIconDef("skeleton",_("Skeleton"), wxMEMORY_IMAGE(skeleton)),
+		InstIconDef("gear",_("Golden gear"), wxMEMORY_IMAGE(gear)),
+		InstIconDef("magitech",_("Magitech"), wxMEMORY_IMAGE(magitech)),
+		InstIconDef("enderpearl",_("Enderpearl"), wxMEMORY_IMAGE(enderpearl)),
+		InstIconDef("herobrine",_("Herobrine"), wxMEMORY_IMAGE(herobrine)),
+		InstIconDef("meat",_("The Meat"), wxMEMORY_IMAGE(meat)),
+		InstIconDef("chicken",_("Chicken"), wxMEMORY_IMAGE(chicken)),
+		InstIconDef("steve",_("Steve"), wxMEMORY_IMAGE(steve)),
+		InstIconDef("derp",_("Derp"), wxMEMORY_IMAGE(derp)),
 	};
 	const int builtInIconCount = sizeof(builtInIcons)/sizeof(InstIconDef);
 
@@ -115,7 +119,7 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		}
 #endif
 		wxImage highlightIcon = tintImage(builtInIcons[i].image,wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
-		Add(builtInIcons[i].image, highlightIcon, builtInIcons[i].key);
+		Add(builtInIcons[i].image, highlightIcon, builtInIcons[i].key, builtInIcons[i].name);
 	}
 
 	if (wxDirExists(customIconDirName))
@@ -142,7 +146,7 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 	}
 }
 
-bool InstIconList::Add(const wxImage image, const wxImage hlimage, const wxString key,
+bool InstIconList::Add(const wxImage image, const wxImage hlimage, const wxString key, const wxString name,
 	const wxString filename)
 {
 	InstIcon *defIcon = nullptr;
@@ -164,13 +168,13 @@ bool InstIconList::Add(const wxImage image, const wxImage hlimage, const wxStrin
 		}
 #endif
 
-		InstIcon newInstIcon(key, newImg, newHLImg, filename, defIcon);
+		InstIcon newInstIcon(key, name, newImg, newHLImg, filename, defIcon);
 		newInstIcon.deleteDefIconOnDestroy = false;
 		iconMap[key] = newInstIcon;
 	}
 	else
 	{
-		InstIcon newInstIcon(key, image, hlimage, filename, defIcon);
+		InstIcon newInstIcon(key, name, image, hlimage, filename, defIcon);
 		newInstIcon.deleteDefIconOnDestroy = false;
 		iconMap[key] = newInstIcon;
 	}
@@ -187,7 +191,7 @@ bool InstIconList::AddFile(const wxString fileName)
 	}
 	wxString iconKey = iconFileName.GetName();
 	wxImage highlightIcon = tintImage(image,wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
-	return Add(image,highlightIcon, iconKey, iconFileName.GetFullPath());
+	return Add(image,highlightIcon, iconKey, iconKey, iconFileName.GetFullPath());
 }
 
 bool InstIconList::RemoveIcon(const wxString key)
@@ -255,16 +259,17 @@ const InstIconMap &InstIconList::GetIconMap() const
 	return iconMap;
 }
 
-InstIcon::InstIcon(wxString key, wxImage image, wxImage hlImage, 
+InstIcon::InstIcon(wxString key, wxString name, wxImage image, wxImage hlImage, 
 	wxString fileName, InstIcon *defIcon)
-	: m_key(key), m_image(image), m_hlImage(hlImage), m_fileName(fileName)
+	: m_key(key), m_name(name), m_image(image), m_hlImage(hlImage), m_fileName(fileName)
 {
 	m_defIcon = defIcon;
 	deleteDefIconOnDestroy = true;
 }
 
 InstIcon::InstIcon(const InstIcon &iIcon)
-	: m_key(iIcon.m_key), m_image(iIcon.m_image), m_hlImage(iIcon.m_hlImage), m_fileName(iIcon.m_fileName)
+	: m_key(iIcon.m_key), m_image(iIcon.m_image), m_hlImage(iIcon.m_hlImage), m_fileName(iIcon.m_fileName),
+	  m_name(iIcon.m_name)
 {
 	m_defIcon = iIcon.m_defIcon;
 	deleteDefIconOnDestroy = true;

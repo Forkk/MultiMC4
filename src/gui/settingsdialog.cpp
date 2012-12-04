@@ -15,6 +15,7 @@
 //
 
 #include "settingsdialog.h"
+#include "mainwindow.h"
 
 #include <wx/gbsizer.h>
 #include <wx/dir.h>
@@ -44,6 +45,7 @@ const wxString sortModeLastLaunch = _("By Last Launched");
 SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s /* = settings */)
 	: wxDialog(parent, id, _("Settings"), wxDefaultPosition, wxSize(500, 450))
 {
+	parent_w = (MainWindow *) parent;
 	m_shouldRestartMMC = false;
 	currentSettings = s;
 	wxBoxSizer *mainBox = new wxBoxSizer(wxVERTICAL);
@@ -521,6 +523,14 @@ bool SettingsDialog::FolderMove ( wxFileName oldDir, wxFileName newDir, wxString
 			} while (srcDir.GetNext(&oldName));
 		}
 	}
+	else
+	{
+		if(!newDir.Mkdir(0777,wxPATH_MKDIR_FULL))
+		{
+			wxLogError(_("Failed to create the new folder: %s"), newDir.GetFullPath().c_str());
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -560,6 +570,14 @@ bool SettingsDialog::ApplySettings()
 				_("Central mods directory changed.")))
 			{
 				return false;
+			}
+			else
+			{
+				// NUKE ALL MODS, FOLDER CHANGED
+				auto mlist = parent_w->GetCentralModList();
+				mlist->clear();
+				mlist->SetDir(newModDir.GetFullPath());
+				mlist->UpdateModList();
 			}
 		}
 		currentSettings->SetModsDir(newModDir);

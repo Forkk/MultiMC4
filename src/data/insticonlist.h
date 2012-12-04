@@ -22,7 +22,7 @@
 
 struct InstIcon
 {
-	InstIcon(wxString key, wxImage image, wxImage hlImage, 
+	InstIcon(wxString key, wxString name, wxImage image, wxImage hlImage, 
 		wxString fileName = wxEmptyString, InstIcon *defIcon = nullptr);
 	InstIcon(const InstIcon &iIcon);
 	InstIcon();
@@ -30,6 +30,7 @@ struct InstIcon
 
 	wxString m_key;
 	wxString m_fileName;
+	wxString m_name;
 	wxImage m_image;
 	wxImage m_hlImage;
 
@@ -43,7 +44,7 @@ typedef std::map<wxString, InstIcon> InstIconMap;
 class InstIconList
 {
 public:
-	bool Add(const wxImage image, const wxImage hlimage, const wxString key,
+	bool Add(const wxImage image, const wxImage hlimage, const wxString key, const wxString name,
 		const wxString filename = wxEmptyString);
 	bool AddFile(const wxString fileName);
 	bool RemoveIcon(const wxString key);

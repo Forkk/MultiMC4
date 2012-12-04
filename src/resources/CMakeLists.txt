@@ -49,6 +49,8 @@ tnt.png
 creeper.png
 squarecreeper.png
 skeleton.png
+gear.png
+magitech.png
 enderpearl.png
 ftb_glow.png
 ftb_logo.png
