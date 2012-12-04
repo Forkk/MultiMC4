@@ -131,8 +131,6 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 				box->Add(useDevBuildsCheck, itemFlags);
 				autoUpdateCheck = new wxCheckBox(box->GetStaticBox(), -1, _("Check for updates when MultiMC starts?"));
 				box->Add(autoUpdateCheck, itemFlags);
-				forceUpdateToggle = new wxToggleButton(box->GetStaticBox(), -1, _("Force-update MultiMC"));
-				box->Add(forceUpdateToggle, itemFlags);
 				multimcSizer->Add(box, staticBoxOuterFlags);
 			}
 
@@ -993,11 +991,6 @@ void SettingsDialog::UpdateCheckboxStuff()
 		proxyUserTextbox->Enable(!noProxyRBtn->GetValue());
 		proxyPassTextbox->Enable(!noProxyRBtn->GetValue());
 	}
-}
-
-bool SettingsDialog::GetForceUpdateMultiMC() const
-{
-	return !instanceMode && forceUpdateToggle->GetValue();
 }
 
 bool SettingsDialog::ShouldRestartNow() const

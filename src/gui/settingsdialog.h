@@ -28,7 +28,6 @@ class SettingsDialog : public wxDialog
 {
 public:
 	SettingsDialog(wxWindow *parent, wxWindowID id, SettingsBase *s = settings);
-	bool GetForceUpdateMultiMC() const;
 
 	bool ShouldRestartNow() const;
 
@@ -59,7 +58,6 @@ protected:
 	// multimc tab stuff
 	wxCheckBox *autoUpdateCheck;
 	wxCheckBox *useDevBuildsCheck;
-	wxToggleButton *forceUpdateToggle;
 	wxRadioBox *guiStyleBox;
 	wxRadioBox *sortModeBox;
 	wxComboBox *langSelectorBox;

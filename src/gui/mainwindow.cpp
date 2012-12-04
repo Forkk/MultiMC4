@@ -774,22 +774,6 @@ void MainWindow::OnSettingsClicked(wxCommandEvent& event)
 		}
 		instListCtrl->ReloadAll();
 		
-		if (settingsDlg.GetForceUpdateMultiMC())
-		{
-			wxString ciURL(_T(JENKINS_JOB_URL));
-
-#if WINDOWS
-			wxString dlFileName = "MultiMC.exe";
-#else
-			wxString dlFileName = "MultiMC";
-#endif
-
-			wxString dlURL = wxString::Format(
-				"%s/lastStableBuild/artifact/%s",
-				ciURL.c_str(), dlFileName.c_str());
-			DownloadInstallUpdates(dlURL);
-		}
-
 		if (settingsDlg.ShouldRestartNow())
 		{
 			wxGetApp().exitAction = MultiMC::EXIT_RESTART;
