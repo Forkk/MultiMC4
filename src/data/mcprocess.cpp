@@ -46,7 +46,7 @@ void ExtractLauncher(Instance* source)
 	zipper.PutNextEntry("icon.png");
 	InstIconList * iconList = InstIconList::Instance();
 	//FIXME: what if there is no such image?
-	wxImage &img =  iconList->getImageForKey(source->GetIconKey());
+	wxImage &img =  iconList->getImage128ForKey(source->GetIconKey());
 	img.SaveFile(zipper,wxBITMAP_TYPE_PNG);
 }
 
