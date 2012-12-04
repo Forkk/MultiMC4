@@ -78,15 +78,19 @@ else()
 endif()
 message (STATUS "Architecture is ${MultiMC_ARCH}")
 
+SET(MultiMC_Extra_Label "")
+
 IF (WIN32)
 	SET(MultiMC_JOB_NAME "MultiMC4Windows" CACHE STRING "Jenkins job name.")
 ELSEIF(UNIX AND APPLE)
 	SET(MultiMC_JOB_NAME "MultiMC4OSX" CACHE STRING "Jenkins job name.")
+	# This is here because the scheme doesn't exactly apply to every kind of build...
+	SET(MultiMC_Extra_Label ",label=osx")
 ELSE()
 	SET(MultiMC_JOB_NAME "MultiMC4Linux" CACHE STRING "Jenkins job name.")
 ENDIF()
 
-SET(MultiMC_JOB_URL "http://ci.forkk.net/job/${MultiMC_JOB_NAME}/arch=${MultiMC_ARCH}/"
+SET(MultiMC_JOB_URL "http://ci.forkk.net/job/${MultiMC_JOB_NAME}/arch=${MultiMC_ARCH}${MultiMC_Extra_Label}/"
     CACHE STRING "URL of the jenkins job to pull updates from.")
 message(STATUS "Job URL: ${MultiMC_JOB_URL}")
 

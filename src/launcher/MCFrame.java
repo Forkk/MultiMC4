@@ -15,6 +15,8 @@
 //
 
 import net.minecraft.Launcher;
+import org.simplericity.macify.eawt.Application;
+import org.simplericity.macify.eawt.DefaultApplication;
 import java.applet.Applet;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -30,6 +32,7 @@ import java.awt.image.BufferedImage;
 public class MCFrame extends Frame implements WindowListener
 {
 	private Launcher appletWrap = null;
+	private Application application = null;
 	
 	public MCFrame(String title)
 	{
@@ -39,6 +42,11 @@ public class MCFrame extends Frame implements WindowListener
 		{
 			image = ImageIO.read(getClass().getResource("icon.png"));
 			setIconImage(image);
+			application = new DefaultApplication();
+			if(application.isMac())
+			{
+				application.setApplicationIconImage(image);
+			}
 		}
 		catch (IOException e)
 		{
