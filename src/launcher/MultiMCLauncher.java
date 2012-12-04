@@ -119,8 +119,6 @@ public class MultiMCLauncher
 			System.setProperty("org.lwjgl.librarypath", nativesDir);
 			System.setProperty("net.java.games.input.librarypath", nativesDir);
 
-			System.setProperty("user.home", new File(cwd).getParent());
-
 			URLClassLoader cl = 
 					new URLClassLoader(urls, MultiMCLauncher.class.getClassLoader());
 			
