@@ -104,7 +104,7 @@ void SnapshotDialog::Refilter()
 	for(unsigned i = 0; i < verList.versions.size(); i++ )
 	{
 		MCVersion & ver = verList.versions[i];
-		if(showOldSnapshots || ver.type != OldSnapshot)
+		if(showOldSnapshots || ver.GetVersionType() != OldSnapshot)
 			visibleIndexes.push_back(i);
 	}
 	listCtrl->SetItemCount(visibleIndexes.size());
@@ -125,9 +125,9 @@ wxString SnapshotDialog::OnGetItemText(long item, long column)
 	switch (column)
 	{
 	case 0:
-		return ver.name;
+		return ver.GetName();
 	case 1:
-		return typeNames[ver.type];
+		return typeNames[ver.GetVersionType()];
 
 	default:
 		return "...";

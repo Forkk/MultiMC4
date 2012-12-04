@@ -1432,10 +1432,10 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 	SnapshotDialog snapDlg(this);
 	snapDlg.CenterOnParent();
 	MCVersion ver;
-	if(!snapDlg.ShowModal() == wxID_OK || !snapDlg.GetSelectedVersion(ver))
+	if(snapDlg.ShowModal() != wxID_OK || !snapDlg.GetSelectedVersion(ver))
 		return;
 	
-	wxString snapURL = ver.dlURL + "minecraft.jar";
+	wxString snapURL = ver.GetDLUrl() + "minecraft.jar";
 
 	wxString snapshotJar = Path::Combine(currentInstance->GetBinDir(), wxT("snapshot.jar"));
 	FileDownloadTask task(snapURL, snapshotJar);

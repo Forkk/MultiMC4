@@ -193,13 +193,14 @@ void NewInstanceDialog::MCVersionChoice::Refilter()
 	for(unsigned i = 0; i < verList.versions.size(); i++ )
 	{
 		MCVersion & ver = verList.versions[i];
-		if(m_owner->m_showOldSnapshots && ver.type == OldSnapshot ||
-			m_owner->m_showNewSnapshots && ver.type == Snapshot ||
-			ver.type == CurrentStable || ver.type == Stable
+		VersionType vt = ver.GetVersionType();
+		if(m_owner->m_showOldSnapshots &&  vt == OldSnapshot ||
+			m_owner->m_showNewSnapshots && vt == Snapshot ||
+			vt == CurrentStable || vt == Stable
 		)
 		{
 			visibleIndexes.push_back(i);
-			Append(verList.versions[i].name);
+			Append(verList.versions[i].GetName());
 		}
 	}
 	if(visibleIndexes.size())
