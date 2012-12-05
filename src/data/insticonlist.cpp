@@ -30,6 +30,15 @@
 
 InstIconList* InstIconList::pInstance = 0;
 
+const int allowedImgExtensionsCount = 5;
+const wxString allowedImgExtensions[] = 
+{
+	".bmp",
+	".gif",
+	".jpg", ".jpeg",
+	".png",
+};
+
 struct InstIconDef
 {
 	InstIconDef(wxString key, wxString name, wxImage image, wxImage image128)
@@ -144,6 +153,19 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		{
 			do 
 			{
+				// Check file extensions
+				bool isAllowedImage = false;
+				for (int i = 0; i < allowedImgExtensionsCount; i++)
+				{
+					if (iconFile.Lower().EndsWith(allowedImgExtensions[i]))
+					{
+						isAllowedImage = true;
+						break;
+					}
+				}
+				if (!isAllowedImage)
+					continue;
+
 				if (!AddFile(Path::Combine(customIconDirName, iconFile)))
 				{
 					if(customIconDir.GetNext(&iconFile))
