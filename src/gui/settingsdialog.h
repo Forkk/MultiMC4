@@ -23,11 +23,11 @@
 
 #include "appsettings.h"
 
+class MainWindow;
 class SettingsDialog : public wxDialog
 {
 public:
 	SettingsDialog(wxWindow *parent, wxWindowID id, SettingsBase *s = settings);
-	bool GetForceUpdateMultiMC() const;
 
 	bool ShouldRestartNow() const;
 
@@ -43,6 +43,7 @@ protected:
 	bool ApplySettings();
 	bool FolderMove( wxFileName oldDir, wxFileName newDir, wxString message, wxString title);
 	
+	MainWindow * parent_w;
 	SettingsBase * currentSettings;
 	wxNotebook *tabCtrl;
 	bool instanceMode;
@@ -57,7 +58,6 @@ protected:
 	// multimc tab stuff
 	wxCheckBox *autoUpdateCheck;
 	wxCheckBox *useDevBuildsCheck;
-	wxToggleButton *forceUpdateToggle;
 	wxRadioBox *guiStyleBox;
 	wxRadioBox *sortModeBox;
 	wxComboBox *langSelectorBox;

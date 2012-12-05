@@ -523,7 +523,7 @@ bool InstConsoleWindow::CheckCommonProblems(const wxString& output)
 
 BEGIN_EVENT_TABLE(InstConsoleWindow, wxFrame)
 	EVT_BUTTON(wxID_CLOSE, InstConsoleWindow::OnCloseButton)
-	EVT_BUTTON(wxID_CANCEL, InstConsoleWindow::OnKillMC)
+	EVT_BUTTON(wxID_DELETE, InstConsoleWindow::OnKillMC)
 	EVT_CLOSE( InstConsoleWindow::OnWindowClosed )
 	EVT_IDLE(InstConsoleWindow::OnIdle)
 	EVT_TIMER(wakeupidle, InstConsoleWindow::OnProcessTimer)

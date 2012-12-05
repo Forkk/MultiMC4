@@ -22,6 +22,11 @@
 #include <insticonlist.h>
 #include <memory>
 #include "launcher/launcherdata.h"
+#if !defined(WIN32)
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <errno.h>
+#endif
 
 // macro for adding "" around strings
 #define DQuote(X) "\"" << X << "\""
@@ -41,7 +46,7 @@ void ExtractLauncher(Instance* source)
 	zipper.PutNextEntry("icon.png");
 	InstIconList * iconList = InstIconList::Instance();
 	//FIXME: what if there is no such image?
-	wxImage &img =  iconList->getImageForKey(source->GetIconKey());
+	wxImage &img =  iconList->getImage128ForKey(source->GetIconKey());
 	img.SaveFile(zipper,wxBITMAP_TYPE_PNG);
 }
 
@@ -170,6 +175,27 @@ bool MinecraftProcess::ProcessInput()    // The following methods are adapted fr
 void MinecraftProcess::OnTerminate(int pid, int status)
 {
 	while (ProcessInput());
+#if !defined(WIN32)
+	if (status == -1)
+	{
+		// Workaround for wxProcess bug:
+		// wxProcess may call waitpid with WNOHANG when child has not exited and then
+		// incorrectly report the exit code as -1.
+		// For details, see:
+		// Ticket #10258: race condition in wxEndProcessFDIOHandler::OnExceptionWaiting
+		// http://trac.wxwidgets.org/ticket/10258
+		int result;
+		do
+		{
+			result = waitpid(pid, &status, 0);
+		} while (result == -1 && errno == EINTR);
+
+		if (result == -1)
+			status = -1;
+		else if (WIFEXITED(status))
+			status = WEXITSTATUS(status);
+	}
+#endif
 	m_parent->OnProcessExit(m_wasKilled, status);
 }
 
