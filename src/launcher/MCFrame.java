@@ -15,8 +15,6 @@
 //
 
 import net.minecraft.Launcher;
-import org.simplericity.macify.eawt.Application;
-import org.simplericity.macify.eawt.DefaultApplication;
 import java.applet.Applet;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -26,27 +24,21 @@ import java.awt.event.WindowListener;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.io.IOException;
+import java.io.File;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
 public class MCFrame extends Frame implements WindowListener
 {
 	private Launcher appletWrap = null;
-	private Application application = null;
-	
 	public MCFrame(String title)
 	{
 		super(title);
 		BufferedImage image = null;
 		try
 		{
-			image = ImageIO.read(getClass().getResource("icon.png"));
+			image = ImageIO.read(new File("icon.png"));
 			setIconImage(image);
-			application = new DefaultApplication();
-			if(application.isMac())
-			{
-				application.setApplicationIconImage(image);
-			}
 		}
 		catch (IOException e)
 		{
