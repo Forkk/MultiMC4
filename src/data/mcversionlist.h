@@ -27,14 +27,21 @@ enum VersionType
 	Snapshot,
 	MetaCustom,
 	MetaLatestSnapshot,
-	MetaLatestStable
+	MetaLatestStable,
 };
+
+// Some handy constants for often used version descriptors
+#define MCVer_Latest_Stable    "LatestStable"
+#define MCVer_Current_Stable   "CurrentStable"
+#define MCVer_Latest_Snapshot  "LatestSnapshot"
+#define MCVer_Current_Snapshot "CurrentSnapshot"
+#define MCVer_Unknown          "Unknown"
 
 class MCVersion
 {
 public:
 	MCVersion(wxString _descriptor, wxString _name, uint64_t _unixTimestamp, wxString _dlURL, bool _has_lwjgl, wxString _etag)
-	: name(_name), unixTimestamp(_unixTimestamp), dlURL(_dlURL), has_lwjgl(_has_lwjgl), etag(_etag)
+	: descriptor(_descriptor), name(_name), unixTimestamp(_unixTimestamp), dlURL(_dlURL), has_lwjgl(_has_lwjgl), etag(_etag)
 	{
 		linkedVersion = nullptr;
 	}
@@ -91,6 +98,10 @@ public:
 	{
 		type = newType;
 	}
+	
+public:
+	static const char * descriptors[];
+	
 private:
 	// raw version string as used in configs
 	wxString descriptor;
@@ -125,6 +136,7 @@ public:
 	{
 		return versions.size() == 0;
 	}
+	MCVersion * GetVersion ( wxString descriptor );
 
 	std::vector <MCVersion> versions;
 	int stableVersionIndex;

@@ -50,6 +50,27 @@ bool compareVersions(const MCVersion & left, const MCVersion & right)
 	return left.GetTimestamp() > right.GetTimestamp();
 }
 
+MCVersion * MCVersionList::GetVersion ( wxString descriptor )
+{
+	if(descriptor == MCVer_Unknown)
+		return nullptr;
+	else if(descriptor == MCVer_Latest_Stable || descriptor == MCVer_Current_Stable)
+	{
+	}
+	else if(descriptor == MCVer_Latest_Snapshot || descriptor == MCVer_Current_Snapshot)
+	{
+	}
+	else for(auto iter = versions.begin(); iter != versions.end() ; iter++)
+	{
+		MCVersion & v = *iter;
+		wxString descr = v.GetDescriptor();
+		if( descr == descriptor)
+			return &v;
+	}
+	return nullptr;
+}
+
+
 bool MCVersionList::LoadIfNeeded()
 {
 	if(versions.empty())

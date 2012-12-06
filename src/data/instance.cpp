@@ -33,6 +33,7 @@
 #include "java/javautils.h"
 #include "instancemodel.h"
 #include "mcprocess.h"
+#include "mcversionlist.h"
 
 const wxString cfgFileName = "instance.cfg";
 
@@ -111,7 +112,7 @@ void Instance::UpdateVersion ( bool keep_current )
 	if(!jar.FileExists())
 	{
 		SetJarTimestamp(0);
-		SetJarVersion("Unknown");
+		SetJarVersion(MCVer_Unknown);
 		return;
 	}
 	

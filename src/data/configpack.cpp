@@ -30,6 +30,8 @@
 
 #include <memory>
 
+#include "mcversionlist.h"
+
 ConfigPack::ConfigPack(const wxString& fileName)
 	: m_fileName(fileName)
 {
@@ -69,7 +71,7 @@ ConfigPack::ConfigPack(const wxString& fileName)
 		}
 		else
 		{
-			m_minecraftVersion = "Unknown";
+			m_minecraftVersion = MCVer_Unknown;
 		}
 		m_packNotes = wxStr(pt.get<std::string>("notes"));
 
