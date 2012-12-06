@@ -44,17 +44,10 @@ public class MCFrame extends Frame implements WindowListener
 		{
 			e.printStackTrace();
 		}
-		super.setVisible(true);
-		
-		this.setSize(800, 600);
-		this.setLocationRelativeTo(null);
-		
-		this.setResizable(true);
 		this.addWindowListener(this);
 	}
 
-	public void start(Applet mcApplet, String user, String session, 
-			Dimension winSize, boolean maximize)
+	public void start(Applet mcApplet, String user, String session, Dimension winSize, boolean maximize)
 	{
 		try
 		{
@@ -71,6 +64,7 @@ public class MCFrame extends Frame implements WindowListener
 		appletWrap.setPreferredSize(winSize);
 		this.pack();
 		this.setLocationRelativeTo(null);
+		this.setResizable(true);
 		if (maximize)
 			this.setExtendedState(MAXIMIZED_BOTH);
 		
