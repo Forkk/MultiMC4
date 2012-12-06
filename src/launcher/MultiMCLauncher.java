@@ -31,6 +31,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import org.simplericity.macify.eawt.Application;
+import org.simplericity.macify.eawt.DefaultApplication;
+
 public class MultiMCLauncher
 {
 	/**
@@ -44,6 +49,21 @@ public class MultiMCLauncher
 		{
 			System.out.println("Not enough arguments.");
 			System.exit(-1);
+		}
+		
+		// Set the OSX application icon first, if we are on OSX.
+		Application application = new DefaultApplication();
+		if(application.isMac())
+		{
+			try
+			{
+				BufferedImage image = ImageIO.read(new File("icon.png"));
+				application.setApplicationIconImage(image);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
 		
 		String userName = args[0];

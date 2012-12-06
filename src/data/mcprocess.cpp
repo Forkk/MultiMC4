@@ -33,21 +33,18 @@
 
 void ExtractLauncher(Instance* source)
 {
+	// init streams
 	wxMemoryInputStream launcherInputStream(multimclauncher, sizeof(multimclauncher));
-	wxZipInputStream dezipper(launcherInputStream);
 	wxFFileOutputStream launcherOutStream( Path::Combine(source->GetMCDir(),"MultiMCLauncher.jar") );
-	wxZipOutputStream zipper(launcherOutStream);
-	std::auto_ptr<wxZipEntry> entry;
-	// copy all files from the old zip file
-	while (entry.reset(dezipper.GetNextEntry()), entry.get() != NULL)
-		if (!zipper.CopyEntry(entry.release(), dezipper))
-			break;
-	// add the icon file
-	zipper.PutNextEntry("icon.png");
+	wxFFileOutputStream iconFile( Path::Combine(source->GetMCDir(),"icon.png") );
+	
+	// write launcher
+	launcherOutStream.Write(launcherInputStream);
+	
+	// write icon
 	InstIconList * iconList = InstIconList::Instance();
-	//FIXME: what if there is no such image?
 	wxImage &img =  iconList->getImage128ForKey(source->GetIconKey());
-	img.SaveFile(zipper,wxBITMAP_TYPE_PNG);
+	img.SaveFile(iconFile,wxBITMAP_TYPE_PNG);
 }
 
 wxProcess* MinecraftProcess::Launch ( Instance* source, InstConsoleWindow* parent, wxString username, wxString sessionID )
@@ -78,8 +75,12 @@ wxProcess* MinecraftProcess::Launch ( Instance* source, InstConsoleWindow* paren
 	
 	// now put together the launch command in the form:
 	// "%java%" %extra_args% -Xms%min_memory%m -Xmx%max_memory%m -jar MultiMCLauncher.jar "%user_name%" "%session_id%" "%window_title%" "%window_size%"
+	wxString javaArgs = source->GetJvmArgs();
+#ifdef OSX
+	javaArgs << " -Xdock:icon=icon.png -Xdock:name=\"" << windowTitle << "\"";
+#endif
 	wxString launchCmd;
-	launchCmd << DQuote(source->GetJavaPath()) << " " << source->GetJvmArgs()
+	launchCmd << DQuote(source->GetJavaPath()) << " " << javaArgs
 	          << " -Xms" << source->GetMinMemAlloc() << "m" << " -Xmx" << source->GetMaxMemAlloc() << "m"
 	          << " -jar MultiMCLauncher.jar "
 	          << " " << DQuote(username) << " " << DQuote(sessionID) << " " << DQuote(windowTitle) << " " << DQuote(winSizeArg);
