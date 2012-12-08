@@ -34,6 +34,7 @@ public:
 protected:
 	void OnBrowseInstDirClicked(wxCommandEvent& event);
 	void OnBrowseModsDirClicked(wxCommandEvent& event);
+	void OnBrowseLwjglDirClicked(wxCommandEvent& event);
 	void OnDetectJavaPathClicked(wxCommandEvent& event);
 	void OnUpdateCheckboxes(wxCommandEvent& event);
 	void OnOKClicked(wxCommandEvent& event);
@@ -64,6 +65,7 @@ protected:
 	wxCheckBox *useSystemLangCheck;
 	wxTextCtrl *instDirTextBox;
 	wxTextCtrl *modsDirTextBox;
+	wxTextCtrl *lwjglDirTextBox;
 	
 
 	// java tab stuff
@@ -119,6 +121,7 @@ enum
 {
 	ID_BrowseInstDir,
 	ID_BrowseModDir,
+	ID_BrowseLwjglDir,
 	ID_DetectJavaPath,
 
 	ID_MCMaximizeCheckbox,

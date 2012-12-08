@@ -322,7 +322,7 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_ManageSaves, _("&Manage Saves"), _("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _("&Edit Mods"), _("Install or remove mods."));
 	instMenu->Append(ID_DowngradeInst, _("Downgrade"), _("Use MCNostalgia to downgrade this instance."));
-	instMenu->Append(ID_UseSnapshot, _("Snapshot"), _("Install a snapshot."));
+	instMenu->Append(ID_UseVersion, _("Snapshot"), _("Install a snapshot."));
 	instMenu->Append(ID_ChangeLWJGL, _("Change LWJGL"), _("Use a different version of LWJGL with this instance."));
 	instMenu->Append(ID_RebuildJar, _("Re&build Jar"), _("Reinstall all the instance's jar mods."));
 	instMenu->Append(ID_ViewInstFolder, _("&View Folder"), _("Open the instance's folder."));
@@ -404,8 +404,8 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnSz->Add(btnManageSaves, szflags);
 	btnDowngrade = new wxButton(btnPanel, ID_DowngradeInst, _("Downgrade"));
 	btnSz->Add(btnDowngrade, szflags);
-	btnSnapshot = new wxButton(btnPanel, ID_UseSnapshot, _("Snapshot"));
-	btnSz->Add(btnSnapshot, szflags);
+	btnVersion = new wxButton(btnPanel, ID_UseVersion, _("Change Version"));
+	btnSz->Add(btnVersion, szflags);
 	btnRebuildJar = new wxButton(btnPanel, ID_RebuildJar, _("Re&build Jar"));
 	btnSz->Add(btnRebuildJar, szflags);
 	btnViewFolder = new wxButton(btnPanel, ID_ViewInstFolder, _("&View Folder"));
@@ -1334,7 +1334,7 @@ void MainWindow::EnableInstActions(bool enabled)
 		btnViewFolder->Enable(enabled);
 		btnCopyInst->Enable(enabled);
 		btnDowngrade->Enable(enabled);
-		btnSnapshot->Enable(enabled);
+		btnVersion->Enable(enabled);
 		break;
 		
 	case GUI_Simple:
@@ -1402,7 +1402,7 @@ indev and infdev. Are you sure you would like to downgrade to this version?"),
 	}
 }
 
-void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
+void MainWindow::OnVersionClicked(wxCommandEvent& event)
 {
 	auto currentInstance = instItems.GetSelectedInstance();
 	if(currentInstance == nullptr)
@@ -1413,46 +1413,13 @@ void MainWindow::OnSnapshotClicked(wxCommandEvent& event)
 		wxLogError(_("You must run this instance at least once to download minecraft before you can downgrade it!"));
 		return;
 	}
-	SnapshotDialog snapDlg(this);
-	snapDlg.CenterOnParent();
+	SnapshotDialog versionDlg(this);
+	versionDlg.CenterOnParent();
 	MCVersion ver;
-	if(snapDlg.ShowModal() != wxID_OK || !snapDlg.GetSelectedVersion(ver))
+	if(versionDlg.ShowModal() != wxID_OK || !versionDlg.GetSelectedVersion(ver))
 		return;
 	
-	wxString snapURL = ver.GetDLUrl() + "minecraft.jar";
-
-	wxString snapshotJar = Path::Combine(currentInstance->GetBinDir(), wxT("snapshot.jar"));
-	FileDownloadTask task(snapURL, snapshotJar);
-	if (!StartTask(&task))
-	{
-		wxLogError(_("MultiMC failed to download the new minecraft.jar"));
-		return;
-	}
-	
-	// if there is a backup, this signifies that we need to reinstall current mods into the new jar
-	// we nuke the backup regardless and replace the minecraft.jar
-	wxString failMSG = _("MultiMC was unable to replace the old .jar with the new snapshot.");
-	wxString mcbackup = currentInstance->GetMCBackup().GetFullPath();
-	if(wxFileExists(mcbackup))
-	{
-		if(!wxRemoveFile(currentInstance->GetMCBackup().GetFullPath()))
-		{
-			wxLogError(failMSG);
-			return;
-		}
-		else
-		{
-			currentInstance->SetNeedsRebuild();
-		}
-	}
-	// yep
-	if (wxCopyFile(snapshotJar, currentInstance->GetMCJar().GetFullPath()))
-	{
-		currentInstance->UpdateVersion();
-		UpdateInstPanel();
-	}
-	else
-		wxLogError(failMSG); // badness. and snake jars. let the user know.
+	currentInstance->SetIntendedJarVersion(ver.GetDescriptor());
 }
 
 void MainWindow::OnChangeLWJGLClicked(wxCommandEvent& event)
@@ -1461,18 +1428,27 @@ void MainWindow::OnChangeLWJGLClicked(wxCommandEvent& event)
 	lwjglDlg.CenterOnParent();
 	if (lwjglDlg.ShowModal() == wxID_OK && !lwjglDlg.GetSelection().IsEmpty())
 	{
-		// Download LWJGL
-		FileDownloadTask *dlTask = new FileDownloadTask(lwjglDlg.GetSelectedURL(),
-			wxFileName("lwjgl.zip"), _("Downloading LWJGL..."));
-		TaskProgressDialog tDialog(this);
-		if (!tDialog.ShowModal(dlTask))
+		wxString name = lwjglDlg.GetSelectedName();
+		wxString pathStr = Path::Combine(settings->GetLwjglDir(),name);
+		wxFileName path (pathStr);
+		auto inst = instItems.GetSelectedInstance();
+		
+		if(path.Exists() || name == "Mojang")
+		{
+			inst->SetLwjglVersion(name);
 			return;
-		delete dlTask;
-
-		LWJGLInstallTask *installTask = new LWJGLInstallTask(
-			instItems.GetSelectedInstance(), "lwjgl.zip");
-		tDialog.ShowModal(installTask);
-		delete installTask;
+		}
+		
+		TaskProgressDialog tDialog(this);
+		// Download LWJGL
+		FileDownloadTask dlTask (lwjglDlg.GetSelectedURL(), wxFileName("lwjgl.zip"), _("Downloading LWJGL..."));
+		if (!tDialog.ShowModal(&dlTask))
+			return;
+		
+		LWJGLInstallTask installTask(lwjglDlg.GetSelectedName(), "lwjgl.zip");
+		if (!tDialog.ShowModal(&installTask))
+			return;
+		inst->SetLwjglVersion(name);
 	}
 }
 
@@ -1708,7 +1684,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_MENU(ID_EditMods, MainWindow::OnEditModsClicked)
 	EVT_MENU(ID_DowngradeInst, MainWindow::OnDowngradeInstClicked)
-	EVT_MENU(ID_UseSnapshot, MainWindow::OnSnapshotClicked)
+	EVT_MENU(ID_UseVersion, MainWindow::OnVersionClicked)
 	EVT_MENU(ID_ChangeLWJGL, MainWindow::OnChangeLWJGLClicked)
 	EVT_MENU(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_MENU(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
@@ -1731,7 +1707,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_BUTTON(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_BUTTON(ID_EditMods, MainWindow::OnEditModsClicked)
 	EVT_BUTTON(ID_DowngradeInst, MainWindow::OnDowngradeInstClicked)
-	EVT_BUTTON(ID_UseSnapshot, MainWindow::OnSnapshotClicked)
+	EVT_BUTTON(ID_UseVersion, MainWindow::OnVersionClicked)
 	EVT_BUTTON(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_BUTTON(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
 	

@@ -15,19 +15,9 @@
 //
 
 #include "lwjgldialog.h"
-
-#include <boost/property_tree/xml_parser.hpp>
-#include <boost/foreach.hpp>
-
-#include <sstream>
-
-#include <wx/regex.h>
-#include <wx/numformatter.h>
-
-#include "utils/httputils.h"
-#include "utils/apputils.h"
-
-const wxString rssURL = "http://sourceforge.net/api/file/index/project-id/58488/mtime/desc/rss";
+#include "taskprogressdialog.h"
+#include "lwjglversionlist.h"
+#include <lambdatask.h>
 
 ChooseLWJGLDialog::ChooseLWJGLDialog(wxWindow *parent)
 	: ListSelectDialog(parent, _("Choose LWJGL Version"))
@@ -37,62 +27,53 @@ ChooseLWJGLDialog::ChooseLWJGLDialog(wxWindow *parent)
 
 void ChooseLWJGLDialog::LoadList()
 {
-	linkList.Clear();
+	LWJGLVersionList & verList = LWJGLVersionList::Instance();
 
-	ListSelectDialog::LoadList();
+	bool success = false;
+	
+	if(verList.NeedsLoad())
+	{
+		LambdaTask::TaskFunc func = [&] (LambdaTask *task) -> wxThread::ExitCode
+		{
+			task->DoSetStatus(_("Loading LWJGL version list..."));
+			return (wxThread::ExitCode)DoLoadList();
+		};
+
+		LambdaTask *lTask = new LambdaTask(func);
+		TaskProgressDialog taskDlg(this);
+		success = taskDlg.ShowModal(lTask) > 0;
+		delete lTask;
+	}
+	else
+	{
+		success = true;
+	}
+	sList.Clear();
+	linkList.Clear();
+	for(auto iter = verList.versions.begin(); iter != verList.versions.end(); iter++)
+	{
+		LWJGLVersion & ver = *iter;
+		sList.push_back(ver.GetName());
+		linkList.push_back(ver.GetDLUrl());
+	}
+	listCtrl->SetItemCount(sList.size());
+	listCtrl->Refresh();
+	listCtrl->Update();
+	UpdateOKBtn();
 }
 
 bool ChooseLWJGLDialog::DoLoadList()
 {
-	// Parse XML from the given URL.
-	wxString rssXML = wxEmptyString;
-	if (!DownloadString(rssURL, &rssXML))
-	{
-		wxLogError(_("Failed to get RSS feed. Check your internet connection."));
-		return false;
-	}
-
-	using namespace boost::property_tree;
-	try
-	{
-		ptree pt;
-		std::stringstream inStream(stdStr(rssXML), std::ios::in);
-		read_xml(inStream, pt);
-
-		wxRegEx lwjglRegex(wxT("^lwjgl-([0-9]\\.?)+\\.zip$"));
-
-		BOOST_FOREACH(const ptree::value_type& v, pt.get_child("rss.channel"))
-		{
-			if (v.first == "item")
-			{
-				wxString link = wxStr(v.second.get<std::string>("link"));
-
-				// Look for download links.
-				if (link.EndsWith("/download"))
-				{
-					wxString name = link.BeforeLast('/');
-					name = name.AfterLast('/');
-
-					if (lwjglRegex.Matches(name))
-					{
-						sList.Add(name);
-						linkList.Add(link);
-					}
-				}
-			}
-		}
-	}
-	catch (xml_parser_error e)
-	{
-		wxLogError(_("Failed to parse LWJGL list.\nXML parser error at line %i: %s"), 
-			e.line(), wxStr(e.message()).c_str());
-		return false;
-	}
-
-	return true;
+	LWJGLVersionList & verList = LWJGLVersionList::Instance();
+	return verList.LoadIfNeeded();
 }
 
 wxString ChooseLWJGLDialog::GetSelectedURL()
 {
 	return linkList[GetSelectedIndex()];
+}
+
+wxString ChooseLWJGLDialog::GetSelectedName()
+{
+	return sList[GetSelectedIndex()];
 }

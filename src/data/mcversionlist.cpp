@@ -73,7 +73,7 @@ MCVersion * MCVersionList::GetVersion ( wxString descriptor )
 
 bool MCVersionList::LoadIfNeeded()
 {
-	if(versions.empty())
+	if(NeedsLoad())
 	{
 		return Reload();
 	}

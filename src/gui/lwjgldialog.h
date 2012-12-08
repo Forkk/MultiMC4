@@ -23,6 +23,7 @@ public:
 	ChooseLWJGLDialog(wxWindow *parent);
 
 	virtual wxString GetSelectedURL();
+	virtual wxString GetSelectedName();
 
 protected:
 	virtual void LoadList();

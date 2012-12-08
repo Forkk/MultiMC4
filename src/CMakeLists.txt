@@ -145,6 +145,7 @@ data/mod.cpp
 data/modlist.cpp
 data/configpack.cpp
 data/mcversionlist.cpp
+data/lwjglversionlist.cpp
 data/worldlist.cpp
 data/world.cpp
 data/texturepack.cpp
@@ -216,6 +217,7 @@ data/mod.h
 data/modlist.h
 data/configpack.h
 data/mcversionlist.h
+data/lwjglversionlist.h
 data/worldlist.h
 data/world.h
 data/texturepack.h

@@ -79,11 +79,19 @@ wxProcess* MinecraftProcess::Launch ( Instance* source, InstConsoleWindow* paren
 #ifdef OSX
 	javaArgs << " -Xdock:icon=icon.png -Xdock:name=\"" << windowTitle << "\"";
 #endif
+	wxString lwjgl = source->GetLwjglVersion();
+	if(lwjgl != "Mojang")
+	{
+		wxFileName fname(Path::Combine( settings->GetLwjglDir(), lwjgl ));
+		fname.MakeAbsolute();
+		lwjgl = fname.GetFullPath();
+	}
+	
 	wxString launchCmd;
 	launchCmd << DQuote(source->GetJavaPath()) << " " << javaArgs
 	          << " -Xms" << source->GetMinMemAlloc() << "m" << " -Xmx" << source->GetMaxMemAlloc() << "m"
 	          << " -jar MultiMCLauncher.jar "
-	          << " " << DQuote(username) << " " << DQuote(sessionID) << " " << DQuote(windowTitle) << " " << DQuote(winSizeArg);
+	          << " " << DQuote(username) << " " << DQuote(sessionID) << " " << DQuote(windowTitle) << " " << DQuote(winSizeArg) << " " << DQuote(lwjgl);
 	
 	// create a (custom) process object!
 	MinecraftProcess *instProc = new MinecraftProcess(source, parent);

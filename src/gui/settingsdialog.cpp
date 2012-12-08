@@ -160,7 +160,17 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 					auto modDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseModDir, _("Browse..."));
 					dirsSizer->Add(modDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
 				}
+				row++;
+				{
+					auto lwjglDirLabel = new wxStaticText(box->GetStaticBox(), -1, _("LWJGL: "));
+					dirsSizer->Add(lwjglDirLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
 
+					lwjglDirTextBox = new wxTextCtrl(box->GetStaticBox(), -1);
+					dirsSizer->Add(lwjglDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+					auto lwjglDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseLwjglDir, _("Browse..."));
+					dirsSizer->Add(lwjglDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
+				}
 				dirsSizer->AddGrowableCol(1);
 
 				box->Add(dirsSizer, staticBoxInnerFlags);
@@ -580,6 +590,19 @@ bool SettingsDialog::ApplySettings()
 		}
 		currentSettings->SetModsDir(newModDir);
 		
+		wxFileName newLwjglDir = wxFileName::DirName(lwjglDirTextBox->GetValue());
+		wxFileName oldLwjglDir = currentSettings->GetLwjglDir();
+		if (!oldLwjglDir.SameAs(newLwjglDir))
+		{
+			if(!FolderMove(oldLwjglDir, newLwjglDir,
+				_("You've changed your lwjgl directory, would you like to transfer all of your lwjgl versions?"),
+				_("Lwjgl directory changed.")))
+			{
+				return false;
+			}
+		}
+		currentSettings->SetLwjglDir(newLwjglDir);
+		
 		GUIMode newGUIMode;
 		if (guiStyleBox->GetStringSelection() == guiModeFancy)
 			newGUIMode = GUI_Fancy;
@@ -783,6 +806,7 @@ void SettingsDialog::LoadSettings()
 
 		instDirTextBox->SetValue(currentSettings->GetInstDir().GetFullPath());
 		modsDirTextBox->SetValue(currentSettings->GetModsDir().GetFullPath());
+		lwjglDirTextBox->SetValue(currentSettings->GetLwjglDir().GetFullPath());
 
 		sysMsgColorCtrl->SetColour(currentSettings->GetConsoleSysMsgColor());
 		stdoutColorCtrl->SetColour(currentSettings->GetConsoleStdoutColor());
@@ -929,6 +953,27 @@ void SettingsDialog::OnBrowseModsDirClicked(wxCommandEvent& event)
 	}
 }
 
+
+
+void SettingsDialog::OnBrowseLwjglDirClicked(wxCommandEvent& event)
+{
+	wxDirDialog dirDlg (this, "Select a new folder for storing LWJGL versions.", lwjglDirTextBox->GetValue());
+	if (dirDlg.ShowModal() == wxID_OK)
+	{
+		wxFileName a = dirDlg.GetPath();
+		if(fsutils::isSubsetOf(a,wxGetCwd()))
+			a.MakeRelativeTo();
+		if(a.SameAs(wxGetCwd()))
+		{
+			lwjglDirTextBox->ChangeValue(".");
+		}
+		else
+		{
+			lwjglDirTextBox->ChangeValue(a.GetFullPath());
+		}
+	}
+}
+
 void SettingsDialog::OnDetectJavaPathClicked(wxCommandEvent& event)
 {
 	wxString newJPath = FindJavaPath(javaPathTextBox->GetValue());
@@ -1002,6 +1047,7 @@ bool SettingsDialog::ShouldRestartNow() const
 BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_BUTTON(ID_BrowseInstDir, SettingsDialog::OnBrowseInstDirClicked)
 	EVT_BUTTON(ID_BrowseModDir, SettingsDialog::OnBrowseModsDirClicked)
+	EVT_BUTTON(ID_BrowseLwjglDir, SettingsDialog::OnBrowseLwjglDirClicked)
 	EVT_BUTTON(ID_DetectJavaPath, SettingsDialog::OnDetectJavaPathClicked)
 	EVT_BUTTON(wxID_OK, SettingsDialog::OnOKClicked)
 

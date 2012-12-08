@@ -143,6 +143,7 @@ public:
 	DEFINE_FN_SETTING_ADVANCED(InstDir, "InstanceDir", wxFileName::DirName("instances"));
 	DEFINE_FN_SETTING(ModsDir, wxFileName::DirName("mods"));
 	DEFINE_FN_SETTING(IconsDir, wxFileName::DirName("icons"));
+	DEFINE_FN_SETTING(LwjglDir, wxFileName::DirName("lwjgl"));
 
 	DEFINE_SETTING(AutoCloseConsole, bool, true);
 	DEFINE_SETTING(ShowConsole, bool, true);

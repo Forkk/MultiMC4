@@ -160,6 +160,9 @@ public:
 	wxString GetJarVersion() const { return GetSetting<wxString>("JarVersion","Unknown"); };
 	void SetJarVersion( wxString value ) {  SetSetting<wxString>("JarVersion", value); };
 
+	wxString GetLwjglVersion() const { return GetSetting<wxString>("LwjglVersion","Mojang"); };
+	void SetLwjglVersion( wxString value ) {  SetSetting<wxString>("LwjglVersion", value); };
+	
 	wxString GetIntendedJarVersion() const { return GetSetting<wxString>("IntendedJarVersion",GetJarVersion()); };
 	void SetIntendedJarVersion( wxString value ) {  SetSetting<wxString>("IntendedJarVersion", value); };
 	
