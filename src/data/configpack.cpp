@@ -158,6 +158,12 @@ const std::vector<ConfigPack::CPModInfo>* ConfigPack::GetCoreModList() const
 	return &coreModInfoList;
 }
 
+wxString ConfigPack::GetMinecraftVersion() const
+{
+	return m_minecraftVersion;
+}
+
+
 ConfigPack::CPModInfo::CPModInfo(const wxString& id, const wxString& version)
 {
 	m_id = id;
