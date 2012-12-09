@@ -621,6 +621,7 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 	inst->SetName(instName);
 	AddInstance(inst);
 	inst->SetIntendedJarVersion(dlg.GetInstanceMCVersion());
+	inst->SetIconKey(dlg.GetInstanceIconKey());
 }
 
 void MainWindow::OnImportMCFolder(wxCommandEvent& event)

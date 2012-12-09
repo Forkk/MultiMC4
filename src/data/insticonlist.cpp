@@ -28,6 +28,26 @@
 #include "appsettings.h"
 // #define DEBUG_ICONS
 
+wxString InstIconList::getRealIconKeyForEasterEgg ( wxString key, wxString name )
+{
+	if (key == "default")
+	{
+		if (name.Lower().Contains("btw") ||
+			name.Lower().Contains("better then wolves") || // Because some people are stupid :D
+			name.Lower().Contains("better than wolves"))
+		{
+			return "herobrine";
+		}
+		else if (name.Lower().Contains("direwolf"))
+		{
+			return "enderman";
+		}
+	}
+	return key;
+}
+
+
+
 InstIconList* InstIconList::pInstance = 0;
 
 const int allowedImgExtensionsCount = 5;

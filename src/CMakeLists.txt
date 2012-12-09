@@ -136,6 +136,7 @@ gui/advancedmsgdlg.cpp
 gui/listselectdialog.cpp
 gui/lwjgldialog.cpp
 gui/ftbselectdialog.cpp
+gui/shadedtextedit.cpp
 
 data/appsettings.cpp
 data/instance.cpp
@@ -209,6 +210,7 @@ gui/advancedmsgdlg.h
 gui/listselectdialog.h
 gui/lwjgldialog.h
 gui/ftbselectdialog.h
+gui/shadedtextedit.h
 
 data/appsettings.h
 data/instance.h

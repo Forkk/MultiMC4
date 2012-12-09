@@ -253,11 +253,11 @@ bool CreateAllDirs(const wxFileName &dir)
 bool GetValidInstanceFolderName ( wxString instanceName, wxString & folderName )
 {
 	int num = 0;
-	folderName = Utils::RemoveInvalidPathChars( instanceName, '-', false);
+	folderName = Utils::RemoveInvalidFilenameChars( instanceName, '-');
 	while (wxDirExists(Path::Combine( settings->GetInstDir(), folderName)))
 	{
 		num++;
-		folderName = Utils::RemoveInvalidPathChars( instanceName, '-', false) + wxString::Format("_%i", num);
+		folderName = Utils::RemoveInvalidFilenameChars( instanceName, '-') + wxString::Format("_%i", num);
 		// If it's over 9000
 		if (num > 9000)
 			return false;

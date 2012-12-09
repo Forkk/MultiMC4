@@ -15,6 +15,7 @@
 #include <wx/dialog.h>
 #include <vector>
 
+class ShadedTextEdit;
 ///////////////////////////////////////////////////////////////////////////
 
 
@@ -44,7 +45,8 @@ class NewInstanceDialog : public wxDialog
 		};
 	
 	protected:
-		wxTextCtrl* m_textName;
+		wxButton* m_btnIcon;
+		ShadedTextEdit* m_textName;
 		wxTextCtrl* m_textFolder;
 		MCVersionChoice* m_choiceMCVersion;
 		wxCheckBox* m_checkOldSnapshots;
@@ -58,16 +60,26 @@ class NewInstanceDialog : public wxDialog
 			ID_select_MC,
 			ID_select_LWJGL,
 			ID_show_old,
-			ID_show_new
+			ID_show_new,
+			ID_icon_select
 		};
 		
 		bool m_showOldSnapshots;
 		bool m_showNewSnapshots;
+		bool m_loadingDone;
+		wxString m_iconKey;
+		wxString m_visibleIconKey;
+		wxString m_name;
 		
 	protected:
+		void OnIcon(wxCommandEvent& event);
 		void OnName(wxCommandEvent& event);
 		void OnCheckbox(wxCommandEvent& event);
+		
 		void Refilter();
+		
+		void SetIconKey(wxString iconkey);
+		void UpdateIcon();
 		
 	public:
 		NewInstanceDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Create New Instance"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 394,380 ), long style = wxDEFAULT_DIALOG_STYLE );
@@ -75,7 +87,9 @@ class NewInstanceDialog : public wxDialog
 		wxString GetInstanceName();
 		wxString GetInstanceMCVersion();
 		wxString GetInstanceLWJGL();
+		wxString GetInstanceIconKey();
 		int ShowModal();
+	
 	
 	protected:
 		DECLARE_EVENT_TABLE()
