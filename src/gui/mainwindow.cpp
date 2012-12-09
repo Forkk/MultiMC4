@@ -594,7 +594,16 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 {
 	wxString instName;
 	wxString instDirName;
-	NewInstanceDialog dlg(this);
+	wxString username;
+	
+	UserInfo lastLogin;
+	if (wxFileExists("lastlogin4"))
+	{
+		lastLogin.LoadFromFile("lastlogin4");
+		username = lastLogin.username;
+	}
+	
+	NewInstanceDialog dlg(this, username);
 	if (dlg.ShowModal() != wxID_OK)
 		return;
 
@@ -605,19 +614,6 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 	wxString instDir = Path::Combine(settings->GetInstDir(), instDirName);
 	
 	Instance *inst = new StdInstance(instDir);
-	UserInfo lastLogin;
-	if (wxFileExists("lastlogin4"))
-	{
-		lastLogin.LoadFromFile("lastlogin4");
-		if(lastLogin.username.Lower().Contains("direwolf"))
-		{
-			inst->SetIconKey("enderman");
-		}
-		else if (lastLogin.username.Lower().Contains("rootbear75"))
-		{
-			inst->SetIconKey("derp");
-		}
-	}
 	inst->SetName(instName);
 	AddInstance(inst);
 	inst->SetIntendedJarVersion(dlg.GetInstanceMCVersion());

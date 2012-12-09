@@ -23,7 +23,7 @@
 #include <lambdatask.h>
 #include "shadedtextedit.h"
 
-NewInstanceDialog::NewInstanceDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+bool NewInstanceDialog::Create()
 {
 	m_loadingDone = false;
 	m_iconKey = wxEmptyString;
@@ -35,7 +35,17 @@ NewInstanceDialog::NewInstanceDialog( wxWindow* parent, wxWindowID id, const wxS
 	
 	m_btnIcon = new wxButton(this, ID_icon_select, wxEmptyString, wxDefaultPosition, wxDefaultSize);
 	bSizer1->Add( m_btnIcon, 0,wxALIGN_CENTER_HORIZONTAL | wxALL, 5 );
-	SetIconKey("default");
+	
+	// Because ponies.
+	if (m_username.Lower().Contains("rootbear75"))
+	{
+		SetIconKey("derp");
+	}
+	else
+	{
+		SetIconKey("default");
+	}
+
 	
 	m_textName = new ShadedTextEdit( this, _("Instance name"), ID_text_name, wxTE_CENTRE|wxTE_DONTWRAP );
 	m_textName->SetMaxLength( 25 ); 
@@ -43,16 +53,7 @@ NewInstanceDialog::NewInstanceDialog( wxWindow* parent, wxWindowID id, const wxS
 	
 	auto staticline0 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	bSizer1->Add( staticline0, 0, wxEXPAND | wxALL, 5 );
-	/*
-	auto staticText1b = new wxStaticText( this, wxID_ANY, wxT("Folder name:"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer1->Add( staticText1b, 0, wxALL|wxEXPAND, 5 );
-	m_textFolder = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	m_textFolder->Enable(false);
-	bSizer1->Add( m_textFolder, 0, wxALL|wxEXPAND, 5 );
-	
-	auto staticline1 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	bSizer1->Add( staticline1, 0, wxEXPAND | wxALL, 5 );
-	*/
+
 	auto staticText2 = new wxStaticText( this, wxID_ANY, wxT("Minecraft version:"), wxDefaultPosition, wxDefaultSize, 0 );
 	//staticText2->Wrap( -1 );
 	bSizer1->Add( staticText2, 0, wxALL, 5 );
@@ -77,20 +78,7 @@ NewInstanceDialog::NewInstanceDialog( wxWindow* parent, wxWindowID id, const wxS
 	
 	auto staticline2 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	bSizer1->Add( staticline2, 0, wxEXPAND | wxALL, 5 );
-	/*
-	auto staticText3 = new wxStaticText( this, wxID_ANY, wxT("LWJGL version:"), wxDefaultPosition, wxDefaultSize, 0 );
-	//staticText3->Wrap( -1 );
-	bSizer1->Add( staticText3, 0, wxALL, 5 );
 	
-	wxArrayString m_choiceLwjglChoices;
-	m_choiceLwjglChoices.Add(_("Mojang"));
-	m_choiceLwjgl = new wxChoice( this, ID_select_LWJGL, wxDefaultPosition, wxDefaultSize, m_choiceLwjglChoices, 0 );
-	m_choiceLwjgl->SetSelection( 0 );
-	bSizer1->Add( m_choiceLwjgl, 0, wxALL|wxEXPAND, 5 );
-	
-	auto staticline3 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	bSizer1->Add( staticline3, 0, wxEXPAND | wxALL, 5 );
-	*/
 	bSizer1->AddStretchSpacer();
 	
 	auto btnSizer = CreateButtonSizer(wxOK | wxCANCEL);
@@ -225,12 +213,7 @@ wxString NewInstanceDialog::GetInstanceMCVersion()
 
 wxString NewInstanceDialog::GetInstanceLWJGL()
 {
-	/*
-	int selection = m_choiceLwjgl->GetSelection();
-	if(selection != -1)
-		return m_choiceLwjgl->GetString(selection);
-	*/
-	return _("Mojang");
+	return "Mojang";
 }
 
 BEGIN_EVENT_TABLE(NewInstanceDialog, wxDialog)

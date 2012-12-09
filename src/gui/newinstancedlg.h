@@ -70,6 +70,7 @@ class NewInstanceDialog : public wxDialog
 		wxString m_iconKey;
 		wxString m_visibleIconKey;
 		wxString m_name;
+		wxString m_username;
 		
 	protected:
 		void OnIcon(wxCommandEvent& event);
@@ -82,7 +83,14 @@ class NewInstanceDialog : public wxDialog
 		void UpdateIcon();
 		
 	public:
-		NewInstanceDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("Create New Instance"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 394,380 ), long style = wxDEFAULT_DIALOG_STYLE );
+		NewInstanceDialog( wxWindow* parent, wxString username = wxEmptyString)
+		: wxDialog( parent, wxID_ANY, wxT("Create New Instance"), wxDefaultPosition, wxSize( 394,380 ), wxDEFAULT_DIALOG_STYLE )
+		{
+			m_username = username;
+			Create();
+		};
+		bool Create();
+		
 		~NewInstanceDialog();
 		wxString GetInstanceName();
 		wxString GetInstanceMCVersion();
