@@ -19,10 +19,10 @@
 #include "mcversionlist.h"
 #include <vector>
 
-class SnapshotDialog : public ListSelectDialog
+class MinecraftVersionDialog : public ListSelectDialog
 {
 public:
-	SnapshotDialog(wxWindow *parent);
+	MinecraftVersionDialog(wxWindow *parent);
 	bool GetSelectedVersion(MCVersion & out);
 
 protected:

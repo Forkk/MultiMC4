@@ -14,7 +14,7 @@
 //    limitations under the License.
 //
 
-#include "snapshotdialog.h"
+#include "minecraftversiondialog.h"
 #include "taskprogressdialog.h"
 #include "mcversionlist.h"
 #include <lambdatask.h>
@@ -28,7 +28,7 @@ const wxString typeNames[4] =
 	_("Snapshot")
 };
 
-SnapshotDialog::SnapshotDialog(wxWindow *parent)
+MinecraftVersionDialog::MinecraftVersionDialog(wxWindow *parent)
 	: ListSelectDialog(parent, _("Select Minecraft version"))
 {
 	// data setup
@@ -64,7 +64,7 @@ SnapshotDialog::SnapshotDialog(wxWindow *parent)
 	ShowHeader(true);
 }
 
-void SnapshotDialog::LoadList()
+void MinecraftVersionDialog::LoadList()
 {
 	MCVersionList & verList = MCVersionList::Instance();
 
@@ -91,13 +91,13 @@ void SnapshotDialog::LoadList()
 	Refilter();
 }
 
-bool SnapshotDialog::DoLoadList()
+bool MinecraftVersionDialog::DoLoadList()
 {
 	MCVersionList & verList = MCVersionList::Instance();
 	return verList.LoadIfNeeded();
 }
 
-void SnapshotDialog::Refilter()
+void MinecraftVersionDialog::Refilter()
 {
 	visibleIndexes.clear();
 	MCVersionList & verList = MCVersionList::Instance();
@@ -117,7 +117,7 @@ void SnapshotDialog::Refilter()
 	UpdateOKBtn();
 }
 
-wxString SnapshotDialog::OnGetItemText(long item, long column)
+wxString MinecraftVersionDialog::OnGetItemText(long item, long column)
 {
 	MCVersionList & verList = MCVersionList::Instance();
 	MCVersion & ver = verList.versions[visibleIndexes[item]];
@@ -134,7 +134,7 @@ wxString SnapshotDialog::OnGetItemText(long item, long column)
 	}
 }
 
-bool SnapshotDialog::GetSelectedVersion ( MCVersion& out )
+bool MinecraftVersionDialog::GetSelectedVersion ( MCVersion& out )
 {
 	MCVersionList & verList = MCVersionList::Instance();
 	int idx = GetSelectedIndex();
@@ -145,12 +145,12 @@ bool SnapshotDialog::GetSelectedVersion ( MCVersion& out )
 }
 
 
-void SnapshotDialog::OnCheckbox(wxCommandEvent& event)
+void MinecraftVersionDialog::OnCheckbox(wxCommandEvent& event)
 {
 	showOldSnapshots = event.IsChecked();
 	Refilter();
 }
 
-BEGIN_EVENT_TABLE(SnapshotDialog, ListSelectDialog)
-	EVT_CHECKBOX(5555, SnapshotDialog::OnCheckbox)
+BEGIN_EVENT_TABLE(MinecraftVersionDialog, ListSelectDialog)
+	EVT_CHECKBOX(5555, MinecraftVersionDialog::OnCheckbox)
 END_EVENT_TABLE()

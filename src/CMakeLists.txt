@@ -128,7 +128,7 @@ gui/aboutdlg.cpp
 gui/updatepromptdlg.cpp
 gui/newinstancedlg.cpp
 gui/taskprogressdialog.cpp
-gui/snapshotdialog.cpp
+gui/minecraftversiondialog.cpp
 gui/installforgedialog.cpp
 gui/savemgrwindow.cpp
 gui/textdisplaydialog.cpp
@@ -202,7 +202,7 @@ gui/aboutdlg.h
 gui/updatepromptdlg.h
 gui/newinstancedlg.h
 gui/taskprogressdialog.h
-gui/snapshotdialog.h
+gui/minecraftversiondialog.h
 gui/installforgedialog.h
 gui/savemgrwindow.h
 gui/textdisplaydialog.h

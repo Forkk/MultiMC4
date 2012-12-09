@@ -39,7 +39,7 @@
 #include "aboutdlg.h"
 #include "updatepromptdlg.h"
 #include "taskprogressdialog.h"
-#include "snapshotdialog.h"
+#include "minecraftversiondialog.h"
 #include "lwjgldialog.h"
 #include "savemgrwindow.h"
 #include "stdinstance.h"
@@ -322,7 +322,7 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_ManageSaves, _("&Manage Saves"), _("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _("&Edit Mods"), _("Install or remove mods."));
 	instMenu->Append(ID_DowngradeInst, _("Downgrade"), _("Use MCNostalgia to downgrade this instance."));
-	instMenu->Append(ID_UseVersion, _("Snapshot"), _("Install a snapshot."));
+	instMenu->Append(ID_UseVersion, _("Change Version"), _("Change instance's Minecraft version (game will update on login)."));
 	instMenu->Append(ID_ChangeLWJGL, _("Change LWJGL"), _("Use a different version of LWJGL with this instance."));
 	instMenu->Append(ID_RebuildJar, _("Re&build Jar"), _("Reinstall all the instance's jar mods."));
 	instMenu->Append(ID_ViewInstFolder, _("&View Folder"), _("Open the instance's folder."));
@@ -1410,7 +1410,7 @@ void MainWindow::OnVersionClicked(wxCommandEvent& event)
 		wxLogError(_("You must run this instance at least once to download minecraft before you can downgrade it!"));
 		return;
 	}
-	SnapshotDialog versionDlg(this);
+	MinecraftVersionDialog versionDlg(this);
 	versionDlg.CenterOnParent();
 	MCVersion ver;
 	if(versionDlg.ShowModal() != wxID_OK || !versionDlg.GetSelectedVersion(ver))

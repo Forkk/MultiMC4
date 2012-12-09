@@ -21,7 +21,7 @@
 #include <wx/zipstrm.h>
 
 #include "mainwindow.h"
-#include "snapshotdialog.h"
+#include "minecraftversiondialog.h"
 #include "utils/apputils.h"
 #include "utils/fsutils.h"
 
@@ -95,7 +95,7 @@ bool ImportPackWizard::Start()
 		wxString IntendedVersion = m_pack->GetMinecraftVersion();
 		if(IntendedVersion == "Unknown")
 		{
-			SnapshotDialog dlg(this);
+			MinecraftVersionDialog dlg(this);
 			dlg.CenterOnParent();
 			MCVersion ver;
 			if(dlg.ShowModal() != wxID_OK || !dlg.GetSelectedVersion(ver))
