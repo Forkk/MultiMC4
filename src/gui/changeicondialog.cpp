@@ -28,6 +28,13 @@ enum
 	ID_ReloadIcons,
 };
 
+int wxCALLBACK IconSortPredicate(long item1, long item2, long sortData)
+{
+	InstIcon * icon1 = (InstIcon *) item1;
+	InstIcon * icon2 = (InstIcon *) item2;
+	return icon1->m_name.compare(icon2->m_name);
+}
+
 ChangeIconDialog::ChangeIconDialog(wxWindow *parent)
 	: wxDialog(parent, -1, _("Change Icon"), wxDefaultPosition, wxSize(500, 400))
 {
@@ -71,7 +78,9 @@ wxString ChangeIconDialog::GetSelectedIconKey() const
 		if (item == -1)
 			break;
 		
-		return iconListCtrl->GetItemText(item);
+		InstIcon * icon = (InstIcon *) iconListCtrl->GetItemData(item);
+		
+		return icon->m_key;
 	}
 	return "default";
 }
@@ -95,9 +104,12 @@ void ChangeIconDialog::InstIconListCtrl::UpdateItems()
 	for (InstIconMap::const_iterator iter = iconMap.begin(); iter != iconMap.end(); ++iter)
 	{
 		wxString key = iter->first;
-		InsertItem(i, key, i);
+		auto & icon = iter->second;
+		InsertItem(i, icon.m_name, i);
+		SetItemPtrData(i, (wxUIntPtr) &icon);
 		i++;
 	}
+	SortItems(IconSortPredicate,0);
 }
 
 void ChangeIconDialog::OnItemActivated(wxListEvent &event)

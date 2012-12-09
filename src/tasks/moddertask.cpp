@@ -39,6 +39,13 @@ wxThread::ExitCode ModderTask::TaskStart()
 	wxFileName mcJar = m_inst->GetMCJar();
 	wxFileName mcBackup = m_inst->GetMCBackup();
 	
+	// Nothing to do if there are no jar mods to install, no backup and just the mc jar
+	if(mcJar.FileExists() && !mcBackup.FileExists() && modList->empty())
+	{
+		m_inst->SetNeedsRebuild(false);
+		return (ExitCode)1;
+	}
+	
 	SetStatus(_("Installing mods - backing up minecraft.jar..."));
 	if (!mcBackup.FileExists() && !wxCopyFile(mcJar.GetFullPath(), mcBackup.GetFullPath()))
 	{

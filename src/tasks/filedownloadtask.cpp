@@ -129,3 +129,8 @@ double FileDownloadTask::GetDownloadSize()
 	else
 		return contentLen;
 }
+
+bool FileDownloadTask::WasSuccessful() const
+{
+	return successful;
+}

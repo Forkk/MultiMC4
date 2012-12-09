@@ -22,27 +22,29 @@
 #include <insticonlist.h>
 #include <memory>
 #include "launcher/launcherdata.h"
+#if !defined(WIN32)
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <errno.h>
+#endif
 
 // macro for adding "" around strings
 #define DQuote(X) "\"" << X << "\""
 
 void ExtractLauncher(Instance* source)
 {
+	// init streams
 	wxMemoryInputStream launcherInputStream(multimclauncher, sizeof(multimclauncher));
-	wxZipInputStream dezipper(launcherInputStream);
 	wxFFileOutputStream launcherOutStream( Path::Combine(source->GetMCDir(),"MultiMCLauncher.jar") );
-	wxZipOutputStream zipper(launcherOutStream);
-	std::auto_ptr<wxZipEntry> entry;
-	// copy all files from the old zip file
-	while (entry.reset(dezipper.GetNextEntry()), entry.get() != NULL)
-		if (!zipper.CopyEntry(entry.release(), dezipper))
-			break;
-	// add the icon file
-	zipper.PutNextEntry("icon.png");
+	wxFFileOutputStream iconFile( Path::Combine(source->GetMCDir(),"icon.png") );
+	
+	// write launcher
+	launcherOutStream.Write(launcherInputStream);
+	
+	// write icon
 	InstIconList * iconList = InstIconList::Instance();
-	//FIXME: what if there is no such image?
-	wxImage &img =  iconList->getImageForKey(source->GetIconKey());
-	img.SaveFile(zipper,wxBITMAP_TYPE_PNG);
+	wxImage &img =  iconList->getImage128ForKey(source->GetIconKey());
+	img.SaveFile(iconFile,wxBITMAP_TYPE_PNG);
 }
 
 wxProcess* MinecraftProcess::Launch ( Instance* source, InstConsoleWindow* parent, wxString username, wxString sessionID )
@@ -73,8 +75,12 @@ wxProcess* MinecraftProcess::Launch ( Instance* source, InstConsoleWindow* paren
 	
 	// now put together the launch command in the form:
 	// "%java%" %extra_args% -Xms%min_memory%m -Xmx%max_memory%m -jar MultiMCLauncher.jar "%user_name%" "%session_id%" "%window_title%" "%window_size%"
+	wxString javaArgs = source->GetJvmArgs();
+#ifdef OSX
+	javaArgs << " -Xdock:icon=icon.png -Xdock:name=\"" << windowTitle << "\"";
+#endif
 	wxString launchCmd;
-	launchCmd << DQuote(source->GetJavaPath()) << " " << source->GetJvmArgs()
+	launchCmd << DQuote(source->GetJavaPath()) << " " << javaArgs
 	          << " -Xms" << source->GetMinMemAlloc() << "m" << " -Xmx" << source->GetMaxMemAlloc() << "m"
 	          << " -jar MultiMCLauncher.jar "
 	          << " " << DQuote(username) << " " << DQuote(sessionID) << " " << DQuote(windowTitle) << " " << DQuote(winSizeArg);
@@ -170,6 +176,27 @@ bool MinecraftProcess::ProcessInput()    // The following methods are adapted fr
 void MinecraftProcess::OnTerminate(int pid, int status)
 {
 	while (ProcessInput());
+#if !defined(WIN32)
+	if (status == -1)
+	{
+		// Workaround for wxProcess bug:
+		// wxProcess may call waitpid with WNOHANG when child has not exited and then
+		// incorrectly report the exit code as -1.
+		// For details, see:
+		// Ticket #10258: race condition in wxEndProcessFDIOHandler::OnExceptionWaiting
+		// http://trac.wxwidgets.org/ticket/10258
+		int result;
+		do
+		{
+			result = waitpid(pid, &status, 0);
+		} while (result == -1 && errno == EINTR);
+
+		if (result == -1)
+			status = -1;
+		else if (WIFEXITED(status))
+			status = WEXITSTATUS(status);
+	}
+#endif
 	m_parent->OnProcessExit(m_wasKilled, status);
 }
 
