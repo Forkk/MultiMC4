@@ -146,14 +146,11 @@ public:
 	DEFINE_OVERRIDDEN_SETTING(MCWindowMaximize, bool);
 	DEFINE_OVERRIDDEN_SETTING(UseAppletWrapper, bool);
 
-	UpdateMode GetUpdateMode() const { return (UpdateMode)GetSetting<int>("UpdateMode", settings->GetUpdateMode()); };
-
 	DEFINE_OVERRIDDEN_SETTING(AutoLogin, bool);
 
 	DEFINE_OVERRIDE_SETTING(Java);
 	DEFINE_OVERRIDE_SETTING(Memory);
 	DEFINE_OVERRIDE_SETTING(Window);
-	DEFINE_OVERRIDE_SETTING(Updates);
 	DEFINE_OVERRIDE_SETTING(Login);
 	
 	// and these are specific to instances only

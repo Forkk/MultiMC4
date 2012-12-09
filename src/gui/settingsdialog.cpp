@@ -315,28 +315,6 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 		mcPanel->SetSizer(mcBox);
 		tabCtrl->AddPage(mcPanel, _("Minecraft"), false);
 
-		// Updates group box
-		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Updates"));
-			
-			// Override
-			if(instanceMode)
-			{
-				updateUseDefs = new wxCheckBox(box->GetStaticBox(), ID_OverrideUpdate, _("Use defaults?"));
-				box->Add(updateUseDefs, 0, wxALL, 4);
-			}
-			
-			wxArrayString choices;
-			{
-				choices.Add(dontUpdate);
-				choices.Add(doUpdate);
-			}
-			mcUpdateDropDown = new wxComboBox(box->GetStaticBox(), -1, wxEmptyString,
-				wxDefaultPosition, wxDefaultSize, choices, wxCB_DROPDOWN | wxCB_READONLY);
-			box->Add(mcUpdateDropDown, expandingItemFlags);
-			mcBox->Add(box, staticBoxOuterFlags);
-		}
-		
 		// Window size group box
 		{
 			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Minecraft Window Size"));
@@ -630,13 +608,6 @@ bool SettingsDialog::ApplySettings()
 		currentSettings->SetConsoleStderrColor(stderrColorCtrl->GetColour());
 		
 		// apply instance settings to global
-		UpdateMode newUpdateMode;
-		if (mcUpdateDropDown->GetValue() == doUpdate)
-			newUpdateMode = Update_Auto;
-		else if (mcUpdateDropDown->GetValue() == dontUpdate)
-			newUpdateMode = Update_Never;
-		currentSettings->SetUpdateMode(newUpdateMode);
-
 		currentSettings->SetAutoLogin(autoLoginCheck->GetValue());
 		
 		currentSettings->SetMinMemAlloc(minMemorySpin->GetValue());
@@ -709,23 +680,6 @@ Are you sure you want to use dev builds?"),
 	}
 	else
 	{
-		// apply instance settings to the instance
-		bool haveUpdate = !updateUseDefs->GetValue();
-		if(haveUpdate)
-		{
-			UpdateMode newUpdateMode = Update_Never;
-			if (mcUpdateDropDown->GetValue() == doUpdate)
-				newUpdateMode = Update_Auto;
-			else if (mcUpdateDropDown->GetValue() == dontUpdate)
-				newUpdateMode = Update_Never;
-			currentSettings->SetUpdateMode(newUpdateMode);
-		}
-		else
-		{
-			currentSettings->ResetUpdateMode();
-		}
-		currentSettings->SetUpdatesOverride(haveUpdate);
-		
 		bool haveMemory = !memoryUseDefs->GetValue();
 		if(haveMemory)
 		{
@@ -883,21 +837,10 @@ void SettingsDialog::LoadSettings()
 	{
 		javaUseDefs->SetValue(!currentSettings->GetJavaOverride());
 		memoryUseDefs->SetValue(!currentSettings->GetMemoryOverride());
-		updateUseDefs->SetValue(!currentSettings->GetUpdatesOverride());
 		winUseDefs->SetValue(!currentSettings->GetWindowOverride());
 		loginUseDefs->SetValue(!currentSettings->GetLoginOverride());
 	}
 	
-	switch (currentSettings->GetUpdateMode())
-	{
-	case Update_Auto:
-		mcUpdateDropDown->SetValue(doUpdate);
-		break;
-		
-	case Update_Never:
-		mcUpdateDropDown->SetValue(dontUpdate);
-		break;
-	}
 	minMemorySpin->SetValue(currentSettings->GetMinMemAlloc());
 	maxMemorySpin->SetValue(currentSettings->GetMaxMemAlloc());
 
@@ -990,7 +933,6 @@ void SettingsDialog::UpdateCheckboxStuff()
 {
 	if(instanceMode)
 	{
-		bool enableUpdates = !updateUseDefs->GetValue();
 		bool enableJava = !javaUseDefs->GetValue();
 		bool enableMemory = !memoryUseDefs->GetValue();
 		bool enableWindow = !winUseDefs->GetValue();
@@ -1018,8 +960,6 @@ void SettingsDialog::UpdateCheckboxStuff()
 		winWidthLabel->Enable(enableWindowSize);
 		winHeightLabel->Enable(enableWindowSize);
 		
-		mcUpdateDropDown->Enable(enableUpdates);
-
 		autoLoginCheck->Enable(enableLogin);
 	}
 	else

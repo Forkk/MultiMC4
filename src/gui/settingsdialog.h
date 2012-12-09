@@ -91,9 +91,6 @@ protected:
 	wxStaticText *winHeightLabel;
 	wxStaticText *winWidthLabel;
 	
-	wxCheckBox *updateUseDefs;
-	wxComboBox *mcUpdateDropDown;
-
 	wxCheckBox *loginUseDefs;
 	wxCheckBox *autoLoginCheck;
 
