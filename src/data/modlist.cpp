@@ -214,7 +214,23 @@ bool ModList::InsertMod(size_t index, const wxString &filename, const wxString& 
 bool ModList::DeleteMod(size_t index, const wxString& saveToFile)
 {
 	Mod *mod = &at(index);
-	if (wxRemoveFile(mod->GetFileName().GetFullPath()))
+	if(mod->GetModType() == Mod::MOD_FOLDER)
+	{
+		if(wxFileName::Rmdir(mod->GetFileName().GetFullPath(),wxPATH_RMDIR_RECURSIVE))
+		{
+			erase(begin() + index);
+			
+			if (!saveToFile.IsEmpty())
+				SaveToFile(saveToFile);
+			
+			return true;
+		}
+		else
+		{
+			wxLogError(_("Failed to delete mod."));
+		}
+	}
+	else if (wxRemoveFile(mod->GetFileName().GetFullPath()))
 	{
 		erase(begin() + index);
 		
@@ -341,7 +357,9 @@ bool FolderModList::LoadModListFromDir(const wxString& loadFrom, bool quickLoad)
 
 bool ModNameSort (const Mod & i,const Mod & j)
 {
-	return (i.GetName() < j.GetName());
+	if(i.GetModType() == j.GetModType())
+		return (i.GetName().Lower() < j.GetName().Lower());
+	return (i.GetModType() < j.GetModType());
 }
 
 bool FolderModList::UpdateModList ( bool quickLoad )

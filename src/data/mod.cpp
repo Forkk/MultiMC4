@@ -236,7 +236,15 @@ wxString Mod::GetModID() const
 
 wxString Mod::GetModVersion() const
 {
-	return modVersion;
+	switch(GetModType())
+	{
+		case MOD_ZIPFILE:
+			return modVersion;
+		case MOD_FOLDER:
+			return _("Folder");
+		case MOD_SINGLEFILE:
+			return _("File");
+	}
 }
 
 wxString Mod::GetMCVersion() const
