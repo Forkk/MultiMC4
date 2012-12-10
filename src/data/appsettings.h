@@ -70,8 +70,6 @@ enum ProxyType
 	Proxy_SOCKS5,
 };
 
-#define STR_VALUE(val) #val
-
 #define DEFINE_SETTING_ADVANCED(funcName, cfgEntryName, typeName, defVal) \
 	virtual typeName Get ## funcName() const { return GetSetting<typeName>(cfgEntryName, defVal); } \
 	virtual void Set ## funcName(typeName value) { SetSetting<typeName>(cfgEntryName, value); } \

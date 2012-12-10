@@ -195,8 +195,6 @@ struct LangFileDef
 	size_t m_dataSize;
 };
 
-#define STR_VALUE(val) #val
-
 // This is pretty hacky, but it works...
 #define DEFINE_LANGFILE(lfile) LangFileDef(wxString(STR_VALUE(lfile)).BeforeFirst('_') + \
 	"_" + wxString(STR_VALUE(lfile)).AfterFirst('_').Upper(), lfile, sizeof(lfile))
