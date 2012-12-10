@@ -110,18 +110,6 @@
        y2="1052.4506"
        gradientUnits="userSpaceOnUse"
        gradientTransform="translate(-1,5.2165626e-5)" />
-    <filter
-       inkscape:collect="always"
-       id="filter3870"
-       x="-0.23209877"
-       width="1.4641975"
-       y="-0.23209877"
-       height="1.4641975">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="0.096707819"
-         id="feGaussianBlur3872" />
-    </filter>
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient3820"
@@ -214,26 +202,6 @@
        y1="1038.0433"
        x2="18.119612"
        y2="1047.1473" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3830"
-       id="linearGradient3853"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.26516424,0,0,1,26.16288,22.999927)"
-       x1="13.258252"
-       y1="1033.889"
-       x2="17.500893"
-       y2="1041.7556" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3838"
-       id="linearGradient3857"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.26516427,0,0,1,26.162875,22.999921)"
-       x1="14.142136"
-       y1="1038.0433"
-       x2="18.119612"
-       y2="1047.1473" />
     <filter
        inkscape:collect="always"
        id="filter3879">
@@ -241,6 +209,22 @@
          inkscape:collect="always"
          stdDeviation="0.42040957"
          id="feGaussianBlur3881" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter3850">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.04"
+         id="feGaussianBlur3852" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       id="filter3854">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.04"
+         id="feGaussianBlur3856" />
     </filter>
   </defs>
   <sodipodi:namedview
@@ -251,14 +235,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="22.627417"
-     inkscape:cx="7.8355006"
-     inkscape:cy="18.105579"
+     inkscape:cx="7.4782578"
+     inkscape:cy="18.085057"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1680"
+     inkscape:window-width="1607"
      inkscape:window-height="1030"
-     inkscape:window-x="-4"
+     inkscape:window-x="1676"
      inkscape:window-y="-3"
      inkscape:window-maximized="1">
     <inkscape:grid
@@ -277,7 +261,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -297,18 +281,17 @@
        d="m 6.1703915,1025.53 0,4 0,16 5.0000005,0 0,4 8,0 0,-4 5,0 0,-16 0,-4 -18.0000005,0 z"
        style="opacity:0.75313804;fill:#000000;fill-opacity:1;stroke:none;filter:url(#filter3816)" />
     <path
-       style="fill:#6c6c6c;fill-opacity:1;stroke:none"
-       d="m 24,1025.3622 3,-3 0,20 -3,3 z"
-       id="rect4014"
+       sodipodi:nodetypes="cccccc"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccccc" />
-    <rect
+       id="path3861"
+       d="m 23,1025.3622 4,-3 0,20 -3,3 -1,-1 z"
+       style="fill:#6c6c6c;fill-opacity:1;stroke:none" />
+    <path
        style="fill:#e2e2e2;fill-opacity:1;stroke:none"
-       id="rect3771"
-       width="18"
-       height="20"
-       x="6"
-       y="1025.3622" />
+       d="m 6,1025.3622 3,-3 18,0 -3,3 0,20 -18,0 z"
+       id="rect3858"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccc" />
     <rect
        style="fill:#000000;fill-opacity:1;stroke:none"
        id="rect3759"
@@ -331,14 +314,14 @@
        x="11"
        y="1041.3622" />
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:none;filter:url(#filter3870)"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;filter:url(#filter3854)"
        id="rect3773"
        width="1"
        height="1"
        x="9"
        y="1030.3622" />
     <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;filter:url(#filter3850)"
        id="rect3775"
        width="1"
        height="1"
@@ -367,8 +350,14 @@
        id="rect4019"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccc" />
+    <path
+       style="fill:url(#linearGradient3846);fill-opacity:1;stroke:none"
+       d="m 3.9999995,1036.3622 3.0000005,-3 16,0 0,8 -3,3 -16,0 z"
+       id="rect3815"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccc" />
     <rect
-       style="fill:url(#linearGradient3853);fill-opacity:1;stroke:none"
+       style="fill:#b34f0e;fill-opacity:1;stroke:none;opacity:1"
        id="rect3851"
        width="4.2426286"
        height="4.0000043"
@@ -376,7 +365,7 @@
        y="1056.3621"
        transform="matrix(0.70710873,-0.70710483,0,1,0,0)" />
     <rect
-       style="fill:url(#linearGradient3857);fill-opacity:1;stroke:none"
+       style="fill:#8d5910;fill-opacity:1;stroke:none;opacity:1"
        id="rect3855"
        width="4.2426286"
        height="4"
