@@ -38,6 +38,7 @@ public:
 	wxString GetFileName() const;
 	wxString GetPackName() const;
 	wxString GetPackNotes() const;
+	wxString GetMinecraftVersion() const;
 
 	const std::vector<CPModInfo>* GetJarModList() const;
 	const std::vector<CPModInfo>* GetMLModList() const;
@@ -50,6 +51,7 @@ protected:
 	
 	wxString m_packName;
 	wxString m_packNotes;
+	wxString m_minecraftVersion;
 
 	std::vector<CPModInfo> jarModInfoList;
 	std::vector<CPModInfo> mlModInfoList;

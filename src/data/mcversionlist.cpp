@@ -47,12 +47,33 @@ bool TimeFromS3Time(wxString str, wxDateTime & datetime)
 
 bool compareVersions(const MCVersion & left, const MCVersion & right)
 {
-	return left.unixTimestamp > right.unixTimestamp;
+	return left.GetTimestamp() > right.GetTimestamp();
 }
+
+MCVersion * MCVersionList::GetVersion ( wxString descriptor )
+{
+	if(descriptor == MCVer_Unknown)
+		return nullptr;
+	else if(descriptor == MCVer_Latest_Stable || descriptor == MCVer_Current_Stable)
+	{
+	}
+	else if(descriptor == MCVer_Latest_Snapshot || descriptor == MCVer_Current_Snapshot)
+	{
+	}
+	else for(auto iter = versions.begin(); iter != versions.end() ; iter++)
+	{
+		MCVersion & v = *iter;
+		wxString descr = v.GetDescriptor();
+		if( descr == descriptor)
+			return &v;
+	}
+	return nullptr;
+}
+
 
 bool MCVersionList::LoadIfNeeded()
 {
-	if(versions.empty())
+	if(NeedsLoad())
 	{
 		return Reload();
 	}
@@ -94,7 +115,7 @@ bool MCVersionList::Reload()
 						wxLogError(_("Failed to parse date/time."));
 						return false;
 					}
-					MCVersion version("current",dtt.GetTicks(),"http://s3.amazonaws.com/MinecraftDownload/",true,etag);
+					MCVersion version("LatestStable",_("Current"),dtt.GetTicks(),"http://s3.amazonaws.com/MinecraftDownload/",true,etag);
 					currentStable = version;
 					currentStableFound = true;
 					break;
@@ -149,49 +170,49 @@ bool MCVersionList::Reload()
 					if(keyName[i] == '_')
 						keyName[i] = '.';
 				}
-				if(currentStableFound && etag == currentStable.etag)
+				if(currentStableFound && etag == currentStable.GetEtag())
 				{
-					MCVersion version(keyName,dtt.GetTicks(),currentStable.dlURL,true,etag);
-					version.type = CurrentStable;
+					MCVersion version(keyName,keyName,dtt.GetTicks(),currentStable.GetDLUrl(),true,etag);
+					version.SetVersionType(CurrentStable);
 					versions.push_back(version);
 					found_current_in_assets = true;
 				}
 				else if (currentStableFound)
 				{
-					bool older = dtt.GetTicks() < currentStable.unixTimestamp;
-					bool newer = dtt.GetTicks() > currentStable.unixTimestamp;
+					bool older = dtt.GetTicks() < currentStable.GetTimestamp();
+					bool newer = dtt.GetTicks() > currentStable.GetTimestamp();
 					bool isSnapshot = snapshotRegex.Matches(keyName);
-					MCVersion version(keyName,dtt.GetTicks(),dlUrl,false,etag);
+					MCVersion version(keyName, keyName,dtt.GetTicks(),dlUrl,false,etag);
 					if(newer)
 					{
-						version.type = Snapshot;
+						version.SetVersionType(Snapshot);
 					}
 					else if(older && isSnapshot)
 					{
-						version.type = OldSnapshot;
+						version.SetVersionType(OldSnapshot);
 					}
 					else if(older)
 					{
-						version.type = Stable;
+						version.SetVersionType(Stable);
 					}
 					else
 					{
 						// shouldn't happen, right? we handle this above
-						version.type = CurrentStable;
+						version.SetVersionType(CurrentStable);
 					}
 					versions.push_back(version);
 				}
 				else // there is no current stable :<
 				{
 					bool isSnapshot = snapshotRegex.Matches(keyName);
-					MCVersion version(keyName,dtt.GetTicks(),dlUrl,false,etag);
+					MCVersion version(keyName,keyName,dtt.GetTicks(),dlUrl,false,etag);
 					if(isSnapshot)
 					{
-						version.type = Snapshot;
+						version.SetVersionType(Snapshot);
 					}
 					else
 					{
-						version.type = Stable;
+						version.SetVersionType(Stable);
 					}
 					versions.push_back(version);
 				}
@@ -212,7 +233,7 @@ bool MCVersionList::Reload()
 	std::sort(versions.begin(), versions.end(),compareVersions);
 	for(unsigned i = 0; i < versions.size();i++)
 	{
-		if(versions[i].type == CurrentStable)
+		if(versions[i].GetVersionType() == CurrentStable)
 		{
 			stableVersionIndex = i;
 			break;

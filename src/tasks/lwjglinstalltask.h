@@ -26,11 +26,11 @@ class Instance;
 class LWJGLInstallTask : public Task
 {
 public:
-	LWJGLInstallTask(Instance *inst, const wxString &path);
+	LWJGLInstallTask( const wxString& version, const wxString& path );
 	
 	virtual ExitCode TaskStart();
 	
 protected:
 	wxString m_path;
-	Instance *m_inst;
+	wxString m_version;
 };

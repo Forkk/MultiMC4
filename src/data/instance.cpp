@@ -33,6 +33,7 @@
 #include "java/javautils.h"
 #include "instancemodel.h"
 #include "mcprocess.h"
+#include "mcversionlist.h"
 
 const wxString cfgFileName = "instance.cfg";
 
@@ -111,7 +112,7 @@ void Instance::UpdateVersion ( bool keep_current )
 	if(!jar.FileExists())
 	{
 		SetJarTimestamp(0);
-		SetJarVersion("Unknown");
+		SetJarVersion(MCVer_Unknown);
 		return;
 	}
 	
@@ -311,22 +312,7 @@ void Instance::SetName(wxString name)
 wxString Instance::GetIconKey() const
 {
 	wxString iconKey = GetSetting<wxString>("iconKey", "default");
-
-	if (iconKey == "default")
-	{
-		if (GetName().Lower().Contains("btw") ||
-			GetName().Lower().Contains("better then wolves") || // Because some people are stupid :D
-			GetName().Lower().Contains("better than wolves"))
-		{
-			iconKey = "herobrine";
-		}
-		else if (GetName().Lower().Contains("direwolf"))
-		{
-			iconKey = "enderman";
-		}
-	}
-
-	return iconKey;
+	return InstIconList::getRealIconKeyForEasterEgg(iconKey,GetName());
 }
 
 void Instance::SetIconKey(wxString iconKey)
@@ -354,12 +340,14 @@ void Instance::SetNeedsRebuild(bool value)
 	SetSetting<bool>("NeedsRebuild", value);
 }
 
-bool Instance::HasBinaries()
+bool Instance::HasMCJar()
 {
-	bool isOK = true;
-	isOK &= GetMCJar().FileExists();
-	// FIXME: add more here, as needed
-	return isOK;
+	return GetMCJar().FileExists();
+}
+
+bool Instance::HasMCBackup()
+{
+	return GetMCBackup().FileExists();
 }
 
 ModList *Instance::GetModList()
