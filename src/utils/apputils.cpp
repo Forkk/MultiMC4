@@ -78,6 +78,22 @@ wxString Utils::RemoveInvalidPathChars(wxString path, wxChar replaceWith, bool a
 	return path;
 }
 
+wxString Utils::RemoveInvalidFilenameChars(wxString path, wxChar replaceWith)
+{
+	for (size_t i = 0; i < path.Len(); i++)
+	{
+		if (wxFileName::GetForbiddenChars().Contains(path[i]) ||
+		    wxFileName::GetPathSeparators().Contains(path[i]) ||
+		    wxFileName::GetVolumeSeparator().Contains(path[i]) ||
+		    wxFileName::GetPathTerminators().Contains(path[i]) ||
+		   path[i] == '!')
+		{
+			path[i] = replaceWith;
+		}
+	}
+	return path;
+}
+
 bool Utils::ContainsInvalidPathChars(wxString path, bool allowExclamationMark)
 {
 	for (size_t i = 0; i < path.Len(); i++)

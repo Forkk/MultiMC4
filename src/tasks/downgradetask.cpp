@@ -27,6 +27,7 @@
 #include "utils/curlutils.h"
 #include "utils/httputils.h"
 #include "utils/apputils.h"
+#include <java/javautils.h>
 
 const wxString mcnwebURL = "http://sonicrules.org/mcnweb.py";
 
@@ -53,15 +54,26 @@ wxThread::ExitCode DowngradeTask::TaskStart()
 	if (!VerifyPatchedFiles())
 		return (ExitCode)0;
 
-	// if mcbackup.jar exists, we updated that anyway. The version update won't pick that up.
-	if(!wxFileExists(Path::Combine(m_inst->GetBinDir(), "mcbackup.jar")))
+	wxString backup = Path::Combine(m_inst->GetBinDir(), "mcbackup.jar");
+	wxString jar = Path::Combine(m_inst->GetBinDir(), "minecraft.jar");
+	
+	// FIXME: this is still dirty
+	if(wxFileExists(backup))
 	{
-		m_inst->UpdateVersion();
+		// if mcbackup.jar exists, we updated that. The minecraft.jar needs rebuilding.
+		m_inst->SetNeedsRebuild();
+		// determine new intended version based on the backup
+		wxString newversion = javautils::GetMinecraftJarVersion(backup);
+		m_inst->SetIntendedJarVersion(newversion);
+		m_inst->SetJarVersion(newversion);
 	}
 	else
 	{
-		// if there already is a backup (which we now replaced), reinstall all mods
-		m_inst->SetNeedsRebuild();
+		// backup doesn't exist. This means we patched vanilla minecraft.jar
+		// update the version now based on minecraft.jar.
+		m_inst->UpdateVersion();
+		// intended version is what we updated to.
+		m_inst->SetIntendedJarVersion(m_inst->GetJarVersion());
 	}
 	SetStep(STEP_DONE);
 	return (ExitCode)1;

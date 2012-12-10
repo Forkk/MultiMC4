@@ -147,6 +147,8 @@ bool MultiMC::OnInit()
 		settings->GetInstDir().Mkdir();
 	if (!settings->GetModsDir().DirExists())
 		settings->GetModsDir().Mkdir();
+	if (!settings->GetLwjglDir().DirExists())
+		settings->GetLwjglDir().Mkdir();
 	
 	switch (startMode)
 	{

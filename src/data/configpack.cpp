@@ -30,6 +30,8 @@
 
 #include <memory>
 
+#include "mcversionlist.h"
+
 ConfigPack::ConfigPack(const wxString& fileName)
 	: m_fileName(fileName)
 {
@@ -63,6 +65,14 @@ ConfigPack::ConfigPack(const wxString& fileName)
 		read_json(jsonIn, pt);
 
 		m_packName = wxStr(pt.get<std::string>("name"));
+		if(pt.count("MCversion"))
+		{
+			m_minecraftVersion = wxStr(pt.get<std::string>("MCversion"));
+		}
+		else
+		{
+			m_minecraftVersion = MCVer_Unknown;
+		}
 		m_packNotes = wxStr(pt.get<std::string>("notes"));
 
 		// Load the jar mod list.
@@ -147,6 +157,12 @@ const std::vector<ConfigPack::CPModInfo>* ConfigPack::GetCoreModList() const
 {
 	return &coreModInfoList;
 }
+
+wxString ConfigPack::GetMinecraftVersion() const
+{
+	return m_minecraftVersion;
+}
+
 
 ConfigPack::CPModInfo::CPModInfo(const wxString& id, const wxString& version)
 {

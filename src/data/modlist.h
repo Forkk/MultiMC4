@@ -22,6 +22,8 @@
 
 #include "mod.h"
 
+class Instance;
+
 class ModList : public std::vector<Mod>
 {
 public:
@@ -72,4 +74,28 @@ protected:
 	virtual bool LoadModListFromDir(const wxString& loadFrom = wxEmptyString, bool quickLoad = false);
 
 	wxString modsFolder;
+};
+
+class JarModList : public ModList
+{
+public:
+	JarModList(Instance *inst, const wxString& dir = wxEmptyString);
+
+	virtual bool UpdateModList(bool quickLoad = false);
+
+	virtual bool InsertMod(size_t index, const wxString &filename, const wxString& saveToFile = wxEmptyString);
+	virtual bool DeleteMod(size_t index, const wxString& saveToFile = wxEmptyString);
+
+protected:
+	Instance *m_inst;
+};
+class FolderModList : public ModList
+{
+public:
+	FolderModList(const wxString& dir = wxEmptyString) : ModList(dir) {}
+	
+	virtual bool UpdateModList(bool quickLoad = true);
+	
+protected:
+	virtual bool LoadModListFromDir(const wxString& loadFrom, bool quickLoad);
 };

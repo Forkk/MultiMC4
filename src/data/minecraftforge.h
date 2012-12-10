@@ -15,27 +15,11 @@
 //
 
 #pragma once
-#include "listselectdialog.h"
-#include "mcversionlist.h"
-#include <vector>
+#include "mod.h"
 
-class SnapshotDialog : public ListSelectDialog
+class MinecraftForge : public Mod
 {
 public:
-	SnapshotDialog(wxWindow *parent);
-	bool GetSelectedVersion(MCVersion & out);
-
-protected:
-	void Refilter();
-	virtual void LoadList();
-	virtual bool DoLoadList();
-	virtual wxString OnGetItemText(long item, long column);
-	void OnCheckbox(wxCommandEvent& event);
-	
-	// data
-	int typeColumnWidth;
-	std::vector<unsigned> visibleIndexes;
-	bool showOldSnapshots;
-	
-	DECLARE_EVENT_TABLE()
+	MinecraftForge ( const wxFileName& file, ModType type = MOD_UNKNOWN );
+	bool FixVersionIfNeeded(wxString newVersion);
 };

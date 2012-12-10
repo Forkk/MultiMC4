@@ -15,19 +15,30 @@
 //
 
 #pragma once
-#include "listselectdialog.h"
+#include "wx/textctrl.h"
 
-class ChooseLWJGLDialog : public ListSelectDialog
+class ShadedTextEdit: public wxTextCtrl
 {
 public:
-	ChooseLWJGLDialog(wxWindow *parent);
-
-	virtual wxString GetSelectedURL();
-	virtual wxString GetSelectedName();
-
+	DECLARE_DYNAMIC_CLASS(ShadedTextEdit);
+	ShadedTextEdit ( wxWindow* parent, wxString emptyContent, wxWindowID id = wxID_ANY, long int style = 0 )
+	: wxTextCtrl(parent,id,emptyContent,wxDefaultPosition,wxDefaultSize,style)
+	{
+		m_emptyContent = emptyContent;
+		m_isempty = true;
+	};
+	ShadedTextEdit ():wxTextCtrl(){}
+	
+	bool IsEmptyUnfocused()
+	{
+		return m_isempty && !m_focused || GetValue().Strip(wxString::both).empty() && m_focused;
+	}
+	
+	void OnKillFocus(wxFocusEvent& evt);
+	void OnSetFocus(wxFocusEvent& evt);
 protected:
-	virtual void LoadList();
-	virtual bool DoLoadList();
-
-	wxArrayString linkList;
+	wxString m_emptyContent;
+	bool m_isempty;
+	bool m_focused;
+	DECLARE_EVENT_TABLE()
 };

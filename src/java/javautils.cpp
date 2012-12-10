@@ -4,12 +4,14 @@
 #include <wx/zipstrm.h>
 #include <memory>
 #include <wx/wfstream.h>
+#include "mcversionlist.h"
+
 namespace javautils
 {
 wxString GetMinecraftJarVersion(wxFileName jar)
 {
 	wxString fullpath = jar.GetFullPath();
-	wxString version = "Unknown";
+	wxString version = MCVer_Unknown;
 	if(!jar.FileExists())
 		return version;
 	std::auto_ptr<wxZipEntry> entry;

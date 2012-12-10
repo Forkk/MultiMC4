@@ -45,6 +45,8 @@ typedef std::map<wxString, InstIcon> InstIconMap;
 class InstIconList
 {
 public:
+	static wxString getRealIconKeyForEasterEgg( wxString key, wxString name );
+	
 	bool Add(const wxImage image, const wxImage hlimage, wxImage image128, const wxString key, const wxString name,
 		const wxString filename = wxEmptyString);
 	bool AddFile(const wxString fileName);

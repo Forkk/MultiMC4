@@ -25,9 +25,9 @@
 #include "utils/apputils.h"
 #include "utils/fsutils.h"
 
-LWJGLInstallTask::LWJGLInstallTask(Instance *inst, const wxString &path)
+LWJGLInstallTask::LWJGLInstallTask(const wxString &version, const wxString &path)
 {
-	m_inst = inst;
+	m_version = version;
 	m_path = path;
 }
 
@@ -37,9 +37,10 @@ wxThread::ExitCode LWJGLInstallTask::TaskStart()
 
 	wxFFileInputStream in(m_path);
 	wxZipInputStream zipIn(in);
-
-	// make sure the instance natives dir is there (and all the dirs leading to it from root)
-	wxString nativesPath = Path::Combine(m_inst->GetBinDir(), "natives");
+	
+	// make sure the directories are there
+	wxString lwjgl_base = Path::Combine(settings->GetLwjglDir(), m_version);
+	wxString nativesPath = Path::Combine( lwjgl_base, "natives");
 	bool success = wxDir::Make(nativesPath,wxS_DIR_DEFAULT,wxPATH_MKDIR_FULL);
 	if(!success)
 		return (wxThread::ExitCode) 0;
@@ -58,7 +59,7 @@ wxThread::ExitCode LWJGLInstallTask::TaskStart()
 		// Put things in their places.
 		for (int i = 0; i < 3; i++)
 			if (name.EndsWith(jarNames[i]))
-				destFileName = Path::Combine(m_inst->GetBinDir(), jarNames[i]);
+				destFileName = Path::Combine(lwjgl_base, jarNames[i]);
 
 		// If we haven't found a jar file, look for natives.
 		if (destFileName.IsEmpty())

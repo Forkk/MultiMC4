@@ -36,4 +36,6 @@ namespace fsutils
 	bool CompressZipArchive(wxOutputStream &stream, const wxString &srcDir);
 	
 	bool SecureFile (const char * filename);
+	
+	bool GetValidInstanceFolderName( wxString instanceName, wxString& folderName );
 }

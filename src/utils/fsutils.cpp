@@ -16,6 +16,7 @@
 
 #include "fsutils.h"
 #include "apputils.h"
+#include "appsettings.h"
 #include <wx/dir.h>
 #include <wx/filefn.h>
 #include <wx/filesys.h>
@@ -248,4 +249,21 @@ bool CreateAllDirs(const wxFileName &dir)
 	}
 	return wxMkdir(dir.GetFullPath());
 }
+
+bool GetValidInstanceFolderName ( wxString instanceName, wxString & folderName )
+{
+	int num = 0;
+	folderName = Utils::RemoveInvalidFilenameChars( instanceName, '-');
+	while (wxDirExists(Path::Combine( settings->GetInstDir(), folderName)))
+	{
+		num++;
+		folderName = Utils::RemoveInvalidFilenameChars( instanceName, '-') + wxString::Format("_%i", num);
+		// If it's over 9000
+		if (num > 9000)
+			return false;
+	}
+	return true;
+}
+
+
 }

@@ -108,7 +108,8 @@ public:
 
 	virtual Type GetType() const = 0;
 	
-	bool HasBinaries();
+	bool HasMCJar();
+	bool HasMCBackup();
 	
 	ModList *GetModList();
 	ModList *GetMLModList();
@@ -145,20 +146,23 @@ public:
 	DEFINE_OVERRIDDEN_SETTING(MCWindowMaximize, bool);
 	DEFINE_OVERRIDDEN_SETTING(UseAppletWrapper, bool);
 
-	UpdateMode GetUpdateMode() const { return (UpdateMode)GetSetting<int>("UpdateMode", settings->GetUpdateMode()); };
-
 	DEFINE_OVERRIDDEN_SETTING(AutoLogin, bool);
 
 	DEFINE_OVERRIDE_SETTING(Java);
 	DEFINE_OVERRIDE_SETTING(Memory);
 	DEFINE_OVERRIDE_SETTING(Window);
-	DEFINE_OVERRIDE_SETTING(Updates);
 	DEFINE_OVERRIDE_SETTING(Login);
 	
 	// and these are specific to instances only
 	wxString GetJarVersion() const { return GetSetting<wxString>("JarVersion","Unknown"); };
 	void SetJarVersion( wxString value ) {  SetSetting<wxString>("JarVersion", value); };
 
+	wxString GetLwjglVersion() const { return GetSetting<wxString>("LwjglVersion","Mojang"); };
+	void SetLwjglVersion( wxString value ) {  SetSetting<wxString>("LwjglVersion", value); };
+	
+	wxString GetIntendedJarVersion() const { return GetSetting<wxString>("IntendedJarVersion",GetJarVersion()); };
+	void SetIntendedJarVersion( wxString value ) {  SetSetting<wxString>("IntendedJarVersion", value); };
+	
 	uint64_t GetLastLaunch() const
 	{
 		// no 64bit type support in wxConfig. This code is very 'meh', but works
@@ -238,34 +242,8 @@ public:
 	void SetParentModel ( InstanceModel* parent );
 	
 protected:
-	class JarModList : public ModList
-	{
-	public:
-		JarModList(Instance *inst, const wxString& dir = wxEmptyString);
+	JarModList modList;
 
-		virtual bool UpdateModList(bool quickLoad = false);
-
-		virtual bool InsertMod(size_t index, const wxString &filename, const wxString& saveToFile = wxEmptyString);
-		virtual bool DeleteMod(size_t index, const wxString& saveToFile = wxEmptyString);
-
-	protected:
-		Instance *m_inst;
-	} modList;
-
-	class FolderModList : public ModList
-	{
-	public:
-		FolderModList(const wxString& dir = wxEmptyString)
-			: ModList(dir) {}
-
-		virtual bool UpdateModList(bool quickLoad = true)
-		{
-			return ModList::UpdateModList(quickLoad);
-		}
-		
-	protected:
-		virtual bool LoadModListFromDir(const wxString& loadFrom, bool quickLoad);
-	};
 	InstanceModel * parentModel;
 	FolderModList mlModList;
 	FolderModList coreModList;

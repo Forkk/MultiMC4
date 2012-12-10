@@ -54,7 +54,7 @@ ListSelectDialog::ListSelectDialog(wxWindow *parent, const wxString& title)
 	dlgSizer->Add(listCtrl,1, wxEXPAND | wxALL, 4);
 
 	wxSizerFlags btnSzFlags = wxSizerFlags(0).Border(wxBOTTOM, 4);
-	wxSizer* btnSz = new wxBoxSizer(wxHORIZONTAL);
+	btnSz = new wxBoxSizer(wxHORIZONTAL);
 	refreshButton = new wxButton(this, ID_RefreshList, _("&Refresh"));
 	btnSz->Add(refreshButton, btnSzFlags.Align(wxALIGN_LEFT));
 	btnSz->AddStretchSpacer();

@@ -160,7 +160,17 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 					auto modDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseModDir, _("Browse..."));
 					dirsSizer->Add(modDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
 				}
+				row++;
+				{
+					auto lwjglDirLabel = new wxStaticText(box->GetStaticBox(), -1, _("LWJGL: "));
+					dirsSizer->Add(lwjglDirLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
 
+					lwjglDirTextBox = new wxTextCtrl(box->GetStaticBox(), -1);
+					dirsSizer->Add(lwjglDirTextBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+					auto lwjglDirBrowseButton = new wxButton(box->GetStaticBox(), ID_BrowseLwjglDir, _("Browse..."));
+					dirsSizer->Add(lwjglDirBrowseButton, wxGBPosition(row, 2), wxGBSpan(1, 1), GBitemsFlags);
+				}
 				dirsSizer->AddGrowableCol(1);
 
 				box->Add(dirsSizer, staticBoxInnerFlags);
@@ -305,28 +315,6 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 		mcPanel->SetSizer(mcBox);
 		tabCtrl->AddPage(mcPanel, _("Minecraft"), false);
 
-		// Updates group box
-		{
-			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Updates"));
-			
-			// Override
-			if(instanceMode)
-			{
-				updateUseDefs = new wxCheckBox(box->GetStaticBox(), ID_OverrideUpdate, _("Use defaults?"));
-				box->Add(updateUseDefs, 0, wxALL, 4);
-			}
-			
-			wxArrayString choices;
-			{
-				choices.Add(dontUpdate);
-				choices.Add(doUpdate);
-			}
-			mcUpdateDropDown = new wxComboBox(box->GetStaticBox(), -1, wxEmptyString,
-				wxDefaultPosition, wxDefaultSize, choices, wxCB_DROPDOWN | wxCB_READONLY);
-			box->Add(mcUpdateDropDown, expandingItemFlags);
-			mcBox->Add(box, staticBoxOuterFlags);
-		}
-		
 		// Window size group box
 		{
 			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Minecraft Window Size"));
@@ -580,6 +568,19 @@ bool SettingsDialog::ApplySettings()
 		}
 		currentSettings->SetModsDir(newModDir);
 		
+		wxFileName newLwjglDir = wxFileName::DirName(lwjglDirTextBox->GetValue());
+		wxFileName oldLwjglDir = currentSettings->GetLwjglDir();
+		if (!oldLwjglDir.SameAs(newLwjglDir))
+		{
+			if(!FolderMove(oldLwjglDir, newLwjglDir,
+				_("You've changed your lwjgl directory, would you like to transfer all of your lwjgl versions?"),
+				_("Lwjgl directory changed.")))
+			{
+				return false;
+			}
+		}
+		currentSettings->SetLwjglDir(newLwjglDir);
+		
 		GUIMode newGUIMode;
 		if (guiStyleBox->GetStringSelection() == guiModeFancy)
 			newGUIMode = GUI_Fancy;
@@ -607,13 +608,6 @@ bool SettingsDialog::ApplySettings()
 		currentSettings->SetConsoleStderrColor(stderrColorCtrl->GetColour());
 		
 		// apply instance settings to global
-		UpdateMode newUpdateMode;
-		if (mcUpdateDropDown->GetValue() == doUpdate)
-			newUpdateMode = Update_Auto;
-		else if (mcUpdateDropDown->GetValue() == dontUpdate)
-			newUpdateMode = Update_Never;
-		currentSettings->SetUpdateMode(newUpdateMode);
-
 		currentSettings->SetAutoLogin(autoLoginCheck->GetValue());
 		
 		currentSettings->SetMinMemAlloc(minMemorySpin->GetValue());
@@ -686,23 +680,6 @@ Are you sure you want to use dev builds?"),
 	}
 	else
 	{
-		// apply instance settings to the instance
-		bool haveUpdate = !updateUseDefs->GetValue();
-		if(haveUpdate)
-		{
-			UpdateMode newUpdateMode = Update_Never;
-			if (mcUpdateDropDown->GetValue() == doUpdate)
-				newUpdateMode = Update_Auto;
-			else if (mcUpdateDropDown->GetValue() == dontUpdate)
-				newUpdateMode = Update_Never;
-			currentSettings->SetUpdateMode(newUpdateMode);
-		}
-		else
-		{
-			currentSettings->ResetUpdateMode();
-		}
-		currentSettings->SetUpdatesOverride(haveUpdate);
-		
 		bool haveMemory = !memoryUseDefs->GetValue();
 		if(haveMemory)
 		{
@@ -783,6 +760,7 @@ void SettingsDialog::LoadSettings()
 
 		instDirTextBox->SetValue(currentSettings->GetInstDir().GetFullPath());
 		modsDirTextBox->SetValue(currentSettings->GetModsDir().GetFullPath());
+		lwjglDirTextBox->SetValue(currentSettings->GetLwjglDir().GetFullPath());
 
 		sysMsgColorCtrl->SetColour(currentSettings->GetConsoleSysMsgColor());
 		stdoutColorCtrl->SetColour(currentSettings->GetConsoleStdoutColor());
@@ -859,21 +837,10 @@ void SettingsDialog::LoadSettings()
 	{
 		javaUseDefs->SetValue(!currentSettings->GetJavaOverride());
 		memoryUseDefs->SetValue(!currentSettings->GetMemoryOverride());
-		updateUseDefs->SetValue(!currentSettings->GetUpdatesOverride());
 		winUseDefs->SetValue(!currentSettings->GetWindowOverride());
 		loginUseDefs->SetValue(!currentSettings->GetLoginOverride());
 	}
 	
-	switch (currentSettings->GetUpdateMode())
-	{
-	case Update_Auto:
-		mcUpdateDropDown->SetValue(doUpdate);
-		break;
-		
-	case Update_Never:
-		mcUpdateDropDown->SetValue(dontUpdate);
-		break;
-	}
 	minMemorySpin->SetValue(currentSettings->GetMinMemAlloc());
 	maxMemorySpin->SetValue(currentSettings->GetMaxMemAlloc());
 
@@ -929,6 +896,27 @@ void SettingsDialog::OnBrowseModsDirClicked(wxCommandEvent& event)
 	}
 }
 
+
+
+void SettingsDialog::OnBrowseLwjglDirClicked(wxCommandEvent& event)
+{
+	wxDirDialog dirDlg (this, "Select a new folder for storing LWJGL versions.", lwjglDirTextBox->GetValue());
+	if (dirDlg.ShowModal() == wxID_OK)
+	{
+		wxFileName a = dirDlg.GetPath();
+		if(fsutils::isSubsetOf(a,wxGetCwd()))
+			a.MakeRelativeTo();
+		if(a.SameAs(wxGetCwd()))
+		{
+			lwjglDirTextBox->ChangeValue(".");
+		}
+		else
+		{
+			lwjglDirTextBox->ChangeValue(a.GetFullPath());
+		}
+	}
+}
+
 void SettingsDialog::OnDetectJavaPathClicked(wxCommandEvent& event)
 {
 	wxString newJPath = FindJavaPath(javaPathTextBox->GetValue());
@@ -945,7 +933,6 @@ void SettingsDialog::UpdateCheckboxStuff()
 {
 	if(instanceMode)
 	{
-		bool enableUpdates = !updateUseDefs->GetValue();
 		bool enableJava = !javaUseDefs->GetValue();
 		bool enableMemory = !memoryUseDefs->GetValue();
 		bool enableWindow = !winUseDefs->GetValue();
@@ -973,8 +960,6 @@ void SettingsDialog::UpdateCheckboxStuff()
 		winWidthLabel->Enable(enableWindowSize);
 		winHeightLabel->Enable(enableWindowSize);
 		
-		mcUpdateDropDown->Enable(enableUpdates);
-
 		autoLoginCheck->Enable(enableLogin);
 	}
 	else
@@ -1002,6 +987,7 @@ bool SettingsDialog::ShouldRestartNow() const
 BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_BUTTON(ID_BrowseInstDir, SettingsDialog::OnBrowseInstDirClicked)
 	EVT_BUTTON(ID_BrowseModDir, SettingsDialog::OnBrowseModsDirClicked)
+	EVT_BUTTON(ID_BrowseLwjglDir, SettingsDialog::OnBrowseLwjglDirClicked)
 	EVT_BUTTON(ID_DetectJavaPath, SettingsDialog::OnDetectJavaPathClicked)
 	EVT_BUTTON(wxID_OK, SettingsDialog::OnOKClicked)
 

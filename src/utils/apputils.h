@@ -84,6 +84,7 @@ namespace Utils
 	
 	wxString RemoveInvalidPathChars(wxString path, wxChar replaceWith = '-', bool allowExclamationMark = true);
 	bool ContainsInvalidPathChars(wxString path, bool allowExclamationMark = true);
+	wxString RemoveInvalidFilenameChars(wxString path, wxChar replaceWith);
 	
 	wxString ExecutePost(const wxString &address, const wxString &requestString, 
 		wxProtocolError *error);

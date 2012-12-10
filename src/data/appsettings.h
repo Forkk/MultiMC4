@@ -47,12 +47,6 @@ enum GUIMode
 	GUI_Simple,
 };
 
-enum UpdateMode
-{
-	Update_Auto,
-	Update_Never
-};
-
 enum InstSortMode
 {
 	// Sort alphabetically by name.
@@ -121,9 +115,6 @@ public:
 	DEFINE_SETTING(MCWindowMaximize, bool, false);
 	DEFINE_SETTING(UseAppletWrapper, bool, true);
 
-	DEFINE_OVERRIDE_SETTING_BLANK(Updates);
-	DEFINE_ENUM_SETTING(UpdateMode, UpdateMode, Update_Never);
-
 	DEFINE_OVERRIDE_SETTING_BLANK(Login);
 	DEFINE_SETTING(AutoLogin, bool, false);
 
@@ -141,6 +132,7 @@ public:
 	DEFINE_FN_SETTING_ADVANCED(InstDir, "InstanceDir", wxFileName::DirName("instances"));
 	DEFINE_FN_SETTING(ModsDir, wxFileName::DirName("mods"));
 	DEFINE_FN_SETTING(IconsDir, wxFileName::DirName("icons"));
+	DEFINE_FN_SETTING(LwjglDir, wxFileName::DirName("lwjgl"));
 
 	DEFINE_SETTING(AutoCloseConsole, bool, true);
 	DEFINE_SETTING(ShowConsole, bool, true);
