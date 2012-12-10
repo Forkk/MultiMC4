@@ -117,7 +117,7 @@ MainWindow::MainWindow(void)
 	instNameSz = nullptr;
 	instNameLabel = nullptr;
 	instNameEditor = nullptr;
-	//SetMinSize(minSize);
+	SetMinSize(minSize);
 
 	SetIcons(wxGetApp().GetAppIcons());
 	
