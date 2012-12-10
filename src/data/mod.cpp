@@ -20,6 +20,7 @@
 
 #ifdef READ_MODINFO
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
@@ -66,10 +67,20 @@ Mod::Mod(const wxFileName& file, ModType type)
 
 			std::auto_ptr<wxZipEntry> entry;
 
-			do 
+			bool is_forge = false;
+			while(true)
 			{
 				entry.reset(zipIn.GetNextEntry());
-			} while (entry.get() != nullptr && !entry->GetInternalName().EndsWith("mcmod.info"));
+				if (entry.get() == nullptr)
+					break;
+				if(entry->GetInternalName().EndsWith("mcmod.info"))
+					break;
+				if(entry->GetInternalName().EndsWith("forgeversion.properties"))
+				{
+					is_forge = true;
+					break;
+				}
+			}
 
 			if (entry.get() != nullptr)
 			{
@@ -77,8 +88,10 @@ Mod::Mod(const wxFileName& file, ModType type)
 				wxString infoFileData;
 				wxStringOutputStream stringOut(&infoFileData);
 				zipIn.Read(stringOut);
-
-				ReadModInfoData(infoFileData);
+				if(!is_forge)
+					ReadModInfoData(infoFileData);
+				else
+					ReadForgeInfoData(infoFileData);
 			}
 		}
 		break;
@@ -153,6 +166,49 @@ void Mod::ReadModInfoData(wxString info)
 		// Silently fail...
 	}
 }
+
+void Mod::ReadForgeInfoData ( wxString infoFileData )
+{
+		using namespace boost::property_tree;
+
+	// Read the data
+	ptree ptRoot;
+	modName = "Minecraft Forge";
+	modID = "Forge";
+	std::stringstream stringIn(cStr(infoFileData));
+	try
+	{
+		read_ini(stringIn, ptRoot);
+		wxString major, minor, revision, build;
+		// BUG: boost property tree is bad. won't let us get a key with dots in it
+		// Likely cause = treating the dots as path separators.
+		for (auto iter = ptRoot.begin(); iter != ptRoot.end(); iter++)
+		{
+			auto &item = *iter;
+			std::string key = item.first;
+			std::string value = item.second.get_value<std::string>();
+			if(key == "forge.major.number")
+				major = value;
+			if(key == "forge.minor.number")
+				minor = value;
+			if(key == "forge.revision.number")
+				revision = value;
+			if(key == "forge.build.number")
+				build = value;
+		}
+		modVersion.Empty();
+		modVersion << major << "." << minor << "." << revision << "." << build;
+	}
+	catch (json_parser_error e)
+	{
+		std::cerr << e.what();
+	}
+	catch (ptree_error e)
+	{
+		std::cerr << e.what();
+	}
+}
+
 
 Mod::Mod(const Mod& mod)
 {

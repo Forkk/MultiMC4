@@ -20,9 +20,9 @@
 
 struct ForgeVersionItem
 {
-	ForgeVersionItem(wxString _Filename, wxString _MCVersion, wxString _ForgeVersion)
-	:Filename(_Filename),MCVersion(_MCVersion),ForgeVersion(_ForgeVersion){};
-	wxString Filename;
+	ForgeVersionItem(wxString _Url, wxString _MCVersion, wxString _ForgeVersion)
+	:Url(_Url),MCVersion(_MCVersion),ForgeVersion(_ForgeVersion){};
+	wxString Url;
 	wxString MCVersion;
 	wxString ForgeVersion;
 	//TODO: maybe define a sorting predicate.
@@ -32,8 +32,9 @@ class InstallForgeDialog : public ListSelectDialog
 {
 public:
 	InstallForgeDialog(wxWindow *parent);
-
+	ForgeVersionItem & GetSelectedItem();
 protected:
+	bool ParseForgeJson( wxString file );
 	virtual bool DoLoadList();
 	virtual wxString OnGetItemText(long item, long column);
 	

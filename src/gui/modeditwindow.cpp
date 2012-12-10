@@ -27,6 +27,7 @@
 #include "taskprogressdialog.h"
 #include "filedownloadtask.h"
 #include "filecopytask.h"
+#include "minecraftforge.h"
 
 ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 	: wxFrame(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))
@@ -952,14 +953,17 @@ void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
 	installDlg.CenterOnParent();
 	if (installDlg.ShowModal() == wxID_OK)
 	{
-		wxString dl = installDlg.GetSelection();
-		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), dl);
+		auto ver = installDlg.GetSelectedItem();
+		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), "minecraftforge.zip");
 		
-		auto dlTask = new FileDownloadTask("http://files.minecraftforge.net/" + dl, forgePath);
+		auto dlTask = new FileDownloadTask(ver.Url, wxFileName("forge.zip"));
 		TaskProgressDialog taskDlg(this);
 		taskDlg.CenterOnParent();
 		if (taskDlg.ShowModal(dlTask))
 		{
+			MinecraftForge forge(wxFileName("forge.zip"));
+			forge.FixVersionIfNeeded(ver.ForgeVersion);
+			wxRenameFile("forge.zip",forgePath, true);
 			m_inst->GetModList()->InsertMod(0, forgePath);
 			jarModList->UpdateItems();
 		}

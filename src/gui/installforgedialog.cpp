@@ -16,6 +16,9 @@
 
 #include "installforgedialog.h"
 
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/foreach.hpp>
+
 #include <wx/gbsizer.h>
 #include <wx/regex.h>
 
@@ -28,62 +31,81 @@ InstallForgeDialog::InstallForgeDialog(wxWindow *parent)
 {
 	// Custom GUI stuff.
 
+	wxClientDC dc(this);
+	dc.SetFont(listCtrl->GetFont());
+	int h,typeColumnWidth = 120;
+	dc.GetTextExtent(_("Minecraft Version"), & typeColumnWidth, & h);
+	typeColumnWidth += 10;
+	
 	// Clear columns and add our own.
 	listCtrl->DeleteAllColumns();
-	listCtrl->AppendColumn(_("Filename"), wxLIST_FORMAT_LEFT);
-	listCtrl->AppendColumn(_("Minecraft Version"), wxLIST_FORMAT_RIGHT, 120);
+	listCtrl->AppendColumn(_("Forge Version"), wxLIST_FORMAT_LEFT);
+	listCtrl->AppendColumn(_("Minecraft Version"), wxLIST_FORMAT_RIGHT, typeColumnWidth);
 
 	// Show column headers
 	ShowHeader(true);
 }
 
+bool InstallForgeDialog::ParseForgeJson(wxString file)
+{
+	using namespace boost::property_tree;
+	try
+	{
+		ptree pt;
+		std::stringstream jsonStream(stdStr(file), std::ios::in);
+		read_json(jsonStream, pt);
+
+		// for each build
+		if(pt.count("builds")) BOOST_FOREACH(const ptree::value_type& v, pt.get_child("builds"))
+		{
+			const ptree & build = v.second;
+			// for each file
+			if(build.count("files")) BOOST_FOREACH(const ptree::value_type& v, build.get_child("files"))
+			{
+				const ptree & file = v.second;
+				wxString buildtype = wxStr(file.get<std::string>("buildtype"));
+				if(buildtype != "client" && buildtype != "universal")
+					continue;
+				wxString url = wxStr(file.get<std::string>("url"));
+				wxString jobbuildver = wxStr(file.get<std::string>("jobbuildver"));
+				wxString mcver = wxStr(file.get<std::string>("mcver"));
+				items.push_back(ForgeVersionItem(url,mcver,jobbuildver));
+			}
+		}
+	}
+	catch (json_parser_error e)
+	{
+		wxLogError(_("Failed to read the forge version list.\nError on line %i: %s"),
+			e.line(), wxStr(e.message()).c_str());
+		return false;
+	}
+	catch (ptree_error)
+	{
+		wxLogError(_("Failed to read the forge version list."));
+		return false;
+	}
+	return true;
+}
+
+ForgeVersionItem& InstallForgeDialog::GetSelectedItem()
+{
+	return items[GetSelectedIndex()];
+}
+
 bool InstallForgeDialog::DoLoadList()
 {
-	wxString dlURL = "http://files.minecraftforge.net";
+	wxString dlURL = "http://files.minecraftforge.net/minecraftforge/json";
 
 	items.clear();
 	
 	wxString buildListText;
 	if (DownloadString(dlURL, &buildListText))
 	{
-		wxRegEx forgeRegex;
-		if (!forgeRegex.Compile("minecraftforge-(universal|client)-([0-9]+\\.[0-9]+\\.[0-9]+)?-?([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+).zip"))
-		{
-			wxLogError("Regex failed to compile.");
-			return false;
-		}
-
-		while (forgeRegex.Matches(buildListText))
-		{
-			size_t start, len;
-			int count = forgeRegex.GetMatchCount();
-			wxString fileName, MCVersion, forgeVersion;
-			for(std::size_t i = 0; i < count; i++)
-			{
-				forgeRegex.GetMatch(&start, &len, i);
-				wxString str = buildListText.Mid(start, len);
-				if(i == 0)
-					fileName = str;
-				if(i == 2)
-					MCVersion = str;
-				if(i == 3)
-					forgeVersion = str;
-			}
-			
-			if(items.empty() || items.back().Filename != fileName)
-			{
-				if(MCVersion.empty())
-				{
-					MCVersion = forgeutils::MCVersionFromForgeVersion(forgeVersion);
-				}
-				items.push_back(ForgeVersionItem(fileName, MCVersion, forgeVersion));
-			}
-			forgeRegex.ReplaceFirst(&buildListText, wxEmptyString);
-		}
+		return ParseForgeJson(buildListText);
 	}
 	else
 	{
-		wxLogError(_("Failed to load build list. Check your internet connection."));
+		wxLogError(_("Failed to load forge version list. Check your internet connection."));
 		return false;
 	}
 
@@ -104,6 +126,6 @@ wxString InstallForgeDialog::OnGetItemText(long item, long column)
 		return items[item].MCVersion;
 
 	default:
-		return items[item].Filename;
+		return items[item].ForgeVersion;
 	}
 }

@@ -143,6 +143,7 @@ data/instance.cpp
 data/mcprocess.cpp
 data/userinfo.cpp
 data/mod.cpp
+data/minecraftforge.cpp
 data/modlist.cpp
 data/configpack.cpp
 data/mcversionlist.cpp
@@ -216,6 +217,7 @@ data/appsettings.h
 data/instance.h
 data/userinfo.h
 data/mod.h
+data/minecraftforge.h
 data/modlist.h
 data/configpack.h
 data/mcversionlist.h
