@@ -47,7 +47,7 @@ bool NewInstanceDialog::Create()
 	}
 
 	
-	m_textName = new ShadedTextEdit( this, _("Instance name"), ID_text_name, wxTE_CENTRE|wxTE_DONTWRAP );
+	m_textName = new ShadedTextEdit( this, _("Instance name"), ID_text_name, wxTE_CENTRE);
 	m_textName->SetMaxLength( 25 ); 
 	bSizer1->Add( m_textName, 0, wxALL|wxEXPAND, 5 );
 	
@@ -92,6 +92,7 @@ bool NewInstanceDialog::Create()
 	
 	this->Center( wxBOTH );
 	m_loadingDone = true;
+	return true;
 }
 
 int NewInstanceDialog::ShowModal()
