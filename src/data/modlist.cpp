@@ -27,6 +27,7 @@
 #include "utils/apputils.h"
 #include "utils/osutils.h"
 #include "utils/datautils.h"
+#include "instance.h"
 
 ModList::ModList(const wxString &dir)
 	: modsFolder(dir)
@@ -254,3 +255,99 @@ wxString ModList::ToString(int indentation)
 	}
 	return str;
 }
+
+
+JarModList::JarModList(Instance *inst, const wxString& dir)
+	: ModList(dir)
+{
+	m_inst = inst;
+}
+
+bool JarModList::InsertMod(size_t index, const wxString &filename, const wxString& saveToFile)
+{
+	wxString saveFile = saveToFile;
+	if (saveToFile.IsEmpty())
+		saveFile = m_inst->GetModListFile().GetFullPath();
+
+	if (ModList::InsertMod(index, filename, saveFile))
+	{
+		m_inst->SetNeedsRebuild();
+		return true;
+	}
+	return false;
+}
+
+bool JarModList::DeleteMod(size_t index, const wxString& saveToFile)
+{
+	wxString saveFile = saveToFile;
+	if (saveToFile.IsEmpty())
+		saveFile = m_inst->GetModListFile().GetFullPath();
+
+	if (ModList::DeleteMod(index, saveFile))
+	{
+		m_inst->SetNeedsRebuild();
+		return true;
+	}
+	return false;
+}
+
+bool JarModList::UpdateModList(bool quickLoad)
+{
+	if (ModList::UpdateModList(quickLoad))
+	{
+		m_inst->SetNeedsRebuild();
+		return true;
+	}
+	return false;
+}
+
+bool FolderModList::LoadModListFromDir(const wxString& loadFrom, bool quickLoad)
+{
+	wxString dir(loadFrom.IsEmpty() ? modsFolder : loadFrom);
+
+	if (!wxDirExists(dir))
+		return false;
+
+	bool listChanged = false;
+	wxDir modDir(dir);
+
+	if (!modDir.IsOpened())
+	{
+		wxLogError(_("Failed to open directory: ") + dir);
+		return false;
+	}
+
+	wxString currentFile;
+	if (modDir.GetFirst(&currentFile))
+	{
+		do
+		{
+			wxFileName modFile(Path::Combine(dir, currentFile));
+
+			if (wxFileExists(modFile.GetFullPath()) || wxDirExists(modFile.GetFullPath()))
+			{
+				if (quickLoad || FindByFilename(modFile.GetFullPath()) == nullptr)
+				{
+					Mod mod(modFile.GetFullPath());
+					push_back(mod);
+					listChanged = true;
+				}
+			}
+		} while (modDir.GetNext(&currentFile));
+	}
+
+	return listChanged;
+}
+
+bool ModNameSort (const Mod & i,const Mod & j)
+{
+	return (i.GetName() < j.GetName());
+}
+
+bool FolderModList::UpdateModList ( bool quickLoad )
+{
+	bool changed = ModList::UpdateModList(quickLoad);
+	std::sort(begin(),end(),ModNameSort);
+	return changed;
+}
+

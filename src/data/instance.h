@@ -242,34 +242,8 @@ public:
 	void SetParentModel ( InstanceModel* parent );
 	
 protected:
-	class JarModList : public ModList
-	{
-	public:
-		JarModList(Instance *inst, const wxString& dir = wxEmptyString);
+	JarModList modList;
 
-		virtual bool UpdateModList(bool quickLoad = false);
-
-		virtual bool InsertMod(size_t index, const wxString &filename, const wxString& saveToFile = wxEmptyString);
-		virtual bool DeleteMod(size_t index, const wxString& saveToFile = wxEmptyString);
-
-	protected:
-		Instance *m_inst;
-	} modList;
-
-	class FolderModList : public ModList
-	{
-	public:
-		FolderModList(const wxString& dir = wxEmptyString)
-			: ModList(dir) {}
-
-		virtual bool UpdateModList(bool quickLoad = true)
-		{
-			return ModList::UpdateModList(quickLoad);
-		}
-		
-	protected:
-		virtual bool LoadModListFromDir(const wxString& loadFrom, bool quickLoad);
-	};
 	InstanceModel * parentModel;
 	FolderModList mlModList;
 	FolderModList coreModList;
