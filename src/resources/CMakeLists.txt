@@ -67,6 +67,8 @@ herobrine.png
 herobrine128.png
 meat.png
 meat128.png
+netherstar.png
+netherstar128.png
 chicken.png
 chicken128.png
 steve.png

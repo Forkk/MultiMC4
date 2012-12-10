@@ -134,6 +134,7 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		InstIconDef("ftb-logo",_("FTB logo"), wxMEMORY_IMAGE(ftb_logo), wxMEMORY_IMAGE(ftb_logo128)),
 		InstIconDef("ftb-glow",_("FTB glow"), wxMEMORY_IMAGE(ftb_glow), wxMEMORY_IMAGE(ftb_glow128)),
 		InstIconDef("infinity",_("Infinity"), wxMEMORY_IMAGE(infinity), wxMEMORY_IMAGE(infinity128)),
+		InstIconDef("netherstar",_("Nether Star"), wxMEMORY_IMAGE(netherstar), wxMEMORY_IMAGE(netherstar128)),
 		InstIconDef("creeper",_("Creeper"), wxMEMORY_IMAGE(creeper), wxMEMORY_IMAGE(creeper128)),
 		InstIconDef("square creeper",_("Square creeper"), wxMEMORY_IMAGE(squarecreeper), wxMEMORY_IMAGE(squarecreeper128)),
 		InstIconDef("skeleton",_("Skeleton"), wxMEMORY_IMAGE(skeleton), wxMEMORY_IMAGE(skeleton128)),
