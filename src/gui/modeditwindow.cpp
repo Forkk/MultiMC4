@@ -949,7 +949,7 @@ void ModEditWindow::OnCloseClicked(wxCommandEvent &event)
 
 void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
 {
-	InstallForgeDialog installDlg (this);
+	InstallForgeDialog installDlg (this, m_inst->GetIntendedJarVersion());
 	installDlg.CenterOnParent();
 	if (installDlg.ShowModal() == wxID_OK)
 	{

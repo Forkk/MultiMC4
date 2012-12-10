@@ -26,17 +26,22 @@
 #include "utils/httputils.h"
 #include "forgeversions.h"
 
-InstallForgeDialog::InstallForgeDialog(wxWindow *parent)
+InstallForgeDialog::InstallForgeDialog(wxWindow *parent, wxString intendedVersion)
 	: ListSelectDialog(parent, _("Install Minecraft Forge"))
 {
+	// version filtering based on instance intended version
+	m_intendedVersion = intendedVersion;
+	m_filterVersions = m_intendedVersion != MCVer_Unknown;
 	// Custom GUI stuff.
-
 	wxClientDC dc(this);
 	dc.SetFont(listCtrl->GetFont());
 	int h,typeColumnWidth = 120;
 	dc.GetTextExtent(_("Minecraft Version"), & typeColumnWidth, & h);
 	typeColumnWidth += 10;
 	
+	wxSizerFlags btnSzFlags = wxSizerFlags(0).Border(wxBOTTOM, 4);
+	m_changeLogButton = new wxButton(this, ID_ChangelogBtn, _("C&hangelog"));
+	btnSz->Insert(1,m_changeLogButton,btnSzFlags.Align(wxALIGN_LEFT));
 	// Clear columns and add our own.
 	listCtrl->DeleteAllColumns();
 	listCtrl->AppendColumn(_("Forge Version"), wxLIST_FORMAT_LEFT);
@@ -44,6 +49,7 @@ InstallForgeDialog::InstallForgeDialog(wxWindow *parent)
 
 	// Show column headers
 	ShowHeader(true);
+	Layout();
 }
 
 bool InstallForgeDialog::ParseForgeJson(wxString file)
@@ -59,18 +65,32 @@ bool InstallForgeDialog::ParseForgeJson(wxString file)
 		if(pt.count("builds")) BOOST_FOREACH(const ptree::value_type& v, pt.get_child("builds"))
 		{
 			const ptree & build = v.second;
+			bool valid = false;
+			wxString url, changelogurl, jobbuildver, mcver;
 			// for each file
 			if(build.count("files")) BOOST_FOREACH(const ptree::value_type& v, build.get_child("files"))
 			{
 				const ptree & file = v.second;
 				wxString buildtype = wxStr(file.get<std::string>("buildtype"));
-				if(buildtype != "client" && buildtype != "universal")
-					continue;
-				wxString url = wxStr(file.get<std::string>("url"));
-				wxString jobbuildver = wxStr(file.get<std::string>("jobbuildver"));
-				wxString mcver = wxStr(file.get<std::string>("mcver"));
-				items.push_back(ForgeVersionItem(url,mcver,jobbuildver));
+				if(buildtype == "client" || buildtype == "universal")
+				{
+					mcver = wxStr(file.get<std::string>("mcver"));
+					// if we are filtering based on MC versions and the version doesn't match
+					if( m_filterVersions && mcver != m_intendedVersion )
+					{
+						break; // skip to next build
+					}
+					url = wxStr(file.get<std::string>("url"));
+					jobbuildver = wxStr(file.get<std::string>("jobbuildver"));
+					valid = true;
+				}
+				else if(buildtype == "changelog")
+				{
+					changelogurl = wxStr(file.get<std::string>("url"));
+				}
 			}
+			if(valid)
+				m_items.push_back(ForgeVersionItem(url,mcver,jobbuildver,changelogurl));
 		}
 	}
 	catch (json_parser_error e)
@@ -89,14 +109,14 @@ bool InstallForgeDialog::ParseForgeJson(wxString file)
 
 ForgeVersionItem& InstallForgeDialog::GetSelectedItem()
 {
-	return items[GetSelectedIndex()];
+	return m_items[GetSelectedIndex()];
 }
 
 bool InstallForgeDialog::DoLoadList()
 {
 	wxString dlURL = "http://files.minecraftforge.net/minecraftforge/json";
 
-	items.clear();
+	m_items.clear();
 	
 	wxString buildListText;
 	if (DownloadString(dlURL, &buildListText))
@@ -114,7 +134,7 @@ bool InstallForgeDialog::DoLoadList()
 
 void InstallForgeDialog::UpdateListCount()
 {
-	listCtrl->SetItemCount(items.size());
+	listCtrl->SetItemCount(m_items.size());
 }
 
 
@@ -123,9 +143,27 @@ wxString InstallForgeDialog::OnGetItemText(long item, long column)
 	switch (column)
 	{
 	case 1:
-		return items[item].MCVersion;
+		return m_items[item].MCVersion;
 
 	default:
-		return items[item].ForgeVersion;
+		return m_items[item].ForgeVersion;
 	}
 }
+
+void InstallForgeDialog::OnChangelog ( wxCommandEvent& event )
+{
+	if(m_items.size() == 0)
+		return;
+	int selected = GetSelectedIndex();
+	if(selected == -1)
+	{
+		selected = 0;
+	}
+	ForgeVersionItem & item = m_items[selected];
+	Utils::OpenURL(item.ChangelogUrl);
+}
+
+
+BEGIN_EVENT_TABLE(InstallForgeDialog, ListSelectDialog)
+	EVT_BUTTON(ID_ChangelogBtn, InstallForgeDialog::OnChangelog)
+END_EVENT_TABLE()
