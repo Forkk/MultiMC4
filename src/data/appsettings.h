@@ -201,7 +201,8 @@ protected:
 	};
 	void SetSetting(const wxString &key, wxFileName value, bool suppressErrors = false)
 	{
-		if (!config->Write(key, value.GetFullPath()) && !suppressErrors)
+		// Always use Unix paths when saving settings.
+		if (!config->Write(key, value.GetFullPath(wxPATH_UNIX)) && !suppressErrors)
 			wxLogError(_("Failed to write config setting %s"), key.c_str());
 		config->Flush();
 	};
