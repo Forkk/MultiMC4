@@ -78,7 +78,7 @@ bool LWJGLVersionList::Reload()
 
 		wxRegEx lwjglRegex("^lwjgl-(([0-9]\\.?)+)\\.zip$");
 
-		if(pt.count("rss.channel")) BOOST_FOREACH(const ptree::value_type& v, pt.get_child("rss.channel"))
+		if(pt.count("rss")) BOOST_FOREACH(const ptree::value_type& v, pt.get_child("rss.channel"))
 		{
 			if (v.first == "item")
 			{
