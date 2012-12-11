@@ -48,6 +48,9 @@ void ChooseLWJGLDialog::LoadList()
 	{
 		success = true;
 	}
+	if(!success)
+		wxMessageBox(_("MultiMC was unable to acquire an updated list from sourceforge. Showing only your downloaded lwjgl versions."),
+		             _("Error"));
 	sList.Clear();
 	linkList.Clear();
 	for(auto iter = verList.versions.begin(); iter != verList.versions.end(); iter++)

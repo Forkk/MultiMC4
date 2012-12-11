@@ -15,6 +15,7 @@
 //
 
 #include "lwjglversionlist.h"
+#include "appsettings.h"
 
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/foreach.hpp>
@@ -23,6 +24,7 @@
 
 #include <wx/regex.h>
 #include <wx/numformatter.h>
+#include <wx/dir.h>
 
 #include "utils/httputils.h"
 #include "utils/apputils.h"
@@ -60,13 +62,14 @@ bool LWJGLVersionList::Reload()
 	
 	// Parse XML from the given URL.
 	wxString rssXML = wxEmptyString;
+	bool failed = false;
 	if (!DownloadString(rssURL, &rssXML))
 	{
-		wxLogError(_("Failed to get RSS feed. Check your internet connection."));
-		return false;
+		//wxLogError(_("Failed to get RSS feed. Check your internet connection."));
+		failed = true;
 	}
-
 	using namespace boost::property_tree;
+	if(!failed)
 	try
 	{
 		ptree pt;
@@ -75,11 +78,14 @@ bool LWJGLVersionList::Reload()
 
 		wxRegEx lwjglRegex("^lwjgl-(([0-9]\\.?)+)\\.zip$");
 
-		BOOST_FOREACH(const ptree::value_type& v, pt.get_child("rss.channel"))
+		if(pt.count("rss.channel")) BOOST_FOREACH(const ptree::value_type& v, pt.get_child("rss.channel"))
 		{
 			if (v.first == "item")
 			{
-				wxString link = wxStr(v.second.get<std::string>("link"));
+				auto val = v.second.get_optional<std::string>("link");
+				if(!val)
+					continue;
+				wxString link = wxStr(val.get());
 
 				// Look for download links.
 				if (link.EndsWith("/download"))
@@ -95,13 +101,40 @@ bool LWJGLVersionList::Reload()
 				}
 			}
 		}
+		else
+		{
+			failed = true;
+		}
 	}
 	catch (xml_parser_error e)
 	{
-		wxLogError(_("Failed to parse LWJGL list.\nXML parser error at line %i: %s"), 
-			e.line(), wxStr(e.message()).c_str());
+		//wxLogError(_("Failed to parse LWJGL list.\nXML parser error at line %i: %s"), e.line(), wxStr(e.message()).c_str());
+		failed = true;
+	}
+	if(failed)
+	{
+		wxDir dir(settings->GetLwjglDir().GetFullPath());
+		if ( !dir.IsOpened() )
+			return false;
+
+		wxString dirName = dir.GetName();
+
+		wxString str;
+		if(dir.GetFirst(&str, wxEmptyString, wxDIR_DIRS))
+		{
+			versions.push_back(LWJGLVersion(str,wxEmptyString));
+		}
+		while(dir.GetNext(&str))
+		{
+			versions.push_back(LWJGLVersion(str,wxEmptyString));
+		}
+		std::sort(versions.begin(),versions.end(),
+			[](const LWJGLVersion & left, const LWJGLVersion & right)
+			{
+				return left.GetName().Lower() > right.GetName().Lower();
+			}
+		);
 		return false;
 	}
-
 	return true;
 }

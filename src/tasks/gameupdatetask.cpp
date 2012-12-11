@@ -43,7 +43,7 @@ wxThread::ExitCode GameUpdateTask::TaskStart()
 	wxString currentVersion = m_inst->GetJarVersion();
 	
 	
-	if(currentVersion == intendedVersion)
+	if(currentVersion == intendedVersion && !m_forceUpdate)
 		return (ExitCode)1;
 	
 	SetState(STATE_DETERMINING_PACKAGES);
@@ -74,10 +74,6 @@ wxThread::ExitCode GameUpdateTask::TaskStart()
 #error Detected unsupported OS.
 #endif
 	jarURLs.push_back(mojangURL + nativeJar);
-	
-	/*                                     *
-	 ***************************************
-	 *                                     */
 	
 	SetProgress(5);
 	

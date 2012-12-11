@@ -16,9 +16,9 @@
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="clucker.svg"
-   inkscape:export-filename="/home/peterix/projects/MultiMC4/src/resources/insticons/chicken.png"
-   inkscape:export-xdpi="89.77832"
-   inkscape:export-ydpi="89.77832">
+   inkscape:export-filename="/home/peterix/projects/MultiMC4/src/resources/insticons/chicken128.png"
+   inkscape:export-xdpi="360"
+   inkscape:export-ydpi="360">
   <defs
      id="defs4">
     <linearGradient
@@ -234,9 +234,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.627417"
-     inkscape:cx="7.4782578"
-     inkscape:cy="18.085057"
+     inkscape:zoom="2"
+     inkscape:cx="-92.12757"
+     inkscape:cy="71.871222"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -261,7 +261,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
