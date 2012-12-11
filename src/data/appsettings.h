@@ -64,8 +64,6 @@ enum ProxyType
 	Proxy_SOCKS5,
 };
 
-#define STR_VALUE(val) #val
-
 #define DEFINE_SETTING_ADVANCED(funcName, cfgEntryName, typeName, defVal) \
 	virtual typeName Get ## funcName() const { return GetSetting<typeName>(cfgEntryName, defVal); } \
 	virtual void Set ## funcName(typeName value) { SetSetting<typeName>(cfgEntryName, value); } \
@@ -195,7 +193,8 @@ protected:
 	};
 	void SetSetting(const wxString &key, wxFileName value, bool suppressErrors = false)
 	{
-		if (!config->Write(key, value.GetFullPath()) && !suppressErrors)
+		// Always use Unix paths when saving settings.
+		if (!config->Write(key, value.GetFullPath(wxPATH_UNIX)) && !suppressErrors)
 			wxLogError(_("Failed to write config setting %s"), key.c_str());
 		config->Flush();
 	};

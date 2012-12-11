@@ -118,7 +118,7 @@ MainWindow::MainWindow(void)
 	instNameSz = nullptr;
 	instNameLabel = nullptr;
 	instNameEditor = nullptr;
-	//SetMinSize(minSize);
+	SetMinSize(minSize);
 
 	SetIcons(wxGetApp().GetAppIcons());
 	
@@ -321,7 +321,7 @@ void MainWindow::InitInstMenu()
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_ManageSaves, _("&Manage Saves"), _("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _("&Edit Mods"), _("Install or remove mods."));
-	instMenu->Append(ID_DowngradeInst, _("Downgrade"), _("Use MCNostalgia to downgrade this instance."));
+	instMenu->Append(ID_DowngradeInst, _("MCNostalgia"), _("Use MCNostalgia to downgrade this instance."));
 	instMenu->Append(ID_UseVersion, _("Change Version"), _("Change instance's Minecraft version (game will update on login)."));
 	instMenu->Append(ID_ChangeLWJGL, _("Change LWJGL"), _("Use a different version of LWJGL with this instance."));
 	instMenu->Append(ID_RebuildJar, _("Re&build Jar"), _("Reinstall all the instance's jar mods."));
@@ -402,7 +402,7 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnSz->Add(btnEditMods, szflags);
 	btnManageSaves = new wxButton(btnPanel, ID_ManageSaves, _("Manage Saves"));
 	btnSz->Add(btnManageSaves, szflags);
-	btnDowngrade = new wxButton(btnPanel, ID_DowngradeInst, _("Downgrade"));
+	btnDowngrade = new wxButton(btnPanel, ID_DowngradeInst, _("MCNostalgia"));
 	btnSz->Add(btnDowngrade, szflags);
 	btnVersion = new wxButton(btnPanel, ID_UseVersion, _("Change Version"));
 	btnSz->Add(btnVersion, szflags);

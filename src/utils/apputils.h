@@ -48,6 +48,8 @@
 #define FNSTR(str) str.fn_str().data()
 #endif
 
+#define STR_VALUE(val) #val
+
 inline const char* cStr(const std::string& str)
 {
 	return str.c_str();

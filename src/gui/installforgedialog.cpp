@@ -16,13 +16,18 @@
 
 #include "installforgedialog.h"
 
+#include "utils/apputils.h"
+
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
+
+#if WINDOWS
+#include <wx/msw/winundef.h>
+#endif
 
 #include <wx/gbsizer.h>
 #include <wx/regex.h>
 
-#include "utils/apputils.h"
 #include "utils/httputils.h"
 #include "forgeversions.h"
 
