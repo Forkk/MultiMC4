@@ -25,11 +25,42 @@
 
 #include <string>
 #include <sstream>
+#include <map>
 
 #include "utils/apputils.h"
 #include "utils/httputils.h"
+#include <mcversionlist.h>
 
 const wxString mcnwebURL = "http://sonicrules.org/mcnweb.py";
+
+class initme
+{
+public:
+	std::map <wxString, wxString> mapping;
+	initme()
+	{
+		// wxEmptyString means that it should be ignored
+		mapping["1.4.5_pre"] = wxEmptyString;
+		mapping["1.4.3_pre"] = "1.4.3";
+		mapping["1.4.2_pre"] = wxEmptyString;
+		mapping["1.4.1_pre"] = "1.4.1";
+		mapping["1.4_pre"] = "1.4";
+		mapping["1.3.2_pre"] = wxEmptyString;
+		mapping["1.3.1_pre"] = wxEmptyString;
+		mapping["1.3_pre"] = wxEmptyString;
+		mapping["1.2_pre"] = "1.2";
+	}
+} ver;
+
+wxString NostalgiaVersionToAssetsVersion(wxString nostalgia_version)
+{
+	auto iter = ver.mapping.find(nostalgia_version);
+	if(iter != ver.mapping.end())
+	{
+		return (*iter).second;
+	}
+	return nostalgia_version;
+}
 
 DowngradeDialog::DowngradeDialog(wxWindow *parent)
 	: ListSelectDialog(parent, _("Downgrade Instance"))
@@ -44,6 +75,8 @@ DowngradeDialog::DowngradeDialog(wxWindow *parent)
 bool DowngradeDialog::DoLoadList()
 {
 	wxString vlistJSON;
+	MCVersionList & ver_list = MCVersionList::Instance();
+	ver_list.LoadIfNeeded();
 	if (DownloadString(mcnwebURL + "?pversion=1&list=True", &vlistJSON))
 	{
 		using namespace boost::property_tree;
@@ -54,17 +87,18 @@ bool DowngradeDialog::DoLoadList()
 			ptree pt;
 			std::stringstream jsonStream(stdStr(vlistJSON), std::ios::in);
 			read_json(jsonStream, pt);
-			wxRegEx snapshotRegex("^[0-9][0-9]w[0-9][0-9][a-z]$");
 			wxRegEx indevRegex("in(f)?dev");
-			wxRegEx preRegex("pre");
-			wxRegEx rcRegex("rc");
 			BOOST_FOREACH(const ptree::value_type& v, pt.get_child("order"))
 			{
-				auto str = wxStr(v.second.data());
-				if(snapshotRegex.Matches(str) || indevRegex.Matches(str)
-					|| preRegex.Matches(str) || rcRegex.Matches(str))
+				auto rawVersion = wxStr(v.second.data());
+				if(indevRegex.Matches(rawVersion))
 					continue;
-				sList.Insert(str, 0);
+				auto niceVersion = NostalgiaVersionToAssetsVersion(rawVersion);
+				if(niceVersion.empty())
+					continue;
+				if(ver_list.GetVersion(niceVersion))
+					continue;
+				sList.Insert(rawVersion, 0);
 			}
 		}
 		catch (json_parser_error e)
