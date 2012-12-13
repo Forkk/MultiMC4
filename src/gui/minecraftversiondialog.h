@@ -31,11 +31,15 @@ protected:
 	virtual bool DoLoadList();
 	virtual wxString OnGetItemText(long item, long column);
 	void OnCheckbox(wxCommandEvent& event);
+	void OnNostalgia(wxCommandEvent& event);
 	
 	// data
+	bool nostalgia_override;
+	MCVersion nostalgia_version;
 	int typeColumnWidth;
 	std::vector<unsigned> visibleIndexes;
 	bool showOldSnapshots;
+	wxButton * m_MCNostalgiaButton;
 	
 	DECLARE_EVENT_TABLE()
 };

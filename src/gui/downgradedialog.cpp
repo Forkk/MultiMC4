@@ -77,6 +77,7 @@ bool DowngradeDialog::DoLoadList()
 	wxString vlistJSON;
 	MCVersionList & ver_list = MCVersionList::Instance();
 	ver_list.LoadIfNeeded();
+	nice_names.Clear();
 	if (DownloadString(mcnwebURL + "?pversion=1&list=True", &vlistJSON))
 	{
 		using namespace boost::property_tree;
@@ -99,6 +100,7 @@ bool DowngradeDialog::DoLoadList()
 				if(ver_list.GetVersion(niceVersion))
 					continue;
 				sList.Insert(rawVersion, 0);
+				nice_names.Insert(niceVersion,0);
 			}
 		}
 		catch (json_parser_error e)
@@ -114,4 +116,11 @@ bool DowngradeDialog::DoLoadList()
 		wxLogError(_("Failed to get version list. Check your internet connection and try again later."));
 		return false;
 	}
+}
+MCVersion DowngradeDialog::GetSelectedVersion()
+{
+	int idx = GetSelectedIndex();
+	if(idx == -1)
+		return MCVersion();
+	return MCVersion::getMCNVersion(sList[idx], nice_names[idx], wxEmptyString);
 }

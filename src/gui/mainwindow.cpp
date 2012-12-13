@@ -1405,11 +1405,6 @@ void MainWindow::OnVersionClicked(wxCommandEvent& event)
 	if(currentInstance == nullptr)
 		return;
 
-	if (!currentInstance->GetVersionFile().FileExists())
-	{
-		wxLogError(_("You must run this instance at least once to download minecraft before you can downgrade it!"));
-		return;
-	}
 	MinecraftVersionDialog versionDlg(this);
 	versionDlg.CenterOnParent();
 	MCVersion ver;

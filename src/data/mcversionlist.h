@@ -28,6 +28,7 @@ enum VersionType
 	MetaCustom,
 	MetaLatestSnapshot,
 	MetaLatestStable,
+	MCNostalgia
 };
 
 // Some handy constants for often used version descriptors
@@ -55,7 +56,15 @@ public:
 	{
 		linkedVersion = linked;
 	}
-	
+	static MCVersion getMCNVersion (wxString raw_name, wxString nice_name, wxString required)
+	{
+		MCVersion ver;
+		ver.descriptor = raw_name;
+		ver.name = nice_name;
+		ver.mcn_dependency = required;
+		ver.SetVersionType(MCNostalgia);
+		return ver;
+	}
 	wxString GetDLUrl() const
 	{
 		if(linkedVersion)
@@ -111,6 +120,8 @@ private:
 	wxString etag;
 	// last changed unix time in seconds. nice for sorting :3
 	uint64_t unixTimestamp;
+	// required normal version for MCNostalgia synthetic MCVersion
+	wxString mcn_dependency;
 	// base URL for download
 	wxString dlURL;
 	// this version has a mojang lwjgl associated with it

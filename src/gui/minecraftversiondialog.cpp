@@ -16,6 +16,7 @@
 
 #include "minecraftversiondialog.h"
 #include "taskprogressdialog.h"
+#include "downgradedialog.h"
 #include "mcversionlist.h"
 #include <lambdatask.h>
 #include <wx/dcclient.h>
@@ -39,6 +40,10 @@ MinecraftVersionDialog::MinecraftVersionDialog(wxWindow *parent)
 	snapshotShow->SetValue(showOldSnapshots);
 	auto cnt = dlgSizer->GetItemCount();
 	dlgSizer->Insert(cnt-1,snapshotShow,0, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 4);
+	
+	wxSizerFlags btnSzFlags = wxSizerFlags(0).Border(wxBOTTOM, 4);
+	m_MCNostalgiaButton = new wxButton(this, 5556, _("MCNostalgia"));
+	btnSz->Insert(1,m_MCNostalgiaButton,btnSzFlags.Align(wxALIGN_LEFT));
 	
 	
 	wxClientDC dc(this);
@@ -136,6 +141,11 @@ wxString MinecraftVersionDialog::OnGetItemText(long item, long column)
 
 bool MinecraftVersionDialog::GetSelectedVersion ( MCVersion& out )
 {
+	if(nostalgia_override)
+	{
+		out = nostalgia_version;
+		return true;
+	}
 	MCVersionList & verList = MCVersionList::Instance();
 	int idx = GetSelectedIndex();
 	if(idx == -1)
@@ -151,6 +161,19 @@ void MinecraftVersionDialog::OnCheckbox(wxCommandEvent& event)
 	Refilter();
 }
 
+void MinecraftVersionDialog::OnNostalgia ( wxCommandEvent& event )
+{
+	DowngradeDialog downDlg(this);
+	downDlg.CenterOnParent();
+	if (downDlg.ShowModal() == wxID_OK && !downDlg.GetSelection().IsEmpty())
+	{
+		nostalgia_override = true;
+		nostalgia_version = downDlg.GetSelectedVersion();
+		EndModal(wxID_OK);
+	}
+}
+
 BEGIN_EVENT_TABLE(MinecraftVersionDialog, ListSelectDialog)
 	EVT_CHECKBOX(5555, MinecraftVersionDialog::OnCheckbox)
+	EVT_BUTTON(5556, MinecraftVersionDialog::OnNostalgia)
 END_EVENT_TABLE()

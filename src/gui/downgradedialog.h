@@ -16,12 +16,16 @@
 
 #pragma once
 #include "listselectdialog.h"
+#include "mcversionlist.h"
 
 class DowngradeDialog : public ListSelectDialog
 {
 public:
 	DowngradeDialog(wxWindow *parent);
+	MCVersion GetSelectedVersion();
 
 protected:
 	virtual bool DoLoadList();
+	
+	wxArrayString nice_names;
 };
