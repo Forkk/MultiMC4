@@ -33,7 +33,6 @@
 #include "version.h"
 #include "configpack.h"
 #include "importpackwizard.h"
-#include "downgradedialog.h"
 #include "downgradetask.h"
 #include "utils/fsutils.h"
 #include "aboutdlg.h"
@@ -107,7 +106,6 @@ MainWindow::MainWindow(void)
 	btnChangeIcon = nullptr;
 	btnCopyInst = nullptr;
 	btnEditMods = nullptr;
-	btnDowngrade = nullptr;
 	btnRebuildJar = nullptr;
 	btnViewFolder = nullptr;
 	
@@ -321,7 +319,6 @@ void MainWindow::InitInstMenu()
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_ManageSaves, _("&Manage Saves"), _("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _("&Edit Mods"), _("Install or remove mods."));
-	instMenu->Append(ID_DowngradeInst, _("MCNostalgia"), _("Use MCNostalgia to downgrade this instance."));
 	instMenu->Append(ID_UseVersion, _("Change Version"), _("Change instance's Minecraft version (game will update on login)."));
 	instMenu->Append(ID_ChangeLWJGL, _("Change LWJGL"), _("Use a different version of LWJGL with this instance."));
 	instMenu->Append(ID_RebuildJar, _("Re&build Jar"), _("Reinstall all the instance's jar mods."));
@@ -402,8 +399,6 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnSz->Add(btnEditMods, szflags);
 	btnManageSaves = new wxButton(btnPanel, ID_ManageSaves, _("Manage Saves"));
 	btnSz->Add(btnManageSaves, szflags);
-	btnDowngrade = new wxButton(btnPanel, ID_DowngradeInst, _("MCNostalgia"));
-	btnSz->Add(btnDowngrade, szflags);
 	btnVersion = new wxButton(btnPanel, ID_UseVersion, _("Change Version"));
 	btnSz->Add(btnVersion, szflags);
 	btnRebuildJar = new wxButton(btnPanel, ID_RebuildJar, _("Re&build Jar"));
@@ -458,7 +453,7 @@ void MainWindow::OnInstSelected(InstanceCtrlEvent &event)
 		SaveNotesBox(false);
 	auto currentInstance = instItems.GetSelectedInstance();
 	SetStatusText(wxT("Minecraft Version: ") + currentInstance->GetJarVersion());
-	SetStatusText(wxT("Intended Version: ") + currentInstance->GetIntendedJarVersion(),1);
+	SetStatusText(wxT("Intended Version: ") + currentInstance->GetIntendedVersion(),1);
 	SetStatusText(wxT("Instance ID: ") + currentInstance->GetInstID(), 2);
 
 	if(GetGUIMode() == GUI_Fancy)
@@ -616,7 +611,8 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 	Instance *inst = new StdInstance(instDir);
 	inst->SetName(instName);
 	AddInstance(inst);
-	inst->SetIntendedJarVersion(dlg.GetInstanceMCVersion());
+	inst->SetIntendedVersion(dlg.GetInstanceMCVersionDescr());
+	inst->SetShouldUpdate(true);
 	inst->SetIconKey(dlg.GetInstanceIconKey());
 }
 
@@ -1012,8 +1008,16 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 		{
 			// FIXME: respond to errors in task.
 			auto task = new GameUpdateTask(inst, result.latestVersion, result.forceUpdate);
-			StartTask(task);
+			bool success = StartTask(task);
 			delete task;
+			if(!success)
+			{
+				int res = wxMessageBox("The game update failed. Should the instance startup continue?","Continue?",wxYES_NO|wxICON_QUESTION,this);
+				if(res == wxNO)
+				{
+					return;
+				}
+			}
 			if(GetGUIMode() == GUI_Fancy)
 				UpdateInstPanel();
 		}
@@ -1330,7 +1334,6 @@ void MainWindow::EnableInstActions(bool enabled)
 		btnRebuildJar->Enable(enabled);
 		btnViewFolder->Enable(enabled);
 		btnCopyInst->Enable(enabled);
-		btnDowngrade->Enable(enabled);
 		btnVersion->Enable(enabled);
 		break;
 		
@@ -1364,41 +1367,6 @@ void MainWindow::OnEditModsClicked(wxCommandEvent& event)
 	editDlg->Show();
 }
 
-void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
-{
-	auto currentInstance = instItems.GetSelectedInstance();
-	if(currentInstance == nullptr)
-		return;
-
-	if (currentInstance->GetVersionFile().FileExists())
-	{
-		DowngradeDialog downDlg(this);
-		downDlg.CenterOnParent();
-		if (downDlg.ShowModal() == wxID_OK && !downDlg.GetSelection().IsEmpty())
-		{
-			if (downDlg.GetSelection().Contains(wxT("indev")) ||
-				downDlg.GetSelection().Contains(wxT("infdev")))
-			{
-				if (wxMessageBox(_("MultiMC is currently incompatible with \
-indev and infdev. Are you sure you would like to downgrade to this version?"), 
-						_("Continue?"), wxYES_NO) == wxNO)
-				{
-					return;
-				}
-			}
-			// FIXME: respond to errors in task.
-			auto task = new DowngradeTask (currentInstance, downDlg.GetSelection());
-			StartTask(task);
-			delete task;
-			UpdateInstPanel();
-		}
-	}
-	else
-	{
-		wxLogError(_("You must run this instance at least once to download minecraft before you can downgrade it!"));
-	}
-}
-
 void MainWindow::OnVersionClicked(wxCommandEvent& event)
 {
 	auto currentInstance = instItems.GetSelectedInstance();
@@ -1407,11 +1375,15 @@ void MainWindow::OnVersionClicked(wxCommandEvent& event)
 
 	MinecraftVersionDialog versionDlg(this);
 	versionDlg.CenterOnParent();
-	MCVersion ver;
-	if(versionDlg.ShowModal() != wxID_OK || !versionDlg.GetSelectedVersion(ver))
+	MCVersion * ver;
+	if(versionDlg.ShowModal() != wxID_OK)
+		return;
+	ver = versionDlg.GetSelectedVersion();
+	if(!ver)
 		return;
 	
-	currentInstance->SetIntendedJarVersion(ver.GetDescriptor());
+	currentInstance->SetIntendedVersion(ver->GetDescriptor());
+	currentInstance->SetShouldUpdate(true);
 }
 
 void MainWindow::OnChangeLWJGLClicked(wxCommandEvent& event)
@@ -1675,7 +1647,6 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	
 	EVT_MENU(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_MENU(ID_EditMods, MainWindow::OnEditModsClicked)
-	EVT_MENU(ID_DowngradeInst, MainWindow::OnDowngradeInstClicked)
 	EVT_MENU(ID_UseVersion, MainWindow::OnVersionClicked)
 	EVT_MENU(ID_ChangeLWJGL, MainWindow::OnChangeLWJGLClicked)
 	EVT_MENU(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
@@ -1698,7 +1669,6 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	
 	EVT_BUTTON(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_BUTTON(ID_EditMods, MainWindow::OnEditModsClicked)
-	EVT_BUTTON(ID_DowngradeInst, MainWindow::OnDowngradeInstClicked)
 	EVT_BUTTON(ID_UseVersion, MainWindow::OnVersionClicked)
 	EVT_BUTTON(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_BUTTON(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)

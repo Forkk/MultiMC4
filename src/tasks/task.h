@@ -33,6 +33,10 @@ public:
 	
 	// Start the task by calling this
 	void Start(wxEvtHandler *handler, bool modal);
+	
+	// Start the task from inside an another task, chaining it.
+	ExitCode Chain(Task * parent);
+	
 	// Every task has to be waited on to properly free up resources.
 	// ExitCode of 1 means everything went OK. 0 means failure
 	ExitCode Wait()

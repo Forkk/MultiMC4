@@ -29,6 +29,8 @@
 #include "utils/curlutils.h"
 #include "utils/apputils.h"
 #include <mcversionlist.h>
+#include "downgradetask.h"
+
 
 DEFINE_EVENT_TYPE(wxEVT_GAME_UPDATE_COMPLETE)
 
@@ -39,11 +41,11 @@ GameUpdateTask::~GameUpdateTask() {}
 
 wxThread::ExitCode GameUpdateTask::TaskStart()
 {
-	wxString intendedVersion = m_inst->GetIntendedJarVersion();
+	wxString intendedVersion = m_inst->GetIntendedVersion();
 	wxString currentVersion = m_inst->GetJarVersion();
 	
 	
-	if(currentVersion == intendedVersion && !m_forceUpdate)
+	if(!m_inst->GetShouldUpdate() && !m_forceUpdate)
 		return (ExitCode)1;
 	
 	SetState(STATE_DETERMINING_PACKAGES);
@@ -54,11 +56,32 @@ wxThread::ExitCode GameUpdateTask::TaskStart()
 	MCVersion * ver = vlist.GetVersion(intendedVersion);
 	
 	if(!ver)
-		return (ExitCode)0;
+	{
+		vlist.SetNeedsNostalgia();
+		vlist.LoadIfNeeded();
+		ver = vlist.GetVersion(intendedVersion);
+		if(!ver)
+			return (ExitCode)0;
+	}
+	
+	bool do_patching = false;
+	
+	MCVersion * real_ver;
+	wxString patch_version;
+	if(ver->GetVersionType() == MCNostalgia)
+	{
+		do_patching = true;
+		patch_version = ver->GetDescriptor();
+		real_ver = vlist.GetCurrentStable();
+	}
+	else
+	{
+		real_ver = ver;
+	}
 	
 	wxString mojangURL ("http://s3.amazonaws.com/MinecraftDownload/");
 	jarURLs.clear();
-	jarURLs.push_back(ver->GetDLUrl() + "minecraft.jar");
+	jarURLs.push_back(real_ver->GetDLUrl() + "minecraft.jar");
 	jarURLs.push_back(mojangURL + "lwjgl_util.jar");
 	jarURLs.push_back(mojangURL + "jinput.jar");
 	jarURLs.push_back(mojangURL + "lwjgl.jar");
@@ -81,15 +104,21 @@ wxThread::ExitCode GameUpdateTask::TaskStart()
 	if (!binDir.DirExists())
 		binDir.Mkdir();
 
-	if(ver->GetVersionType() == CurrentStable)
+	if(real_ver->GetVersionType() == CurrentStable)
 		m_inst->WriteVersionFile(m_latestVersion);
 	else
-		m_inst->WriteVersionFile(ver->GetTimestamp() * 1000);
+		m_inst->WriteVersionFile(real_ver->GetTimestamp() * 1000);
 	DownloadJars();
 	m_inst->UpdateVersion(false);
+	m_inst->SetShouldUpdate(false);
 	ExtractNatives();
 	wxRemoveFile(Path::Combine(m_inst->GetBinDir(), wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
 	m_inst->SetNeedsRebuild(true);
+	if(do_patching)
+	{
+		DowngradeTask dtask(m_inst, patch_version);
+		return dtask.Chain(this);
+	}
 	return (ExitCode)1;
 }
 

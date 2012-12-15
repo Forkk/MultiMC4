@@ -22,12 +22,15 @@
 #include <utils/fsutils.h>
 #include <lambdatask.h>
 #include "shadedtextedit.h"
+#include "minecraftversiondialog.h"
+#include <wx/hyperlink.h>
 
 bool NewInstanceDialog::Create()
 {
 	m_loadingDone = false;
 	m_iconKey = wxEmptyString;
 	m_visibleIconKey = wxEmptyString;
+	m_selectedVersion = nullptr;
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	
 	wxBoxSizer* bSizer1;
@@ -54,27 +57,21 @@ bool NewInstanceDialog::Create()
 	auto staticline0 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	bSizer1->Add( staticline0, 0, wxEXPAND | wxALL, 5 );
 
-	auto staticText2 = new wxStaticText( this, wxID_ANY, wxT("Minecraft version:"), wxDefaultPosition, wxDefaultSize, 0 );
-	//staticText2->Wrap( -1 );
-	bSizer1->Add( staticText2, 0, wxALL, 5 );
 	
-	m_choiceMCVersion = new MCVersionChoice( this, ID_select_MC );
-	bSizer1->Add( m_choiceMCVersion, 0, wxALL|wxEXPAND, 5 );
 	
 	auto bSizer2 = new wxBoxSizer( wxHORIZONTAL );
 	{
-		m_showOldSnapshots = false;
-		m_checkOldSnapshots = new wxCheckBox( this, ID_show_old, wxT("Show old snapshots"), wxDefaultPosition, wxDefaultSize, 0 );
-		m_checkOldSnapshots->SetValue(m_showOldSnapshots); 
-		bSizer2->Add( m_checkOldSnapshots, 0, wxALL, 5 );
+		auto staticText2 = new wxStaticText( this, wxID_ANY, wxT("Minecraft version:"), wxDefaultPosition, wxDefaultSize, 0 );
+		//staticText2->Wrap( -1 );
+		bSizer2->Add( staticText2, 0, wxALL| wxALIGN_CENTER_VERTICAL, 5 );
 		
-		
-		m_showNewSnapshots = false;
-		m_checkNewSnapshots = new wxCheckBox( this, ID_show_new, wxT("Show new snapshots"), wxDefaultPosition, wxDefaultSize, 0 );
-		m_checkNewSnapshots->SetValue(m_showNewSnapshots); 
-		bSizer2->Add( m_checkNewSnapshots, 0, wxALL, 5 );
+		m_versionDisplay = new wxTextCtrl( this, ID_text_version, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTRE | wxTE_DONTWRAP | wxTE_READONLY );
+		bSizer2->Add( m_versionDisplay, 1, wxALL| wxEXPAND, 5 );
 	}
-	bSizer1->Add( bSizer2, 0, wxALIGN_CENTER_HORIZONTAL, 5 );
+	bSizer1->Add( bSizer2, 0, wxEXPAND, 5 );
+	
+	m_changeVersionButton = new wxButton(this, ID_btn_version, _("Change version"));
+	bSizer1->Add( m_changeVersionButton, 0, wxEXPAND | wxALL, 5 );
 	
 	auto staticline2 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	bSizer1->Add( staticline2, 0, wxEXPAND | wxALL, 5 );
@@ -103,8 +100,8 @@ int NewInstanceDialog::ShowModal()
 	{
 		LambdaTask::TaskFunc func = [&] (LambdaTask *task) -> wxThread::ExitCode
 		{
-			task->DoSetStatus("Loading version list...");
-			return (wxThread::ExitCode) verList.Reload();
+			task->DoSetStatus(_("Loading version list..."));
+			return (wxThread::ExitCode) verList.LoadMojang();
 		};
 
 		LambdaTask *lTask = new LambdaTask(func);
@@ -112,15 +109,9 @@ int NewInstanceDialog::ShowModal()
 		taskDlg.ShowModal(lTask);
 		delete lTask;
 	}
-	Refilter();
-	
+	m_selectedVersion = verList.GetCurrentStable();
+	m_versionDisplay->SetValue(m_selectedVersion->GetName());
 	return wxDialog::ShowModal();
-}
-
-void NewInstanceDialog::Refilter()
-{
-	m_choiceMCVersion->Refilter();
-	Refresh();
 }
 
 void NewInstanceDialog::OnName ( wxCommandEvent& event )
@@ -129,7 +120,6 @@ void NewInstanceDialog::OnName ( wxCommandEvent& event )
 		return;
 	if(m_textName->IsEmptyUnfocused())
 	{
-		//m_textFolder->SetValue("");
 		m_btnOK->Enable(false);
 		m_name = wxEmptyString;
 		UpdateIcon();
@@ -140,26 +130,35 @@ void NewInstanceDialog::OnName ( wxCommandEvent& event )
 	wxString folderName;
 	if(fsutils::GetValidInstanceFolderName(m_name,folderName))
 	{
-		//m_textFolder->SetValue(folderName);
 		m_btnOK->Enable(true);
 	}
 	else
 	{
-		//m_textFolder->SetValue(_("Invalid Path"));
 		m_btnOK->Enable(false);
 	}
 	UpdateIcon();
 }
 
-void NewInstanceDialog::OnCheckbox ( wxCommandEvent& event )
+void NewInstanceDialog::OnVersion ( wxCommandEvent& event )
 {
-	bool changed = false;
-	changed |= m_checkNewSnapshots->GetValue() != m_showNewSnapshots;
-	m_showNewSnapshots = m_checkNewSnapshots->GetValue();
-	changed |= m_checkOldSnapshots->GetValue() != m_showOldSnapshots;
-	m_showOldSnapshots = m_checkOldSnapshots->GetValue();
-	if(changed)
-		Refilter();
+	bool btn_enabled = m_btnOK->IsEnabled();
+	MinecraftVersionDialog versionDlg(this);
+	versionDlg.CenterOnParent();
+	MCVersion * ver;
+	if(versionDlg.ShowModal() != wxID_OK)
+	{
+		m_btnOK->Enable(btn_enabled);
+		return;
+	}
+	ver = versionDlg.GetSelectedVersion();
+	if(!ver)
+	{
+		m_btnOK->Enable(btn_enabled);
+		return;
+	}
+	m_selectedVersion = ver;
+	m_versionDisplay->SetValue(m_selectedVersion->GetName());
+	m_btnOK->Enable(btn_enabled);
 }
 
 void NewInstanceDialog::OnIcon ( wxCommandEvent& event )
@@ -204,13 +203,20 @@ wxString NewInstanceDialog::GetInstanceIconKey()
 	return m_iconKey;
 }
 
-wxString NewInstanceDialog::GetInstanceMCVersion()
+MCVersion * NewInstanceDialog::GetInstanceMCVersion()
 {
-	int selection = m_choiceMCVersion->GetSelection();
-	if(selection != -1)
-		return m_choiceMCVersion->GetString(selection);
-	return _("Current stable");
+	return m_selectedVersion;
 }
+
+wxString NewInstanceDialog::GetInstanceMCVersionDescr()
+{
+	if(m_selectedVersion)
+	{
+		return m_selectedVersion->GetDescriptor();
+	}
+	return MCVer_Unknown;
+}
+
 
 wxString NewInstanceDialog::GetInstanceLWJGL()
 {
@@ -220,27 +226,5 @@ wxString NewInstanceDialog::GetInstanceLWJGL()
 BEGIN_EVENT_TABLE(NewInstanceDialog, wxDialog)
 	EVT_TEXT(ID_text_name, NewInstanceDialog::OnName)
 	EVT_BUTTON(ID_icon_select, NewInstanceDialog::OnIcon)
-	EVT_CHECKBOX(wxID_ANY, NewInstanceDialog::OnCheckbox)
+	EVT_BUTTON(ID_btn_version, NewInstanceDialog::OnVersion)
 END_EVENT_TABLE()
-
-void NewInstanceDialog::MCVersionChoice::Refilter()
-{
-	visibleIndexes.clear();
-	Clear();
-	MCVersionList & verList = MCVersionList::Instance();
-	for(unsigned i = 0; i < verList.versions.size(); i++ )
-	{
-		MCVersion & ver = verList.versions[i];
-		VersionType vt = ver.GetVersionType();
-		if(m_owner->m_showOldSnapshots &&  vt == OldSnapshot ||
-			m_owner->m_showNewSnapshots && vt == Snapshot ||
-			vt == CurrentStable || vt == Stable
-		)
-		{
-			visibleIndexes.push_back(i);
-			Append(verList.versions[i].GetName());
-		}
-	}
-	if(visibleIndexes.size())
-		SetSelection(0);
-}

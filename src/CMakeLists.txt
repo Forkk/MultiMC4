@@ -122,7 +122,6 @@ gui/modeditwindow.cpp
 gui/changeicondialog.cpp
 gui/exportinstwizard.cpp
 gui/importpackwizard.cpp
-gui/downgradedialog.cpp
 gui/instancectrl.cpp
 gui/aboutdlg.cpp
 gui/updatepromptdlg.cpp
@@ -197,7 +196,6 @@ gui/modeditwindow.h
 gui/changeicondialog.h
 gui/exportinstwizard.h
 gui/importpackwizard.h
-gui/downgradedialog.h
 gui/instancectrl.h
 gui/aboutdlg.h
 gui/updatepromptdlg.h
@@ -220,6 +218,7 @@ data/mod.h
 data/minecraftforge.h
 data/modlist.h
 data/configpack.h
+data/mcversion.h
 data/mcversionlist.h
 data/lwjglversionlist.h
 data/worldlist.h

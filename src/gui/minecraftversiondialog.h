@@ -23,23 +23,21 @@ class MinecraftVersionDialog : public ListSelectDialog
 {
 public:
 	MinecraftVersionDialog(wxWindow *parent);
-	bool GetSelectedVersion(MCVersion & out);
+	MCVersion * GetSelectedVersion();
 
 protected:
 	void Refilter();
 	virtual void LoadList();
 	virtual bool DoLoadList();
 	virtual wxString OnGetItemText(long item, long column);
-	void OnCheckbox(wxCommandEvent& event);
+	void OnSnapshots(wxCommandEvent& event);
 	void OnNostalgia(wxCommandEvent& event);
 	
 	// data
-	bool nostalgia_override;
-	MCVersion nostalgia_version;
 	int typeColumnWidth;
 	std::vector<unsigned> visibleIndexes;
 	bool showOldSnapshots;
-	wxButton * m_MCNostalgiaButton;
+	bool showMCNostagia;
 	
 	DECLARE_EVENT_TABLE()
 };

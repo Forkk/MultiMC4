@@ -17,9 +17,12 @@
 #include "mcversionlist.h"
 
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 
+#include <string>
 #include <sstream>
+#include <map>
 
 #include <wx/regex.h>
 #include <wx/numformatter.h>
@@ -30,11 +33,43 @@
 
 //#define PRINT_CRUD
 
+const wxString mcnwebURL = "http://sonicrules.org/mcnweb.py";
+
+class initme
+{
+public:
+	std::map <wxString, wxString> mapping;
+	initme()
+	{
+		// wxEmptyString means that it should be ignored
+		mapping["1.4.5_pre"] = wxEmptyString;
+		mapping["1.4.3_pre"] = "1.4.3";
+		mapping["1.4.2_pre"] = wxEmptyString;
+		mapping["1.4.1_pre"] = "1.4.1";
+		mapping["1.4_pre"] = "1.4";
+		mapping["1.3.2_pre"] = wxEmptyString;
+		mapping["1.3.1_pre"] = wxEmptyString;
+		mapping["1.3_pre"] = wxEmptyString;
+		mapping["1.2_pre"] = "1.2";
+	}
+} ver;
+
+wxString NostalgiaVersionToAssetsVersion(wxString nostalgia_version)
+{
+	auto iter = ver.mapping.find(nostalgia_version);
+	if(iter != ver.mapping.end())
+	{
+		return (*iter).second;
+	}
+	return nostalgia_version;
+}
+
 MCVersionList* MCVersionList::pInstance = 0;
 
 MCVersionList::MCVersionList()
 {
 	stableVersionIndex = -1;
+	includesNostalgia = false;
 }
 
 bool TimeFromS3Time(wxString str, wxDateTime & datetime)
@@ -54,33 +89,92 @@ MCVersion * MCVersionList::GetVersion ( wxString descriptor )
 {
 	if(descriptor == MCVer_Unknown)
 		return nullptr;
-	else if(descriptor == MCVer_Latest_Stable || descriptor == MCVer_Current_Stable)
+	else
 	{
+		auto descriptorPredicate = [&descriptor](MCVersion & ver){ return ver.GetDescriptor() == descriptor;};
+		auto found = std::find_if(versions.begin(), versions.end(), descriptorPredicate);
+		if(found != versions.end())
+		{
+			return &*found;
+		}
+		found = std::find_if(nostalgia_versions.begin(), nostalgia_versions.end(), descriptorPredicate);
+		if(found != nostalgia_versions.end())
+		{
+			return &*found;
+		}
+		return nullptr;
 	}
-	else if(descriptor == MCVer_Latest_Snapshot || descriptor == MCVer_Current_Snapshot)
-	{
-	}
-	else for(auto iter = versions.begin(); iter != versions.end() ; iter++)
-	{
-		MCVersion & v = *iter;
-		wxString descr = v.GetDescriptor();
-		if( descr == descriptor)
-			return &v;
-	}
-	return nullptr;
+}
+
+MCVersion* MCVersionList::GetCurrentStable()
+{
+	if(versions.empty() || stableVersionIndex == -1)
+		return nullptr;
+	return &versions[stableVersionIndex];
 }
 
 
 bool MCVersionList::LoadIfNeeded()
 {
-	if(NeedsLoad())
+	bool OK = true;
+	if(NeedsMojangLoad())
 	{
-		return Reload();
+		OK &= LoadMojang();
 	}
-	return true;
+	if(NeedsNostalgiaLoad())
+	{
+		OK &= LoadNostalgia();
+	}
+	return OK;
 }
 
-bool MCVersionList::Reload()
+bool MCVersionList::LoadNostalgia()
+{
+	nostalgia_versions.clear();
+	wxString vlistJSON;
+	if (DownloadString(mcnwebURL + "?pversion=1&list=True", &vlistJSON))
+	{
+		using namespace boost::property_tree;
+
+		try
+		{
+			// Parse the JSON
+			ptree pt;
+			std::stringstream jsonStream(stdStr(vlistJSON), std::ios::in);
+			read_json(jsonStream, pt);
+			wxRegEx indevRegex("in(f)?dev");
+			BOOST_FOREACH(const ptree::value_type& v, pt.get_child("order"))
+			{
+				auto rawVersion = wxStr(v.second.data());
+				if(indevRegex.Matches(rawVersion))
+					continue;
+				auto niceVersion = NostalgiaVersionToAssetsVersion(rawVersion);
+				if(niceVersion.empty())
+					continue;
+				if(GetVersion(niceVersion))
+					continue;
+				MCVersion ver = MCVersion::getMCNVersion(rawVersion,niceVersion);
+				nostalgia_versions.insert(nostalgia_versions.begin(),ver);
+			}
+		}
+		catch (json_parser_error e)
+		{
+			/*
+			wxLogError(_("Failed to read version list.\nJSON parser error at line %i: %s"), 
+				e.line(), wxStr(e.message()).c_str());
+				*/
+			return false;
+		}
+		return true;
+	}
+	else
+	{
+		//wxLogError(_("Failed to get version list. Check your internet connection and try again later."));
+		return false;
+	}
+}
+
+bool MCVersionList::LoadMojang()
 {
 	using namespace boost::property_tree;
 	versions.clear();
@@ -269,4 +363,17 @@ bool MCVersionList::Reload()
 	out.close();
 #endif
 	return true;
+}
+
+std::size_t MCVersionList::size() const
+{
+	return versions.size() + nostalgia_versions.size();
+}
+
+MCVersion& MCVersionList::operator[] ( std::size_t index )
+{
+	if(index < versions.size())
+		return versions[index];
+	else
+		return nostalgia_versions[index - versions.size()];
 }

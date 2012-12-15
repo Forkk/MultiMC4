@@ -64,7 +64,7 @@ wxThread::ExitCode DowngradeTask::TaskStart()
 		m_inst->SetNeedsRebuild();
 		// determine new intended version based on the backup
 		wxString newversion = javautils::GetMinecraftJarVersion(backup);
-		m_inst->SetIntendedJarVersion(newversion);
+		m_inst->SetShouldUpdate(false);
 		m_inst->SetJarVersion(newversion);
 	}
 	else
@@ -73,7 +73,7 @@ wxThread::ExitCode DowngradeTask::TaskStart()
 		// update the version now based on minecraft.jar.
 		m_inst->UpdateVersion();
 		// intended version is what we updated to.
-		m_inst->SetIntendedJarVersion(m_inst->GetJarVersion());
+		m_inst->SetShouldUpdate(false);
 	}
 	SetStep(STEP_DONE);
 	return (ExitCode)1;
