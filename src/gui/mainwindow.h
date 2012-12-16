@@ -61,7 +61,8 @@ public:
 
 
 	// Instance menu
-	void OnPlayClicked(wxCommandEvent& event);
+	void OnPlayMenuClicked(wxCommandEvent& event);
+	void OnPlayBtnClicked(wxCommandEvent& event);
 	void OnInstActivated(InstanceCtrlEvent& event);
 	void OnInstDeleteKey(InstanceCtrlEvent& event);
 	void OnInstRenameKey(InstanceCtrlEvent& event);
@@ -168,7 +169,7 @@ public:
 	// Other functions
 
 	int StartTask(Task *task);
-	void LoginClicked();
+	void LoginClicked( bool suppress_autologin = false);
 	void DoLogin(UserInfo info, bool playOffline = false, bool forceUpdate = false);
 	void ShowLoginDlg(wxString errorMsg);
 

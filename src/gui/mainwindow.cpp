@@ -909,11 +909,17 @@ void MainWindow::NotImplemented()
 		_("Not implemented"), wxOK | wxCENTER, this);
 }
 
-
 // Instance menu
-void MainWindow::OnPlayClicked(wxCommandEvent& event)
+void MainWindow::OnPlayBtnClicked(wxCommandEvent& event)
 {
 	LoginClicked();
+}
+
+// Instance menu
+void MainWindow::OnPlayMenuClicked(wxCommandEvent& event)
+{
+	// do not autologin from context menu
+	LoginClicked(true);
 }
 
 void MainWindow::OnInstActivated(InstanceCtrlEvent &event)
@@ -921,7 +927,7 @@ void MainWindow::OnInstActivated(InstanceCtrlEvent &event)
 	LoginClicked();
 }
 
-void MainWindow::LoginClicked()
+void MainWindow::LoginClicked( bool suppress_autologin )
 {
 	auto currentInstance = instItems.GetSelectedInstance();
 	if (!currentInstance)
@@ -929,7 +935,7 @@ void MainWindow::LoginClicked()
 		return;
 	}
 
-	if (currentInstance->GetAutoLogin() && wxFileExists("lastlogin4"))
+	if (currentInstance->GetAutoLogin() && wxFileExists("lastlogin4") && !suppress_autologin)
 	{
 		UserInfo lastLogin;
 		lastLogin.LoadFromFile("lastlogin4");
@@ -1636,7 +1642,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_ImportCP, MainWindow::OnImportCPClicked)
 	EVT_MENU(ID_ImportFTB, MainWindow::OnImportFTBClicked)
 
-	EVT_MENU(ID_Play, MainWindow::OnPlayClicked)
+	EVT_MENU(ID_Play, MainWindow::OnPlayMenuClicked)
 	
 	EVT_MENU(ID_Rename, MainWindow::OnRenameClicked)
 	EVT_MENU(ID_SetGroup, MainWindow::OnChangeGroupClicked)
@@ -1659,7 +1665,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_DeleteGroup, MainWindow::OnDeleteGroupClicked)
 	
 	
-	EVT_BUTTON(ID_Play, MainWindow::OnPlayClicked)
+	EVT_BUTTON(ID_Play, MainWindow::OnPlayBtnClicked)
 	
 	EVT_BUTTON(ID_Rename, MainWindow::OnRenameClicked)
 	EVT_BUTTON(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
