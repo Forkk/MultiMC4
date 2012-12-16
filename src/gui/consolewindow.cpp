@@ -441,7 +441,6 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 	crashReportIsOpen = true;
 	msgDlg.CenterOnParent();
 	int response = msgDlg.ShowModal();
-	crashReportIsOpen = false;
 	if (response == id_pastebin) // Pastebin
 	{
 		PastebinTask *task = new PastebinTask(crashReportString);
@@ -480,6 +479,7 @@ void InstConsoleWindow::OnGenReportClicked(wxCommandEvent& event)
 			wxTheClipboard->Close();
 		}
 	}
+	crashReportIsOpen = false;
 }
 
 bool InstConsoleWindow::CheckCommonProblems(const wxString& output)
