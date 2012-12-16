@@ -44,7 +44,7 @@ ExportInstWizard::ExportInstWizard(wxWindow *parent, Instance *inst)
 	wxStaticText *notesLabel = new wxStaticText(enterInfoPage, -1, _("Notes: "));
 	infoPageSz->Add(notesLabel, wxGBPosition(2, 0), wxGBSpan(1, 2), wxALL | wxALIGN_CENTER_VERTICAL, 4);
 
-	packNotesTextbox = new wxTextCtrl(enterInfoPage, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
+	packNotesTextbox = new wxTextCtrl(enterInfoPage, -1, inst->GetNotes(), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
 	infoPageSz->Add(packNotesTextbox, wxGBPosition(3, 0), wxGBSpan(1, 2), wxEXPAND | wxALL, 4);
 	infoPageSz->AddGrowableCol(1);
 	infoPageSz->AddGrowableRow(3);
