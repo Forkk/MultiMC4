@@ -183,6 +183,8 @@ bool MCVersionList::LoadMojang()
 	bool currentStableFound = false;
 	
 	wxString mainXML = wxEmptyString;
+	// ``broken'' URL for testing
+	// "http://dethware.org/dl/"
 	if (!DownloadString("http://s3.amazonaws.com/MinecraftDownload/", &mainXML))
 	{
 		wxLogError(_("Failed to get snapshot list. Check your internet connection."));

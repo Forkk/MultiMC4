@@ -95,7 +95,7 @@ bool NewInstanceDialog::Create()
 int NewInstanceDialog::ShowModal()
 {
 	MCVersionList & verList = MCVersionList::Instance();
-	
+	bool isOK = false;
 	if(verList.NeedsLoad())
 	{
 		LambdaTask::TaskFunc func = [&] (LambdaTask *task) -> wxThread::ExitCode
@@ -106,11 +106,26 @@ int NewInstanceDialog::ShowModal()
 
 		LambdaTask *lTask = new LambdaTask(func);
 		TaskProgressDialog taskDlg(this);
-		taskDlg.ShowModal(lTask);
+		if(taskDlg.ShowModal(lTask))
+		{
+			isOK = true;
+		}
 		delete lTask;
 	}
-	m_selectedVersion = verList.GetCurrentStable();
-	m_versionDisplay->SetValue(m_selectedVersion->GetName());
+	else
+	{
+		isOK = true;
+	}
+	if(isOK)
+	{
+		m_selectedVersion = verList.GetCurrentStable();
+		m_versionDisplay->SetValue(m_selectedVersion->GetName());
+	}
+	else
+	{
+		m_selectedVersion = nullptr;
+		m_versionDisplay->SetValue(_("Unknown"));
+	}
 	return wxDialog::ShowModal();
 }
 
