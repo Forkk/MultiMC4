@@ -28,6 +28,7 @@
 
 #include "utils/curlutils.h"
 #include "utils/apputils.h"
+#include <mcversionlist.h>
 
 DEFINE_EVENT_TYPE(wxEVT_GAME_UPDATE_COMPLETE)
 
@@ -38,65 +39,31 @@ GameUpdateTask::~GameUpdateTask() {}
 
 wxThread::ExitCode GameUpdateTask::TaskStart()
 {
-	if (!LoadJarURLs())
+	wxString intendedVersion = m_inst->GetIntendedJarVersion();
+	wxString currentVersion = m_inst->GetJarVersion();
+	
+	
+	if(currentVersion == intendedVersion)
+		return (ExitCode)1;
+	
+	SetState(STATE_DETERMINING_PACKAGES);
+	
+	MCVersionList & vlist = MCVersionList::Instance();
+	vlist.LoadIfNeeded();
+	
+	MCVersion * ver = vlist.GetVersion(intendedVersion);
+	
+	if(!ver)
 		return (ExitCode)0;
 	
-	SetProgress(5);
-	
-	wxFileName binDir = m_inst->GetBinDir();
-	if (!binDir.DirExists())
-		binDir.Mkdir();
-	
-	wxFileName versionFile = m_inst->GetVersionFile();
-	bool cacheAvailable = false;
-	
-	if (!m_forceUpdate && versionFile.FileExists() && (m_latestVersion == -1 || m_latestVersion == m_inst->ReadVersionFile()))
-	{
-		cacheAvailable = true;
-		SetProgress(90);
-	}
-	
-	if (m_forceUpdate || !cacheAvailable)
-	{
-		m_shouldUpdate = true;
-		if (!m_forceUpdate && versionFile.FileExists())
-		{
-			AskToUpdate();
-		}
-		
-		// This check is not actually stupid. 
-		// The AskToUpdate method will set m_shouldUpdate to true or false depending 
-		// on whether or not the user wants to update.
-		if (m_shouldUpdate)
-		{
-			m_inst->WriteVersionFile(m_latestVersion);
-			DownloadJars();
-			m_inst->UpdateVersion(false);
-			ExtractNatives();
-			wxRemoveFile(Path::Combine(m_inst->GetBinDir(), wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
-			m_inst->SetNeedsRebuild(true);
-		}
-	}
-	return (ExitCode)1;
-}
-
-bool GameUpdateTask::LoadJarURLs()
-{
-	SetState(STATE_DETERMINING_PACKAGES);
-	wxString jarList[] =
-	{ 
-		"minecraft.jar", "lwjgl_util.jar", "jinput.jar", "lwjgl.jar"
-	};
-	
 	wxString mojangURL ("http://s3.amazonaws.com/MinecraftDownload/");
-	
-	for (size_t i = 0; i < jarURLs.size() - 1; i++)
-	{
-		jarURLs[i] = mojangURL + jarList[i];
-	}
-	
-	wxString nativeJar = wxEmptyString;
-	wxOperatingSystemId osID = wxPlatformInfo::Get().GetOperatingSystemId();
+	jarURLs.clear();
+	jarURLs.push_back(ver->GetDLUrl() + "minecraft.jar");
+	jarURLs.push_back(mojangURL + "lwjgl_util.jar");
+	jarURLs.push_back(mojangURL + "jinput.jar");
+	jarURLs.push_back(mojangURL + "lwjgl.jar");
+
+	wxString nativeJar;
 #if WINDOWS
 		nativeJar = "windows_natives.jar";
 #elif OSX
@@ -106,8 +73,33 @@ bool GameUpdateTask::LoadJarURLs()
 #else
 #error Detected unsupported OS.
 #endif
+	jarURLs.push_back(mojangURL + nativeJar);
 	
-	jarURLs[jarURLs.size() - 1] = mojangURL + nativeJar;
+	/*                                     *
+	 ***************************************
+	 *                                     */
+	
+	SetProgress(5);
+	
+	wxFileName binDir = m_inst->GetBinDir();
+	if (!binDir.DirExists())
+		binDir.Mkdir();
+
+	if(ver->GetVersionType() == CurrentStable)
+		m_inst->WriteVersionFile(m_latestVersion);
+	else
+		m_inst->WriteVersionFile(ver->GetTimestamp() * 1000);
+	DownloadJars();
+	m_inst->UpdateVersion(false);
+	ExtractNatives();
+	wxRemoveFile(Path::Combine(m_inst->GetBinDir(), wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
+	m_inst->SetNeedsRebuild(true);
+	return (ExitCode)1;
+}
+
+bool GameUpdateTask::LoadJarURLs()
+{
+
 	return true;
 }
 

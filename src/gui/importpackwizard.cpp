@@ -21,6 +21,7 @@
 #include <wx/zipstrm.h>
 
 #include "mainwindow.h"
+#include "minecraftversiondialog.h"
 #include "utils/apputils.h"
 #include "utils/fsutils.h"
 
@@ -91,10 +92,24 @@ bool ImportPackWizard::Start()
 		if (!m_mainWin->GetNewInstName(&instName, &instDirName, _("Import config pack")))
 			return false;
 
+		wxString IntendedVersion = m_pack->GetMinecraftVersion();
+		if(IntendedVersion == "Unknown")
+		{
+			MinecraftVersionDialog dlg(this);
+			dlg.CenterOnParent();
+			MCVersion ver;
+			if(dlg.ShowModal() != wxID_OK || !dlg.GetSelectedVersion(ver))
+			{
+				wxLogError(_("Cannot create a Minecraft instance with no Minecraft version."));
+				return false;
+			}
+			IntendedVersion = ver.GetDescriptor();
+		}
 		wxString instDir = Path::Combine(settings->GetInstDir(), instDirName);
 
 		Instance *inst = new StdInstance(instDir);
 		inst->SetName(instName);
+		inst->SetIntendedJarVersion(IntendedVersion);
 
 		m_mainWin->AddInstance(inst);
 
@@ -145,7 +160,6 @@ bool ImportPackWizard::Start()
 		// Extract config files
 		wxFFileInputStream fileIn(m_pack->GetFileName());
 		fsutils::ExtractZipArchive(fileIn, instDir);
-
 		return true;
 	}
 	return false;

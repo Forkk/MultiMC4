@@ -16,18 +16,26 @@
 
 #pragma once
 #include "listselectdialog.h"
+#include "mcversionlist.h"
+#include <vector>
 
-class ChooseLWJGLDialog : public ListSelectDialog
+class MinecraftVersionDialog : public ListSelectDialog
 {
 public:
-	ChooseLWJGLDialog(wxWindow *parent);
-
-	virtual wxString GetSelectedURL();
-	virtual wxString GetSelectedName();
+	MinecraftVersionDialog(wxWindow *parent);
+	bool GetSelectedVersion(MCVersion & out);
 
 protected:
+	void Refilter();
 	virtual void LoadList();
 	virtual bool DoLoadList();
-
-	wxArrayString linkList;
+	virtual wxString OnGetItemText(long item, long column);
+	void OnCheckbox(wxCommandEvent& event);
+	
+	// data
+	int typeColumnWidth;
+	std::vector<unsigned> visibleIndexes;
+	bool showOldSnapshots;
+	
+	DECLARE_EVENT_TABLE()
 };

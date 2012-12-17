@@ -47,12 +47,6 @@ enum GUIMode
 	GUI_Simple,
 };
 
-enum UpdateMode
-{
-	Update_Auto,
-	Update_Never
-};
-
 enum InstSortMode
 {
 	// Sort alphabetically by name.
@@ -69,8 +63,6 @@ enum ProxyType
 	Proxy_SOCKS4,
 	Proxy_SOCKS5,
 };
-
-#define STR_VALUE(val) #val
 
 #define DEFINE_SETTING_ADVANCED(funcName, cfgEntryName, typeName, defVal) \
 	virtual typeName Get ## funcName() const { return GetSetting<typeName>(cfgEntryName, defVal); } \
@@ -123,9 +115,6 @@ public:
 	DEFINE_SETTING(MCWindowMaximize, bool, false);
 	DEFINE_SETTING(UseAppletWrapper, bool, true);
 
-	DEFINE_OVERRIDE_SETTING_BLANK(Updates);
-	DEFINE_ENUM_SETTING(UpdateMode, UpdateMode, Update_Never);
-
 	DEFINE_OVERRIDE_SETTING_BLANK(Login);
 	DEFINE_SETTING(AutoLogin, bool, false);
 
@@ -143,6 +132,7 @@ public:
 	DEFINE_FN_SETTING_ADVANCED(InstDir, "InstanceDir", wxFileName::DirName("instances"));
 	DEFINE_FN_SETTING(ModsDir, wxFileName::DirName("mods"));
 	DEFINE_FN_SETTING(IconsDir, wxFileName::DirName("icons"));
+	DEFINE_FN_SETTING(LwjglDir, wxFileName::DirName("lwjgl"));
 
 	DEFINE_SETTING(AutoCloseConsole, bool, true);
 	DEFINE_SETTING(ShowConsole, bool, true);
@@ -203,7 +193,8 @@ protected:
 	};
 	void SetSetting(const wxString &key, wxFileName value, bool suppressErrors = false)
 	{
-		if (!config->Write(key, value.GetFullPath()) && !suppressErrors)
+		// Always use Unix paths when saving settings.
+		if (!config->Write(key, value.GetFullPath(wxPATH_UNIX)) && !suppressErrors)
 			wxLogError(_("Failed to write config setting %s"), key.c_str());
 		config->Flush();
 	};

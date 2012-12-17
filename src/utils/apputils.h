@@ -48,6 +48,8 @@
 #define FNSTR(str) str.fn_str().data()
 #endif
 
+#define STR_VALUE(val) #val
+
 inline const char* cStr(const std::string& str)
 {
 	return str.c_str();
@@ -82,6 +84,7 @@ namespace Utils
 	
 	wxString RemoveInvalidPathChars(wxString path, wxChar replaceWith = '-', bool allowExclamationMark = true);
 	bool ContainsInvalidPathChars(wxString path, bool allowExclamationMark = true);
+	wxString RemoveInvalidFilenameChars(wxString path, wxChar replaceWith);
 	
 	wxString ExecutePost(const wxString &address, const wxString &requestString, 
 		wxProtocolError *error);

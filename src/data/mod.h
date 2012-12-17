@@ -57,6 +57,7 @@ public:
 protected:
 
 	void ReadModInfoData(wxString info);
+	void ReadForgeInfoData ( wxString infoFileData );
 
 	wxFileName modFile;
 	

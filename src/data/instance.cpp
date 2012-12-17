@@ -33,6 +33,7 @@
 #include "java/javautils.h"
 #include "instancemodel.h"
 #include "mcprocess.h"
+#include "mcversionlist.h"
 
 const wxString cfgFileName = "instance.cfg";
 
@@ -111,7 +112,7 @@ void Instance::UpdateVersion ( bool keep_current )
 	if(!jar.FileExists())
 	{
 		SetJarTimestamp(0);
-		SetJarVersion("Unknown");
+		SetJarVersion(MCVer_Unknown);
 		return;
 	}
 	
@@ -311,22 +312,7 @@ void Instance::SetName(wxString name)
 wxString Instance::GetIconKey() const
 {
 	wxString iconKey = GetSetting<wxString>("iconKey", "default");
-
-	if (iconKey == "default")
-	{
-		if (GetName().Lower().Contains("btw") ||
-			GetName().Lower().Contains("better then wolves") || // Because some people are stupid :D
-			GetName().Lower().Contains("better than wolves"))
-		{
-			iconKey = "herobrine";
-		}
-		else if (GetName().Lower().Contains("direwolf"))
-		{
-			iconKey = "enderman";
-		}
-	}
-
-	return iconKey;
+	return InstIconList::getRealIconKeyForEasterEgg(iconKey,GetName());
 }
 
 void Instance::SetIconKey(wxString iconKey)
@@ -354,12 +340,14 @@ void Instance::SetNeedsRebuild(bool value)
 	SetSetting<bool>("NeedsRebuild", value);
 }
 
-bool Instance::HasBinaries()
+bool Instance::HasMCJar()
 {
-	bool isOK = true;
-	isOK &= GetMCJar().FileExists();
-	// FIXME: add more here, as needed
-	return isOK;
+	return GetMCJar().FileExists();
+}
+
+bool Instance::HasMCBackup()
+{
+	return GetMCBackup().FileExists();
 }
 
 ModList *Instance::GetModList()
@@ -456,88 +444,6 @@ void Instance::GetPossibleConfigFiles(wxArrayString *array, wxString dir)
 			}
 		} while (mcDir.GetNext(&currentFile));
 	}
-}
-
-Instance::JarModList::JarModList(Instance *inst, const wxString& dir)
-	: ModList(dir)
-{
-	m_inst = inst;
-}
-
-bool Instance::JarModList::InsertMod(size_t index, const wxString &filename, const wxString& saveToFile)
-{
-	wxString saveFile = saveToFile;
-	if (saveToFile.IsEmpty())
-		saveFile = m_inst->GetModListFile().GetFullPath();
-
-	if (ModList::InsertMod(index, filename, saveFile))
-	{
-		m_inst->SetNeedsRebuild();
-		return true;
-	}
-	return false;
-}
-
-bool Instance::JarModList::DeleteMod(size_t index, const wxString& saveToFile)
-{
-	wxString saveFile = saveToFile;
-	if (saveToFile.IsEmpty())
-		saveFile = m_inst->GetModListFile().GetFullPath();
-
-	if (ModList::DeleteMod(index, saveFile))
-	{
-		m_inst->SetNeedsRebuild();
-		return true;
-	}
-	return false;
-}
-
-bool Instance::JarModList::UpdateModList(bool quickLoad)
-{
-	if (ModList::UpdateModList(quickLoad))
-	{
-		m_inst->SetNeedsRebuild();
-		return true;
-	}
-	return false;
-}
-
-bool Instance::FolderModList::LoadModListFromDir(const wxString& loadFrom, bool quickLoad)
-{
-	wxString dir(loadFrom.IsEmpty() ? modsFolder : loadFrom);
-
-	if (!wxDirExists(dir))
-		return false;
-
-	bool listChanged = false;
-	wxDir modDir(dir);
-
-	if (!modDir.IsOpened())
-	{
-		wxLogError(_("Failed to open directory: ") + dir);
-		return false;
-	}
-
-	wxString currentFile;
-	if (modDir.GetFirst(&currentFile))
-	{
-		do
-		{
-			wxFileName modFile(Path::Combine(dir, currentFile));
-
-			if (wxFileExists(modFile.GetFullPath()) || wxDirExists(modFile.GetFullPath()))
-			{
-				if (quickLoad || FindByFilename(modFile.GetFullPath()) == nullptr)
-				{
-					Mod mod(modFile.GetFullPath());
-					push_back(mod);
-					listChanged = true;
-				}
-			}
-		} while (modDir.GetNext(&currentFile));
-	}
-
-	return listChanged;
 }
 
 wxString Instance::GetInstID() const

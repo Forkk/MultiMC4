@@ -53,8 +53,8 @@ ENDIF ()
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 
 set(MultiMC_VERSION_MAJOR		4)
-set(MultiMC_VERSION_MINOR		2)
-set(MultiMC_VERSION_REV			2)
+set(MultiMC_VERSION_MINOR		3)
+set(MultiMC_VERSION_REV			0)
 
 IF (DEFINED MultiMC_VERSION_BUILD)
 	message(STATUS "MultiMC build #${MultiMC_VERSION_BUILD}")
@@ -126,8 +126,9 @@ gui/downgradedialog.cpp
 gui/instancectrl.cpp
 gui/aboutdlg.cpp
 gui/updatepromptdlg.cpp
+gui/newinstancedlg.cpp
 gui/taskprogressdialog.cpp
-gui/snapshotdialog.cpp
+gui/minecraftversiondialog.cpp
 gui/installforgedialog.cpp
 gui/savemgrwindow.cpp
 gui/textdisplaydialog.cpp
@@ -135,15 +136,18 @@ gui/advancedmsgdlg.cpp
 gui/listselectdialog.cpp
 gui/lwjgldialog.cpp
 gui/ftbselectdialog.cpp
+gui/shadedtextedit.cpp
 
 data/appsettings.cpp
 data/instance.cpp
 data/mcprocess.cpp
 data/userinfo.cpp
 data/mod.cpp
+data/minecraftforge.cpp
 data/modlist.cpp
 data/configpack.cpp
 data/mcversionlist.cpp
+data/lwjglversionlist.cpp
 data/worldlist.cpp
 data/world.cpp
 data/texturepack.cpp
@@ -197,8 +201,9 @@ gui/downgradedialog.h
 gui/instancectrl.h
 gui/aboutdlg.h
 gui/updatepromptdlg.h
+gui/newinstancedlg.h
 gui/taskprogressdialog.h
-gui/snapshotdialog.h
+gui/minecraftversiondialog.h
 gui/installforgedialog.h
 gui/savemgrwindow.h
 gui/textdisplaydialog.h
@@ -206,14 +211,17 @@ gui/advancedmsgdlg.h
 gui/listselectdialog.h
 gui/lwjgldialog.h
 gui/ftbselectdialog.h
+gui/shadedtextedit.h
 
 data/appsettings.h
 data/instance.h
 data/userinfo.h
 data/mod.h
+data/minecraftforge.h
 data/modlist.h
 data/configpack.h
 data/mcversionlist.h
+data/lwjglversionlist.h
 data/worldlist.h
 data/world.h
 data/texturepack.h

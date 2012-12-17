@@ -16,27 +16,40 @@
 
 #pragma once
 #include "listselectdialog.h"
+#include "mcversionlist.h"
 #include <vector>
 
 struct ForgeVersionItem
 {
-	ForgeVersionItem(wxString _Filename, wxString _MCVersion, wxString _ForgeVersion)
-	:Filename(_Filename),MCVersion(_MCVersion),ForgeVersion(_ForgeVersion){};
-	wxString Filename;
+	ForgeVersionItem(wxString _Url, wxString _MCVersion, wxString _ForgeVersion, wxString _ChangelogUrl)
+	:Url(_Url),MCVersion(_MCVersion),ForgeVersion(_ForgeVersion),ChangelogUrl(_ChangelogUrl){};
+	wxString Url;
 	wxString MCVersion;
 	wxString ForgeVersion;
+	wxString ChangelogUrl;
 	//TODO: maybe define a sorting predicate.
 };
 
 class InstallForgeDialog : public ListSelectDialog
 {
 public:
-	InstallForgeDialog(wxWindow *parent);
-
+	InstallForgeDialog( wxWindow* parent, wxString intendedVersion = MCVer_Unknown );
+	ForgeVersionItem & GetSelectedItem();
 protected:
+	bool ParseForgeJson( wxString file );
 	virtual bool DoLoadList();
 	virtual wxString OnGetItemText(long item, long column);
+	void OnChangelog(wxCommandEvent& event);
 	
 	virtual void UpdateListCount();
-	std::vector<ForgeVersionItem> items;
+	
+	wxButton * m_changeLogButton;
+	std::vector<ForgeVersionItem> m_items;
+	wxString m_intendedVersion;
+	bool m_filterVersions;
+	enum
+	{
+		ID_ChangelogBtn,
+	};
+	DECLARE_EVENT_TABLE();
 };

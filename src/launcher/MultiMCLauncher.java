@@ -69,73 +69,80 @@ public class MultiMCLauncher
 		String userName = args[0];
 		String sessionId = args[1];
 		String windowtitle = args[2];
+		String windowParams = args[3];
+		String lwjgl = args[4];
 		String cwd = System.getProperty("user.dir");
-		String encoding = System.getProperty("file.encoding");
-		System.out.println("File encoding: " + encoding);
 		
 		Dimension winSize = new Dimension(854, 480);
 		boolean maximize = false;
 		boolean compatMode = false;
 		
-		if (args.length >= 4)
+		
+		String[] dimStrings = windowParams.split("x");
+		
+		if (windowParams.equalsIgnoreCase("compatmode"))
 		{
-			String windowParams = args[3];
-			String[] dimStrings = windowParams.split("x");
-			
-			if (windowParams.equalsIgnoreCase("compatmode"))
+			compatMode = true;
+		}
+		else if (windowParams.equalsIgnoreCase("max"))
+		{
+			maximize = true;
+		}
+		else if (dimStrings.length == 2)
+		{
+			try
 			{
-				compatMode = true;
+				winSize = new Dimension(Integer.parseInt(dimStrings[0]),
+						Integer.parseInt(dimStrings[1]));
 			}
-			else if (windowParams.equalsIgnoreCase("max"))
-			{
-				maximize = true;
-			}
-			else if (dimStrings.length == 2)
-			{
-				try
-				{
-					winSize = new Dimension(Integer.parseInt(dimStrings[0]),
-							Integer.parseInt(dimStrings[1]));
-				}
-				catch (NumberFormatException e)
-				{
-					System.out.println("Invalid Window size argument, " +
-							"using default.");
-				}
-			}
-			else
+			catch (NumberFormatException e)
 			{
 				System.out.println("Invalid Window size argument, " +
 						"using default.");
 			}
 		}
+		else
+		{
+			System.out.println("Invalid Window size argument, " +
+					"using default.");
+		}
 		
 		try
 		{
+			File binDir = new File(cwd, "bin");
+			File lwjglDir;
+			if(lwjgl.equalsIgnoreCase("Mojang"))
+				lwjglDir = binDir;
+			else
+				lwjglDir = new File(lwjgl);
+			
 			System.out.println("Loading jars...");
-			String[] jarFiles = new String[] {
-				"minecraft.jar", "lwjgl.jar", "lwjgl_util.jar", "jinput.jar"
+			String[] lwjglJars = new String[] {
+				"lwjgl.jar", "lwjgl_util.jar", "jinput.jar"
 			};
 			
-			URL[] urls = new URL[jarFiles.length];
-			
-			for (int i = 0; i < urls.length; i++)
+			URL[] urls = new URL[4];
+			try
 			{
-				try
+				File f = new File(binDir, "minecraft.jar");
+				urls[0] = f.toURI().toURL();
+				System.out.println("Loading URL: " + urls[0].toString());
+
+				for (int i = 1; i < urls.length; i++)
 				{
-					File f = new File(new File(cwd, "bin"), jarFiles[i]);
-					urls[i] = f.toURI().toURL();
+					File jar = new File(lwjglDir, lwjglJars[i-1]);
+					urls[i] = jar.toURI().toURL();
 					System.out.println("Loading URL: " + urls[i].toString());
-				} catch (MalformedURLException e)
-				{
-//					e.printStackTrace();
-					System.err.println("MalformedURLException, " + e.toString());
-					System.exit(5);
 				}
+			}
+			catch (MalformedURLException e)
+			{
+				System.err.println("MalformedURLException, " + e.toString());
+				System.exit(5);
 			}
 			
 			System.out.println("Loading natives...");
-			String nativesDir = new File(new File(cwd, "bin"), "natives").toString();
+			String nativesDir = new File(lwjglDir, "natives").toString();
 			
 			System.setProperty("org.lwjgl.librarypath", nativesDir);
 			System.setProperty("net.java.games.input.librarypath", nativesDir);
@@ -250,13 +257,6 @@ public class MultiMCLauncher
 			String[] mcArgs = new String[2];
 			mcArgs[0] = userName;
 			mcArgs[1] = sessionId;
-
-			// this is bogus, the method is never used for anything after we set the field
-			/*
-			String mcDir = 	mc.getMethod("a", String.class).invoke(null, (Object) "minecraft").toString();
-
-			System.out.println("MCDIR: " + mcDir);
-			*/
 			
 			if (compatMode)
 			{

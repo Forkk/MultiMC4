@@ -28,6 +28,26 @@
 #include "appsettings.h"
 // #define DEBUG_ICONS
 
+wxString InstIconList::getRealIconKeyForEasterEgg ( wxString key, wxString name )
+{
+	if (key == "default")
+	{
+		if (name.Lower().Contains("btw") ||
+			name.Lower().Contains("better then wolves") || // Because some people are stupid :D
+			name.Lower().Contains("better than wolves"))
+		{
+			return "herobrine";
+		}
+		else if (name.Lower().Contains("direwolf"))
+		{
+			return "enderman";
+		}
+	}
+	return key;
+}
+
+
+
 InstIconList* InstIconList::pInstance = 0;
 
 const int allowedImgExtensionsCount = 5;
@@ -114,6 +134,7 @@ InstIconList::InstIconList(int width, int height, wxString customIconDirName)
 		InstIconDef("ftb-logo",_("FTB logo"), wxMEMORY_IMAGE(ftb_logo), wxMEMORY_IMAGE(ftb_logo128)),
 		InstIconDef("ftb-glow",_("FTB glow"), wxMEMORY_IMAGE(ftb_glow), wxMEMORY_IMAGE(ftb_glow128)),
 		InstIconDef("infinity",_("Infinity"), wxMEMORY_IMAGE(infinity), wxMEMORY_IMAGE(infinity128)),
+		InstIconDef("netherstar",_("Nether Star"), wxMEMORY_IMAGE(netherstar), wxMEMORY_IMAGE(netherstar128)),
 		InstIconDef("creeper",_("Creeper"), wxMEMORY_IMAGE(creeper), wxMEMORY_IMAGE(creeper128)),
 		InstIconDef("square creeper",_("Square creeper"), wxMEMORY_IMAGE(squarecreeper), wxMEMORY_IMAGE(squarecreeper128)),
 		InstIconDef("skeleton",_("Skeleton"), wxMEMORY_IMAGE(skeleton), wxMEMORY_IMAGE(skeleton128)),

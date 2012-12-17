@@ -48,7 +48,7 @@ protected:
 	
 	bool m_shouldUpdate;
 	
-	std::array<wxString, 5> jarURLs;
+	std::vector<wxString> jarURLs;
 	
 	virtual ExitCode TaskStart();
 	virtual bool LoadJarURLs();

@@ -77,7 +77,7 @@ public:
 	void OnManageSavesClicked(wxCommandEvent& event);
 	void OnEditModsClicked(wxCommandEvent& event);
 	void OnDowngradeInstClicked(wxCommandEvent& event);
-	void OnSnapshotClicked(wxCommandEvent& event);
+	void OnVersionClicked(wxCommandEvent& event);
 	void OnChangeLWJGLClicked(wxCommandEvent& event);
 	void OnRebuildJarClicked(wxCommandEvent& event);
 	void OnViewInstFolderClicked(wxCommandEvent& event);
@@ -258,7 +258,7 @@ protected:
 	wxButton *btnEditMods;
 	wxButton *btnManageSaves;
 	wxButton *btnDowngrade;
-	wxButton *btnSnapshot;
+	wxButton *btnVersion;
 	wxButton *btnRebuildJar;
 	wxButton *btnViewFolder;
 	
@@ -326,7 +326,7 @@ enum
 	ID_ManageSaves,
 	ID_EditMods,
 	ID_DowngradeInst,
-	ID_UseSnapshot,
+	ID_UseVersion,
 	ID_ChangeLWJGL,
 	ID_RebuildJar,
 	ID_ViewInstFolder,
