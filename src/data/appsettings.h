@@ -122,6 +122,10 @@ public:
 	DEFINE_SETTING_ADVANCED(JavaPath, JPATH_FIELD_NAME, wxString, "java");
 	DEFINE_SETTING(JvmArgs, wxString, wxEmptyString);
 
+	DEFINE_OVERRIDE_SETTING_BLANK(LaunchCmd);
+	DEFINE_SETTING(PreLaunchCmd, wxString, wxEmptyString);
+	DEFINE_SETTING(PostExitCmd, wxString, wxEmptyString);
+
 	DEFINE_ENUM_SETTING(ProxyType, ProxyType, Proxy_None);
 	DEFINE_SETTING(ProxyHostName, wxString, wxEmptyString);
 	DEFINE_SETTING(ProxyPort, long, 8080);
