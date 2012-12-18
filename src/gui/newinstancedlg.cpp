@@ -65,7 +65,7 @@ bool NewInstanceDialog::Create()
 		//staticText2->Wrap( -1 );
 		bSizer2->Add( staticText2, 0, wxALL| wxALIGN_CENTER_VERTICAL, 5 );
 		
-		m_versionDisplay = new wxTextCtrl( this, ID_text_version, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTRE | wxTE_DONTWRAP | wxTE_READONLY );
+		m_versionDisplay = new wxTextCtrl( this, ID_text_version, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_CENTRE | wxTE_READONLY );
 		bSizer2->Add( m_versionDisplay, 1, wxALL| wxEXPAND, 5 );
 	}
 	bSizer1->Add( bSizer2, 0, wxEXPAND, 5 );

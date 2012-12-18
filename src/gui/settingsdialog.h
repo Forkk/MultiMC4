@@ -82,6 +82,10 @@ protected:
 	wxStaticText *minMemLabel;
 	wxStaticText *maxMemLabel;
 
+	wxCheckBox *cCmdsUseDefs;
+	wxTextCtrl *preLaunchCmdBox;
+	wxTextCtrl *postExitCmdBox;
+
 	// minecraft tab stuff
 	wxCheckBox *winUseDefs;
 	wxCheckBox *compatCheckbox;
@@ -124,6 +128,7 @@ enum
 	ID_MCMaximizeCheckbox,
 	ID_CompatModeCheckbox,
 	ID_OverrideJava,
+	ID_OverrideCCmds,
 	ID_OverrideWindow,
 	ID_OverrideUpdate,
 	ID_OverrideMemory,
