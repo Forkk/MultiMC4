@@ -134,7 +134,7 @@ MainWindow::MainWindow(void)
 	wxBitmap helpIcon = wxMEMORY_IMAGE(helpicon);
 	wxBitmap aboutIcon = wxMEMORY_IMAGE(abouticon);
 	wxBitmap bugIcon = wxMEMORY_IMAGE(reportbug);
-
+	wxBitmap newsIcon = wxMEMORY_IMAGE(placeholdericon);
 	
 	
 	// Build the toolbar
@@ -183,14 +183,19 @@ MainWindow::MainWindow(void)
 	
 	mainToolBar->AddSeparator();
 
+	mainToolBar->AddTool(ID_News, _("News"), 
+		newsIcon, wxNullBitmap, wxITEM_NORMAL,
+		_("Show MultiMC news."), _("Show MultiMC news."));
+
 	mainToolBar->AddTool(ID_BugReport, _("Report bug"),
 		bugIcon, wxNullBitmap, wxITEM_NORMAL,
 		_("Report bug"), _("Report bug"));
-	mainToolBar->AddTool(ID_Help, _("Help"),
-		helpIcon, wxNullBitmap, wxITEM_NORMAL,
-		_("Help"),_("Help"));
+
+	//mainToolBar->AddTool(ID_Help, _("Help"),
+	//	helpIcon, wxNullBitmap, wxITEM_NORMAL,
+	//	_("Help"),_("Help"));
 	// interestingly, calling tool->Enable(false) won't disable it reliably. This works:
-	mainToolBar->EnableTool(ID_Help,false);
+	//mainToolBar->EnableTool(ID_Help,false);
 	
 	mainToolBar->AddTool(ID_About, _("About"),
 		aboutIcon, wxNullBitmap, wxITEM_NORMAL,
@@ -899,6 +904,15 @@ void MainWindow::OnBugReportClicked ( wxCommandEvent& event )
 	{
 		wxMessageBox(_("MultiMC was unable to run your web browser.\n\nTo report bugs, visit:\nhttp://bugs.forkk.net/"), 
 		_("Error"), wxOK | wxCENTER | wxICON_ERROR, this);
+	}
+}
+
+void MainWindow::OnNewsClicked(wxCommandEvent& event)
+{
+	if (!Utils::OpenURL("http://news.forkk.net/"))
+	{
+		wxMessageBox(_("MultiMC was unable to run your web browser.\n\nTo report bugs, visit:\nhttp://bugs.forkk.net/"), 
+			_("Error"), wxOK | wxCENTER | wxICON_ERROR, this);
 	}
 }
 
@@ -1635,6 +1649,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_Help, MainWindow::OnHelpClicked)
 	EVT_TOOL(ID_About, MainWindow::OnAboutClicked)
 	EVT_TOOL(ID_BugReport, MainWindow::OnBugReportClicked)
+	EVT_TOOL(ID_News, MainWindow::OnNewsClicked)
 
 	EVT_MENU(ID_NewInst, MainWindow::OnNewInstance)
 	EVT_MENU(ID_CopyInst, MainWindow::OnCopyInstClicked)
