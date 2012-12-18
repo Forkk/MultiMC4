@@ -29,11 +29,6 @@
 #include "taskprogressdialog.h"
 #include "lambdatask.h"
 
-enum
-{
-	ID_RefreshList,
-};
-
 inline void SetControlEnable(wxWindow *parentWin, int id, bool state)
 {
 	wxWindow *win = parentWin->FindWindowById(id);

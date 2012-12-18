@@ -49,6 +49,7 @@ protected:
 	bool m_filterVersions;
 	enum
 	{
+		ID_RefreshList,
 		ID_ChangelogBtn,
 	};
 	DECLARE_EVENT_TABLE();
