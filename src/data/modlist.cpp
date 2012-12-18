@@ -157,6 +157,11 @@ void ModList::LoadFromFile(const wxString& file)
 		wxFileName modFile(*iter);
 		modFile.Normalize(wxPATH_NORM_ALL, modsFolder);
 		modFile.MakeRelativeTo();
+		// if the file is gone, do not load it
+		if(!modFile.Exists())
+		{
+			continue;
+		}
 
 		if (FindByFilename(modFile.GetFullPath()) == nullptr)
 		{
