@@ -76,6 +76,9 @@ bool InstallForgeDialog::ParseForgeJson(wxString file)
 			if(build.count("files")) BOOST_FOREACH(const ptree::value_type& v, build.get_child("files"))
 			{
 				const ptree & file = v.second;
+				wxString ext = file.get<std::string>("ext");
+				if(ext.empty())
+					continue;
 				wxString buildtype = wxStr(file.get<std::string>("buildtype"));
 				if(buildtype == "client" || buildtype == "universal")
 				{
@@ -91,6 +94,9 @@ bool InstallForgeDialog::ParseForgeJson(wxString file)
 				}
 				else if(buildtype == "changelog")
 				{
+					wxString ext = file.get<std::string>("ext");
+					if(ext.empty())
+						continue;
 					changelogurl = wxStr(file.get<std::string>("url"));
 				}
 			}
