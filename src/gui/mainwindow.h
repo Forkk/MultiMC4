@@ -58,6 +58,7 @@ public:
 	void OnHelpClicked(wxCommandEvent& event);
 	void OnAboutClicked(wxCommandEvent& event);
 	void OnBugReportClicked(wxCommandEvent& event);
+	void OnNewsClicked(wxCommandEvent& event);
 
 
 	// Instance menu
@@ -302,6 +303,7 @@ enum
 	ID_ViewCMFolder,
 	ID_ModsFolder,
 	ID_Refresh,
+	ID_News,
 
 	ID_Settings,
 	ID_CheckUpdate,
