@@ -909,7 +909,8 @@ void MainWindow::OnBugReportClicked ( wxCommandEvent& event )
 
 void MainWindow::OnNewsClicked(wxCommandEvent& event)
 {
-	if (!Utils::OpenURL("http://news.forkk.net/"))
+	// Go to this redirect page so we can track how much traffic is coming from MultiMC's news button. :P
+	if (!Utils::OpenURL("http://forkk.net/mmcnews.php"))
 	{
 		wxMessageBox(_("MultiMC was unable to run your web browser.\n\nTo report bugs, visit:\nhttp://bugs.forkk.net/"), 
 			_("Error"), wxOK | wxCENTER | wxICON_ERROR, this);
