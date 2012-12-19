@@ -15,17 +15,25 @@
 //
 
 #pragma once
-#include <functional>
-#include <curl/curl.h>
-#include <curl/easy.h>
+#include "task.h"
 
-size_t CurlBlankCallback(void *buffer, size_t size, size_t nmemb, void *userp);
+#include <wx/string.h>
 
-typedef std::function<size_t (void *buffer, size_t size)> CurlLambdaCallbackFunction;
-size_t CurlLambdaCallback(void *buffer, size_t size, size_t nmemb, void *userp);
+// Sends image data to imgur
+class ImgurTask : public Task
+{
+public:
+	ImgurTask(const wxString& filename);
 
-size_t CurlOutStreamCallback(void* buffer, size_t size, size_t nmemb, void* userp);
-size_t CurlInStreamCallback(void* buffer, size_t size, size_t nmemb, void* userp);
+	virtual ExitCode TaskStart();
 
-// Returns a CURL handle initialized with the default things such as proxy settings.
-CURL* InitCurlHandle();
+	wxString GetImageURL();
+	wxString GetErrorMsg();
+
+protected:
+	wxString m_imgFileName;
+
+	wxString m_imgURL;
+
+	wxString m_errorMsg;
+};

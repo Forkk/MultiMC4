@@ -169,6 +169,7 @@ tasks/ziptask.cpp
 tasks/pastebintask.cpp
 tasks/lambdatask.cpp
 tasks/lwjglinstalltask.cpp
+tasks/imgurtask.cpp
 
 java/javautils.cpp
 java/annotations.cpp
@@ -243,6 +244,7 @@ tasks/ziptask.h
 tasks/pastebintask.h
 tasks/lambdatask.h
 tasks/lwjglinstalltask.h
+tasks/imgurtask.h
 
 java/annotations.h
 java/classfile.h

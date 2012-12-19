@@ -24,6 +24,7 @@
 #include <wx/clipbrd.h>
 #include <wx/persist.h>
 #include <wx/regex.h>
+#include <wx/dir.h>
 
 #include <gui/mainwindow.h>
 
@@ -32,8 +33,10 @@
 #endif
 
 #include "tasks/pastebintask.h"
+#include "tasks/imgurtask.h"
 
 #include "gui/taskprogressdialog.h"
+#include "textdisplaydialog.h"
 #include "advancedmsgdlg.h"
 
 #include "multimc.h"
@@ -269,6 +272,9 @@ wxMenu *InstConsoleWindow::ConsoleIcon::CreatePopupMenu()
 	wxMenu *menu = new wxMenu();
 	menu->AppendCheckItem(ID_SHOW_CONSOLE, _("Show Console"), _("Shows or hides the console."))->
 		Check(m_console->IsShown());
+	menu->AppendSeparator();
+	menu->Append(ID_IMGUR, _("Send last screenshot to imgur"), 
+		_("Uploads the last screenshot taken ingame to imgur.com."));
 	menu->Append(ID_KILL_MC, _("Kill Minecraft"), _("Kills Minecraft's process."));
 	
 	return menu;
@@ -520,6 +526,59 @@ bool InstConsoleWindow::CheckCommonProblems(const wxString& output)
 	return false;
 }
 
+void InstConsoleWindow::OnImgurClicked(wxCommandEvent& event)
+{
+	// Find the newest screenshot.
+	wxDir screnshotDir(m_inst->GetScreenshotsDir().GetFullPath());
+	if (!screnshotDir.IsOpened())
+	{
+		wxLogError(_("Failed to open screenshot folder."));
+		return;
+	}
+
+	wxDateTime newestModTime(1, wxDateTime::Jan, 0); // Set this to 'zero'
+	wxString newestFile;
+	wxString currentFile;
+	if (screnshotDir.GetFirst(&currentFile, "*.png"))
+	{
+		do
+		{
+			wxFileName cFileName(screnshotDir.GetName(), currentFile);
+			wxDateTime currentModTime = cFileName.GetModificationTime();
+
+			if (currentModTime > newestModTime)
+			{
+				newestModTime = currentModTime;
+				newestFile = Path::Combine(screnshotDir.GetName(), currentFile);
+			}
+		} while (screnshotDir.GetNext(&currentFile));
+	}
+
+	if (newestFile == wxEmptyString || !wxFileExists(newestFile))
+	{
+		wxMessageBox(_("No screenshots found. You must press F2 in-game to take a screenshot first."),
+			_("No screenshots to upload"), wxOK | wxCENTER, this);
+		return;
+	}
+
+
+	ImgurTask* task = new ImgurTask(newestFile);
+	TaskProgressDialog tDlg(this);
+
+	if (tDlg.ShowModal(task))
+	{
+		wxTextEntryDialog urlDialog(this, _("Your screenshot has been"
+			" sent to the URL shown below."), _("Success"), task->GetImageURL(),
+			wxOK | wxCENTER);
+		urlDialog.ShowModal();
+	}
+	else
+	{
+		wxMessageBox(wxString::Format(_("Failed to upload the image.\n%s"),
+			task->GetErrorMsg().c_str()), _("Error"), wxOK | wxCENTER, this);
+	}
+}
+
 
 BEGIN_EVENT_TABLE(InstConsoleWindow, wxFrame)
 	EVT_BUTTON(wxID_CLOSE, InstConsoleWindow::OnCloseButton)
@@ -534,6 +593,7 @@ END_EVENT_TABLE()
 BEGIN_EVENT_TABLE(InstConsoleWindow::ConsoleIcon, wxTaskBarIcon)
 	EVT_MENU(ID_SHOW_CONSOLE, InstConsoleWindow::ConsoleIcon::OnShowConsole)
 	EVT_MENU(ID_KILL_MC, InstConsoleWindow::ConsoleIcon::OnKillMC)
+	EVT_MENU(ID_IMGUR, InstConsoleWindow::ConsoleIcon::OnImgurClicked)
 	EVT_TASKBAR_LEFT_DOWN(InstConsoleWindow::ConsoleIcon::TaskBarLeft)
 	
 END_EVENT_TABLE()

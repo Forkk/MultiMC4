@@ -29,6 +29,20 @@ size_t CurlLambdaCallback(void* buffer, size_t size, size_t nmemb, void* userp)
 	return lambda->operator()(buffer, size * nmemb);
 }
 
+size_t CurlOutStreamCallback(void* buffer, size_t size, size_t nmemb, void* userp)
+{
+	wxOutputStream* outStream = (wxOutputStream*) userp;
+	outStream->Write(buffer, size * nmemb);
+	return outStream->LastWrite();
+}
+
+size_t CurlInStreamCallback(void* buffer, size_t size, size_t nmemb, void* userp)
+{
+	wxInputStream* inStream = (wxInputStream*) userp;
+	inStream->Read(buffer, size * nmemb);
+	return inStream->LastRead();
+}
+
 CURL* InitCurlHandle()
 {
 	CURL* curl = curl_easy_init();

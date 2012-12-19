@@ -67,6 +67,7 @@ protected:
 		
 		void OnShowConsole(wxCommandEvent &event);
 		void OnKillMC(wxCommandEvent &event);
+		void OnImgurClicked(wxCommandEvent& event) { m_console->OnImgurClicked(event); }
 		void TaskBarLeft(wxTaskBarIconEvent &e);
 
 	protected:
@@ -99,7 +100,10 @@ protected:
 	void OnGenReportClicked(wxCommandEvent& event);
 	void OnPastebinClicked(wxCommandEvent& event);
 	void OnKillMC(wxCommandEvent &event);
+	void OnImgurClicked(wxCommandEvent& event);
 	void OnCloseButton(wxCommandEvent &event);
+
+	void UploadToImgur(wxString imgData);
 	
 	void Close();
 	void SetCloseIsHide(bool isHide);
@@ -123,6 +127,7 @@ enum
 {
 	ID_SHOW_CONSOLE = 1,
 	ID_KILL_MC,
+	ID_IMGUR,
 
 	ID_GENREPORT,
 };
