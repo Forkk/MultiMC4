@@ -134,7 +134,7 @@ MainWindow::MainWindow(void)
 	wxBitmap helpIcon = wxMEMORY_IMAGE(helpicon);
 	wxBitmap aboutIcon = wxMEMORY_IMAGE(abouticon);
 	wxBitmap bugIcon = wxMEMORY_IMAGE(reportbug);
-	wxBitmap newsIcon = wxMEMORY_IMAGE(placeholdericon);
+	wxBitmap newsIcon = wxMEMORY_IMAGE(newsicon);
 	
 	
 	// Build the toolbar
