@@ -255,32 +255,34 @@ bool MCVersionList::LoadMojang()
 				if (v.first != "Contents")
 					continue;
 				
-				wxString keyName = wxStr(v.second.get<std::string>("Key"));
+				wxString Key = wxStr(v.second.get<std::string>("Key"));
 				wxString datetimeStr = wxStr(v.second.get<std::string>("LastModified"));
 				wxString etag = wxStr(v.second.get<std::string>("ETag"));
 				
-				if (!mcRegex.Matches(keyName))
+				if (!mcRegex.Matches(Key))
 					continue;
-				keyName = keyName.Left(keyName.Len() - 14);
-				for(unsigned i = 0; i < keyName.size();i++)
+				wxString versionID = Key.Left(Key.Len() - 14);
+				
+				wxString dlUrl;
+				dlUrl << "http://assets.minecraft.net/" << versionID << "/";
+				
+				wxString versionName = versionID;
+				for(unsigned i = 0; i < versionName.size();i++)
 				{
-					if(keyName[i] == '_')
-						keyName[i] = '.';
+					if(versionName[i] == '_')
+						versionName[i] = '.';
 				}
 				
 				wxDateTime dtt;
 				if(!TimeFromS3Time(datetimeStr, dtt))
 				{
-					wxLogError(_("Failed to parse date/time: %s %s"), keyName.c_str() , datetimeStr.c_str());
+					wxLogError(_("Failed to parse date/time: %s %s"), versionName.c_str() , datetimeStr.c_str());
 					dtt.SetToCurrent();
 				}
 				
-				wxString dlUrl;
-				dlUrl << "http://assets.minecraft.net/" << keyName << "/";
-				
 				if(currentStableFound && etag == currentStable.GetEtag())
 				{
-					MCVersion version(keyName,keyName,dtt.GetTicks(),currentStable.GetDLUrl(),true,etag);
+					MCVersion version(versionName,versionName,dtt.GetTicks(),currentStable.GetDLUrl(),true,etag);
 					version.SetVersionType(CurrentStable);
 					versions.push_back(version);
 					found_current_in_assets = true;
@@ -289,8 +291,8 @@ bool MCVersionList::LoadMojang()
 				{
 					bool older = dtt.GetTicks() < currentStable.GetTimestamp();
 					bool newer = dtt.GetTicks() > currentStable.GetTimestamp();
-					bool isSnapshot = snapshotRegex.Matches(keyName);
-					MCVersion version(keyName, keyName,dtt.GetTicks(),dlUrl,false,etag);
+					bool isSnapshot = snapshotRegex.Matches(versionName);
+					MCVersion version(versionName, versionName,dtt.GetTicks(),dlUrl,false,etag);
 					if(newer)
 					{
 						version.SetVersionType(Snapshot);
@@ -312,8 +314,8 @@ bool MCVersionList::LoadMojang()
 				}
 				else // there is no current stable :<
 				{
-					bool isSnapshot = snapshotRegex.Matches(keyName);
-					MCVersion version(keyName,keyName,dtt.GetTicks(),dlUrl,false,etag);
+					bool isSnapshot = snapshotRegex.Matches(versionName);
+					MCVersion version(versionName,versionName,dtt.GetTicks(),dlUrl,false,etag);
 					if(isSnapshot)
 					{
 						version.SetVersionType(Snapshot);
