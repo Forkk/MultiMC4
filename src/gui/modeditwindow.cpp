@@ -954,7 +954,7 @@ void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
 	if (installDlg.ShowModal() == wxID_OK)
 	{
 		auto ver = installDlg.GetSelectedItem();
-		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), "minecraftforge.zip");
+		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), ver.Filename);
 		
 		auto dlTask = new FileDownloadTask(ver.Url, wxFileName("forge.zip"));
 		TaskProgressDialog taskDlg(this);

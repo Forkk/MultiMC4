@@ -31,12 +31,12 @@
 #include "utils/httputils.h"
 #include "forgeversions.h"
 
-InstallForgeDialog::InstallForgeDialog(wxWindow *parent, wxString intendedVersion)
+InstallForgeDialog::InstallForgeDialog(wxWindow *parent, wxString jarVersion)
 	: ListSelectDialog(parent, _("Install Minecraft Forge"))
 {
 	// version filtering based on instance intended version
-	m_intendedVersion = intendedVersion;
-	m_filterVersions = m_intendedVersion != MCVer_Unknown;
+	m_jarVersion = jarVersion;
+	m_filterVersions = m_jarVersion != MCVer_Unknown;
 	// Custom GUI stuff.
 	wxClientDC dc(this);
 	dc.SetFont(listCtrl->GetFont());
@@ -71,7 +71,7 @@ bool InstallForgeDialog::ParseForgeJson(wxString file)
 		{
 			const ptree & build = v.second;
 			bool valid = false;
-			wxString url, changelogurl, jobbuildver, mcver;
+			wxString url, changelogurl, jobbuildver, mcver, filename;
 			// for each file
 			if(build.count("files")) BOOST_FOREACH(const ptree::value_type& v, build.get_child("files"))
 			{
@@ -80,16 +80,17 @@ bool InstallForgeDialog::ParseForgeJson(wxString file)
 				if(ext.empty())
 					continue;
 				wxString buildtype = wxStr(file.get<std::string>("buildtype"));
-				if(buildtype == "client" || buildtype == "universal")
+				if((buildtype == "client" || buildtype == "universal") && !valid)
 				{
 					mcver = wxStr(file.get<std::string>("mcver"));
 					// if we are filtering based on MC versions and the version doesn't match
-					if( m_filterVersions && mcver != m_intendedVersion )
+					if( m_filterVersions && mcver != m_jarVersion )
 					{
 						break; // skip to next build
 					}
 					url = wxStr(file.get<std::string>("url"));
 					jobbuildver = wxStr(file.get<std::string>("jobbuildver"));
+					filename = url.AfterLast('/');
 					valid = true;
 				}
 				else if(buildtype == "changelog")
@@ -101,7 +102,7 @@ bool InstallForgeDialog::ParseForgeJson(wxString file)
 				}
 			}
 			if(valid)
-				m_items.push_back(ForgeVersionItem(url,mcver,jobbuildver,changelogurl));
+				m_items.push_back(ForgeVersionItem(url,mcver,jobbuildver,changelogurl,filename));
 		}
 	}
 	catch (json_parser_error e)
