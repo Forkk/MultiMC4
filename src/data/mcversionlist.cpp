@@ -159,17 +159,20 @@ bool MCVersionList::LoadNostalgia()
 		}
 		catch (json_parser_error e)
 		{
-			/*
-			wxLogError(_("Failed to read version list.\nJSON parser error at line %i: %s"), 
+			wxLogError(_("Failed to read MCNostalgia list.\nJSON parser error at line %i: %s"), 
 				e.line(), wxStr(e.message()).c_str());
-				*/
+			return false;
+		}
+		catch (ptree_error)
+		{
+			wxLogError(_("Failed to read MCNostalgia list.\nThe format either changed or the server returned something else."));
 			return false;
 		}
 		return true;
 	}
 	else
 	{
-		//wxLogError(_("Failed to get version list. Check your internet connection and try again later."));
+		wxLogError(_("Failed to get MCNostalgia list. Check your internet connection and try again later."));
 		return false;
 	}
 }
@@ -178,94 +181,103 @@ bool MCVersionList::LoadMojang()
 {
 	using namespace boost::property_tree;
 	versions.clear();
-	
+	stableVersionIndex = -1;
 	MCVersion currentStable;
 	bool currentStableFound = false;
 	
 	wxString mainXML = wxEmptyString;
+	
+	wxString MojangURL = "http://s3.amazonaws.com/MinecraftDownload/";
 	// ``broken'' URL for testing
-	// "http://dethware.org/dl/"
-	if (!DownloadString("http://s3.amazonaws.com/MinecraftDownload/", &mainXML))
+	//wxString MojangURL = "http://dethware.org/dl/";
+	bool suppress_error = false;
+	
+	if (DownloadString(MojangURL, &mainXML))
 	{
-		wxLogError(_("Failed to get snapshot list. Check your internet connection."));
-		return false;
-	}
-
-	try
-	{
-		ptree pt;
-		std::stringstream inStream(stdStr(mainXML), std::ios::in);
-		read_xml(inStream, pt);
-		BOOST_FOREACH(const ptree::value_type& v, pt.get_child("ListBucketResult"))
+		try
 		{
-			if (v.first == "Contents")
+			ptree pt;
+			std::stringstream inStream(stdStr(mainXML), std::ios::in);
+			read_xml(inStream, pt);
+			BOOST_FOREACH(const ptree::value_type& v, pt.get_child("ListBucketResult"))
 			{
+				if (v.first != "Contents")
+					continue;
 				wxString keyName = wxStr(v.second.get<std::string>("Key"));
-				if(keyName == "minecraft.jar")
+				if(keyName != "minecraft.jar")
+					continue;
+				wxString datetimeStr = wxStr(v.second.get<std::string>("LastModified"));
+				wxString etag = wxStr(v.second.get<std::string>("ETag"));
+				// use some kind of sensible time if we fail to parse it
+				wxDateTime dtt;
+				if(!TimeFromS3Time(datetimeStr, dtt))
 				{
-					wxString datetimeStr = wxStr(v.second.get<std::string>("LastModified"));
-					wxString etag = wxStr(v.second.get<std::string>("ETag"));
-					wxDateTime dtt;
-					if(!TimeFromS3Time(datetimeStr, dtt))
-					{
-						wxLogError(_("Failed to parse date/time."));
-						return false;
-					}
-					MCVersion version("LatestStable",_("Current"),dtt.GetTicks(),"http://s3.amazonaws.com/MinecraftDownload/",true,etag);
-					currentStable = version;
-					currentStableFound = true;
-					break;
+					wxLogError(_("Failed to parse date/time: %s %s"), keyName.c_str() , datetimeStr.c_str());
+					dtt.SetToCurrent();
 				}
+				MCVersion version("LatestStable",_("Current"),dtt.GetTicks(),"http://s3.amazonaws.com/MinecraftDownload/",true,etag);
+				currentStable = version;
+				currentStableFound = true;
+				break;
 			}
 		}
-	}
-	catch (xml_parser_error e)
-	{
-		wxLogError(_("Failed to parse snapshot list.\nXML parser error at line %i: %s"), 
-			e.line(), wxStr(e.message()).c_str());
-		return false;
-	}
-	
-	// Parse XML from the given URL.
-	wxString assetsXML = wxEmptyString;
-	if (!DownloadString("http://assets.minecraft.net/", &assetsXML))
-	{
-		wxLogError(_("Failed to get snapshot list. Check your internet connection."));
-		return false;
-	}
-
-	try
-	{
-		bool found_current_in_assets = false;
-		ptree pt;
-		std::stringstream inStream(stdStr(assetsXML), std::ios::in);
-		read_xml(inStream, pt);
-
-		wxRegEx mcRegex("/minecraft.jar$");
-		wxRegEx snapshotRegex("[0-9][0-9]w[0-9][0-9][a-z]|pre|rc");
-		BOOST_FOREACH(const ptree::value_type& v, pt.get_child("ListBucketResult"))
+		catch (xml_parser_error e)
 		{
-			if (v.first != "Contents")
-				continue;
-			wxString keyName = wxStr(v.second.get<std::string>("Key"));
-			wxString datetimeStr = wxStr(v.second.get<std::string>("LastModified"));
-			wxString etag = wxStr(v.second.get<std::string>("ETag"));
-			wxDateTime dtt;
-			if(!TimeFromS3Time(datetimeStr, dtt))
+			wxLogError(_("Failed to get the current stable version.\nEncountered a parser error at line %i: %s"), e.line(), e.message().c_str());
+			suppress_error = true;
+		}
+		catch (ptree_error e)
+		{
+			wxLogError(_("Failed to get the current stable version.\nThe list format might have changed.\nPlease report this as a bug."));
+			suppress_error = true;
+		}
+	}
+	if(!currentStableFound && !suppress_error)
+		wxLogError(_("Failed to get the current stable version.\nCheck your internet connection."));
+	
+	// Getting snapshots from the assets site is optional.
+	// If it stops working, it shouldn't affect getting the current version
+	bool have_snapshots = false;
+	bool found_current_in_assets = false;
+	wxString assetsXML = wxEmptyString;
+	if (DownloadString("http://assets.minecraft.net/", &assetsXML))
+	{
+		try
+		{
+			ptree pt;
+			std::stringstream inStream(stdStr(assetsXML), std::ios::in);
+			read_xml(inStream, pt);
+
+			wxRegEx mcRegex("/minecraft.jar$");
+			wxRegEx snapshotRegex("[0-9][0-9]w[0-9][0-9][a-z]|pre|rc");
+			BOOST_FOREACH(const ptree::value_type& v, pt.get_child("ListBucketResult"))
 			{
-				wxLogError(_("Failed to parse date/time."));
-				return false;
-			}
-			if (mcRegex.Matches(keyName))
-			{
+				if (v.first != "Contents")
+					continue;
+				
+				wxString keyName = wxStr(v.second.get<std::string>("Key"));
+				wxString datetimeStr = wxStr(v.second.get<std::string>("LastModified"));
+				wxString etag = wxStr(v.second.get<std::string>("ETag"));
+				
+				if (!mcRegex.Matches(keyName))
+					continue;
 				keyName = keyName.Left(keyName.Len() - 14);
-				wxString dlUrl;
-				dlUrl << "http://assets.minecraft.net/" << keyName << "/";
 				for(unsigned i = 0; i < keyName.size();i++)
 				{
 					if(keyName[i] == '_')
 						keyName[i] = '.';
 				}
+				
+				wxDateTime dtt;
+				if(!TimeFromS3Time(datetimeStr, dtt))
+				{
+					wxLogError(_("Failed to parse date/time: %s %s"), keyName.c_str() , datetimeStr.c_str());
+					dtt.SetToCurrent();
+				}
+				
+				wxString dlUrl;
+				dlUrl << "http://assets.minecraft.net/" << keyName << "/";
+				
 				if(currentStableFound && etag == currentStable.GetEtag())
 				{
 					MCVersion version(keyName,keyName,dtt.GetTicks(),currentStable.GetDLUrl(),true,etag);
@@ -314,25 +326,34 @@ bool MCVersionList::LoadMojang()
 				}
 			}
 		}
-		// if this ever happens, we need to inject the current version into the list, if it exists
-		if(!found_current_in_assets && currentStableFound)
+		catch (xml_parser_error e)
 		{
-			versions.push_back(currentStable);
+			wxLogError(_("Failed to parse snapshot list.\nXML parser error at line %i: %s"), 
+				e.line(), wxStr(e.message()).c_str());
 		}
-	}
-	catch (xml_parser_error e)
-	{
-		wxLogError(_("Failed to parse snapshot list.\nXML parser error at line %i: %s"), 
-			e.line(), wxStr(e.message()).c_str());
-		return false;
-	}
-	std::sort(versions.begin(), versions.end(),compareVersions);
-	for(unsigned i = 0; i < versions.size();i++)
-	{
-		if(versions[i].GetVersionType() == CurrentStable)
+		catch (ptree_error e)
 		{
-			stableVersionIndex = i;
-			break;
+			wxLogError(_("Failed to parse snapshot list fully.\nThe format might have changed.\nPlease report this as a bug."));
+		}
+		
+	}
+	// if this ever happens, we need to inject the current version into the list, if it exists
+	if(!found_current_in_assets && currentStableFound)
+	{
+		currentStable.SetVersionType(CurrentStable);
+		versions.push_back(currentStable);
+		stableVersionIndex = 0;
+	}
+	else // otherwise we just try to find the current stable version in the snapshot list
+	{
+		std::sort(versions.begin(), versions.end(),compareVersions);
+		for(unsigned i = 0; i < versions.size();i++)
+		{
+			if(versions[i].GetVersionType() == CurrentStable)
+			{
+				stableVersionIndex = i;
+				break;
+			}
 		}
 	}
 #ifdef PRINT_CRUD
@@ -364,7 +385,7 @@ bool MCVersionList::LoadMojang()
 	}
 	out.close();
 #endif
-	return true;
+	return versions.size() != 0;
 }
 
 std::size_t MCVersionList::size() const

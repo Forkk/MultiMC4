@@ -21,19 +21,20 @@
 
 struct ForgeVersionItem
 {
-	ForgeVersionItem(wxString _Url, wxString _MCVersion, wxString _ForgeVersion, wxString _ChangelogUrl)
-	:Url(_Url),MCVersion(_MCVersion),ForgeVersion(_ForgeVersion),ChangelogUrl(_ChangelogUrl){};
+	ForgeVersionItem(wxString _Url, wxString _MCVersion, wxString _ForgeVersion, wxString _ChangelogUrl, wxString _Filename)
+	:Url(_Url),MCVersion(_MCVersion),ForgeVersion(_ForgeVersion),ChangelogUrl(_ChangelogUrl),Filename(_Filename){};
 	wxString Url;
 	wxString MCVersion;
 	wxString ForgeVersion;
 	wxString ChangelogUrl;
+	wxString Filename;
 	//TODO: maybe define a sorting predicate.
 };
 
 class InstallForgeDialog : public ListSelectDialog
 {
 public:
-	InstallForgeDialog( wxWindow* parent, wxString intendedVersion = MCVer_Unknown );
+	InstallForgeDialog( wxWindow* parent, wxString jarVersion = MCVer_Unknown );
 	ForgeVersionItem & GetSelectedItem();
 protected:
 	bool ParseForgeJson( wxString file );
@@ -45,7 +46,7 @@ protected:
 	
 	wxButton * m_changeLogButton;
 	std::vector<ForgeVersionItem> m_items;
-	wxString m_intendedVersion;
+	wxString m_jarVersion;
 	bool m_filterVersions;
 	enum
 	{
