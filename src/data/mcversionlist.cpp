@@ -42,6 +42,7 @@ public:
 	initme()
 	{
 		// wxEmptyString means that it should be ignored
+		mapping["1.4.6_pre"] = wxEmptyString;
 		mapping["1.4.5_pre"] = wxEmptyString;
 		mapping["1.4.3_pre"] = "1.4.3";
 		mapping["1.4.2_pre"] = wxEmptyString;
