@@ -152,6 +152,11 @@ bool DowngradeTask::RetrievePatchBaseURL(const wxString& mcVersion, wxString *pa
 				e.line(), wxStr(e.message()).c_str());
 			return false;
 		}
+		catch (ptree_error e)
+		{
+			wxLogError(_("Unspecified error: %s"), e.what());
+			return false;
+		}
 		return true;
 	}
 	else
@@ -219,7 +224,12 @@ bool DowngradeTask::VerifyOriginalFiles()
 			e.line(), wxStr(e.message()).c_str());
 		return false;
 	}
-
+	catch (ptree_error e)
+	{
+		wxLogError(_("Unspecified error: %s"), e.what());
+		return false;
+	}
+	
 	return true;
 }
 
@@ -333,6 +343,11 @@ bool DowngradeTask::VerifyPatchedFiles()
 	{
 		wxLogError(_("Failed to check file MD5.\nJSON parser error at line %i: %s"), 
 			e.line(), wxStr(e.message()).c_str());
+		return false;
+	}
+	catch (ptree_error e)
+	{
+		wxLogError(_("Unspecified error: %s"), e.what());
 		return false;
 	}
 

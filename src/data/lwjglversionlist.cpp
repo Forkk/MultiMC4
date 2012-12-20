@@ -106,9 +106,8 @@ bool LWJGLVersionList::Reload()
 			failed = true;
 		}
 	}
-	catch (xml_parser_error e)
+	catch (ptree_error)
 	{
-		//wxLogError(_("Failed to parse LWJGL list.\nXML parser error at line %i: %s"), e.line(), wxStr(e.message()).c_str());
 		failed = true;
 	}
 	if(failed)
