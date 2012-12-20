@@ -73,3 +73,9 @@ CURL* InitCurlHandle()
 
 	return curl;
 }
+
+int CurlLambdaProgressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
+{
+	auto func = (CurlLambdaProgressCallbackFunction*) clientp;
+	return func->operator()(dltotal, dlnow, ultotal, ulnow);
+}

@@ -50,12 +50,14 @@ wxThread::ExitCode ImgurTask::TaskStart()
 	wxFFileInputStream fIn(m_imgFileName);
 
 	int dataLen = fIn.GetLength();
-	wxMemoryBuffer dataBuf(dataLen);
-	wxMemoryOutputStream mOut(dataBuf.GetWriteBuf(dataLen));
+	//wxMemoryBuffer dataBuf(dataLen);
+	unsigned char* buffer = new unsigned char[dataLen];
+	wxMemoryOutputStream mOut(buffer, dataLen);//(dataBuf.GetWriteBuf(dataLen));
 	fIn.Read(mOut);
-	dataBuf.UngetWriteBuf(mOut.GetLength());
+	//dataBuf.UngetWriteBuf(mOut.GetLength());
 
-	wxString base64Data = wxBase64Encode(dataBuf);//.AfterFirst(',');
+	wxString base64Data = wxBase64Encode(buffer, dataLen);//.AfterFirst(',');
+	delete buffer;
 
 
 	SetStatus(_("Sending image to imgur - Uploading image..."));
@@ -75,6 +77,24 @@ wxThread::ExitCode ImgurTask::TaskStart()
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlOutStreamCallback);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
 	curl_easy_setopt(curl, CURLOPT_COPYPOSTFIELDS, TOASCII(postData));
+	curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, CurlLambdaProgressCallback);
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, false);
+
+	CurlLambdaProgressCallbackFunction progressFunc = 
+		[this] (double dltotal, double dlnow, double ultotal, double ulnow) -> int
+	{
+		double ulprogress = 100;
+		double dlprogress = 100;
+
+		if (ultotal > 0)
+			ulprogress = (ulnow / ultotal) * 100;
+		if (dltotal > 0)
+			dlprogress = (dlnow / dltotal) * 100;
+
+		this->SetProgress((ulprogress + dlprogress) / 2);
+		return 0;
+	};
+	curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, &progressFunc);
 
 	int err = curl_easy_perform(curl);
 	if (err != 0)
