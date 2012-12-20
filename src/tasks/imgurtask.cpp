@@ -55,7 +55,7 @@ wxThread::ExitCode ImgurTask::TaskStart()
 	fIn.Read(mOut);
 	dataBuf.UngetWriteBuf(mOut.GetLength());
 
-	wxString base64Data = wxBase64Encode(dataBuf.GetData(), dataBuf.GetDataLen());//.AfterFirst(',');
+	wxString base64Data = wxBase64Encode(dataBuf);//.AfterFirst(',');
 
 
 	SetStatus(_("Sending image to imgur - Uploading image..."));
