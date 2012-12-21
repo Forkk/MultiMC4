@@ -205,7 +205,7 @@ MainWindow::MainWindow(void)
 	
 	// Create the status bar
 	auto sbar = CreateStatusBar(1);
-	sbar->SetFieldsCount(3);
+	sbar->SetFieldsCount(2);
 	SetStatusBarPane(0);
 	
 	// Set up the main panel and sizers
@@ -457,9 +457,18 @@ void MainWindow::OnInstSelected(InstanceCtrlEvent &event)
 	if(GetGUIMode() == GUI_Fancy)
 		SaveNotesBox(false);
 	auto currentInstance = instItems.GetSelectedInstance();
-	SetStatusText(wxT("Minecraft Version: ") + currentInstance->GetJarVersion());
-	SetStatusText(wxT("Intended Version: ") + currentInstance->GetIntendedVersion(),1);
-	SetStatusText(wxT("Instance ID: ") + currentInstance->GetInstID(), 2);
+	SetStatusText(wxT("Instance ID: ") + currentInstance->GetInstID(), 1);
+	wxString mver = _("Minecraft Version: ");
+	if(currentInstance->GetShouldUpdate())
+	{
+		mver << currentInstance->GetJarVersion() << " -> " << currentInstance->GetIntendedVersion();
+		SetStatusText(mver);
+	}
+	else
+	{
+		SetStatusText(mver + currentInstance->GetJarVersion());
+	}
+	
 
 	if(GetGUIMode() == GUI_Fancy)
 		UpdateInstPanel();
