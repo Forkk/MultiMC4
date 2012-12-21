@@ -46,6 +46,7 @@ InstallForgeDialog::InstallForgeDialog(wxWindow *parent, wxString jarVersion)
 	
 	wxSizerFlags btnSzFlags = wxSizerFlags(0).Border(wxBOTTOM, 4);
 	m_changeLogButton = new wxButton(this, ID_ChangelogBtn, _("C&hangelog"));
+	m_changeLogButton->Enable(false);
 	btnSz->Insert(1,m_changeLogButton,btnSzFlags.Align(wxALIGN_LEFT));
 	// Clear columns and add our own.
 	listCtrl->DeleteAllColumns();
@@ -118,6 +119,17 @@ bool InstallForgeDialog::ParseForgeJson(wxString file)
 	}
 	return true;
 }
+
+void InstallForgeDialog::OnSelectionChange()
+{
+	ListSelectDialog::OnSelectionChange();
+	if(GetSelectedIndex() != -1)
+	{
+		auto ver = GetSelectedItem();
+		m_changeLogButton->Enable(!ver.ChangelogUrl.empty());
+	}
+}
+
 
 ForgeVersionItem& InstallForgeDialog::GetSelectedItem()
 {

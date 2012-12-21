@@ -131,7 +131,7 @@ void MinecraftVersionDialog::Refilter()
 	SetupColumnSizes();
 	listCtrl->Refresh();
 	listCtrl->Update();
-	UpdateOKBtn();
+	OnSelectionChange();
 }
 
 wxString MinecraftVersionDialog::OnGetItemText(long item, long column)

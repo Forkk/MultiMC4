@@ -62,7 +62,7 @@ void ChooseLWJGLDialog::LoadList()
 	listCtrl->SetItemCount(sList.size());
 	listCtrl->Refresh();
 	listCtrl->Update();
-	UpdateOKBtn();
+	OnSelectionChange();
 }
 
 bool ChooseLWJGLDialog::DoLoadList()
