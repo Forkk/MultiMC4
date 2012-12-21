@@ -17,6 +17,7 @@
 #pragma once
 #include <wx/wx.h>
 #include <wx/gbsizer.h>
+#include <wx/hyperlink.h>
 
 #include <queue>
 #include <functional>
@@ -101,6 +102,7 @@ public:
 	void OnInstMenuOpened(InstanceCtrlEvent& event);
 	void OnWindowClosed(wxCloseEvent& event);
 	void OnNotesLostFocus(wxFocusEvent& event);
+	void OnHideNewsClicked(wxCommandEvent& event);
 
 	void OnExitApp(wxCommandEvent &event);
 	
@@ -269,6 +271,9 @@ protected:
 	wxBoxSizer *instNameSz;
 	wxStaticText *instNameLabel;
 	wxTextCtrl *instNameEditor;
+
+	wxPanel* newsPanel;
+	wxHyperlinkCtrl* newsLink;
 	
 	void UpdateNotesBox();
 	void SaveNotesBox(bool current = true);
@@ -342,5 +347,7 @@ enum
 	
 	ID_InstNameEditor,
 	ID_NotesCtrl,
+
+	ID_HideNewsPanel,
 };
 

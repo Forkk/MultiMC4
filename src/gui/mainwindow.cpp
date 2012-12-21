@@ -46,6 +46,7 @@
 #include <mcprocess.h>
 #include "lwjglinstalltask.h"
 #include "ftbselectdialog.h"
+#include "newschecktask.h"
 
 #include "instancectrl.h"
 #include "newinstancedlg.h"
@@ -75,6 +76,8 @@
 #if (defined __WXMSW__ || defined __WXGTK__) && wxCHECK_VERSION(2, 9, 4) 
 #define USE_DROPDOWN_MENU
 #endif
+
+#include <typeinfo>
 
 #include "config.h"
 #include "buildtag.h"
@@ -224,6 +227,35 @@ MainWindow::MainWindow(void)
 		break;
 	}
 
+	
+	// Initialize the news panel.
+	{
+		wxSizerFlags vCenterItemFlags = wxSizerFlags().Border(wxALL, 4).Align(wxALIGN_CENTER_VERTICAL);
+
+		newsPanel = new wxPanel(this);
+		auto newsBox = new wxBoxSizer(wxHORIZONTAL);
+		newsPanel->SetSizer(newsBox);
+
+		auto newsLabel = new wxStaticText(newsPanel, -1, _("News: "));
+		newsBox->Add(newsLabel, vCenterItemFlags);
+
+		newsLink = new wxHyperlinkCtrl(newsPanel, -1, _("Loading news..."), 
+			"http://forkk.net/mmcnews.php");
+		newsBox->Add(newsLink, vCenterItemFlags.Proportion(1));
+
+		newsBox->AddStretchSpacer(1);
+
+		auto hideNewsButton = new wxButton(newsPanel, ID_HideNewsPanel, _("X"));
+		hideNewsButton->SetToolTip(_("Hide news."));
+		int w, h;
+		hideNewsButton->GetTextExtent("X", &w, &h);
+		hideNewsButton->SetMinSize(wxSize(h + 4, h + 4));
+		newsBox->Add(hideNewsButton, wxSizerFlags().Border(wxALL, 4).Align(wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT));
+
+		box->Add(newsPanel, wxSizerFlags().Expand());
+	}
+
+
 	launchInstance = wxEmptyString;
 
 	// This breaks the windows version and is pretty much alien on linux.
@@ -274,6 +306,13 @@ void MainWindow::OnStartup()
 	{
 		CheckUpdateTask *task = new CheckUpdateTask();
 		task->Start(this,false);
+	}
+
+
+	// Check news
+	{
+		NewsCheckTask* task = new NewsCheckTask();
+		task->Start(this, false);
 	}
 
 	if(!launchInstance.empty())
@@ -1538,7 +1577,19 @@ void MainWindow::OnDeleteGroupClicked(wxCommandEvent& event)
 // this catches background tasks and destroys them
 void MainWindow::OnTaskEnd(TaskEvent& event)
 {
-	Task * t = event.m_task;
+	Task* t = event.m_task;
+
+	// Check the type of task.
+	const std::type_info& taskType = typeid(*t);
+	if (taskType == typeid(NewsCheckTask))
+	{
+		auto nTask = (NewsCheckTask*) t;
+
+		newsLink->SetLabel(nTask->GetLatestPostTitle());
+		newsLink->SetURL(nTask->GetLatestPostURL());
+		newsLink->GetParent()->Layout();
+	}
+
 	t->Wait();
 	delete t;
 }
@@ -1637,6 +1688,13 @@ void MainWindow::ProcessNextIdleFunction()
 	func();
 }
 
+void MainWindow::OnHideNewsClicked(wxCommandEvent& event)
+{
+	GetSizer()->Hide(newsPanel, true);
+	Layout();
+	newsPanel->Hide();
+}
+
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)
 	EVT_TOOL(ID_ImportCP, MainWindow::OnImportCPClicked)
@@ -1694,6 +1752,8 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_BUTTON(ID_UseVersion, MainWindow::OnVersionClicked)
 	EVT_BUTTON(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_BUTTON(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
+
+	EVT_BUTTON(ID_HideNewsPanel, MainWindow::OnHideNewsClicked)
 	
 	EVT_BUTTON(ID_DeleteInst, MainWindow::OnDeleteClicked)
 	
