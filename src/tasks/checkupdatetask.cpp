@@ -93,11 +93,27 @@ wxThread::ExitCode CheckUpdateTask::TaskStart()
 	wxString dlFileName = "MultiMC";
 #endif
 
-	wxString newCIURL = ciURL;
-	if (newCIURL.EndsWith("/"))
-		newCIURL.RemoveLast();
+	//wxString newCIURL = ciURL;
+	//if (newCIURL.EndsWith("/"))
+	//	newCIURL.RemoveLast();
 	
-	wxString dlURL = wxString::Format("%s/%i/artifact/%s", newCIURL.c_str(), buildNumber, dlFileName.c_str());
+	//wxString dlURL = wxString::Format("%s/%i/artifact/%s", newCIURL.c_str(), buildNumber, dlFileName.c_str());
+
+#if WINDOWS
+	wxString dlOS = "Win32";
+#elif OSX
+	wxString dlOS = "Mac64";
+#else
+#if ENV64
+	wxString dlOS = "Lin64";
+#else
+	wxString dlOS = "Lin86";
+#endif
+#endif
+
+
+	wxString dlURL = wxString::Format("http://files.forkk.net/builds/%s/%i/archive/%s",
+		dlOS.c_str(), buildNumber, dlFileName.c_str());
 	
 	SetProgress(75);
 	OnCheckComplete(buildNumber, dlURL);

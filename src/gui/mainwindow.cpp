@@ -89,9 +89,14 @@ const wxSize minSize = wxSize(620, 400);
 // Main window
 MainWindow::MainWindow(void)
 	: wxFrame(NULL, -1, 
-		wxString::Format(_("MultiMC %d.%d.%d %s"), 
+		wxString::Format(_("MultiMC %d.%d.%d %s %s"), 
 			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision(),
-			AppBuildTag.ToString().c_str()),
+			AppBuildTag.ToString().c_str(),
+#if ENV64
+			wxString("x64").c_str()),
+#else
+			wxString("x86").c_str()),
+#endif
 		wxPoint(0, 0), minSize),
 		centralModList(settings->GetModsDir().GetFullPath())
 {

@@ -28,6 +28,21 @@
 #define LINUX 1
 #endif
 
+#if _WIN32 || _WIN64
+#if _WIN64
+#define ENV64 1
+#else
+#define ENV32 1
+#endif
+
+#elif __GNUC__
+#if __x86_64__ || __ppc64__
+#define ENV64 1
+#else
+#define ENV32 1
+#endif
+#endif
+
 #if WINDOWS
 #define NEWLINE "\r\n"
 #else
