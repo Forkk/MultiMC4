@@ -85,7 +85,7 @@ void ListSelectDialog::LoadList()
 	listCtrl->Refresh();
 	listCtrl->Update();
 
-	UpdateOKBtn();
+	OnSelectionChange();
 }
 
 void ListSelectDialog::UpdateListCount()
@@ -101,10 +101,10 @@ void ListSelectDialog::OnRefreshListClicked(wxCommandEvent& event)
 
 void ListSelectDialog::OnListBoxSelChange(wxListEvent& event)
 {
-	UpdateOKBtn();
+	OnSelectionChange();
 }
 
-void ListSelectDialog::UpdateOKBtn()
+void ListSelectDialog::OnSelectionChange()
 {
 	SetControlEnable(this, wxID_OK, GetSelectedIndex() != -1);
 }

@@ -40,6 +40,7 @@ protected:
 	virtual bool DoLoadList() = 0;
 	virtual void UpdateListCount();
 	virtual wxString OnGetItemText(long item, long column);
+	virtual void OnSelectionChange();
 
 	// By default, the first column's size is set to the width of the list
 	// control minus the sum of the widths of the other columns.
@@ -49,7 +50,7 @@ protected:
 	void OnRefreshListClicked(wxCommandEvent& event);
 	void OnListBoxSelChange(wxListEvent& event);
 
-	void UpdateOKBtn();
+	
 
 	// Shows / hides the list control header.
 	void ShowHeader(bool show);

@@ -39,6 +39,7 @@ public:
 protected:
 	bool ParseForgeJson( wxString file );
 	virtual bool DoLoadList();
+	virtual void OnSelectionChange();
 	virtual wxString OnGetItemText(long item, long column);
 	void OnChangelog(wxCommandEvent& event);
 	
