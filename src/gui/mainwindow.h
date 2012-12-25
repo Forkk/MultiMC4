@@ -17,6 +17,7 @@
 #pragma once
 #include <wx/wx.h>
 #include <wx/gbsizer.h>
+#include <wx/hyperlink.h>
 
 #include <queue>
 #include <functional>
@@ -58,10 +59,12 @@ public:
 	void OnHelpClicked(wxCommandEvent& event);
 	void OnAboutClicked(wxCommandEvent& event);
 	void OnBugReportClicked(wxCommandEvent& event);
+	void OnNewsClicked(wxCommandEvent& event);
 
 
 	// Instance menu
-	void OnPlayClicked(wxCommandEvent& event);
+	void OnPlayMenuClicked(wxCommandEvent& event);
+	void OnPlayBtnClicked(wxCommandEvent& event);
 	void OnInstActivated(InstanceCtrlEvent& event);
 	void OnInstDeleteKey(InstanceCtrlEvent& event);
 	void OnInstRenameKey(InstanceCtrlEvent& event);
@@ -76,7 +79,6 @@ public:
 
 	void OnManageSavesClicked(wxCommandEvent& event);
 	void OnEditModsClicked(wxCommandEvent& event);
-	void OnDowngradeInstClicked(wxCommandEvent& event);
 	void OnVersionClicked(wxCommandEvent& event);
 	void OnChangeLWJGLClicked(wxCommandEvent& event);
 	void OnRebuildJarClicked(wxCommandEvent& event);
@@ -100,6 +102,7 @@ public:
 	void OnInstMenuOpened(InstanceCtrlEvent& event);
 	void OnWindowClosed(wxCloseEvent& event);
 	void OnNotesLostFocus(wxFocusEvent& event);
+	void OnHideNewsClicked(wxCommandEvent& event);
 
 	void OnExitApp(wxCommandEvent &event);
 	
@@ -169,7 +172,7 @@ public:
 	// Other functions
 
 	int StartTask(Task *task);
-	void LoginClicked();
+	void LoginClicked( bool suppress_autologin = false);
 	void DoLogin(UserInfo info, bool playOffline = false, bool forceUpdate = false);
 	void ShowLoginDlg(wxString errorMsg);
 
@@ -257,7 +260,6 @@ protected:
 	wxButton *btnInstSettings;
 	wxButton *btnEditMods;
 	wxButton *btnManageSaves;
-	wxButton *btnDowngrade;
 	wxButton *btnVersion;
 	wxButton *btnRebuildJar;
 	wxButton *btnViewFolder;
@@ -269,6 +271,9 @@ protected:
 	wxBoxSizer *instNameSz;
 	wxStaticText *instNameLabel;
 	wxTextCtrl *instNameEditor;
+
+	wxPanel* newsPanel;
+	wxHyperlinkCtrl* newsLink;
 	
 	void UpdateNotesBox();
 	void SaveNotesBox(bool current = true);
@@ -303,6 +308,7 @@ enum
 	ID_ViewCMFolder,
 	ID_ModsFolder,
 	ID_Refresh,
+	ID_News,
 
 	ID_Settings,
 	ID_CheckUpdate,
@@ -325,7 +331,6 @@ enum
 
 	ID_ManageSaves,
 	ID_EditMods,
-	ID_DowngradeInst,
 	ID_UseVersion,
 	ID_ChangeLWJGL,
 	ID_RebuildJar,
@@ -342,5 +347,7 @@ enum
 	
 	ID_InstNameEditor,
 	ID_NotesCtrl,
+
+	ID_HideNewsPanel,
 };
 

@@ -22,6 +22,8 @@ SettingsIcon.png
 ViewFolderIcon.png
 CentralModsFolder.png
 ReportBug.png
+PlaceholderIcon.png
+NewsIcon.png
 )
 
 SET(TOOLBAR_ICONS_DEP ${INSTANCE_ICONS})

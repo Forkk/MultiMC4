@@ -15,13 +15,25 @@
 //
 
 #pragma once
-#include "listselectdialog.h"
+#include "task.h"
 
-class DowngradeDialog : public ListSelectDialog
+#include <wx/string.h>
+
+// Sends image data to imgur
+class ImgurTask : public Task
 {
 public:
-	DowngradeDialog(wxWindow *parent);
+	ImgurTask(const wxString& filename);
+
+	virtual ExitCode TaskStart();
+
+	wxString GetImageURL();
+	wxString GetErrorMsg();
 
 protected:
-	virtual bool DoLoadList();
+	wxString m_imgFileName;
+
+	wxString m_imgURL;
+
+	wxString m_errorMsg;
 };

@@ -97,19 +97,20 @@ bool ImportPackWizard::Start()
 		{
 			MinecraftVersionDialog dlg(this);
 			dlg.CenterOnParent();
-			MCVersion ver;
-			if(dlg.ShowModal() != wxID_OK || !dlg.GetSelectedVersion(ver))
+			if(dlg.ShowModal() != wxID_OK)
 			{
 				wxLogError(_("Cannot create a Minecraft instance with no Minecraft version."));
 				return false;
 			}
-			IntendedVersion = ver.GetDescriptor();
+			MCVersion * ver = dlg.GetSelectedVersion();
+			IntendedVersion = ver->GetDescriptor();
 		}
 		wxString instDir = Path::Combine(settings->GetInstDir(), instDirName);
 
 		Instance *inst = new StdInstance(instDir);
 		inst->SetName(instName);
-		inst->SetIntendedJarVersion(IntendedVersion);
+		inst->SetIntendedVersion(IntendedVersion);
+		inst->SetShouldUpdate(true);
 
 		m_mainWin->AddInstance(inst);
 

@@ -949,12 +949,12 @@ void ModEditWindow::OnCloseClicked(wxCommandEvent &event)
 
 void ModEditWindow::OnInstallForgeClicked(wxCommandEvent &event)
 {
-	InstallForgeDialog installDlg (this, m_inst->GetIntendedJarVersion());
+	InstallForgeDialog installDlg (this, m_inst->GetIntendedVersion());
 	installDlg.CenterOnParent();
 	if (installDlg.ShowModal() == wxID_OK)
 	{
 		auto ver = installDlg.GetSelectedItem();
-		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), "minecraftforge.zip");
+		wxString forgePath = Path::Combine(m_inst->GetInstModsDir(), ver.Filename);
 		
 		auto dlTask = new FileDownloadTask(ver.Url, wxFileName("forge.zip"));
 		TaskProgressDialog taskDlg(this);

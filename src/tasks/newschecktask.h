@@ -15,29 +15,20 @@
 //
 
 #pragma once
-#include "listselectdialog.h"
-#include "mcversionlist.h"
-#include <vector>
+#include "task.h"
 
-class MinecraftVersionDialog : public ListSelectDialog
+// Gets the latest dev blog post from the RSS feed.
+class NewsCheckTask : public Task
 {
 public:
-	MinecraftVersionDialog(wxWindow *parent);
-	MCVersion * GetSelectedVersion();
+	NewsCheckTask();
+
+	wxString GetLatestPostTitle() const;
+	wxString GetLatestPostURL() const;
 
 protected:
-	void Refilter();
-	virtual void LoadList();
-	virtual bool DoLoadList();
-	virtual wxString OnGetItemText(long item, long column);
-	void OnSnapshots(wxCommandEvent& event);
-	void OnNostalgia(wxCommandEvent& event);
-	
-	// data
-	int typeColumnWidth;
-	std::vector<unsigned> visibleIndexes;
-	bool showOldSnapshots;
-	bool showMCNostagia;
-	
-	DECLARE_EVENT_TABLE()
+	virtual ExitCode TaskStart();
+
+	wxString m_latestPostTitle;
+	wxString m_latestPostURL;
 };

@@ -64,7 +64,7 @@ wxThread::ExitCode DowngradeTask::TaskStart()
 		m_inst->SetNeedsRebuild();
 		// determine new intended version based on the backup
 		wxString newversion = javautils::GetMinecraftJarVersion(backup);
-		m_inst->SetIntendedJarVersion(newversion);
+		m_inst->SetShouldUpdate(false);
 		m_inst->SetJarVersion(newversion);
 	}
 	else
@@ -73,7 +73,7 @@ wxThread::ExitCode DowngradeTask::TaskStart()
 		// update the version now based on minecraft.jar.
 		m_inst->UpdateVersion();
 		// intended version is what we updated to.
-		m_inst->SetIntendedJarVersion(m_inst->GetJarVersion());
+		m_inst->SetShouldUpdate(false);
 	}
 	SetStep(STEP_DONE);
 	return (ExitCode)1;
@@ -152,6 +152,11 @@ bool DowngradeTask::RetrievePatchBaseURL(const wxString& mcVersion, wxString *pa
 				e.line(), wxStr(e.message()).c_str());
 			return false;
 		}
+		catch (ptree_error e)
+		{
+			wxLogError(_("Unspecified error: %s"), e.what());
+			return false;
+		}
 		return true;
 	}
 	else
@@ -219,7 +224,12 @@ bool DowngradeTask::VerifyOriginalFiles()
 			e.line(), wxStr(e.message()).c_str());
 		return false;
 	}
-
+	catch (ptree_error e)
+	{
+		wxLogError(_("Unspecified error: %s"), e.what());
+		return false;
+	}
+	
 	return true;
 }
 
@@ -333,6 +343,11 @@ bool DowngradeTask::VerifyPatchedFiles()
 	{
 		wxLogError(_("Failed to check file MD5.\nJSON parser error at line %i: %s"), 
 			e.line(), wxStr(e.message()).c_str());
+		return false;
+	}
+	catch (ptree_error e)
+	{
+		wxLogError(_("Unspecified error: %s"), e.what());
 		return false;
 	}
 

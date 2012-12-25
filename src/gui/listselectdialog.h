@@ -31,6 +31,11 @@ public:
 	virtual int ShowModal();
 
 protected:
+	enum
+	{
+		ID_RefreshList,
+	};
+	
 	virtual void LoadList();
 	virtual bool DoLoadList() = 0;
 	virtual void UpdateListCount();

@@ -15,6 +15,7 @@
 #include <wx/dialog.h>
 #include <vector>
 
+class MCVersion;
 class ShadedTextEdit;
 ///////////////////////////////////////////////////////////////////////////
 
@@ -25,62 +26,38 @@ class ShadedTextEdit;
 class NewInstanceDialog : public wxDialog 
 {
 	protected:
-		class MCVersionChoice : public wxChoice
-		{
-		public:
-			MCVersionChoice(NewInstanceDialog* parent, wxWindowID id = wxID_ANY) :wxChoice(parent, id)
-			{
-				m_owner = parent;
-			};
-			
-			//virtual unsigned int GetCount() const;
-			//virtual wxString GetString ( unsigned int n ) const;
-			
-			void Refilter();
-			
-		protected:
-			std::vector<unsigned> visibleIndexes;
-			NewInstanceDialog* m_owner;
-			//DECLARE_EVENT_TABLE()
-		};
-	
-	protected:
 		wxButton* m_btnIcon;
 		ShadedTextEdit* m_textName;
-		wxTextCtrl* m_textFolder;
-		MCVersionChoice* m_choiceMCVersion;
-		wxCheckBox* m_checkOldSnapshots;
-		wxCheckBox* m_checkNewSnapshots;
+		
+		wxTextCtrl * m_versionDisplay;
 		wxChoice* m_choiceLwjgl;
 		wxButton* m_btnOK;
+		wxButton* m_changeVersionButton;
 		
 		enum NI_IDs
 		{
-			ID_text_name,
+			ID_text_name= 5000,
+			ID_text_version,
+			ID_btn_version,
 			ID_select_MC,
 			ID_select_LWJGL,
-			ID_show_old,
-			ID_show_new,
 			ID_icon_select
 		};
 		
-		bool m_showOldSnapshots;
-		bool m_showNewSnapshots;
 		bool m_loadingDone;
 		wxString m_iconKey;
 		wxString m_visibleIconKey;
 		wxString m_name;
 		wxString m_username;
+		MCVersion * m_selectedVersion;
 		
 	protected:
 		void OnIcon(wxCommandEvent& event);
+		void OnVersion(wxCommandEvent& event);
 		void OnName(wxCommandEvent& event);
-		void OnCheckbox(wxCommandEvent& event);
-		
-		void Refilter();
-		
 		void SetIconKey(wxString iconkey);
 		void UpdateIcon();
+		void UpdateVersionDisplay();
 		
 	public:
 		NewInstanceDialog( wxWindow* parent, wxString username = wxEmptyString)
@@ -93,7 +70,8 @@ class NewInstanceDialog : public wxDialog
 		
 		~NewInstanceDialog();
 		wxString GetInstanceName();
-		wxString GetInstanceMCVersion();
+		MCVersion * GetInstanceMCVersion();
+		wxString GetInstanceMCVersionDescr();
 		wxString GetInstanceLWJGL();
 		wxString GetInstanceIconKey();
 		int ShowModal();

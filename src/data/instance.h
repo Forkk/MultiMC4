@@ -138,6 +138,9 @@ public:
 	DEFINE_OVERRIDDEN_SETTING_ADVANCED(JavaPath, JPATH_FIELD_NAME, wxString);
 	DEFINE_OVERRIDDEN_SETTING(JvmArgs, wxString);
 
+	DEFINE_OVERRIDDEN_SETTING(PreLaunchCmd, wxString);
+	DEFINE_OVERRIDDEN_SETTING(PostExitCmd, wxString);
+
 	DEFINE_OVERRIDDEN_SETTING_ADVANCED(MaxMemAlloc, "MaxMemoryAlloc", int);
 	DEFINE_OVERRIDDEN_SETTING_ADVANCED(MinMemAlloc, "MinMemoryAlloc", int);
 
@@ -149,6 +152,7 @@ public:
 	DEFINE_OVERRIDDEN_SETTING(AutoLogin, bool);
 
 	DEFINE_OVERRIDE_SETTING(Java);
+	DEFINE_OVERRIDE_SETTING(LaunchCmd);
 	DEFINE_OVERRIDE_SETTING(Memory);
 	DEFINE_OVERRIDE_SETTING(Window);
 	DEFINE_OVERRIDE_SETTING(Login);
@@ -160,8 +164,11 @@ public:
 	wxString GetLwjglVersion() const { return GetSetting<wxString>("LwjglVersion","Mojang"); };
 	void SetLwjglVersion( wxString value ) {  SetSetting<wxString>("LwjglVersion", value); };
 	
-	wxString GetIntendedJarVersion() const { return GetSetting<wxString>("IntendedJarVersion",GetJarVersion()); };
-	void SetIntendedJarVersion( wxString value ) {  SetSetting<wxString>("IntendedJarVersion", value); };
+	wxString GetIntendedVersion() const { return GetSetting<wxString>("IntendedJarVersion",GetJarVersion()); };
+	void SetIntendedVersion( wxString value ) {  SetSetting<wxString>("IntendedJarVersion", value); };
+	
+	bool GetShouldUpdate() const { return GetSetting<bool>("ShouldUpdate", GetJarVersion() != GetIntendedVersion()); };
+	void SetShouldUpdate( bool value ) {  SetSetting<bool>("ShouldUpdate", value); };
 	
 	uint64_t GetLastLaunch() const
 	{

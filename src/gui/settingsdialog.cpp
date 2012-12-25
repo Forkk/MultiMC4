@@ -455,6 +455,48 @@ SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s
 			box->Add(sizer, staticBoxInnerFlags);
 			mcBox->Add(box, staticBoxOuterFlags);
 		}
+
+		// Launch commands
+		{
+			auto box = new wxStaticBoxSizer(wxVERTICAL, mcPanel, _("Custom Commands"));
+			auto sizer = new wxGridBagSizer();
+
+			int row = 0;
+
+			if(instanceMode)
+			{
+				cCmdsUseDefs = new wxCheckBox(mcPanel, ID_OverrideCCmds, _("Use defaults?"));
+				sizer->Add(cCmdsUseDefs, wxGBPosition(row, 0), wxGBSpan(1, 3), wxALL, 4);
+				row++;
+			}
+
+			auto preLaunchCmdLabel = new wxStaticText(mcPanel, -1, _("Pre-launch command: "));
+			sizer->Add(preLaunchCmdLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
+			preLaunchCmdBox = new wxTextCtrl(mcPanel, -1);
+			sizer->Add(preLaunchCmdBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+			row++;
+
+			auto postExitCmdLabel = new wxStaticText(mcPanel, -1, _("Post-exit command: "));
+			sizer->Add(postExitCmdLabel, wxGBPosition(row, 0), wxGBSpan(1, 1), GBitemsFlags);
+			postExitCmdBox = new wxTextCtrl(mcPanel, -1);
+			sizer->Add(postExitCmdBox, wxGBPosition(row, 1), wxGBSpan(1, 1), GBexpandingItemsFlags);
+
+			row++;
+
+			auto infoLabel = new wxStaticText(mcPanel, -1, 
+				_("Pre-launch command runs before the instance launches and "
+				"post-exit command runs after it exits. Both will be run in "
+				"MultiMC's working directory, with INST_ID, INST_NAME, and "
+				"INST_DIR as environment variables."));
+			sizer->Add(infoLabel, wxGBPosition(row, 0), wxGBSpan(1, 2), GBexpandingItemsFlags);
+			infoLabel->Wrap(320);
+
+			sizer->AddGrowableCol(1);
+
+			box->Add(sizer, staticBoxInnerFlags);
+			mcBox->Add(box, staticBoxOuterFlags);
+		}
 	}
 	
 	// Buttons
@@ -615,6 +657,9 @@ bool SettingsDialog::ApplySettings()
 
 		currentSettings->SetJavaPath(javaPathTextBox->GetValue());
 		currentSettings->SetJvmArgs(jvmArgsTextBox->GetValue());
+
+		currentSettings->SetPreLaunchCmd(preLaunchCmdBox->GetValue());
+		currentSettings->SetPostExitCmd(postExitCmdBox->GetValue());
 		
 		currentSettings->SetUseAppletWrapper(!compatCheckbox->IsChecked());
 
@@ -705,6 +750,19 @@ Are you sure you want to use dev builds?"),
 			currentSettings->ResetJvmArgs();
 		}
 		currentSettings->SetJavaOverride(haveJava);
+
+		bool haveCCmds = !cCmdsUseDefs->GetValue();
+		if (haveCCmds)
+		{
+			currentSettings->SetPreLaunchCmd(preLaunchCmdBox->GetValue());
+			currentSettings->SetPostExitCmd(postExitCmdBox->GetValue());
+		}
+		else
+		{
+			currentSettings->ResetPreLaunchCmd();
+			currentSettings->ResetPostExitCmd();
+		}
+		currentSettings->SetLaunchCmdOverride(haveCCmds);
 		
 		bool haveWindow = !winUseDefs->GetValue();
 		if(haveWindow)
@@ -836,6 +894,7 @@ void SettingsDialog::LoadSettings()
 	else
 	{
 		javaUseDefs->SetValue(!currentSettings->GetJavaOverride());
+		cCmdsUseDefs->SetValue(!currentSettings->GetLaunchCmdOverride());
 		memoryUseDefs->SetValue(!currentSettings->GetMemoryOverride());
 		winUseDefs->SetValue(!currentSettings->GetWindowOverride());
 		loginUseDefs->SetValue(!currentSettings->GetLoginOverride());
@@ -846,6 +905,9 @@ void SettingsDialog::LoadSettings()
 
 	javaPathTextBox->SetValue(currentSettings->GetJavaPath());
 	jvmArgsTextBox->SetValue(currentSettings->GetJvmArgs());
+
+	preLaunchCmdBox->SetValue(currentSettings->GetPreLaunchCmd());
+	postExitCmdBox->SetValue(currentSettings->GetPostExitCmd());
 
 	compatCheckbox->SetValue(!currentSettings->GetUseAppletWrapper());
 
@@ -934,6 +996,7 @@ void SettingsDialog::UpdateCheckboxStuff()
 	if(instanceMode)
 	{
 		bool enableJava = !javaUseDefs->GetValue();
+		bool enableCCmds = !cCmdsUseDefs->GetValue();
 		bool enableMemory = !memoryUseDefs->GetValue();
 		bool enableWindow = !winUseDefs->GetValue();
 		bool enableLogin = !loginUseDefs->GetValue();
@@ -942,8 +1005,11 @@ void SettingsDialog::UpdateCheckboxStuff()
 		javaPathTextBox->Enable(enableJava);
 		jvmArgsTextBox->Enable(enableJava);
 		autoDetectButton->Enable(enableJava);
-		jvmArgsLabel->Enable(enableJava);;
-		javaPathLabel->Enable(enableJava);;
+		jvmArgsLabel->Enable(enableJava);
+		javaPathLabel->Enable(enableJava);
+
+		preLaunchCmdBox->Enable(enableCCmds);
+		postExitCmdBox->Enable(enableCCmds);
 		
 		minMemorySpin->Enable(enableMemory);
 		maxMemorySpin->Enable(enableMemory);
@@ -999,5 +1065,6 @@ BEGIN_EVENT_TABLE(SettingsDialog, wxDialog)
 	EVT_CHECKBOX(ID_OverrideUpdate, SettingsDialog::OnUpdateCheckboxes)
 	EVT_CHECKBOX(ID_OverrideMemory, SettingsDialog::OnUpdateCheckboxes)
 	EVT_CHECKBOX(ID_OverrideLogin, SettingsDialog::OnUpdateCheckboxes)
+	EVT_CHECKBOX(ID_OverrideCCmds, SettingsDialog::OnUpdateCheckboxes)
 	EVT_RADIOBUTTON(ID_UseProxy, SettingsDialog::OnUpdateCheckboxes)
 END_EVENT_TABLE()

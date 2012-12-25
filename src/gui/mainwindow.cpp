@@ -33,7 +33,6 @@
 #include "version.h"
 #include "configpack.h"
 #include "importpackwizard.h"
-#include "downgradedialog.h"
 #include "downgradetask.h"
 #include "utils/fsutils.h"
 #include "aboutdlg.h"
@@ -47,6 +46,7 @@
 #include <mcprocess.h>
 #include "lwjglinstalltask.h"
 #include "ftbselectdialog.h"
+#include "newschecktask.h"
 
 #include "instancectrl.h"
 #include "newinstancedlg.h"
@@ -77,6 +77,8 @@
 #define USE_DROPDOWN_MENU
 #endif
 
+#include <typeinfo>
+
 #include "config.h"
 #include "buildtag.h"
 
@@ -87,9 +89,14 @@ const wxSize minSize = wxSize(620, 400);
 // Main window
 MainWindow::MainWindow(void)
 	: wxFrame(NULL, -1, 
-		wxString::Format(_("MultiMC %d.%d.%d %s"), 
+		wxString::Format(_("MultiMC %d.%d.%d %s %s"), 
 			AppVersion.GetMajor(), AppVersion.GetMinor(), AppVersion.GetRevision(),
-			AppBuildTag.ToString().c_str()),
+			AppBuildTag.ToString().c_str(),
+#if ENV64
+			wxString("x64").c_str()),
+#else
+			wxString("x86").c_str()),
+#endif
 		wxPoint(0, 0), minSize),
 		centralModList(settings->GetModsDir().GetFullPath())
 {
@@ -107,7 +114,6 @@ MainWindow::MainWindow(void)
 	btnChangeIcon = nullptr;
 	btnCopyInst = nullptr;
 	btnEditMods = nullptr;
-	btnDowngrade = nullptr;
 	btnRebuildJar = nullptr;
 	btnViewFolder = nullptr;
 	
@@ -136,7 +142,7 @@ MainWindow::MainWindow(void)
 	wxBitmap helpIcon = wxMEMORY_IMAGE(helpicon);
 	wxBitmap aboutIcon = wxMEMORY_IMAGE(abouticon);
 	wxBitmap bugIcon = wxMEMORY_IMAGE(reportbug);
-
+	wxBitmap newsIcon = wxMEMORY_IMAGE(newsicon);
 	
 	
 	// Build the toolbar
@@ -185,14 +191,19 @@ MainWindow::MainWindow(void)
 	
 	mainToolBar->AddSeparator();
 
+	mainToolBar->AddTool(ID_News, _("News"), 
+		newsIcon, wxNullBitmap, wxITEM_NORMAL,
+		_("Show MultiMC news."), _("Show MultiMC news."));
+
 	mainToolBar->AddTool(ID_BugReport, _("Report bug"),
 		bugIcon, wxNullBitmap, wxITEM_NORMAL,
 		_("Report bug"), _("Report bug"));
-	mainToolBar->AddTool(ID_Help, _("Help"),
-		helpIcon, wxNullBitmap, wxITEM_NORMAL,
-		_("Help"),_("Help"));
+
+	//mainToolBar->AddTool(ID_Help, _("Help"),
+	//	helpIcon, wxNullBitmap, wxITEM_NORMAL,
+	//	_("Help"),_("Help"));
 	// interestingly, calling tool->Enable(false) won't disable it reliably. This works:
-	mainToolBar->EnableTool(ID_Help,false);
+	//mainToolBar->EnableTool(ID_Help,false);
 	
 	mainToolBar->AddTool(ID_About, _("About"),
 		aboutIcon, wxNullBitmap, wxITEM_NORMAL,
@@ -220,6 +231,35 @@ MainWindow::MainWindow(void)
 		InitAdvancedGUI(box);
 		break;
 	}
+
+	
+	// Initialize the news panel.
+	{
+		wxSizerFlags vCenterItemFlags = wxSizerFlags().Border(wxALL, 4).Align(wxALIGN_CENTER_VERTICAL);
+
+		newsPanel = new wxPanel(this);
+		auto newsBox = new wxBoxSizer(wxHORIZONTAL);
+		newsPanel->SetSizer(newsBox);
+
+		auto newsLabel = new wxStaticText(newsPanel, -1, _("News: "));
+		newsBox->Add(newsLabel, vCenterItemFlags);
+
+		newsLink = new wxHyperlinkCtrl(newsPanel, -1, _("Loading news..."), 
+			"http://forkk.net/mmcnews.php");
+		newsBox->Add(newsLink, vCenterItemFlags.Proportion(1));
+
+		newsBox->AddStretchSpacer(1);
+
+		auto hideNewsButton = new wxButton(newsPanel, ID_HideNewsPanel, _("X"));
+		hideNewsButton->SetToolTip(_("Hide news."));
+		int w, h;
+		hideNewsButton->GetTextExtent("X", &w, &h);
+		hideNewsButton->SetMinSize(wxSize(h + 4, h + 4));
+		newsBox->Add(hideNewsButton, wxSizerFlags().Border(wxALL, 4).Align(wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT));
+
+		box->Add(newsPanel, wxSizerFlags().Expand());
+	}
+
 
 	launchInstance = wxEmptyString;
 
@@ -273,6 +313,13 @@ void MainWindow::OnStartup()
 		task->Start(this,false);
 	}
 
+
+	// Check news
+	{
+		NewsCheckTask* task = new NewsCheckTask();
+		task->Start(this, false);
+	}
+
 	if(!launchInstance.empty())
 	{
 		instItems.SelectInstanceByID(launchInstance);
@@ -321,7 +368,6 @@ void MainWindow::InitInstMenu()
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_ManageSaves, _("&Manage Saves"), _("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _("&Edit Mods"), _("Install or remove mods."));
-	instMenu->Append(ID_DowngradeInst, _("MCNostalgia"), _("Use MCNostalgia to downgrade this instance."));
 	instMenu->Append(ID_UseVersion, _("Change Version"), _("Change instance's Minecraft version (game will update on login)."));
 	instMenu->Append(ID_ChangeLWJGL, _("Change LWJGL"), _("Use a different version of LWJGL with this instance."));
 	instMenu->Append(ID_RebuildJar, _("Re&build Jar"), _("Reinstall all the instance's jar mods."));
@@ -402,8 +448,6 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	btnSz->Add(btnEditMods, szflags);
 	btnManageSaves = new wxButton(btnPanel, ID_ManageSaves, _("Manage Saves"));
 	btnSz->Add(btnManageSaves, szflags);
-	btnDowngrade = new wxButton(btnPanel, ID_DowngradeInst, _("MCNostalgia"));
-	btnSz->Add(btnDowngrade, szflags);
 	btnVersion = new wxButton(btnPanel, ID_UseVersion, _("Change Version"));
 	btnSz->Add(btnVersion, szflags);
 	btnRebuildJar = new wxButton(btnPanel, ID_RebuildJar, _("Re&build Jar"));
@@ -458,7 +502,7 @@ void MainWindow::OnInstSelected(InstanceCtrlEvent &event)
 		SaveNotesBox(false);
 	auto currentInstance = instItems.GetSelectedInstance();
 	SetStatusText(wxT("Minecraft Version: ") + currentInstance->GetJarVersion());
-	SetStatusText(wxT("Intended Version: ") + currentInstance->GetIntendedJarVersion(),1);
+	SetStatusText(wxT("Intended Version: ") + currentInstance->GetIntendedVersion(),1);
 	SetStatusText(wxT("Instance ID: ") + currentInstance->GetInstID(), 2);
 
 	if(GetGUIMode() == GUI_Fancy)
@@ -616,7 +660,8 @@ void MainWindow::OnNewInstance(wxCommandEvent& event)
 	Instance *inst = new StdInstance(instDir);
 	inst->SetName(instName);
 	AddInstance(inst);
-	inst->SetIntendedJarVersion(dlg.GetInstanceMCVersion());
+	inst->SetIntendedVersion(dlg.GetInstanceMCVersionDescr());
+	inst->SetShouldUpdate(true);
 	inst->SetIconKey(dlg.GetInstanceIconKey());
 }
 
@@ -906,6 +951,16 @@ void MainWindow::OnBugReportClicked ( wxCommandEvent& event )
 	}
 }
 
+void MainWindow::OnNewsClicked(wxCommandEvent& event)
+{
+	// Go to this redirect page so we can track how much traffic is coming from MultiMC's news button. :P
+	if (!Utils::OpenURL("http://forkk.net/mmcnews.php"))
+	{
+		wxMessageBox(_("MultiMC was unable to run your web browser.\n\nTo report bugs, visit:\nhttp://bugs.forkk.net/"), 
+			_("Error"), wxOK | wxCENTER | wxICON_ERROR, this);
+	}
+}
+
 
 void MainWindow::NotImplemented()
 {
@@ -913,11 +968,17 @@ void MainWindow::NotImplemented()
 		_("Not implemented"), wxOK | wxCENTER, this);
 }
 
-
 // Instance menu
-void MainWindow::OnPlayClicked(wxCommandEvent& event)
+void MainWindow::OnPlayBtnClicked(wxCommandEvent& event)
 {
 	LoginClicked();
+}
+
+// Instance menu
+void MainWindow::OnPlayMenuClicked(wxCommandEvent& event)
+{
+	// do not autologin from context menu
+	LoginClicked(true);
 }
 
 void MainWindow::OnInstActivated(InstanceCtrlEvent &event)
@@ -925,7 +986,7 @@ void MainWindow::OnInstActivated(InstanceCtrlEvent &event)
 	LoginClicked();
 }
 
-void MainWindow::LoginClicked()
+void MainWindow::LoginClicked( bool suppress_autologin )
 {
 	auto currentInstance = instItems.GetSelectedInstance();
 	if (!currentInstance)
@@ -933,7 +994,7 @@ void MainWindow::LoginClicked()
 		return;
 	}
 
-	if (currentInstance->GetAutoLogin() && wxFileExists("lastlogin4"))
+	if (currentInstance->GetAutoLogin() && wxFileExists("lastlogin4") && !suppress_autologin)
 	{
 		UserInfo lastLogin;
 		lastLogin.LoadFromFile("lastlogin4");
@@ -1012,8 +1073,16 @@ void MainWindow::OnLoginComplete( const LoginResult& result )
 		{
 			// FIXME: respond to errors in task.
 			auto task = new GameUpdateTask(inst, result.latestVersion, result.forceUpdate);
-			StartTask(task);
+			bool success = StartTask(task);
 			delete task;
+			if(!success)
+			{
+				int res = wxMessageBox("The game update failed. Should the instance startup continue?","Continue?",wxYES_NO|wxICON_QUESTION,this);
+				if(res == wxNO)
+				{
+					return;
+				}
+			}
 			if(GetGUIMode() == GUI_Fancy)
 				UpdateInstPanel();
 		}
@@ -1330,7 +1399,6 @@ void MainWindow::EnableInstActions(bool enabled)
 		btnRebuildJar->Enable(enabled);
 		btnViewFolder->Enable(enabled);
 		btnCopyInst->Enable(enabled);
-		btnDowngrade->Enable(enabled);
 		btnVersion->Enable(enabled);
 		break;
 		
@@ -1364,59 +1432,23 @@ void MainWindow::OnEditModsClicked(wxCommandEvent& event)
 	editDlg->Show();
 }
 
-void MainWindow::OnDowngradeInstClicked(wxCommandEvent& event)
-{
-	auto currentInstance = instItems.GetSelectedInstance();
-	if(currentInstance == nullptr)
-		return;
-
-	if (currentInstance->GetVersionFile().FileExists())
-	{
-		DowngradeDialog downDlg(this);
-		downDlg.CenterOnParent();
-		if (downDlg.ShowModal() == wxID_OK && !downDlg.GetSelection().IsEmpty())
-		{
-			if (downDlg.GetSelection().Contains(wxT("indev")) ||
-				downDlg.GetSelection().Contains(wxT("infdev")))
-			{
-				if (wxMessageBox(_("MultiMC is currently incompatible with \
-indev and infdev. Are you sure you would like to downgrade to this version?"), 
-						_("Continue?"), wxYES_NO) == wxNO)
-				{
-					return;
-				}
-			}
-			// FIXME: respond to errors in task.
-			auto task = new DowngradeTask (currentInstance, downDlg.GetSelection());
-			StartTask(task);
-			delete task;
-			UpdateInstPanel();
-		}
-	}
-	else
-	{
-		wxLogError(_("You must run this instance at least once to download minecraft before you can downgrade it!"));
-	}
-}
-
 void MainWindow::OnVersionClicked(wxCommandEvent& event)
 {
 	auto currentInstance = instItems.GetSelectedInstance();
 	if(currentInstance == nullptr)
 		return;
 
-	if (!currentInstance->GetVersionFile().FileExists())
-	{
-		wxLogError(_("You must run this instance at least once to download minecraft before you can downgrade it!"));
-		return;
-	}
 	MinecraftVersionDialog versionDlg(this);
 	versionDlg.CenterOnParent();
-	MCVersion ver;
-	if(versionDlg.ShowModal() != wxID_OK || !versionDlg.GetSelectedVersion(ver))
+	MCVersion * ver;
+	if(versionDlg.ShowModal() != wxID_OK)
+		return;
+	ver = versionDlg.GetSelectedVersion();
+	if(!ver)
 		return;
 	
-	currentInstance->SetIntendedJarVersion(ver.GetDescriptor());
+	currentInstance->SetIntendedVersion(ver->GetDescriptor());
+	currentInstance->SetShouldUpdate(true);
 }
 
 void MainWindow::OnChangeLWJGLClicked(wxCommandEvent& event)
@@ -1550,7 +1582,19 @@ void MainWindow::OnDeleteGroupClicked(wxCommandEvent& event)
 // this catches background tasks and destroys them
 void MainWindow::OnTaskEnd(TaskEvent& event)
 {
-	Task * t = event.m_task;
+	Task* t = event.m_task;
+
+	// Check the type of task.
+	const std::type_info& taskType = typeid(*t);
+	if (taskType == typeid(NewsCheckTask))
+	{
+		auto nTask = (NewsCheckTask*) t;
+
+		newsLink->SetLabel(nTask->GetLatestPostTitle());
+		newsLink->SetURL(nTask->GetLatestPostURL());
+		newsLink->GetParent()->Layout();
+	}
+
 	t->Wait();
 	delete t;
 }
@@ -1649,6 +1693,13 @@ void MainWindow::ProcessNextIdleFunction()
 	func();
 }
 
+void MainWindow::OnHideNewsClicked(wxCommandEvent& event)
+{
+	GetSizer()->Hide(newsPanel, true);
+	Layout();
+	newsPanel->Hide();
+}
+
 BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_AddInst, MainWindow::OnAddInstClicked)
 	EVT_TOOL(ID_ImportCP, MainWindow::OnImportCPClicked)
@@ -1662,6 +1713,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_TOOL(ID_Help, MainWindow::OnHelpClicked)
 	EVT_TOOL(ID_About, MainWindow::OnAboutClicked)
 	EVT_TOOL(ID_BugReport, MainWindow::OnBugReportClicked)
+	EVT_TOOL(ID_News, MainWindow::OnNewsClicked)
 
 	EVT_MENU(ID_NewInst, MainWindow::OnNewInstance)
 	EVT_MENU(ID_CopyInst, MainWindow::OnCopyInstClicked)
@@ -1669,7 +1721,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_ImportCP, MainWindow::OnImportCPClicked)
 	EVT_MENU(ID_ImportFTB, MainWindow::OnImportFTBClicked)
 
-	EVT_MENU(ID_Play, MainWindow::OnPlayClicked)
+	EVT_MENU(ID_Play, MainWindow::OnPlayMenuClicked)
 	
 	EVT_MENU(ID_Rename, MainWindow::OnRenameClicked)
 	EVT_MENU(ID_SetGroup, MainWindow::OnChangeGroupClicked)
@@ -1680,7 +1732,6 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	
 	EVT_MENU(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_MENU(ID_EditMods, MainWindow::OnEditModsClicked)
-	EVT_MENU(ID_DowngradeInst, MainWindow::OnDowngradeInstClicked)
 	EVT_MENU(ID_UseVersion, MainWindow::OnVersionClicked)
 	EVT_MENU(ID_ChangeLWJGL, MainWindow::OnChangeLWJGLClicked)
 	EVT_MENU(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
@@ -1693,7 +1744,7 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	EVT_MENU(ID_DeleteGroup, MainWindow::OnDeleteGroupClicked)
 	
 	
-	EVT_BUTTON(ID_Play, MainWindow::OnPlayClicked)
+	EVT_BUTTON(ID_Play, MainWindow::OnPlayBtnClicked)
 	
 	EVT_BUTTON(ID_Rename, MainWindow::OnRenameClicked)
 	EVT_BUTTON(ID_ChangeIcon, MainWindow::OnChangeIconClicked)
@@ -1703,10 +1754,11 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 	
 	EVT_BUTTON(ID_ManageSaves, MainWindow::OnManageSavesClicked)
 	EVT_BUTTON(ID_EditMods, MainWindow::OnEditModsClicked)
-	EVT_BUTTON(ID_DowngradeInst, MainWindow::OnDowngradeInstClicked)
 	EVT_BUTTON(ID_UseVersion, MainWindow::OnVersionClicked)
 	EVT_BUTTON(ID_RebuildJar, MainWindow::OnRebuildJarClicked)
 	EVT_BUTTON(ID_ViewInstFolder, MainWindow::OnViewInstFolderClicked)
+
+	EVT_BUTTON(ID_HideNewsPanel, MainWindow::OnHideNewsClicked)
 	
 	EVT_BUTTON(ID_DeleteInst, MainWindow::OnDeleteClicked)
 	

@@ -49,6 +49,49 @@ void ExtractLauncher(Instance* source)
 
 wxProcess* MinecraftProcess::Launch ( Instance* source, InstConsoleWindow* parent, wxString username, wxString sessionID )
 {
+	// Run pre-launch command.
+	if (!source->GetPreLaunchCmd().IsEmpty())
+	{
+		wxArrayString outputLines;
+		wxArrayString errorLines;
+
+		wxExecuteEnv env;
+		env.cwd = wxGetCwd();
+		env.env["INST_NAME"] = source->GetName();
+		env.env["INST_ID"] = source->GetInstID();
+		env.env["INST_DIR"] = source->GetRootDir().GetFullPath();
+
+		long exitCode = wxExecute(source->GetPreLaunchCmd(),
+			outputLines, errorLines, wxEXEC_SYNC, &env);
+
+		if (outputLines.Count() != 0)
+		{
+			parent->AppendMessage("Pre-launch command stdout:");
+			for (int i = 0; i < outputLines.Count(); i++)
+			{
+				parent->AppendMessage(outputLines[i], InstConsoleWindow::MSGT_STDOUT);
+			}
+		}
+
+		if (errorLines.Count() != 0)
+		{
+			parent->AppendMessage("Pre-launch command stderr:");
+			for (int i = 0; i < errorLines.Count(); i++)
+			{
+				parent->AppendMessage(errorLines[i], InstConsoleWindow::MSGT_STDERR);
+			}
+		}
+
+		if (exitCode != 0)
+		{
+			// Pre-launch failed.
+			wxString errMsg = wxString::Format(_("Pre-launch command failed with exit code %i."), exitCode);
+			parent->AppendMessage(errMsg);
+			wxLogError(errMsg);
+			return nullptr;
+		}
+	}
+
 	// Set lastLaunch
 	source->SetLastLaunchNow();
 
@@ -125,7 +168,7 @@ wxProcess* MinecraftProcess::Launch ( Instance* source, InstConsoleWindow* paren
 }
 
 MinecraftProcess::MinecraftProcess(Instance * source, InstConsoleWindow* parent)
-	: wxProcess(wxPROCESS_REDIRECT), m_wasKilled(false), m_parent(parent)
+	: wxProcess(wxPROCESS_REDIRECT), m_wasKilled(false), m_parent(parent), m_source(source)
 {
 	m_pid = 0;
 }
@@ -184,6 +227,48 @@ bool MinecraftProcess::ProcessInput()    // The following methods are adapted fr
 void MinecraftProcess::OnTerminate(int pid, int status)
 {
 	while (ProcessInput());
+
+	// Run post-exit command.
+	if (!m_source->GetPostExitCmd().IsEmpty())
+	{
+		wxArrayString outputLines;
+		wxArrayString errorLines;
+
+		wxExecuteEnv env;
+		env.cwd = wxGetCwd();
+		env.env["INST_NAME"] = m_source->GetName();
+		env.env["INST_ID"] = m_source->GetInstID();
+		env.env["INST_DIR"] = m_source->GetRootDir().GetFullPath();
+
+		long exitCode = wxExecute(m_source->GetPostExitCmd(),
+			outputLines, errorLines, wxEXEC_SYNC, &env);
+
+		if (outputLines.Count() != 0)
+		{
+			m_parent->AppendMessage("Post-exit command stdout:");
+			for (int i = 0; i < outputLines.Count(); i++)
+			{
+				m_parent->AppendMessage(outputLines[i], InstConsoleWindow::MSGT_STDOUT);
+			}
+		}
+
+		if (errorLines.Count() != 0)
+		{
+			m_parent->AppendMessage("Post-exit command stderr:");
+			for (int i = 0; i < errorLines.Count(); i++)
+			{
+				m_parent->AppendMessage(errorLines[i], InstConsoleWindow::MSGT_STDERR);
+			}
+		}
+
+		if (exitCode != 0)
+		{
+			// Pre-launch failed.
+			wxString errMsg = wxString::Format(_("Post-exit command failed with exit code %i."), exitCode);
+			m_parent->AppendMessage(errMsg);
+		}
+	}
+
 #if !defined(WIN32)
 	if (status == -1)
 	{

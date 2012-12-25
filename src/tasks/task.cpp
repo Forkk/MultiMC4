@@ -45,6 +45,14 @@ void Task::Start(wxEvtHandler * handler, bool modal)
 	wxThread::Run();
 }
 
+wxThread::ExitCode Task::Chain ( Task* parent )
+{
+	m_evtHandler = parent->m_evtHandler;
+	m_modal = parent->m_modal;
+	return TaskStart();
+}
+
+
 wxThread::ExitCode Task::Entry()
 {
 	EmitTaskStart();

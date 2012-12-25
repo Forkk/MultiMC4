@@ -18,7 +18,6 @@
 
 #include <wx/gbsizer.h>
 
-#include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 
 #include <string>
@@ -28,11 +27,6 @@
 #include "utils/httputils.h"
 #include "taskprogressdialog.h"
 #include "lambdatask.h"
-
-enum
-{
-	ID_RefreshList,
-};
 
 inline void SetControlEnable(wxWindow *parentWin, int id, bool state)
 {
