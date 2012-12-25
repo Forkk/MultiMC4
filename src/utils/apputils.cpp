@@ -233,7 +233,7 @@ wxString FindJavaPath(const wxString& def)
 #endif
 
 // Win32 crap
-#ifdef WIN32
+#if WINDOWS
 
 #include <windows.h>
 #include <winnls.h>
@@ -295,19 +295,74 @@ wxString Path::GetDesktopDir()
 	return dir;
 }
 
-bool CreateShortcut(wxString path, wxString dest, wxString args)
+bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args)
 {
-	wxFileName pathFileName(path);
+	wxFileName pathFileName(path, name + ".lnk");
 	pathFileName.MakeAbsolute();
 	path = pathFileName.GetFullPath();
 	return SUCCEEDED(CreateLink(cStr(path), dest.wchar_str().data(), args.wchar_str().data()));
 }
 
+#elif LINUX
+
+#include <iostream>
+#include <fstream>
+
+#include "xdg-user-dir-lookup.h"
+
+bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args)
+{
+	wxFileName fpath(path, name + ".desktop", wxPATH_NATIVE);
+	fpath.MakeAbsolute();
+	path = fpath.GetFullPath();
+
+	std::ofstream desktopfile (path);
+	if (!desktopfile.is_open())
+		return false;
+
+	desktopfile << "[Desktop Entry]" << std::endl;
+	desktopfile << "Type=Application" << std::endl;
+	desktopfile << "Exec=" << dest << " " << args << std::endl;
+	desktopfile << "Name=" << name << std::endl;
+
+	desktopfile.close();
+
+	chmod(path, 0755);
+
+	return true;
+}
+
+wxString Path::GetDesktopDir()
+{
+	char *desktopDir = xdg_user_dir_lookup_with_fallback("DESKTOP", NULL);
+
+	if (desktopDir != NULL)
+	{
+		wxString desktop = wxString(desktopDir);
+		std::cout << "Desktop/XDG: " << desktop << std::endl;
+		return desktop;
+	}
+
+	wxString homeDir;
+
+	if (wxGetEnv("HOME", &homeDir))
+	{
+		wxString desktopDir = Path::Combine(homeDir, "Desktop");
+		std::cout << "Desktop/Guess: " << desktopDir << std::endl;
+		return Path::Combine(homeDir, "Desktop");
+	}
+	else
+	{
+		std::cout << "Desktop: not found" << std::endl;
+		return wxEmptyString;
+	}
+}
+
 #else
 
-bool CreateShortcut(wxString path, wxString dest, wxString args)
+bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args)
 {
-	wxMessageBox(_("This feature is only supported on Windows."), _("Not Supported"));
+	wxMessageBox(_("This feature is only supported on Windows and Linux."), _("Not Supported"));
 	return false;
 }
 

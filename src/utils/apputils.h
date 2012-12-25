@@ -105,4 +105,4 @@ namespace Path
 
 wxString FindJavaPath(const wxString& def = "java");
 
-bool CreateShortcut(wxString path, wxString dest, wxString args);
+bool CreateShortcut(wxString dir, wxString name, wxString dest, wxString args);

@@ -269,6 +269,12 @@ ${CMAKE_BINARY_DIR}/resources/toolbaricons.h
 ${CMAKE_BINARY_DIR}/launcher/launcherdata.h
 )
 
+IF(UNIX AND NOT APPLE)
+  # include xdg-user-dir-lookup.c
+  SET(SRCS ${SRCS} utils/xdg-user-dir-lookup.cpp)
+  SET(INCS ${INCS} utils/xdg-user-dir-lookup.h)
+ENDIF()
+
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/resources/insticons.h ${CMAKE_BINARY_DIR}/resources/toolbaricons.h GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/launcher/launcherdata.h GENERATED)
 # Find wxWidgets.

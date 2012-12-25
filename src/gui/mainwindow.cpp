@@ -361,10 +361,10 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_ChangeIcon, _("&Change Icon"), _("Change this instance's icon."));
 	instMenu->Append(ID_EditNotes, _("&Notes"), _("View / edit this instance's notes."));
 	instMenu->Append(ID_Configure, _("&Settings"), _("Change instance settings."));
-#if WINDOWS
+//#if WINDOWS
 	// Only works on Windows.
 	instMenu->Append(ID_MakeDesktopLink, _("Make Desktop Shortcut"), _("Makes a shortcut on the desktop to launch this instance."));
-#endif
+//#endif
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_ManageSaves, _("&Manage Saves"), _("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _("&Edit Mods"), _("Install or remove mods."));
@@ -1231,7 +1231,6 @@ void MainWindow::OnMakeDesktopLinkClicked(wxCommandEvent& event)
 	if (!currentInst)
 		return;
 
-#if WINDOWS
 	// Find the Desktop folder.
 	wxString desktopDir = Path::GetDesktopDir();
 
@@ -1256,15 +1255,18 @@ AskAgain:
 	if (exePath.IsEmpty())
 		exePath = wxGetApp().argv[0];
 
-	if (!CreateShortcut(Path::Combine(desktopDir, shortcutName + ".lnk"), 
-		exePath, wxString::Format("-l \"%s\"", currentInst->GetInstID().c_str())))
+	wxString args = wxString::Format("-l \"%s\"", currentInst->GetInstID().c_str());
+
+	if (exePath != wxGetCwd())
+	{
+		args = wxString::Format("-d \"%s\" %s", wxGetCwd(), args);
+	}
+
+	if (!CreateShortcut(desktopDir, shortcutName, exePath, args))
 	{
 		wxLogError(_("Failed to create desktop shortcut. An unknown error occurred."));
 		return;
 	}
-#else
-	wxMessageBox(_("Sorry, desktop shortcuts are only supported on Windows."), _("Not Supported"));
-#endif
 }
 
 void MainWindow::OnInstanceSettingsClicked ( wxCommandEvent& event )
