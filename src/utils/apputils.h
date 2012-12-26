@@ -101,6 +101,8 @@ namespace Path
 	wxString GetParent(const wxString &path);
 
 	wxString GetDesktopDir();
+
+	wxFileName FChild(wxFileName base, wxString append);
 }
 
 wxString FindJavaPath(const wxString& def = "java");

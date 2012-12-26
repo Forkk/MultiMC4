@@ -129,6 +129,11 @@ wxString Path::GetParent(const wxString &path)
 	return pathName.GetFullPath();
 }
 
+wxFileName Path::FChild(wxFileName base, wxString append)
+{
+	return wxFileName(base.GetFullPath(), append);
+}
+
 wxString Utils::BytesToString(unsigned char *bytes)
 {
 	char asciihash[33];
