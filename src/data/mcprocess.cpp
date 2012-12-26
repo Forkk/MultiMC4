@@ -49,13 +49,27 @@ void ExtractLauncher(Instance* source)
 
 wxProcess* MinecraftProcess::Launch ( Instance* source, InstConsoleWindow* parent, wxString username, wxString sessionID )
 {
+	wxExecuteEnv env;
+	wxGetEnvMap(&env.env);
+
+	// Strip IBus from XMODIFIERS
+	// Fixes IBus bug that prevents MC from getting key events on linux
+	wxString ibus = "@im=ibus";
+	if(env.env["XMODIFIERS"].Contains(ibus))
+	{
+		wxString source = env.env["XMODIFIERS"];
+		int start = source.Index(ibus);
+		env.env["XMODIFIERS"] = source.Left(start) + source.Right(source.length()-start-ibus.length());
+		parent->AppendMessage(wxString::Format(_("Fixed XMODIFIERS: was \"%s\", now \"%s\""), source, env.env["XMODIFIERS"]));
+	}
+
 	// Run pre-launch command.
 	if (!source->GetPreLaunchCmd().IsEmpty())
 	{
 		wxArrayString outputLines;
 		wxArrayString errorLines;
 
-		wxExecuteEnv env;
+		//wxExecuteEnv env;
 		env.cwd = wxGetCwd();
 		env.env["INST_NAME"] = source->GetName();
 		env.env["INST_ID"] = source->GetInstID();
@@ -141,7 +155,7 @@ wxProcess* MinecraftProcess::Launch ( Instance* source, InstConsoleWindow* paren
 	instProc->Redirect();
 	
 	// set up environment path
-	wxExecuteEnv env;
+	//wxExecuteEnv env;
 	wxFileName mcDir = source->GetMCDir();
 	mcDir.MakeAbsolute();
 	env.cwd = mcDir.GetFullPath();
