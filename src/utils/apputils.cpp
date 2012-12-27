@@ -300,7 +300,7 @@ wxString Path::GetDesktopDir()
 	return dir;
 }
 
-bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args)
+bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args, wxString iconPath)
 {
 	wxFileName pathFileName(path, name + ".lnk");
 	pathFileName.MakeAbsolute();
@@ -315,9 +315,10 @@ bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args)
 
 #include "xdg-user-dir-lookup.h"
 
-bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args)
+bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args, wxString iconPath)
 {
-	wxFileName fpath(path, name + ".desktop", wxPATH_NATIVE);
+	wxString fname (Utils::RemoveInvalidFilenameChars(name, '_') + ".desktop");
+	wxFileName fpath(path, fname, wxPATH_NATIVE);
 	fpath.MakeAbsolute();
 	path = fpath.GetFullPath();
 
@@ -329,6 +330,7 @@ bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args)
 	desktopfile << "Type=Application" << std::endl;
 	desktopfile << "Exec=" << dest << " " << args << std::endl;
 	desktopfile << "Name=" << name << std::endl;
+	desktopfile << "Icon=" << iconPath << std::endl;
 
 	desktopfile.close();
 
@@ -365,7 +367,7 @@ wxString Path::GetDesktopDir()
 
 #else
 
-bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args)
+bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args, wxString iconPath)
 {
 	wxMessageBox(_("This feature is only supported on Windows and Linux."), _("Not Supported"));
 	return false;

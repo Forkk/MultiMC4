@@ -52,6 +52,7 @@
 #include "newinstancedlg.h"
 
 #include <wx/filesys.h>
+#include <wx/wfstream.h>
 #include <wx/dir.h>
 #include <wx/fs_arc.h>
 #include <wx/fs_mem.h>
@@ -1234,7 +1235,7 @@ void MainWindow::OnMakeDesktopLinkClicked(wxCommandEvent& event)
 	// Find the Desktop folder.
 	wxString desktopDir = Path::GetDesktopDir();
 
-	wxString shortcutName;
+	wxString shortcutName = wxString::Format(_("Minecraft: %s"), currentInst->GetName());
 AskAgain:
 	shortcutName = wxGetTextFromUser(_("Enter a name for the shortcut: "), 
 		_("Name Shortcut"), shortcutName, this);
@@ -1251,6 +1252,16 @@ AskAgain:
 		goto AskAgain;
 	}
 
+	wxFileName iconFile = Path::FChild(currentInst->GetMCDir(), "icon.png");
+	iconFile.MakeAbsolute();
+	if (!iconFile.Exists())
+	{
+		wxFFileOutputStream iconStream (iconFile.GetFullPath());
+		wxImage icon = InstIconList::Instance()->getImage128ForKey(currentInst->GetIconKey());
+		icon.SaveFile(iconStream, wxBITMAP_TYPE_PNG);
+	}
+	wxString iconPath = iconFile.GetFullPath();
+
 	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
 	if (exePath.IsEmpty())
 		exePath = wxGetApp().argv[0];
@@ -1262,7 +1273,7 @@ AskAgain:
 		args = wxString::Format("-d \"%s\" %s", wxGetCwd(), args);
 	}
 
-	if (!CreateShortcut(desktopDir, shortcutName, exePath, args))
+	if (!CreateShortcut(desktopDir, shortcutName, exePath, args, iconPath))
 	{
 		wxLogError(_("Failed to create desktop shortcut. An unknown error occurred."));
 		return;
