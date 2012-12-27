@@ -170,6 +170,7 @@ tasks/pastebintask.cpp
 tasks/lambdatask.cpp
 tasks/lwjglinstalltask.cpp
 tasks/imgurtask.cpp
+tasks/newschecktask.cpp
 
 java/javautils.cpp
 java/annotations.cpp
@@ -245,6 +246,7 @@ tasks/pastebintask.h
 tasks/lambdatask.h
 tasks/lwjglinstalltask.h
 tasks/imgurtask.h
+tasks/newschecktask.h
 
 java/annotations.h
 java/classfile.h

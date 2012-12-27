@@ -15,44 +15,20 @@
 //
 
 #pragma once
-#include <wx/platform.h>
+#include "task.h"
 
-#include "apputils.h"
+// Gets the latest dev blog post from the RSS feed.
+class NewsCheckTask : public Task
+{
+public:
+	NewsCheckTask();
 
-// Better OS Detection
-#if defined _WIN32 | defined _WIN64
-#define WINDOWS	1
-#elif __APPLE__ & __MACH__
-#define OSX 1
-#elif __linux__
-#define LINUX 1
-#endif
+	wxString GetLatestPostTitle() const;
+	wxString GetLatestPostURL() const;
 
-#if _WIN32 || _WIN64
-#if _WIN64
-#define ENV64 1
-#else
-#define ENV32 1
-#endif
+protected:
+	virtual ExitCode TaskStart();
 
-#elif __GNUC__
-#if __x86_64__ || __ppc64__
-#define ENV64 1
-#else
-#define ENV32 1
-#endif
-#endif
-
-#if WINDOWS
-#define NEWLINE "\r\n"
-#else
-#define NEWLINE "\n"
-#endif
-
-#ifdef USE_DEPRECATED_MACROS
-#warning Using deprecated version detection macros.
-
-#define IS_WINDOWS() WINDOWS
-#define IS_LINUX() LINUX
-#define IS_MAC() OSX
-#endif
+	wxString m_latestPostTitle;
+	wxString m_latestPostURL;
+};
