@@ -57,6 +57,10 @@ wxProcess* MinecraftProcess::Launch ( Instance* source, InstConsoleWindow* paren
 
 		wxExecuteEnv env;
 		env.cwd = wxGetCwd();
+		if(!wxGetEnvMap(&env.env))
+		{
+			parent->AppendMessage("Failed to retrieve environment variables. Pre-launch command might misbehave.", InstConsoleWindow::MSGT_STDERR);
+		}
 		env.env["INST_NAME"] = source->GetName();
 		env.env["INST_ID"] = source->GetInstID();
 		env.env["INST_DIR"] = source->GetRootDir().GetFullPath();
@@ -144,6 +148,10 @@ wxProcess* MinecraftProcess::Launch ( Instance* source, InstConsoleWindow* paren
 	wxExecuteEnv env;
 	wxFileName mcDir = source->GetMCDir();
 	mcDir.MakeAbsolute();
+	if(!wxGetEnvMap(&env.env))
+	{
+		parent->AppendMessage("Failed to retrieve environment variables. Minecraft might misbehave.", InstConsoleWindow::MSGT_STDERR);
+	}
 	env.cwd = mcDir.GetFullPath();
 	
 	parent->AppendMessage(wxString::Format(_("Instance folder is:\n%s\n"), env.cwd.c_str()));
@@ -236,6 +244,10 @@ void MinecraftProcess::OnTerminate(int pid, int status)
 
 		wxExecuteEnv env;
 		env.cwd = wxGetCwd();
+		if(!wxGetEnvMap(&env.env))
+		{
+			m_parent->AppendMessage("Failed to retrieve environment variables. Post-exit command might misbehave.", InstConsoleWindow::MSGT_STDERR);
+		}
 		env.env["INST_NAME"] = m_source->GetName();
 		env.env["INST_ID"] = m_source->GetInstID();
 		env.env["INST_DIR"] = m_source->GetRootDir().GetFullPath();
