@@ -308,20 +308,17 @@ void MainWindow::OnStartup()
 		settings->SetJavaPath(FindJavaPath());
 	}
 
-	if (settings->GetAutoUpdate())
+	if(launchInstance.empty())
 	{
-		CheckUpdateTask *task = new CheckUpdateTask();
-		task->Start(this,false);
-	}
-
-
-	// Check news
-	{
+		if (settings->GetAutoUpdate())
+		{
+			CheckUpdateTask *task = new CheckUpdateTask();
+			task->Start(this,false);
+		}
 		NewsCheckTask* task = new NewsCheckTask();
 		task->Start(this, false);
 	}
-
-	if(!launchInstance.empty())
+	else
 	{
 		instItems.SelectInstanceByID(launchInstance);
 		Instance * inst = instItems.GetSelectedInstance();

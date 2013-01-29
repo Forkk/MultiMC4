@@ -347,16 +347,26 @@ wxString Path::GetDesktopDir()
 	{
 		wxString desktop = wxString(desktopDir);
 		std::cout << "Desktop/XDG: " << desktop << std::endl;
+		free (desktopDir);
 		return desktop;
 	}
-
+	free (desktopDir);
+	
 	wxString homeDir;
 
 	if (wxGetEnv("HOME", &homeDir))
 	{
 		wxString desktopDir = Path::Combine(homeDir, "Desktop");
-		std::cout << "Desktop/Guess: " << desktopDir << std::endl;
-		return Path::Combine(homeDir, "Desktop");
+		if(!wxDirExists(desktopDir))
+		{
+			std::cout << "Using home as a fallback: " << homeDir << std::endl;
+			return homeDir;
+		}
+		else
+		{
+			std::cout << "Desktop/Guess: " << desktopDir << std::endl;
+			return desktopDir;
+		}
 	}
 	else
 	{
