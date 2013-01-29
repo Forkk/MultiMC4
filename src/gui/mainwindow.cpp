@@ -52,6 +52,7 @@
 #include "newinstancedlg.h"
 
 #include <wx/filesys.h>
+#include <wx/wfstream.h>
 #include <wx/dir.h>
 #include <wx/fs_arc.h>
 #include <wx/fs_mem.h>
@@ -361,10 +362,10 @@ void MainWindow::InitInstMenu()
 	instMenu->Append(ID_ChangeIcon, _("&Change Icon"), _("Change this instance's icon."));
 	instMenu->Append(ID_EditNotes, _("&Notes"), _("View / edit this instance's notes."));
 	instMenu->Append(ID_Configure, _("&Settings"), _("Change instance settings."));
-#if WINDOWS
+//#if WINDOWS
 	// Only works on Windows.
 	instMenu->Append(ID_MakeDesktopLink, _("Make Desktop Shortcut"), _("Makes a shortcut on the desktop to launch this instance."));
-#endif
+//#endif
 	instMenu->AppendSeparator();
 	instMenu->Append(ID_ManageSaves, _("&Manage Saves"), _("Backup / restore your saves."));
 	instMenu->Append(ID_EditMods, _("&Edit Mods"), _("Install or remove mods."));
@@ -1240,11 +1241,10 @@ void MainWindow::OnMakeDesktopLinkClicked(wxCommandEvent& event)
 	if (!currentInst)
 		return;
 
-#if WINDOWS
 	// Find the Desktop folder.
 	wxString desktopDir = Path::GetDesktopDir();
 
-	wxString shortcutName;
+	wxString shortcutName = wxString::Format(_("Minecraft: %s"), currentInst->GetName());
 AskAgain:
 	shortcutName = wxGetTextFromUser(_("Enter a name for the shortcut: "), 
 		_("Name Shortcut"), shortcutName, this);
@@ -1261,19 +1261,32 @@ AskAgain:
 		goto AskAgain;
 	}
 
+	wxFileName iconFile = Path::FChild(currentInst->GetMCDir(), "icon.png");
+	iconFile.MakeAbsolute();
+	if (!iconFile.Exists())
+	{
+		wxFFileOutputStream iconStream (iconFile.GetFullPath());
+		wxImage icon = InstIconList::Instance()->getImage128ForKey(currentInst->GetIconKey());
+		icon.SaveFile(iconStream, wxBITMAP_TYPE_PNG);
+	}
+	wxString iconPath = iconFile.GetFullPath();
+
 	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
 	if (exePath.IsEmpty())
 		exePath = wxGetApp().argv[0];
 
-	if (!CreateShortcut(Path::Combine(desktopDir, shortcutName + ".lnk"), 
-		exePath, wxString::Format("-l \"%s\"", currentInst->GetInstID().c_str())))
+	wxString args = wxString::Format("-l \"%s\"", currentInst->GetInstID().c_str());
+
+	if (exePath != wxGetCwd())
+	{
+		args = wxString::Format("-d \"%s\" %s", wxGetCwd(), args);
+	}
+
+	if (!CreateShortcut(desktopDir, shortcutName, exePath, args, iconPath))
 	{
 		wxLogError(_("Failed to create desktop shortcut. An unknown error occurred."));
 		return;
 	}
-#else
-	wxMessageBox(_("Sorry, desktop shortcuts are only supported on Windows."), _("Not Supported"));
-#endif
 }
 
 void MainWindow::OnInstanceSettingsClicked ( wxCommandEvent& event )
