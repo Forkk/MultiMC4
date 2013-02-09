@@ -33,7 +33,6 @@
 #include "version.h"
 #include "configpack.h"
 #include "importpackwizard.h"
-#include "downgradetask.h"
 #include "utils/fsutils.h"
 #include "aboutdlg.h"
 #include "updatepromptdlg.h"

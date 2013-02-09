@@ -159,7 +159,6 @@ tasks/checkupdatetask.cpp
 tasks/filedownloadtask.cpp
 tasks/filecopytask.cpp
 tasks/exportpacktask.cpp
-tasks/downgradetask.cpp
 tasks/ziptask.cpp
 tasks/pastebintask.cpp
 tasks/lambdatask.cpp
@@ -234,7 +233,6 @@ tasks/checkupdatetask.h
 tasks/filedownloadtask.h
 tasks/filecopytask.h
 tasks/exportpacktask.h
-tasks/downgradetask.h
 tasks/ziptask.h
 tasks/pastebintask.h
 tasks/lambdatask.h
