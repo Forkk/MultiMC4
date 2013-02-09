@@ -82,6 +82,7 @@ wxThread::ExitCode GameUpdateTask::TaskStart()
 		patch_version = ver->GetDescriptor();
 		if (!DownloadPatches(patch_version))
 			return (ExitCode)false;
+		SetProgress(2);
 		wxString str;
 		try
 		{
@@ -373,7 +374,7 @@ void GameUpdateTask::ExtractNatives()
 
 bool GameUpdateTask::DownloadPatches(const wxString& mcVersion)
 {
-	//SetStep(STEP_DOWNLOAD_PATCHES);
+	SetState(STATE_DOWNLOADING);
 
 	const int patchURLCount = 2;
 	const wxString patchURLs[patchURLCount] =
@@ -394,7 +395,7 @@ bool GameUpdateTask::DownloadPatches(const wxString& mcVersion)
 	// Download the patches.
 	for (int i = 0; i < patchURLCount; i++)
 	{
-		//SetStatusDetail(_("Downloading ") + patchURLs[i]);
+		SetState(STATE_DOWNLOADING, patchURLs[i]);
 		wxString downloadURL = baseURL + "/" + patchURLs[i];
 		wxString dest = Path::Combine("patches", patchURLs[i]);
 
@@ -434,11 +435,12 @@ bool GameUpdateTask::ApplyPatches()
 		"jinput",*/
 	};
 
-	//SetStep(STEP_APPLY_PATCHES);
+	SetState(STATE_APPLYING_PATCHES);
 
 	for (int i = 0; i < patchFileCount; i++)
 	{
 		wxString file = patchFiles[i];
+		SetState(STATE_APPLYING_PATCHES, patchFiles[i] + ".jar");
 
 		wxString binDir = m_inst->GetBinDir().GetFullPath();
 		wxString patchFile = Path::Combine("patches", file + ".ptch");
@@ -597,13 +599,6 @@ void GameUpdateTask::SetState(UpdateState state, const wxString& msg)
 			SetStatus(_("Determining packages to load: ") + msg);
 		break;
 		
-	case STATE_CHECKING_CACHE:
-		if (msg == wxEmptyString)
-			SetStatus(_("Checking cache for existing files..."));
-		else
-			SetStatus(_("Checking cache for existing files: ") + msg);
-		break;
-		
 	case STATE_DOWNLOADING:
 		if (msg == wxEmptyString)
 			SetStatus(_("Downloading packages..."));
@@ -618,6 +613,12 @@ void GameUpdateTask::SetState(UpdateState state, const wxString& msg)
 			SetStatus(_("Extracting downloaded packages: ") + msg);
 		break;
 		
+	case STATE_APPLYING_PATCHES:
+		if (msg == wxEmptyString)
+			SetStatus(_("Applying patches..."));
+		else
+			SetStatus(_("Applying patch to: ") + msg);
+		break;
 	default:
 		break;
 	}
