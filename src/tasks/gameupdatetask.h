@@ -29,9 +29,9 @@ enum UpdateState
 {
 	STATE_INIT,
 	STATE_DETERMINING_PACKAGES,
-	STATE_CHECKING_CACHE,
 	STATE_DOWNLOADING,
 	STATE_EXTRACTING_PACKAGES,
+	STATE_APPLYING_PATCHES,
 	STATE_DONE,
 };
 
@@ -51,10 +51,13 @@ protected:
 	std::vector<wxString> jarURLs;
 	
 	virtual ExitCode TaskStart();
-	virtual bool LoadJarURLs();
-	virtual void AskToUpdate();
 	virtual void DownloadJars();
 	virtual void ExtractNatives();
+	
+	bool RetrievePatchBaseURL(const wxString& mcVersion, wxString *patchURL);
+	bool DownloadPatches(const wxString& mcVersion);
+	bool ApplyPatches();
+	bool VerifyPatchedFiles();
 	
 	virtual void SetState(UpdateState state, const wxString& msg = wxEmptyString);
 };

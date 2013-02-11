@@ -29,7 +29,6 @@
 #include <wx/regex.h>
 
 #include "utils/httputils.h"
-#include "forgeversions.h"
 
 InstallForgeDialog::InstallForgeDialog(wxWindow *parent, wxString jarVersion)
 	: ListSelectDialog(parent, _("Install Minecraft Forge"))

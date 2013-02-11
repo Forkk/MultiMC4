@@ -101,8 +101,10 @@ namespace Path
 	wxString GetParent(const wxString &path);
 
 	wxString GetDesktopDir();
+
+	wxFileName FChild(wxFileName base, wxString append);
 }
 
 wxString FindJavaPath(const wxString& def = "java");
 
-bool CreateShortcut(wxString path, wxString dest, wxString args);
+bool CreateShortcut(wxString dir, wxString name, wxString dest, wxString args, wxString iconPath);

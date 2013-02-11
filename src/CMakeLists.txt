@@ -56,12 +56,8 @@ set(MultiMC_VERSION_MAJOR		4)
 set(MultiMC_VERSION_MINOR		3)
 set(MultiMC_VERSION_REV			0)
 
-IF (DEFINED MultiMC_VERSION_BUILD)
-	message(STATUS "MultiMC build #${MultiMC_VERSION_BUILD}")
-ELSE ()
-	set(MultiMC_VERSION_BUILD	0)
-	message(STATUS "Build number not specified. Defaulted to 0.")
-ENDIF ()
+SET(MultiMC_VERSION_BUILD 0 CACHE STRING "Build number.")
+message(STATUS "MultiMC build #${MultiMC_VERSION_BUILD}")
 
 IF (DEFINED MultiMC_BUILD_TAG)
 	message(STATUS "Build tag: ${MultiMC_BUILD_TAG}")
@@ -153,7 +149,6 @@ data/texturepack.cpp
 data/texturepacklist.cpp
 data/stdinstance.cpp
 data/instancemodel.cpp
-data/forgeversions.cpp
 data/insticonlist.cpp
 
 tasks/task.cpp
@@ -164,7 +159,6 @@ tasks/checkupdatetask.cpp
 tasks/filedownloadtask.cpp
 tasks/filecopytask.cpp
 tasks/exportpacktask.cpp
-tasks/downgradetask.cpp
 tasks/ziptask.cpp
 tasks/pastebintask.cpp
 tasks/lambdatask.cpp
@@ -229,7 +223,6 @@ data/texturepack.h
 data/texturepacklist.h
 data/stdinstance.h
 data/instancemodel.h
-data/forgeversions.h
 data/insticonlist.h
 
 tasks/task.h
@@ -240,7 +233,6 @@ tasks/checkupdatetask.h
 tasks/filedownloadtask.h
 tasks/filecopytask.h
 tasks/exportpacktask.h
-tasks/downgradetask.h
 tasks/ziptask.h
 tasks/pastebintask.h
 tasks/lambdatask.h
@@ -268,6 +260,12 @@ ${CMAKE_BINARY_DIR}/resources/insticons.h
 ${CMAKE_BINARY_DIR}/resources/toolbaricons.h
 ${CMAKE_BINARY_DIR}/launcher/launcherdata.h
 )
+
+IF(UNIX AND NOT APPLE)
+  # include xdg-user-dir-lookup.c
+  SET(SRCS ${SRCS} utils/xdg-user-dir-lookup.cpp)
+  SET(INCS ${INCS} utils/xdg-user-dir-lookup.h)
+ENDIF()
 
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/resources/insticons.h ${CMAKE_BINARY_DIR}/resources/toolbaricons.h GENERATED)
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/launcher/launcherdata.h GENERATED)

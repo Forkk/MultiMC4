@@ -129,6 +129,11 @@ wxString Path::GetParent(const wxString &path)
 	return pathName.GetFullPath();
 }
 
+wxFileName Path::FChild(wxFileName base, wxString append)
+{
+	return wxFileName(base.GetFullPath(), append);
+}
+
 wxString Utils::BytesToString(unsigned char *bytes)
 {
 	char asciihash[33];
@@ -233,7 +238,7 @@ wxString FindJavaPath(const wxString& def)
 #endif
 
 // Win32 crap
-#ifdef WIN32
+#if WINDOWS
 
 #include <windows.h>
 #include <winnls.h>
@@ -295,19 +300,86 @@ wxString Path::GetDesktopDir()
 	return dir;
 }
 
-bool CreateShortcut(wxString path, wxString dest, wxString args)
+bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args, wxString iconPath)
 {
-	wxFileName pathFileName(path);
+	wxFileName pathFileName(path, name + ".lnk");
 	pathFileName.MakeAbsolute();
 	path = pathFileName.GetFullPath();
 	return SUCCEEDED(CreateLink(cStr(path), dest.wchar_str().data(), args.wchar_str().data()));
 }
 
+#elif LINUX
+
+#include <iostream>
+#include <fstream>
+
+#include "xdg-user-dir-lookup.h"
+
+bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args, wxString iconPath)
+{
+	wxString fname (Utils::RemoveInvalidFilenameChars(name, '_') + ".desktop");
+	wxFileName fpath(path, fname, wxPATH_NATIVE);
+	fpath.MakeAbsolute();
+	path = fpath.GetFullPath();
+
+	std::ofstream desktopfile (path);
+	if (!desktopfile.is_open())
+		return false;
+
+	desktopfile << "[Desktop Entry]" << std::endl;
+	desktopfile << "Type=Application" << std::endl;
+	desktopfile << "Exec=" << dest << " " << args << std::endl;
+	desktopfile << "Name=" << name << std::endl;
+	desktopfile << "Icon=" << iconPath << std::endl;
+
+	desktopfile.close();
+
+	chmod(path, 0755);
+
+	return true;
+}
+
+wxString Path::GetDesktopDir()
+{
+	char *desktopDir = xdg_user_dir_lookup_with_fallback("DESKTOP", NULL);
+
+	if (desktopDir != NULL)
+	{
+		wxString desktop = wxString(desktopDir);
+		std::cout << "Desktop/XDG: " << desktop << std::endl;
+		free (desktopDir);
+		return desktop;
+	}
+	free (desktopDir);
+	
+	wxString homeDir;
+
+	if (wxGetEnv("HOME", &homeDir))
+	{
+		wxString desktopDir = Path::Combine(homeDir, "Desktop");
+		if(!wxDirExists(desktopDir))
+		{
+			std::cout << "Using home as a fallback: " << homeDir << std::endl;
+			return homeDir;
+		}
+		else
+		{
+			std::cout << "Desktop/Guess: " << desktopDir << std::endl;
+			return desktopDir;
+		}
+	}
+	else
+	{
+		std::cout << "Desktop: not found" << std::endl;
+		return wxEmptyString;
+	}
+}
+
 #else
 
-bool CreateShortcut(wxString path, wxString dest, wxString args)
+bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args, wxString iconPath)
 {
-	wxMessageBox(_("This feature is only supported on Windows."), _("Not Supported"));
+	wxMessageBox(_("This feature is only supported on Windows and Linux."), _("Not Supported"));
 	return false;
 }
 
