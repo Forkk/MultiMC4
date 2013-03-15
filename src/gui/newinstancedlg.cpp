@@ -50,7 +50,7 @@ bool NewInstanceDialog::Create()
 	}
 
 	
-	m_textName = new ShadedTextEdit( this, _("Instance name"), ID_text_name, wxTE_CENTRE);
+	m_textName = new ShadedTextEdit( this, _("Instance name here"), ID_text_name, wxTE_CENTRE);
 	m_textName->SetMaxLength( 25 ); 
 	bSizer1->Add( m_textName, 0, wxALL|wxEXPAND, 5 );
 	
@@ -109,10 +109,12 @@ int NewInstanceDialog::ShowModal()
 		delete lTask;
 	}
 	m_selectedVersion = verList.GetCurrentStable();
+	/*
 	if(!m_selectedVersion && verList.size())
 	{
 		m_selectedVersion = &verList[0];
 	}
+	*/
 	UpdateVersionDisplay();
 	return wxDialog::ShowModal();
 }
@@ -126,6 +128,19 @@ void NewInstanceDialog::UpdateVersionDisplay()
 	else
 	{
 		m_versionDisplay->SetValue(_("Unknown"));
+	}
+}
+
+void NewInstanceDialog::UpdateOKButton()
+{
+	wxString folderName;
+	if(fsutils::GetValidInstanceFolderName(m_name,folderName) && m_selectedVersion)
+	{
+		m_btnOK->Enable(true);
+	}
+	else
+	{
+		m_btnOK->Enable(false);
 	}
 }
 
@@ -143,15 +158,7 @@ void NewInstanceDialog::OnName ( wxCommandEvent& event )
 	}
 	m_name = m_textName->GetValue();
 	m_name.Strip(wxString::both);
-	wxString folderName;
-	if(fsutils::GetValidInstanceFolderName(m_name,folderName))
-	{
-		m_btnOK->Enable(true);
-	}
-	else
-	{
-		m_btnOK->Enable(false);
-	}
+	UpdateOKButton();
 	UpdateIcon();
 }
 
@@ -169,7 +176,7 @@ void NewInstanceDialog::OnVersion ( wxCommandEvent& event )
 	ver = versionDlg.GetSelectedVersion();
 	if(!ver)
 	{
-		m_btnOK->Enable(btn_enabled);
+		m_btnOK->Enable(false);
 		return;
 	}
 	m_selectedVersion = ver;

@@ -58,6 +58,7 @@ class NewInstanceDialog : public wxDialog
 		void SetIconKey(wxString iconkey);
 		void UpdateIcon();
 		void UpdateVersionDisplay();
+		void UpdateOKButton();
 		
 	public:
 		NewInstanceDialog( wxWindow* parent, wxString username = wxEmptyString)

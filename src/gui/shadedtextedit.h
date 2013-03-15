@@ -21,12 +21,7 @@ class ShadedTextEdit: public wxTextCtrl
 {
 public:
 	DECLARE_DYNAMIC_CLASS(ShadedTextEdit);
-	ShadedTextEdit ( wxWindow* parent, wxString emptyContent, wxWindowID id = wxID_ANY, long int style = 0 )
-	: wxTextCtrl(parent,id,emptyContent,wxDefaultPosition,wxDefaultSize,style)
-	{
-		m_emptyContent = emptyContent;
-		m_isempty = true;
-	};
+	ShadedTextEdit ( wxWindow* parent, wxString emptyContent, wxWindowID id = wxID_ANY, long int style = 0 );
 	ShadedTextEdit ():wxTextCtrl(){}
 	
 	bool IsEmptyUnfocused()

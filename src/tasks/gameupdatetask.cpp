@@ -20,6 +20,7 @@
 #include <wx/wfstream.h>
 #include <wx/sstream.h>
 #include <wx/zipstrm.h>
+#include <wx/regex.h>
 
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -159,14 +160,14 @@ wxThread::ExitCode GameUpdateTask::TaskStart()
 void GameUpdateTask::DownloadJars()
 {
 	using namespace boost::property_tree;
-	ptree md5s;
+	ptree etag_store;
 	
 	wxFileName md5File(m_inst->GetBinDir().GetFullPath(), "md5sums");
 	if (md5File.FileExists())
 	{
 		try
 		{
-			read_ini(stdStr(md5File.GetFullPath()), md5s);
+			read_ini(stdStr(md5File.GetFullPath()), etag_store);
 		}
 		catch (ini_parser_error e)
 		{
@@ -181,10 +182,10 @@ void GameUpdateTask::DownloadJars()
 	int *fileSizes = new int[jarURLs.size()];
 	bool *skip = new bool[jarURLs.size()];
 	
-	// Compare MD5s and skip ones that match.
+	// Compare ETags and skip ones that match.
 	for (size_t i = 0; i < jarURLs.size(); i++)
 	{
-		wxString etagOnDisk = wxStr(md5s.get<std::string>(
+		wxString etagOnDisk = wxStr(etag_store.get<std::string>(
 			stdStr(wxURL(jarURLs[i]).GetPath()), ""));
 		
 		struct curl_slist *headers = NULL;
@@ -317,21 +318,20 @@ void GameUpdateTask::DownloadJars()
 			
 			wxString md5sum = Utils::BytesToString(md5digest);
 			
-// 			printf("ETag:\t%s\n", cStr(etag));
-// 			printf("MD5:\t%s\n", cStr(Utils::BytesToString(md5digest)));
-			
-			bool md5matches = md5sum.IsSameAs(etag, false);
-			
-			if (md5matches)
+			// does the etag *look* like an md5 sum?
+			wxRegEx lwjglRegex("^[0-9a-f]{32}$");
+			bool skip_md5_check = !lwjglRegex.Matches(etag);
+			// if it doesn't, we continue, otherwise we compare the etag with the md5sum we calculated
+			if (skip_md5_check || md5sum.IsSameAs(etag, false))
 			{
 				wxString keystr = wxFileName(currentFile.GetPath()).GetName();
 				std::string key(TOASCII(keystr));
 				// ASCII is fine. it's lower case letters and numbers
-				std::string value (TOASCII(md5sum));
-				md5s.put<std::string>(key, value);
+				std::string value (TOASCII(etag));
+				etag_store.put<std::string>(key, value);
 				std::ofstream out;
 				out.open(md5File.GetFullPath().mb_str());
-				write_ini(out, md5s);
+				write_ini(out, etag_store);
 				out.flush();
 				out.close();
 			}

@@ -157,6 +157,12 @@ public:
 	DEFINE_OVERRIDE_SETTING(Window);
 	DEFINE_OVERRIDE_SETTING(Login);
 	
+	/// Get the effective version of the .jar - either real, or intended. Real has priority
+	wxString GetMCVersion()
+	{
+		return GetSetting<wxString>("JarVersion",GetSetting<wxString>("IntendedJarVersion","Unknown"));
+	}
+	
 	// and these are specific to instances only
 	wxString GetJarVersion() const { return GetSetting<wxString>("JarVersion","Unknown"); };
 	void SetJarVersion( wxString value ) {  SetSetting<wxString>("JarVersion", value); };
