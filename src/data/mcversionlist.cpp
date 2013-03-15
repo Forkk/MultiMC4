@@ -347,7 +347,7 @@ bool MCVersionList::LoadMojang()
 	{
 		currentStable.SetVersionType(CurrentStable);
 		versions.push_back(currentStable);
-		//wxLogError(_("For some reason, MultiMC couldn't determine the current Minecraft version number.\nYou can still get the current version, but you will have to run it at least once to get the version number.\nIt is possible that the current version is doubled in the list."));
+		wxLogError(_("For some reason, MultiMC couldn't determine the current Minecraft version number.\nYou can still get the current version, but you will have to run it at least once to get the version number.\nIt is possible that the current version is doubled in the list."));
 	}
 	if(!versions.size())
 	{

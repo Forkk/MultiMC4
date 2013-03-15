@@ -50,7 +50,7 @@ bool NewInstanceDialog::Create()
 	}
 
 	
-	m_textName = new ShadedTextEdit( this, _("Instance name"), ID_text_name, wxTE_CENTRE);
+	m_textName = new ShadedTextEdit( this, _("Instance name here"), ID_text_name, wxTE_CENTRE);
 	m_textName->SetMaxLength( 25 ); 
 	bSizer1->Add( m_textName, 0, wxALL|wxEXPAND, 5 );
 	
@@ -164,23 +164,24 @@ void NewInstanceDialog::OnName ( wxCommandEvent& event )
 
 void NewInstanceDialog::OnVersion ( wxCommandEvent& event )
 {
+	bool btn_enabled = m_btnOK->IsEnabled();
 	MinecraftVersionDialog versionDlg(this);
 	versionDlg.CenterOnParent();
 	MCVersion * ver;
 	if(versionDlg.ShowModal() != wxID_OK)
 	{
-		UpdateOKButton();
+		m_btnOK->Enable(btn_enabled);
 		return;
 	}
 	ver = versionDlg.GetSelectedVersion();
 	if(!ver)
 	{
-		UpdateOKButton();
+		m_btnOK->Enable(false);
 		return;
 	}
 	m_selectedVersion = ver;
 	UpdateVersionDisplay();
-	UpdateOKButton();
+	m_btnOK->Enable(btn_enabled);
 }
 
 void NewInstanceDialog::OnIcon ( wxCommandEvent& event )
