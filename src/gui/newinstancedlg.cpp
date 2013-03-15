@@ -109,10 +109,12 @@ int NewInstanceDialog::ShowModal()
 		delete lTask;
 	}
 	m_selectedVersion = verList.GetCurrentStable();
+	/*
 	if(!m_selectedVersion && verList.size())
 	{
 		m_selectedVersion = &verList[0];
 	}
+	*/
 	UpdateVersionDisplay();
 	return wxDialog::ShowModal();
 }
@@ -126,6 +128,19 @@ void NewInstanceDialog::UpdateVersionDisplay()
 	else
 	{
 		m_versionDisplay->SetValue(_("Unknown"));
+	}
+}
+
+void NewInstanceDialog::UpdateOKButton()
+{
+	wxString folderName;
+	if(fsutils::GetValidInstanceFolderName(m_name,folderName) && m_selectedVersion)
+	{
+		m_btnOK->Enable(true);
+	}
+	else
+	{
+		m_btnOK->Enable(false);
 	}
 }
 
@@ -143,38 +158,29 @@ void NewInstanceDialog::OnName ( wxCommandEvent& event )
 	}
 	m_name = m_textName->GetValue();
 	m_name.Strip(wxString::both);
-	wxString folderName;
-	if(fsutils::GetValidInstanceFolderName(m_name,folderName))
-	{
-		m_btnOK->Enable(true);
-	}
-	else
-	{
-		m_btnOK->Enable(false);
-	}
+	UpdateOKButton();
 	UpdateIcon();
 }
 
 void NewInstanceDialog::OnVersion ( wxCommandEvent& event )
 {
-	bool btn_enabled = m_btnOK->IsEnabled();
 	MinecraftVersionDialog versionDlg(this);
 	versionDlg.CenterOnParent();
 	MCVersion * ver;
 	if(versionDlg.ShowModal() != wxID_OK)
 	{
-		m_btnOK->Enable(btn_enabled);
+		UpdateOKButton();
 		return;
 	}
 	ver = versionDlg.GetSelectedVersion();
 	if(!ver)
 	{
-		m_btnOK->Enable(btn_enabled);
+		UpdateOKButton();
 		return;
 	}
 	m_selectedVersion = ver;
 	UpdateVersionDisplay();
-	m_btnOK->Enable(btn_enabled);
+	UpdateOKButton();
 }
 
 void NewInstanceDialog::OnIcon ( wxCommandEvent& event )

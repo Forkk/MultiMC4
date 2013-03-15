@@ -132,6 +132,8 @@ bool MCVersionList::LoadIfNeeded()
 bool MCVersionList::LoadNostalgia()
 {
 	nostalgia_versions.clear();
+	if(!versions.size())
+		return false;
 	wxString vlistJSON;
 	if (DownloadString(mcnwebURL + "?pversion=1&list=True", &vlistJSON))
 	{
@@ -345,18 +347,21 @@ bool MCVersionList::LoadMojang()
 	{
 		currentStable.SetVersionType(CurrentStable);
 		versions.push_back(currentStable);
-		stableVersionIndex = 0;
+		//wxLogError(_("For some reason, MultiMC couldn't determine the current Minecraft version number.\nYou can still get the current version, but you will have to run it at least once to get the version number.\nIt is possible that the current version is doubled in the list."));
 	}
-	else // otherwise we just try to find the current stable version in the snapshot list
+	if(!versions.size())
 	{
-		std::sort(versions.begin(), versions.end(),compareVersions);
-		for(unsigned i = 0; i < versions.size();i++)
+		wxLogError(_("There are no Minecraft versions available at this time."));
+	}
+	
+	std::sort(versions.begin(), versions.end(),compareVersions);
+	stableVersionIndex = -1;
+	for(unsigned i = 0; i < versions.size();i++)
+	{
+		if(versions[i].GetVersionType() == CurrentStable)
 		{
-			if(versions[i].GetVersionType() == CurrentStable)
-			{
-				stableVersionIndex = i;
-				break;
-			}
+			stableVersionIndex = i;
+			break;
 		}
 	}
 #ifdef PRINT_CRUD
