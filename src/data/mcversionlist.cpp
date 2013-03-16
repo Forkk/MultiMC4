@@ -38,7 +38,10 @@ const wxString mcnwebURL = "http://sonicrules.org/mcnweb.py";
 class initme
 {
 public:
+	/// mapping from MCNostalgia versions to real versions
 	std::map <wxString, wxString> mapping;
+	/// mapping from current version etags to snapshot etags
+	std::map <wxString, wxString> etagmapping;
 	initme()
 	{
 		// wxEmptyString means that it should be ignored
@@ -52,7 +55,20 @@ public:
 		mapping["1.3.1_pre"] = wxEmptyString;
 		mapping["1.3_pre"] = wxEmptyString;
 		mapping["1.2_pre"] = "1.2";
+		etagmapping["\"fd11cbc5b01aae1d62cff0145171f3d9\""] = "\"cb57b15e2038b533ef8527f132e17d9e-2\"";
 	}
+    bool MatchEtags(wxString snapshots_etag, wxString current_v_etag)
+	{
+		if(snapshots_etag.IsSameAs(current_v_etag))
+			return true;
+		auto iter = etagmapping.find(current_v_etag);
+		if(iter != etagmapping.end())
+		{
+			if((*iter).second.IsSameAs(snapshots_etag))
+				return true;
+		}
+		return false;
+	};
 } ver;
 
 wxString NostalgiaVersionToAssetsVersion(wxString nostalgia_version)
@@ -283,7 +299,7 @@ bool MCVersionList::LoadMojang()
 					dtt.SetToCurrent();
 				}
 				
-				if(currentStableFound && etag == currentStable.GetEtag())
+				if(currentStableFound && ver.MatchEtags(etag, currentStable.GetEtag()))
 				{
 					MCVersion version(versionName,versionName,dtt.GetTicks(),currentStable.GetDLUrl(),true,etag);
 					version.SetVersionType(CurrentStable);
