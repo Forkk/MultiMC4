@@ -375,7 +375,11 @@ void GameUpdateTask::ExtractNatives()
 bool GameUpdateTask::DownloadPatches(const wxString& mcVersion)
 {
 	SetState(STATE_DOWNLOADING);
-
+	
+	wxFileName patchfolder = wxFileName::DirName("patches");
+	if (!patchfolder.DirExists())
+		patchfolder.Mkdir();
+	
 	const int patchURLCount = 2;
 	const wxString patchURLs[patchURLCount] =
 	{ 
