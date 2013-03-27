@@ -276,11 +276,9 @@ MESSAGE(STATUS "** wxWidgets Root: ${wxWidgets_ROOT_DIR}")
 MESSAGE(STATUS "** wxWidgets Configuration: ${wxWidgets_CONFIGURATION}")
 
 # Find boost.
-set(Boost_USE_STATIC_LIBS ON)
 MESSAGE(STATUS "** Finding Boost...")
 find_package(Boost 1.46.0 REQUIRED)
 MESSAGE(STATUS "** Boost Include: ${Boost_INCLUDE_DIR}")
-MESSAGE(STATUS "** Boost Libraries: ${Boost_LIBRARY_DIRS}")
 
 #find_package(winsock REQUIRED)
 
@@ -358,7 +356,6 @@ add_dependencies(MultiMC generate_headers generate_launcher generate_langheader)
 # Link the libraries.
 target_link_libraries(MultiMC
 	${wxWidgets_LIBRARIES}
-	${Boost_LIBRARIES}
 	${CURL_LIBRARIES}
 	${OPENSSL_LIBRARIES}
 	tinymd5
