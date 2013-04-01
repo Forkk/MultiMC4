@@ -47,18 +47,12 @@ class InstanceCtrlEvent;
 
 class InstanceVisual
 {
+	InstanceVisual();
 public:
 // Constructors
-
-	InstanceVisual()
+	InstanceVisual(InstanceCtrl* ctrl, Instance* inst, int ID)
 	{
-		m_inst = nullptr;
-		m_id = -1;
-		updateName();
-	}
-
-	InstanceVisual(Instance* inst, int ID)
-	{
+		m_ctrl = ctrl;
 		SetInstance(inst, ID);
 	}
 
@@ -92,9 +86,10 @@ public:
 	};
 	
 	/// Draw the item
-	bool Draw(wxDC& dc, InstanceCtrl* ctrl, const wxRect& rect, int style);
+	bool Draw(wxDC& dc, const wxRect& rect, int style);
 	
 protected:
+	InstanceCtrl* m_ctrl;
 	Instance*   m_inst;
 	int         m_id;
 	int         text_width;
