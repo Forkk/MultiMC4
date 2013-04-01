@@ -38,6 +38,8 @@ int wxCALLBACK IconSortPredicate(long item1, long item2, long sortData)
 ChangeIconDialog::ChangeIconDialog(wxWindow *parent)
 	: wxDialog(parent, -1, _("Change Icon"), wxDefaultPosition, wxSize(500, 400))
 {
+	SetAprilFonts(this);
+
 	wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
 	
 	wxBoxSizer *hSz = new wxBoxSizer(wxHORIZONTAL);

@@ -32,6 +32,8 @@
 ModEditWindow::ModEditWindow(MainWindow *parent, Instance *inst)
 	: wxFrame(parent, -1, _("Edit Mods"), wxDefaultPosition, wxSize(500, 400))
 {
+	SetAprilFonts(this);
+
 	m_mainWin = parent;
 	wxPanel *mainPanel = new wxPanel(this);
 

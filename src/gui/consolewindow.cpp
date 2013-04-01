@@ -51,6 +51,8 @@
 InstConsoleWindow::InstConsoleWindow(Instance *inst, MainWindow* mainWin, bool quitAppOnClose)
 	: wxFrame(NULL, -1, _("MultiMC Console"), wxDefaultPosition, wxSize(620, 250))
 {
+	SetAprilFonts(this);
+
 	m_quitAppOnClose = quitAppOnClose;
 	m_mainWin = mainWin;
 	m_running = nullptr;

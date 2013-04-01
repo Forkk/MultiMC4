@@ -105,6 +105,10 @@ namespace Path
 	wxFileName FChild(wxFileName base, wxString append);
 }
 
+bool IsAprilFools();
+
+void SetAprilFonts(wxWindow *win);
+
 wxString FindJavaPath(const wxString& def = "java");
 
 bool CreateShortcut(wxString dir, wxString name, wxString dest, wxString args, wxString iconPath);

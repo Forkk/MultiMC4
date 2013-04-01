@@ -38,6 +38,8 @@ ListSelectDialog::ListSelectDialog(wxWindow *parent, const wxString& title)
 	: wxDialog(parent, wxID_ANY, title, wxDefaultPosition, wxSize(400, 420), 
 		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
+	SetAprilFonts(this);
+
 	SetMinSize(wxSize(400, 420));
 
 	dlgSizer = new wxBoxSizer(wxVERTICAL);

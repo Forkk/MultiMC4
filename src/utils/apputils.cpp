@@ -148,6 +148,23 @@ wxString Utils::BytesToString(unsigned char *bytes)
 	return wxStr(std::string(asciihash));
 }
 
+bool IsAprilFools()
+{
+	return (wxDateTime::Now().GetMonth() == wxDateTime::Apr &&
+		wxDateTime::Now().GetDay() == 1);
+}
+
+void SetAprilFonts(wxWindow *win)
+{
+	if (IsAprilFools())
+	{
+		wxFont evilFont = win->GetFont();
+		evilFont.SetFaceName("Comic Sans MS");
+		evilFont.SetWeight(wxFONTWEIGHT_BOLD);
+		win->SetFont(evilFont);
+	}
+}
+
 #if WINDOWS
 
 // We can use the registry to find Java on Windows.

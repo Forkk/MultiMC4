@@ -17,9 +17,13 @@
 #include "logindialog.h"
 #include <wx/gbsizer.h>
 
+#include "utils/apputils.h"
+
 LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info, bool canGoOffline)
 	: wxDialog(parent, -1, _("Login"), wxDefaultPosition, wxSize(520, 140))
 {
+	SetAprilFonts(this);
+
 	wxGridBagSizer *mainBox = new wxGridBagSizer();
 	int offset = (errorMsg.empty() ? 0 : 1);
 	const int cols = 3;

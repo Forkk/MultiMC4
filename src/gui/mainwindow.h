@@ -292,6 +292,8 @@ protected:
 
 	InstanceGroup *lastClickedGroup;
 
+	bool m_isAprilFools;
+
 private:
 	void NotImplemented();
 };

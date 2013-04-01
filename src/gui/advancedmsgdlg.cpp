@@ -26,6 +26,8 @@ AdvancedMsgDialog::AdvancedMsgDialog(wxWindow *parent, const wxString &msg,
 	ButtonDefList btns, const wxString &title)
 	: wxDialog(parent, -1, title, wxDefaultPosition, wxDefaultSize)
 {
+	SetAprilFonts(this);
+
 	wxBoxSizer *mainSz = new wxBoxSizer(wxVERTICAL);
 	SetSizer(mainSz);
 
