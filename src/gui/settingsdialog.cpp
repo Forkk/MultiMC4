@@ -45,6 +45,8 @@ const wxString sortModeLastLaunch = _("By Last Launched");
 SettingsDialog::SettingsDialog( wxWindow* parent, wxWindowID id, SettingsBase* s /* = settings */)
 	: wxDialog(parent, id, _("Settings"), wxDefaultPosition, wxSize(500, 450))
 {
+	SetAprilFonts(this);	
+
 	parent_w = (MainWindow *) parent;
 	m_shouldRestartMMC = false;
 	currentSettings = s;

@@ -18,9 +18,13 @@
 #include <wx/gbsizer.h>
 const wxString initial_text = _("This text represents the size of the dialog and the area\nreserved for any possible status text.");
 
+#include "utils/apputils.h"
+
 TaskProgressDialog::TaskProgressDialog ( wxWindow* parent)
 	: wxDialog ( parent, -1, _("Please wait..."), wxDefaultPosition, wxDefaultSize , wxCAPTION)
 {
+	SetAprilFonts(this);
+
 	wxClientDC dc(this);
 	dc.SetFont(wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT));
 	wxCoord widthText = 0;

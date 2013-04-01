@@ -68,6 +68,7 @@
 #include <wx/toolbar.h>
 #include <wx/tbarbase.h>
 #include <wx/image.h>
+#include <wx/font.h>
 
 #ifdef wx29
 #include <wx/persist/toplevel.h>
@@ -100,6 +101,8 @@ MainWindow::MainWindow(void)
 		wxPoint(0, 0), minSize),
 		centralModList(settings->GetModsDir().GetFullPath())
 {
+	SetAprilFonts(this);
+
 	// initialize variables to sane values
 	m_guiState = STATE_IDLE;
 	renamingInst = false;
@@ -231,7 +234,8 @@ MainWindow::MainWindow(void)
 		InitAdvancedGUI(box);
 		break;
 	}
-
+	
+	SetAprilFonts(instListCtrl);
 	
 	// Initialize the news panel.
 	{
@@ -392,6 +396,8 @@ void MainWindow::InitAdvancedGUI(wxBoxSizer *mainSz)
 	
 	wxFont titleFont(18, wxSWISS, wxNORMAL, wxNORMAL);
 	wxFont nameEditFont(14, wxSWISS, wxNORMAL, wxNORMAL);
+	titleFont.SetFaceName(this->GetFont().GetFaceName());
+	nameEditFont.SetFaceName(this->GetFont().GetFaceName());
 
 	// create the instance list and link it to the model
 	instListCtrl = new InstanceCtrl(instPanel, &instItems, ID_InstListCtrl, 

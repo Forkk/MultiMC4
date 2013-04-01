@@ -25,8 +25,12 @@
 #include "minecraftversiondialog.h"
 #include <wx/hyperlink.h>
 
+#include "utils/apputils.h"
+
 bool NewInstanceDialog::Create()
 {
+	SetAprilFonts(this);
+
 	m_loadingDone = false;
 	m_iconKey = wxEmptyString;
 	m_visibleIconKey = wxEmptyString;

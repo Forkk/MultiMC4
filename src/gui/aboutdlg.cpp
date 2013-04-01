@@ -26,10 +26,14 @@
 
 #include "textdisplaydialog.h"
 
+#include "utils/apputils.h"
+
 AboutDlg::AboutDlg(wxWindow *parent, const AboutDlgInfo &info)
 	: wxDialog(parent, -1, _("About MultiMC"), wxDefaultPosition, wxSize(600, 180)),
 		m_licenseText(info.license)
 {
+	SetAprilFonts(this);
+
 	wxWindow *mainPanel = this;
 	wxGridBagSizer *mainSz = new wxGridBagSizer();
 	mainPanel->SetSizer(mainSz);
