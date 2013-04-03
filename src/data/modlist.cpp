@@ -149,9 +149,9 @@ void ModList::LoadFromFile(const wxString& file)
 		return;
 
 	wxFFileInputStream inputStream(file);
-	wxStringList modListFile = ReadAllLines(inputStream);
+	wxArrayString modListFile = ReadAllLines(inputStream);
 
-	for (wxStringList::iterator iter = modListFile.begin(); iter != modListFile.end(); iter++)
+	for (wxArrayString::iterator iter = modListFile.begin(); iter != modListFile.end(); iter++)
 	{
 		// Normalize the path to the instMods dir.
 		wxFileName modFile(*iter);

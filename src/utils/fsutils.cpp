@@ -158,7 +158,7 @@ bool RecursiveDelete(const wxString &path)
 void ExtractZipArchive(wxInputStream &stream, const wxString &dest)
 {
 	wxZipInputStream zipStream(stream);
-	std::auto_ptr<wxZipEntry> entry;
+	std::unique_ptr<wxZipEntry> entry;
 	while (entry.reset(zipStream.GetNextEntry()), entry.get() != NULL)
 	{
 		if (entry->IsDir())
@@ -191,7 +191,7 @@ void ExtractZipArchive(wxInputStream &stream, const wxString &dest)
 void TransferZipArchive(wxInputStream &stream, wxZipOutputStream &out)
 {
 	wxZipInputStream zipStream(stream);
-	std::auto_ptr<wxZipEntry> entry;
+	std::unique_ptr<wxZipEntry> entry;
 	while (entry.reset(zipStream.GetNextEntry()), entry.get() != NULL)
 	{
 		if (entry->IsDir())

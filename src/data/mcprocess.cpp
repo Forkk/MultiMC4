@@ -58,7 +58,7 @@ wxProcess* MinecraftProcess::Launch ( Instance* source, InstConsoleWindow* paren
 	if(env.env["XMODIFIERS"].Contains(ibus))
 	{
 		wxString source = env.env["XMODIFIERS"];
-		int start = source.Index(ibus);
+		int start = source.Index(ibus.GetData());
 		env.env["XMODIFIERS"] = source.Left(start) + source.Right(source.length()-start-ibus.length());
 		parent->AppendMessage(wxString::Format(_("Fixed XMODIFIERS: was \"%s\", now \"%s\""), source, env.env["XMODIFIERS"]));
 	}

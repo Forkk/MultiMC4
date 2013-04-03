@@ -49,7 +49,7 @@ public:
 	ModType GetModType() const;
 
 	
-	// True if this mod is a zip file. Deprecated, use 
+	// True if this mod is a zip file. Deprecated, use GetModType and compare
 	wxDEPRECATED(bool IsZipMod() const);
 
 	bool operator ==(const Mod &other) const;
