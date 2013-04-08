@@ -92,6 +92,10 @@ LoginDialog::LoginDialog (wxWindow *parent, wxString errorMsg, UserInfo info, bo
 	mainBox->SetSizeHints(this);
 	(*usernameTextBox) << info.username;
 	(*passwordTextBox) << info.password;
+	if(!info.username.empty())
+	{
+		passwordTextBox->SetFocus();
+	}
 }
 
 LoginDialog::~LoginDialog()
