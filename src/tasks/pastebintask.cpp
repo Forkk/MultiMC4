@@ -45,9 +45,9 @@ wxThread::ExitCode PastebinTask::TaskStart()
 	char *poster = curl_easy_escape(curl, posterBuf.data(), strlen(posterBuf));
 
 	wxString postFields;
-	postFields << "poster=" << poster << "&syntax=text&content=" << content;
+	postFields << "poster_name=" << poster << "&syntax=text&paste_content=" << content;
 
-	curl_easy_setopt(curl, CURLOPT_URL, "http://paste.ubuntu.com/");
+	curl_easy_setopt(curl, CURLOPT_URL, "http://forkk.me/paste/submit");
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, cStr(postFields));
 	curl_easy_setopt(curl, CURLOPT_HEADER, true);
