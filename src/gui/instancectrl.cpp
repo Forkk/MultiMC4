@@ -67,11 +67,15 @@ InstanceCtrl::InstanceCtrl(wxWindow* parent, InstanceModel *instList, wxWindowID
 bool InstanceCtrl::Create(wxWindow* parent, InstanceModel *instList, wxWindowID id, const wxPoint& pos, const wxSize& size, long style)
 {
 	m_instList = instList;
-
 	if (!wxScrolledCanvas::Create(parent, id, pos, size, style | wxFULL_REPAINT_ON_RESIZE | wxWANTS_CHARS))
 		return false;
 		
-	SetFont(wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT));
+	
+	if(IsAprilFools())
+		SetAprilFonts(this);
+	else
+		SetFont(wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT));
+	
 	CalculateOverallItemSize();
 	m_itemsPerRow = CalculateItemsPerRow();
 	m_intended_column = 0;
@@ -455,7 +459,7 @@ void GroupVisual::Draw ( wxDC& dc, InstanceCtrl* parent, wxRect limitingRect, bo
 			style |= wxINST_IS_FOCUS;
 
 		InstanceVisual& item = items[i];
-		item.Draw(dc, parent, rect, style);
+		item.Draw(dc, rect, style);
 	}
 }
 
@@ -1264,8 +1268,7 @@ void InstanceVisual::updateName()
 	wxString raw_name = wxEmptyString;
 	if (m_inst)
 		raw_name = m_inst->GetName();
-
-	dc->SetFont(wxSystemSettings::GetFont(wxSYS_DEFAULT_GUI_FONT));
+	dc->SetFont(m_ctrl->GetFont());
 	wxArrayInt extents;
 	dc->GetPartialTextExtents(raw_name, extents);
 	int line = 0;
@@ -1332,7 +1335,7 @@ void InstanceVisual::updateName()
 }
 
 /// Draw the item
-bool InstanceVisual::Draw(wxDC& dc, InstanceCtrl* ctrl, const wxRect& rect, int style)
+bool InstanceVisual::Draw(wxDC& dc, const wxRect& rect, int style)
 {
 	wxColour backgroundColor = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW);
 	wxColour textColor = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT);
@@ -1361,14 +1364,14 @@ bool InstanceVisual::Draw(wxDC& dc, InstanceCtrl* ctrl, const wxRect& rect, int 
 	wxString name = m_inst->GetName();
 	if (!name.IsEmpty())
 	{
-		int margin = ctrl->GetItemMargin();
+		int margin = m_ctrl->GetItemMargin();
 		
 		wxRect textRect;
 		textRect.x = rect.x + margin;
 		textRect.y = rect.y + imageRect.height + 2 * margin;
 		textRect.width = rect.width - 2 * margin;
 		
-		dc.SetFont(ctrl->GetFont());
+		dc.SetFont(m_ctrl->GetFont());
 		if (style & wxINST_SELECTED)
 			dc.SetTextForeground(highlightTextColor);
 		else
@@ -1461,12 +1464,12 @@ void InstanceCtrl::ReloadAll()
 		if (sorter.count(group))
 		{
 			auto & list = sorter[group];
-			list.Add(InstanceVisual(inst, i));
+			list.Add(InstanceVisual(this, inst, i));
 		}
 		else
 		{
 			InstanceItemArray arr;
-			arr.Add(InstanceVisual(inst, i));
+			arr.Add(InstanceVisual(this, inst, i));
 			sorter[group] = arr;
 		}
 	}

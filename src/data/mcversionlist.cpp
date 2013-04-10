@@ -56,6 +56,7 @@ public:
 		mapping["1.3_pre"] = wxEmptyString;
 		mapping["1.2_pre"] = "1.2";
 		etagmapping["\"fd11cbc5b01aae1d62cff0145171f3d9\""] = "\"cb57b15e2038b533ef8527f132e17d9e-2\"";
+		etagmapping["\"5c1219d869b87d233de3033688ec7567\""] = "\"e8a1f7a2f2ca9607a6ed3ab1494bb328-2\"";
 	}
     bool MatchEtags(wxString snapshots_etag, wxString current_v_etag)
 	{

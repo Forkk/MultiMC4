@@ -235,8 +235,6 @@ MainWindow::MainWindow(void)
 		break;
 	}
 	
-	SetAprilFonts(instListCtrl);
-	
 	// Initialize the news panel.
 	{
 		wxSizerFlags vCenterItemFlags = wxSizerFlags().Border(wxALL, 4).Align(wxALIGN_CENTER_VERTICAL);
