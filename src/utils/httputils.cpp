@@ -25,6 +25,7 @@ bool DownloadString(const wxString &url, wxString *output)
 	CURL *curl = InitCurlHandle();
 	
 	curl_easy_setopt(curl, CURLOPT_URL, TOASCII(url));
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
 	
 	wxStringOutputStream outStream(output);

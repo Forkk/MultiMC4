@@ -24,7 +24,7 @@
 #include "utils/httputils.h"
 #include "utils/apputils.h"
 
-const wxString rssURL = "http://news.forkk.net/?feed=rss2";
+const wxString rssURL = "http://news.forkk.net/feed/rss2";
 
 NewsCheckTask::NewsCheckTask()
 	: Task()
