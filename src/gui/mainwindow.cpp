@@ -311,11 +311,6 @@ void MainWindow::OnStartup()
 
 	if(launchInstance.empty())
 	{
-		if (settings->GetAutoUpdate())
-		{
-			CheckUpdateTask *task = new CheckUpdateTask();
-			task->Start(this,false);
-		}
 		NewsCheckTask* task = new NewsCheckTask();
 		task->Start(this, false);
 	}
@@ -1615,6 +1610,13 @@ void MainWindow::OnTaskEnd(TaskEvent& event)
 		newsLink->SetLabel(nTask->GetLatestPostTitle());
 		newsLink->SetURL(nTask->GetLatestPostURL());
 		newsLink->GetParent()->Layout();
+
+		// Check for updates after news check is done.
+		if (settings->GetAutoUpdate())
+		{
+			CheckUpdateTask *task = new CheckUpdateTask();
+			task->Start(this, false);
+		}
 	}
 
 	t->Wait();
