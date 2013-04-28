@@ -151,7 +151,7 @@ void Mod::ReadModInfoData(wxString info)
 	{
 		read_json(stringIn, ptRoot);
 
-		ptree pt = ptRoot.get_child("").begin()->second;
+		ptree pt = ptRoot.get_child(ptRoot.count("modlist") == 1 ? "modlist" : "").begin()->second;
 
 		modID = wxStr(pt.get<std::string>("modid"));
 		modName = wxStr(pt.get<std::string>("name"));
