@@ -38,11 +38,11 @@ wxString ReadAllText(wxInputStream& input)
 	return outString;
 }
 
-wxStringList ReadAllLines(wxInputStream& input)
+wxArrayString ReadAllLines(wxInputStream& input)
 {
 	wxString text = ReadAllText(input);
 	wxStringTokenizer tokenizer(text, "\r\n");
-	wxStringList lineList;
+	wxArrayString lineList;
 	while (tokenizer.HasMoreTokens())
 	{
 		lineList.Add(tokenizer.NextToken());

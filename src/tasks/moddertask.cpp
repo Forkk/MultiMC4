@@ -78,11 +78,11 @@ wxThread::ExitCode ModderTask::TaskStart()
 	{
 		wxFileName modFileName = iter->GetFileName();
 		SetStatus(_("Installing mods - Adding ") + modFileName.GetFullName());
-		if (iter->IsZipMod())
+		if (iter->GetModType() == Mod::ModType::MOD_ZIPFILE)
 		{
 			wxFFileInputStream modStream(modFileName.GetFullPath());
 			wxZipInputStream zipStream(modStream);
-			std::auto_ptr<wxZipEntry> entry;
+			std::unique_ptr<wxZipEntry> entry;
 			while (entry.reset(zipStream.GetNextEntry()), entry.get() != NULL)
 			{
 				if (entry->IsDir())
