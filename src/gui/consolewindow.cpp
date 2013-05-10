@@ -296,12 +296,11 @@ void InstConsoleWindow::ConsoleIcon::OnKillMC(wxCommandEvent &event)
 
 void InstConsoleWindow::OnKillMC ( wxCommandEvent& event )
 {
-	if(m_running == nullptr)
-		return;
 	if (wxMessageBox(_("Killing Minecraft may damage saves. You should only do this if the game is frozen."),
 		_("Are you sure?"), wxOK | wxCANCEL | wxCENTER, this) == wxOK)
 	{
-		m_running->KillMinecraft();
+		if(m_running)
+			m_running->KillMinecraft();
 	}
 }
 
