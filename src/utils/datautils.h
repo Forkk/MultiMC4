@@ -57,6 +57,6 @@ size_t Find(InputIterator first, InputIterator last, Predicate pred)
 }
 
 wxString ReadAllText(wxInputStream &input);
-wxStringList ReadAllLines(wxInputStream &input);
+wxArrayString ReadAllLines(wxInputStream &input);
 
 void WriteAllText(wxOutputStream &output, wxString text);

@@ -89,19 +89,19 @@ protected:
 
 const wxCmdLineEntryDesc cmdLineDesc[] = 
 {
-	{ wxCMD_LINE_SWITCH, "h", "help", _("displays help on command line parameters"), 
+	{ wxCMD_LINE_SWITCH, "h", "help", "displays help on command line parameters", 
 		wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
 
-	{ wxCMD_LINE_OPTION, "u", "update", _("replaces the given file with the running executable"),
+	{ wxCMD_LINE_OPTION, "u", "update", "replaces the given file with the running executable",
 		wxCMD_LINE_VAL_STRING },
 
-	{ wxCMD_LINE_SWITCH, "U", "quietupdate", _("doesn't restart MultiMC after installing updates"),
+	{ wxCMD_LINE_SWITCH, "U", "quietupdate", "doesn't restart MultiMC after installing updates",
 		wxCMD_LINE_VAL_NONE },
 
-	{ wxCMD_LINE_OPTION, "l", "launch", _("tries to launch the given instance"),
+	{ wxCMD_LINE_OPTION, "l", "launch", "tries to launch the given instance",
 		wxCMD_LINE_VAL_STRING },
 	
-	{ wxCMD_LINE_OPTION, "d", "dir", _("use the supplied directory as MultiMC root instead of the binary location (use '.' for current)"),
+	{ wxCMD_LINE_OPTION, "d", "dir", "use the supplied directory as MultiMC root instead of the binary location (use '.' for current)",
 		wxCMD_LINE_VAL_STRING },
 
 	{ wxCMD_LINE_NONE }

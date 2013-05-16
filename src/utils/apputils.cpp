@@ -351,7 +351,7 @@ bool CreateShortcut(wxString path, wxString name, wxString dest, wxString args, 
 
 	desktopfile.close();
 
-	chmod(path, 0755);
+	chmod(path.c_str(), 0755);
 
 	return true;
 }
