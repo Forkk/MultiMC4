@@ -30,25 +30,25 @@ public:
 		return *pInstance;
 	};
 	
-	bool LoadNostalgia();
+	bool LoadMCRW();
 	bool LoadMojang();
 	
 	bool LoadIfNeeded();
 	bool NeedsLoad()
 	{
-		return NeedsMojangLoad() || NeedsNostalgiaLoad();
+		return NeedsMojangLoad() || NeedsMCRWLoad();
 	}
 	bool NeedsMojangLoad()
 	{
 		return versions.size() == 0;
 	}
-	bool NeedsNostalgiaLoad()
+	bool NeedsMCRWLoad()
 	{
-		return includesNostalgia && nostalgia_versions.size() == 0;
+		return includesMCRW && mcrw_versions.size() == 0;
 	}
-	void SetNeedsNostalgia()
+	void SetNeedsMCRW()
 	{
-		includesNostalgia = true;
+		includesMCRW = true;
 	}
 	
 	MCVersion & operator[](std::size_t index);
@@ -62,9 +62,9 @@ public:
 	};
 private:
 	std::vector <MCVersion> versions;
-	std::vector <MCVersion> nostalgia_versions;
+	std::vector <MCVersion> mcrw_versions;
 	int stableVersionIndex;
-	bool includesNostalgia;
+	bool includesMCRW;
 	static MCVersionList * pInstance;
 	MCVersionList();
 };

@@ -31,13 +31,13 @@ protected:
 	virtual bool DoLoadList();
 	virtual wxString OnGetItemText(long item, long column);
 	void OnSnapshots(wxCommandEvent& event);
-	void OnNostalgia(wxCommandEvent& event);
+	void OnMCRewind(wxCommandEvent& event);
 	
 	// data
 	int typeColumnWidth;
 	std::vector<unsigned> visibleIndexes;
 	bool showOldSnapshots;
-	bool showMCNostagia;
+	bool showMCRewind;
 	
 	DECLARE_EVENT_TABLE()
 };

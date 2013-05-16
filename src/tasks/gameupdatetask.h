@@ -25,6 +25,8 @@
 #include "utils/curlutils.h"
 #include "utils/osutils.h"
 
+class MCVersion;
+
 enum UpdateState
 {
 	STATE_INIT,
@@ -32,6 +34,7 @@ enum UpdateState
 	STATE_DOWNLOADING,
 	STATE_EXTRACTING_PACKAGES,
 	STATE_APPLYING_PATCHES,
+	STATE_VERIFY_FILES2,
 	STATE_DONE,
 };
 
@@ -56,8 +59,8 @@ protected:
 	
 	bool RetrievePatchBaseURL(const wxString& mcVersion, wxString *patchURL);
 	bool DownloadPatches(const wxString& mcVersion);
-	bool ApplyPatches();
-	bool VerifyPatchedFiles();
+	bool ApplyPatches(wxString versionID);
+	bool VerifyPatchedFiles(MCVersion *ver);
 	
 	virtual void SetState(UpdateState state, const wxString& msg = wxEmptyString);
 };

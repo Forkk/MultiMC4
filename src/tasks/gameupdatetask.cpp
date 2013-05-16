@@ -34,7 +34,8 @@
 #include "utils/httputils.h"
 #include <mcversionlist.h>
 
-const wxString mcnwebURL = "http://sonicrules.org/mcnweb.py";
+const wxString mcrwIndexURL = "http://mcrw.forkk.net/index.json";
+const wxString mcrwPatchBaseURL = "http://mcrw.forkk.net/patches/";
 
 DEFINE_EVENT_TYPE(wxEVT_GAME_UPDATE_COMPLETE)
 
@@ -61,7 +62,7 @@ wxThread::ExitCode GameUpdateTask::TaskStart()
 	
 	if(!ver)
 	{
-		vlist.SetNeedsNostalgia();
+		vlist.SetNeedsMCRW();
 		vlist.LoadIfNeeded();
 		ver = vlist.GetVersion(intendedVersion);
 		if(!ver)
@@ -74,34 +75,19 @@ wxThread::ExitCode GameUpdateTask::TaskStart()
 	wxString patch_version;
 	wxString patchBaseURL;
 	using namespace boost::property_tree;
-	ptree mcn_checksum_data;
+	ptree mcrw_checksum_data;
 	
-	// get the mcnostalgia stuff (optionally) and determine what version of MC do we actually want
-	if(ver->GetVersionType() == MCNostalgia)
+	// get the MCRewind stuff (optionally) and determine what version of MC do we actually want
+	if(ver->GetVersionType() == MCRewind)
 	{
 		do_patching = true;
 		patch_version = ver->GetDescriptor();
 		if (!DownloadPatches(patch_version))
 			return (ExitCode)false;
+
 		SetProgress(2);
-		wxString str;
-		try
-		{
-			read_json("patches/checksum.json", mcn_checksum_data);
-			str = wxStr(mcn_checksum_data.get<std::string>("CurrentVersion.version"));
-		}
-		catch (json_parser_error e)
-		{
-			wxLogError(_("Failed to check MC version.\nJSON parser error at line %i: %s"), 
-				e.line(), wxStr(e.message()).c_str());
-			return (ExitCode)false;
-		}
-		catch (ptree_error e)
-		{
-			wxLogError(_("Unspecified error: %s"), e.what());
-			return (ExitCode)false;
-		}
-		real_ver = vlist.GetVersion(str);
+
+		real_ver = vlist.GetVersion(ver->GetPatchTargetVersion());
 	}
 	else
 	{
@@ -142,13 +128,19 @@ wxThread::ExitCode GameUpdateTask::TaskStart()
 	wxRemoveFile(Path::Combine(m_inst->GetBinDir(), wxFileName(jarURLs[jarURLs.size() - 1]).GetFullName()));
 	m_inst->SetNeedsRebuild(true);
 	
-	// apply MCNostalgia patches
+	// apply MCRewind patches
 	bool success = true;
 	if(do_patching)
 	{
-		if(!ApplyPatches())
+		if(!ApplyPatches(ver->GetDescriptor()))
 		{
-			wxLogError(_("Something went terribly wrong while patching the jar with MCNostalgia."));
+			wxLogError(_("Something went terribly wrong while patching the jar with MCRewind."));
+			success = false;
+		}
+
+		if (!VerifyPatchedFiles(ver))
+		{
+			wxLogError(_("Something went terribly wrong while patching the jar with MCRewind."));
 			success = false;
 		}
 	}
@@ -379,209 +371,142 @@ bool GameUpdateTask::DownloadPatches(const wxString& mcVersion)
 	wxFileName patchfolder = wxFileName::DirName("patches");
 	if (!patchfolder.DirExists())
 		patchfolder.Mkdir();
-	
-	const int patchURLCount = 2;
-	const wxString patchURLs[patchURLCount] =
-	{ 
-		"minecraft.ptch", 
-		/*"lwjgl.ptch",
-		"lwjgl_util.ptch",
-		"jinput.ptch",*/
-		"checksum.json",
-	};
 
-	// Get the base URL.
-	wxString baseURL;
-	//SetStatusDetail(_("Getting patch URLs."));
-	if (!RetrievePatchBaseURL(mcVersion, &baseURL))
-		return false;
+	wxString patchFilename = mcVersion + ".patch";
+
+	// Get the patch URL
+	wxString baseURL = mcrwPatchBaseURL;
 
 	// Download the patches.
-	for (int i = 0; i < patchURLCount; i++)
+	SetState(STATE_DOWNLOADING, patchFilename);
+	wxString downloadURL = baseURL + patchFilename;
+	wxString dest = Path::Combine("patches", patchFilename);
+
+	CURL *curl = InitCurlHandle();
+
+	curl_easy_setopt(curl, CURLOPT_URL, TOASCII(downloadURL));
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
+
+	wxFFileOutputStream outStream(dest);
+	CurlLambdaCallbackFunction curlWrite = [&] (void *buffer, size_t size) -> size_t
 	{
-		SetState(STATE_DOWNLOADING, patchURLs[i]);
-		wxString downloadURL = baseURL + "/" + patchURLs[i];
-		wxString dest = Path::Combine("patches", patchURLs[i]);
+		outStream.Write(buffer, size);
+		return outStream.LastWrite();
+	};
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curlWrite);
 
-		CURL *curl = InitCurlHandle();
+	int curlErr = curl_easy_perform(curl);
 
-		curl_easy_setopt(curl, CURLOPT_URL, TOASCII(downloadURL));
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlLambdaCallback);
+	long responseCode;
+	curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &responseCode);
 
-		wxFFileOutputStream outStream(dest);
-		CurlLambdaCallbackFunction curlWrite = [&] (void *buffer, size_t size) -> size_t
-		{
-			outStream.Write(buffer, size);
-			return outStream.LastWrite();
-		};
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &curlWrite);
+	curl_easy_cleanup(curl);
 
-		int curlErr = curl_easy_perform(curl);
-		curl_easy_cleanup(curl);
-
-		if (curlErr != 0)
-		{
-			wxLogError(_("Failed to download patch %s."), patchURLs[i].c_str());
-			return false;
-		}
+	if (curlErr != 0)
+	{
+		wxLogError(_("Failed to download patch %s."), patchFilename.c_str());
+		return false;
 	}
+
+	// If the response code isn't between 200 and 300
+	if (responseCode < 200 || responseCode >= 400)
+	{
+		wxLogError(_("Patch %s failed to download with HTTP response code %i."), patchFilename.c_str(), responseCode);
+	}
+
 	return true;
 }
 
-bool GameUpdateTask::ApplyPatches()
+bool GameUpdateTask::ApplyPatches(wxString versionID)
 {
-	const int patchFileCount = 1;
-	const wxString patchFiles[] =
-	{ 
-		"minecraft", 
-		/*"lwjgl",
-		"lwjgl_util",
-		"jinput",*/
-	};
-
 	SetState(STATE_APPLYING_PATCHES);
 
-	for (int i = 0; i < patchFileCount; i++)
+	wxString file = "minecraft";
+	SetState(STATE_APPLYING_PATCHES, "minecraft.jar");
+
+	wxString binDir = m_inst->GetBinDir().GetFullPath();
+	wxString patchFile = Path::Combine("patches", versionID + ".patch");
+
+	if (file == "minecraft" && wxFileExists(m_inst->GetMCBackup().GetFullPath()))
+		file = "mcbackup";
+
+	wxString patchSrc = Path::Combine(binDir, file + ".jar");
+	wxString patchDest = Path::Combine(binDir, file + "_new.jar");
+
+	if (wxFileExists(patchDest))
+		wxRemoveFile(patchDest);
+
+	int err = bspatch(patchSrc.char_str(), patchDest.char_str(), patchFile.char_str());
+
+	if (err == ERR_NONE)
 	{
-		wxString file = patchFiles[i];
-		SetState(STATE_APPLYING_PATCHES, patchFiles[i] + ".jar");
-
-		wxString binDir = m_inst->GetBinDir().GetFullPath();
-		wxString patchFile = Path::Combine("patches", file + ".ptch");
-
-		if (file == "minecraft" && wxFileExists(m_inst->GetMCBackup().GetFullPath()))
-			file = "mcbackup";
-		wxString patchSrc = Path::Combine(binDir, file + ".jar");
-		wxString patchDest = Path::Combine(binDir, file + "_new.jar");
-
-		if (wxFileExists(patchDest))
-			wxRemoveFile(patchDest);
-
-		int err = bspatch(patchSrc.char_str(), patchDest.char_str(), patchFile.char_str());
-
-		if (err == ERR_NONE)
-		{
-			wxRemoveFile(patchSrc);
-			wxRename(patchDest, patchSrc);
-		}
-		else
-		{
-			switch (err)
-			{
-			case ERR_CORRUPT_PATCH:
-				wxLogError(_("Failed to patch %s.jar. Patch is corrupt."), file.c_str());
-				break;
-
-			default:
-				wxLogError(_("Failed to patch %s.jar. Unknown error."), file.c_str());
-				break;
-			}
-			return false;
-		}
-	}
-	return true;
-}
-
-bool GameUpdateTask::VerifyPatchedFiles()
-{
-
-	//SetStep(STEP_VERIFY_FILES2);
-
-	const int patchFileCount = 1;
-	const wxString patchFiles[] =
-	{ 
-		"minecraft", 
-		/*"lwjgl",
-		"lwjgl_util",
-		"jinput",*/
-	};
-
-	using namespace boost::property_tree;
-	try
-	{
-		ptree pt;
-		read_json("patches/checksum.json", pt);
-
-		for (int i = 0; i < patchFileCount; i++)
-		{
-			//SetStatusDetail(_("Verifying ") + patchFiles[i]);
-
-			wxString cFileName = patchFiles[i];
-			if (cFileName == "minecraft" && wxFileExists(Path::Combine(m_inst->GetBinDir(), "mcbackup.jar")))
-				cFileName = "mcbackup";
-			wxString checkFile = Path::Combine(m_inst->GetBinDir(), cFileName + ".jar");
-
-			// Verify the file's MD5 sum.
-			MD5Context md5ctx;
-			MD5Init(&md5ctx);
-
-			char buf[1024];
-			wxFFileInputStream fileIn(checkFile);
-
-			while (!fileIn.Eof())
-			{
-				fileIn.Read(buf, 1024);
-				MD5Update(&md5ctx, (unsigned char*)buf, fileIn.LastRead());
-			}
-
-			unsigned char md5digest[16];
-			MD5Final(md5digest, &md5ctx);
-
-			if (!Utils::BytesToString(md5digest).IsSameAs(
-				wxStr(pt.get<std::string>("OldVersion." + stdStr(patchFiles[i]))), false))
-			{
-				wxLogWarning(_("The MD5 sum of %s didn't match what it was supposed to be after patching!"), 
-					wxFileName(checkFile).GetFullName().c_str());
-			}
-		}
-	}
-	catch (json_parser_error e)
-	{
-		wxLogError(_("Failed to check file MD5.\nJSON parser error at line %i: %s"), 
-			e.line(), wxStr(e.message()).c_str());
-		return false;
-	}
-	catch (ptree_error e)
-	{
-		wxLogError(_("Unspecified error: %s"), e.what());
-		return false;
-	}
-
-	return true;
-}
-
-bool GameUpdateTask::RetrievePatchBaseURL(const wxString& mcVersion, wxString *patchURL)
-{
-	wxString json;
-	if (DownloadString(wxString::Format("%s?pversion=1&mcversion=%s", 
-		mcnwebURL.c_str(), mcVersion.c_str()), &json))
-	{
-		using namespace boost::property_tree;
-		try
-		{
-			ptree pt;
-			std::stringstream jsonStream(stdStr(json), std::ios::in);
-			read_json(jsonStream, pt);
-
-			*patchURL = wxStr(pt.get<std::string>("url"));
-		}
-		catch (json_parser_error e)
-		{
-			wxLogError(_("Failed to get patch URL.\nJSON parser error at line %i: %s"), 
-				e.line(), wxStr(e.message()).c_str());
-			return false;
-		}
-		catch (ptree_error e)
-		{
-			wxLogError(_("Unspecified error: %s"), e.what());
-			return false;
-		}
-		return true;
+		wxRemoveFile(patchSrc);
+		wxRename(patchDest, patchSrc);
 	}
 	else
 	{
+		switch (err)
+		{
+		case ERR_CORRUPT_PATCH:
+			wxLogError(_("Failed to patch %s.jar. Patch is corrupt."), file.c_str());
+			break;
+
+		default:
+			wxLogError(_("Failed to patch %s.jar. Unknown error %i."), file.c_str(), err);
+			break;
+		}
 		return false;
 	}
+
+	return true;
+}
+
+bool GameUpdateTask::VerifyPatchedFiles(MCVersion *ver)
+{
+	SetState(STATE_VERIFY_FILES2);
+
+	const int patchFileCount = 1;
+	const wxString patchFiles[] =
+	{ 
+		"minecraft", 
+		/*"lwjgl",
+		"lwjgl_util",
+		"jinput",*/
+	};
+
+	for (int i = 0; i < patchFileCount; i++)
+	{
+		SetState(STATE_VERIFY_FILES2, patchFiles[i]);
+
+		wxString cFileName = patchFiles[i];
+		if (cFileName == "minecraft" && wxFileExists(Path::Combine(m_inst->GetBinDir(), "mcbackup.jar")))
+			cFileName = "mcbackup";
+		wxString checkFile = Path::Combine(m_inst->GetBinDir(), cFileName + ".jar");
+
+		// Verify the file's MD5 sum.
+		MD5Context md5ctx;
+		MD5Init(&md5ctx);
+
+		char buf[1024];
+		wxFFileInputStream fileIn(checkFile);
+
+		while (!fileIn.Eof())
+		{
+			fileIn.Read(buf, 1024);
+			MD5Update(&md5ctx, (unsigned char*)buf, fileIn.LastRead());
+		}
+
+		unsigned char md5digest[16];
+		MD5Final(md5digest, &md5ctx);
+
+		if (!Utils::BytesToString(md5digest).IsSameAs(ver->GetEtag()), false)
+		{
+			wxLogWarning(_("The MD5 sum of %s didn't match what it was supposed to be after patching!"), 
+				wxFileName(checkFile).GetFullName().c_str());
+		}
+	}
+
+	return true;
 }
 
 
@@ -623,6 +548,13 @@ void GameUpdateTask::SetState(UpdateState state, const wxString& msg)
 		else
 			SetStatus(_("Applying patch to: ") + msg);
 		break;
+
+	case STATE_VERIFY_FILES2:
+		if (msg == wxEmptyString)
+			SetStatus(_("Verifying patched files..."));
+		else
+			SetStatus(_("Verifying patched file: "));
+
 	default:
 		break;
 	}

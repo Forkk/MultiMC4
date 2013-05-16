@@ -7,7 +7,7 @@ enum VersionType
 	Stable,
 	CurrentStable,
 	Snapshot,
-	MCNostalgia,
+	MCRewind,
 	MetaCustom,
 	MetaLatestSnapshot,
 	MetaLatestStable,
@@ -38,12 +38,14 @@ public:
 	{
 		linkedVersion = linked;
 	}
-	static MCVersion getMCNVersion (wxString raw_name, wxString nice_name)
+	static MCVersion getMCRVersion (wxString raw_name, wxString nice_name, wxString ptVersion, wxString md5sum)
 	{
 		MCVersion ver;
 		ver.descriptor = raw_name;
 		ver.name = nice_name;
-		ver.SetVersionType(MCNostalgia);
+		ver.patchTargetVersion = ptVersion;
+		ver.etag = md5sum;
+		ver.SetVersionType(MCRewind);
 		return ver;
 	}
 	wxString GetDLUrl() const
@@ -56,6 +58,15 @@ public:
 	{
 		return descriptor;
 	}
+
+	// If this is an MCRewind version, gets the version that this version's
+	// patches should be applied to.
+	// Otherwise, just returns empty string.
+	wxString GetPatchTargetVersion() const
+	{
+		return patchTargetVersion;
+	}
+
 	wxString GetName() const
 	{
 		if(linkedVersion)
@@ -100,6 +111,8 @@ private:
 	uint64_t unixTimestamp;
 	// base URL for download
 	wxString dlURL;
+	// version that this MCRW version's patches should be applied to to get the desired version
+	wxString patchTargetVersion;
 	// this version has a mojang lwjgl associated with it
 	bool has_lwjgl;
 	VersionType type;

@@ -26,7 +26,7 @@ const wxString typeNames[5] =
 	_("Old version"),
 	_("Current version"),
 	_("Snapshot"),
-	_("MCNostalgia")
+	_("MCRewind")
 };
 
 MinecraftVersionDialog::MinecraftVersionDialog(wxWindow *parent)
@@ -34,7 +34,7 @@ MinecraftVersionDialog::MinecraftVersionDialog(wxWindow *parent)
 {
 	// data setup
 	showOldSnapshots = false;
-	showMCNostagia = false;
+	showMCRewind = false;
 	
 	// Custom GUI stuff.
 	auto bSizer2 = new wxBoxSizer( wxHORIZONTAL );
@@ -43,16 +43,16 @@ MinecraftVersionDialog::MinecraftVersionDialog(wxWindow *parent)
 		snapshotShow->SetValue(showOldSnapshots);
 		bSizer2->Add(snapshotShow,0, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 4);
 		
-		wxCheckBox *nostalgiaShow = new wxCheckBox(this, 5556, _("Show MCNostalgia versions"));
-		nostalgiaShow->SetValue(showMCNostagia);
-		bSizer2->Add(nostalgiaShow,0, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 4);
+		wxCheckBox *mcrwShow = new wxCheckBox(this, 5556, _("Show MCRewind versions"));
+		mcrwShow->SetValue(showMCRewind);
+		bSizer2->Add(mcrwShow,0, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 4);
 	}
 	auto cnt = dlgSizer->GetItemCount();
 	dlgSizer->Insert(cnt-1, bSizer2, 0, wxEXPAND, 0 );
 	
-	wxHyperlinkCtrl *mcnLink = new wxHyperlinkCtrl(this, -1, _("Powered by MCNostalgia"),
-	"http://www.minecraftforum.net/topic/800346-");
-	dlgSizer->Insert(cnt, mcnLink,0, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 4);
+	wxHyperlinkCtrl *mcrwLink = new wxHyperlinkCtrl(this, -1, _("Powered by MCRewind"),
+	"http://mcrw.forkk.net/about");
+	dlgSizer->Insert(cnt, mcrwLink,0, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 4);
 	
 	wxClientDC dc(this);
 	dc.SetFont(listCtrl->GetFont());
@@ -119,8 +119,8 @@ void MinecraftVersionDialog::Refilter()
 		const MCVersion & ver = verList[i];
 		VersionType type = ver.GetVersionType();
 		if(type == OldSnapshot && showOldSnapshots
-			|| type == MCNostalgia && showMCNostagia
-			|| type != OldSnapshot && type != MCNostalgia)
+			|| type == MCRewind && showMCRewind
+			|| type != OldSnapshot && type != MCRewind)
 			visibleIndexes.push_back(i);
 	}
 	
@@ -167,19 +167,19 @@ void MinecraftVersionDialog::OnSnapshots(wxCommandEvent& event)
 	Refilter();
 }
 
-void MinecraftVersionDialog::OnNostalgia ( wxCommandEvent& event )
+void MinecraftVersionDialog::OnMCRewind ( wxCommandEvent& event )
 {
-	showMCNostagia = event.IsChecked();
-	if(showMCNostagia)
+	showMCRewind = event.IsChecked();
+	if(showMCRewind)
 	{
 		MCVersionList & verList = MCVersionList::Instance();
-		verList.SetNeedsNostalgia();
+		verList.SetNeedsMCRW();
 		if(verList.NeedsLoad())
 		{
 			LambdaTask::TaskFunc func = [&] (LambdaTask *task) -> wxThread::ExitCode
 			{
-				task->DoSetStatus(_("Loading MCNostalgia version list..."));
-				return (wxThread::ExitCode) verList.LoadNostalgia();
+				task->DoSetStatus(_("Loading MCRewind version list..."));
+				return (wxThread::ExitCode) verList.LoadMCRW();
 			};
 
 			LambdaTask *lTask = new LambdaTask(func);
@@ -194,5 +194,5 @@ void MinecraftVersionDialog::OnNostalgia ( wxCommandEvent& event )
 
 BEGIN_EVENT_TABLE(MinecraftVersionDialog, ListSelectDialog)
 	EVT_CHECKBOX(5555, MinecraftVersionDialog::OnSnapshots)
-	EVT_CHECKBOX(5556, MinecraftVersionDialog::OnNostalgia)
+	EVT_CHECKBOX(5556, MinecraftVersionDialog::OnMCRewind)
 END_EVENT_TABLE()

@@ -33,12 +33,12 @@
 
 //#define PRINT_CRUD
 
-const wxString mcnwebURL = "http://sonicrules.org/mcnweb.py";
+const wxString mcrwIndexURL = "http://mcrw.forkk.net/index.json";
 
 class initme
 {
 public:
-	/// mapping from MCNostalgia versions to real versions
+	/// mapping from MCRewind versions to real versions
 	std::map <wxString, wxString> mapping;
 	/// mapping from current version etags to snapshot etags
 	std::map <wxString, wxString> etagmapping;
@@ -72,14 +72,14 @@ public:
 	};
 } ver;
 
-wxString NostalgiaVersionToAssetsVersion(wxString nostalgia_version)
+wxString MCRWVersionToAssetsVersion(wxString mcrw_version)
 {
-	auto iter = ver.mapping.find(nostalgia_version);
+	auto iter = ver.mapping.find(mcrw_version);
 	if(iter != ver.mapping.end())
 	{
 		return (*iter).second;
 	}
-	return nostalgia_version;
+	return mcrw_version;
 }
 
 MCVersionList* MCVersionList::pInstance = 0;
@@ -87,7 +87,7 @@ MCVersionList* MCVersionList::pInstance = 0;
 MCVersionList::MCVersionList()
 {
 	stableVersionIndex = -1;
-	includesNostalgia = false;
+	includesMCRW = false;
 }
 
 bool TimeFromS3Time(wxString str, wxDateTime & datetime)
@@ -115,8 +115,8 @@ MCVersion * MCVersionList::GetVersion ( wxString descriptor )
 		{
 			return &*found;
 		}
-		found = std::find_if(nostalgia_versions.begin(), nostalgia_versions.end(), descriptorPredicate);
-		if(found != nostalgia_versions.end())
+		found = std::find_if(mcrw_versions.begin(), mcrw_versions.end(), descriptorPredicate);
+		if(found != mcrw_versions.end())
 		{
 			return &*found;
 		}
@@ -139,20 +139,20 @@ bool MCVersionList::LoadIfNeeded()
 	{
 		OK &= LoadMojang();
 	}
-	if(NeedsNostalgiaLoad())
+	if(NeedsMCRWLoad())
 	{
-		OK &= LoadNostalgia();
+		OK &= LoadMCRW();
 	}
 	return OK;
 }
 
-bool MCVersionList::LoadNostalgia()
+bool MCVersionList::LoadMCRW()
 {
-	nostalgia_versions.clear();
+	mcrw_versions.clear();
 	if(!versions.size())
 		return false;
 	wxString vlistJSON;
-	if (DownloadString(mcnwebURL + "?pversion=1&list=True", &vlistJSON))
+	if (DownloadString(mcrwIndexURL, &vlistJSON))
 	{
 		using namespace boost::property_tree;
 
@@ -163,36 +163,40 @@ bool MCVersionList::LoadNostalgia()
 			std::stringstream jsonStream(stdStr(vlistJSON), std::ios::in);
 			read_json(jsonStream, pt);
 			wxRegEx indevRegex("in(f)?dev");
-			BOOST_FOREACH(const ptree::value_type& v, pt.get_child("order"))
+			wxString mcVersion = wxStr(pt.get<std::string>("mcversion"));
+			BOOST_FOREACH(const ptree::value_type& v, pt.get_child("versions"))
 			{
-				auto rawVersion = wxStr(v.second.data());
+				wxString rawVersion = wxStr(v.second.get<std::string>("name"));
 				if(indevRegex.Matches(rawVersion))
 					continue;
-				auto niceVersion = NostalgiaVersionToAssetsVersion(rawVersion);
+				wxString niceVersion = MCRWVersionToAssetsVersion(rawVersion);
 				if(niceVersion.empty())
 					continue;
 				if(GetVersion(niceVersion))
 					continue;
-				MCVersion ver = MCVersion::getMCNVersion(rawVersion,niceVersion);
-				nostalgia_versions.insert(nostalgia_versions.begin(),ver);
+
+				wxString md5sum = wxStr(v.second.get<std::string>("md5"));
+
+				MCVersion ver = MCVersion::getMCRVersion(rawVersion, niceVersion, mcVersion, md5sum);
+				mcrw_versions.insert(mcrw_versions.begin(),ver);
 			}
 		}
 		catch (json_parser_error e)
 		{
-			wxLogError(_("Failed to read MCNostalgia list.\nJSON parser error at line %i: %s"), 
+			wxLogError(_("Failed to read MCRewind list.\nJSON parser error at line %i: %s"), 
 				e.line(), wxStr(e.message()).c_str());
 			return false;
 		}
 		catch (ptree_error)
 		{
-			wxLogError(_("Failed to read MCNostalgia list.\nThe format either changed or the server returned something else."));
+			wxLogError(_("Failed to read MCRewind list.\nThe format either changed or the server returned something else."));
 			return false;
 		}
 		return true;
 	}
 	else
 	{
-		wxLogError(_("Failed to get MCNostalgia list. Check your internet connection and try again later."));
+		wxLogError(_("Failed to get MCRewind list. Check your internet connection and try again later."));
 		return false;
 	}
 }
@@ -415,7 +419,7 @@ bool MCVersionList::LoadMojang()
 
 std::size_t MCVersionList::size() const
 {
-	return versions.size() + nostalgia_versions.size();
+	return versions.size() + mcrw_versions.size();
 }
 
 MCVersion& MCVersionList::operator[] ( std::size_t index )
@@ -423,5 +427,5 @@ MCVersion& MCVersionList::operator[] ( std::size_t index )
 	if(index < versions.size())
 		return versions[index];
 	else
-		return nostalgia_versions[index - versions.size()];
+		return mcrw_versions[index - versions.size()];
 }
