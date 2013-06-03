@@ -792,6 +792,7 @@ Are you sure you want to use dev builds?"),
 		{
 			currentSettings->ResetAutoLogin();
 		}
+		currentSettings->SetLoginOverride(haveLogin);
 	}
 	
 	if (needsRestart)
